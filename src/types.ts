@@ -1,0 +1,1 @@
+export type tMode = 'dev' | 'prod' 
