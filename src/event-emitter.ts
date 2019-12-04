@@ -1,32 +1,34 @@
-type tCallBack = (...args: any[]) => void
-type tEvents = {
-    [evnetName: string] : Array<tCallBack>
+import { callbackType } from './types'; // eslint-disable-line
+
+type eventsType = {
+    [evnetName: string] : Array<callbackType>
 }
 
 export class EventEmitter {
-    private events: tEvents // to record the callbacks of coresponding events 
+    
+    private events: eventsType // to record the callbacks of corresponding events 
 
     constructor() {
         this.events = {};
     }
 
-    public addEventListener(event: string, callBack: tCallBack) {
+    public addEventListener(event: string, callback: callbackType) {
         this.events[event] = this.events[event] || [];
-        this.events[event].push(callBack);
+        this.events[event].push(callback);
     }
 
-    public removeEventListener(event: string, callBack: tCallBack) {
-        const registedCallBacks = this.events[event];
-        if (registedCallBacks) {
+    public removeEventListener(event: string, callback: callbackType) {
+        const registedcallbacks = this.events[event];
+        if (registedcallbacks) {
             let targetIndex = -1;
-            for(let i = 0; i < registedCallBacks.length; i++) {
-                if (registedCallBacks[i] === callBack) {
+            for(let i = 0; i < registedcallbacks.length; i++) {
+                if (registedcallbacks[i] === callback) {
                     targetIndex = i;
                     break;
                 }
             }
             if(targetIndex !== -1) {
-                registedCallBacks.splice(targetIndex, 1);
+                registedcallbacks.splice(targetIndex, 1);
             } else {
                 const msg = `[obvious] you are trying to remove a listener of [${event}] event, but the listener hasn't been registed`;
                 throw new Error(msg);
@@ -38,9 +40,9 @@ export class EventEmitter {
     }
 
     public emit(event: string, ...args: any[]) {
-        const registedCallBacks = this.events[event];
-        if(registedCallBacks && registedCallBacks.length !== 0) {
-            registedCallBacks.forEach((cb) => {
+        const registedcallbacks = this.events[event];
+        if(registedcallbacks && registedcallbacks.length !== 0) {
+            registedcallbacks.forEach((cb) => {
                 cb(...args);
             });
         } else {

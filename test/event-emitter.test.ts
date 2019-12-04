@@ -3,11 +3,11 @@ import { EventEmitter } from '../src/event-emitter';
 describe('Test event-emitter module:', () => {
     const event = new EventEmitter();
     let valueToModify = 0;
-    const callBack =  (newValue: number) => {
+    const callback =  (newValue: number) => {
         valueToModify = newValue;
     };
     test('# case 1: trigger event to run the callback function ', () => {
-        event.addEventListener('test', callBack);
+        event.addEventListener('test', callback);
         expect(valueToModify).toBe(0);
         event.emit('test', 1);
         expect(valueToModify).toBe(1);
@@ -15,7 +15,7 @@ describe('Test event-emitter module:', () => {
 
     test('# case 2: remove an existed listener', () => {
         console.warn = jest.fn();
-        event.removeEventListener('test', callBack);
+        event.removeEventListener('test', callback);
         event.emit('test');
         const warnMessage = '[obvious] you have emitted [test] event, but there is no listener of this event';
         expect(console.warn).toBeCalledWith(warnMessage);
@@ -25,7 +25,7 @@ describe('Test event-emitter module:', () => {
         const errorMessage = "[obvious] you are trying to remove a listener of [test] event, but the listener hasn't been registed"; // eslint-disable-line
         const expectedError = new Error(errorMessage);
         expect(() => {
-            event.removeEventListener('test', callBack);
+            event.removeEventListener('test', callback);
         }).toThrow(expectedError);
     });
 
@@ -34,7 +34,7 @@ describe('Test event-emitter module:', () => {
         const errorMessage = `[obvious] you are trying to remove a listener of [${eventName}] event, but [${eventName}] hasn't been registed as a event`; // eslint-disable-line
         const expectedError = new Error(errorMessage);
         expect(() => {
-            event.removeEventListener(eventName, callBack);
+            event.removeEventListener(eventName, callback);
         }).toThrow(expectedError);
     });
 });
