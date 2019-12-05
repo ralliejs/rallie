@@ -2,7 +2,7 @@
   "name": "obvious",
   "version": "1.0.0",
   "description": "a front end micro service framework",
-  "main": "/lib/index.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "tsc",
     "test": "jest --coverage"
@@ -25,5 +25,13 @@
   },
   "dependencies": {
     "tslib": "^1.10.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SMIELPF/obvious.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SMIELPF/obvious/issues"
+  },
+  "homepage": "https://github.com/SMIELPF/obvious#readme"
 }

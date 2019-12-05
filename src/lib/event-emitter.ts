@@ -6,11 +6,12 @@ type eventsType = {
 
 export class EventEmitter {
     
-    private events: eventsType // to record the callbacks of corresponding events 
-
-    constructor() {
-        this.events = {};
-    }
+    private events: eventsType = {
+        '$state-initial': [() => {
+            // an empty callback to avoid warning of no listener
+            //console.log(stateName, 'initialed');
+        }]
+    } // to record the callbacks of corresponding events 
 
     public addEventListener(event: string, callback: callbackType) {
         this.events[event] = this.events[event] || [];
@@ -30,11 +31,11 @@ export class EventEmitter {
             if(targetIndex !== -1) {
                 registedcallbacks.splice(targetIndex, 1);
             } else {
-                const msg = `[obvious] you are trying to remove a listener of [${event}] event, but the listener hasn't been registed`;
+                const msg = `[obvious] you are trying to remove a listener of ${event} event, but the listener hasn't been registed`;
                 throw new Error(msg);
             }
         } else {
-            const msg = `[obvious] you are trying to remove a listener of [${event}] event, but [${event}] hasn't been registed as a event`;
+            const msg = `[obvious] you are trying to remove a listener of ${event} event, but ${event} hasn't been registed as a event`;
             throw new Error(msg);
         }
     }
@@ -46,7 +47,7 @@ export class EventEmitter {
                 cb(...args);
             });
         } else {
-            console.warn(`[obvious] you have emitted [${event}] event, but there is no listener of this event`);
+            console.warn(`[obvious] you have emitted ${event} event, but there is no listener of this event`);
         }
     }
 }
