@@ -1,20 +1,23 @@
 import { EventEmitter } from './event-emitter';
-import { PageSocket } from './page-socket';
+import { Socket } from './socket';
 import { getmappedState } from './utils';
 
 type assetsConfigType = {
-    [moduleName: string]: string[] // configure the assets of the page module to load
+    [moduleName: string]: {
+        js: string[],
+        css: string[], 
+    } // configure the assets of the page module to load
 }
 
-type middlewareType = (name: string, insertScript?: Function, insertLink?: Function) => Promise<void> | undefined
+type middlewareType = (name: string, loadJs?: Function, loadCss?: Function) => Promise<void> | undefined
 
-export class PageManager {
+export class Bus {
 
     private eventEmitter: EventEmitter = new EventEmitter();
     private _state: Object = {};
     public state: Object;
     private config: Object = {};
-    private sockets: PageSocket[] = [];
+    private sockets: Socket[] = [];
     private assets: assetsConfigType;
     private middleware: middlewareType;
 
@@ -38,15 +41,13 @@ export class PageManager {
         return false;
     }
 
-    private insertScript(src: string) {
-        const script = document.createElement('script');
-        script.defer = true;
-        script.type = 'text/javascript';
-        script.src = src;
-        document.head.appendChild(script);
+    private async loadJs(src: string) {
+        const res = await fetch(src);
+        const code = await res.text();
+        eval(code);
     }
 
-    private insertLink(href: string) {
+    private loadCss(href: string) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.type = 'text/css';
@@ -54,32 +55,37 @@ export class PageManager {
         document.head.appendChild(link);
     }
 
-    private loadModuleFromAssetsConfig(name: string) {
+    private async loadSocketFromAssetsConfig(name: string) {
         const assets = this.assets;
         if (assets[name]) {
-            assets[name].forEach((asset: string) => {
+            // insert link tag first
+            assets[name].css && assets[name].css.forEach((asset: string) => {
                 if((/^.+\.css$/).test(asset)) {
-                    this.insertLink(asset);
-                } else if( /^.+\.js$/.test(asset)) {
-                    this.insertScript(asset);
+                    this.loadCss(asset);
                 } else {
                     console.error(`[obvious] ${asset} is not valid asset`);
                 }
             });
-            return Promise.resolve();
+            // load and excute js
+            assets[name].js && assets[name].js.forEach(async (asset: string) => {
+                if((/^.+\.js$/).test(asset)) {
+                    await this.loadJs(asset);
+                } else {
+                    console.error(`[obvious] ${asset} is not valid asset`);
+                }
+            });
         } else {
-            return Promise.reject(new Error(`[obvious] can not find module ${name}, create it first`));
+            throw (new Error(`[obvious] can not find module ${name}, create it first`));
         }
     }
 
     /**
      * @param name socket name
-     * @param dependencies the states which should be initialized before the module created 
-     * @param callback callback function after the module created
+     * @param dependencies the states which should be initialized before the socket created 
      */
-    public createPageSocket(name: string, dependencies: string[], callback:(pageSocket: PageSocket, config?: Object | null ) => void, timeout?: number) {        
+    public createSocket(name: string, dependencies: string[], callback:(socket: Socket, config?: Object | null ) => void, timeout = 10*1000) {
         if( this.isSocketExisted(name) ) {
-            throw new Error(`[obvious] ${name} socket already exists, you are not allowed to create it again`);
+            throw(new Error(`[obvious] ${name} socket already exists, you are not allowed to create it again`));
         }
 
         // remove all ready states first
@@ -88,16 +94,15 @@ export class PageManager {
         });
 
         if(dependencies.length === 0) {
-            const pageSocket = new PageSocket(name, this.eventEmitter, this._state);
-            this.sockets.push(pageSocket);
-            callback(pageSocket, this.config[name]);
+            const socket = new Socket(name, this.eventEmitter, this._state);
+            this.sockets.push(socket);
+            callback(socket, this.config[name]);
         } else {
             const timeId = setTimeout(() => {
                 clearTimeout(timeId);
                 const msg = `[obvious] failed to create socket ${name} because the following state ${JSON.stringify(dependencies)} are not ready`;
-                // error in maro task can not be caught, therefor, use console.error instead of throwing error
-                console.error(msg);
-            }, timeout || 10*1000);
+                throw(new Error(msg));
+            }, timeout);
             const stateInitialCallback = (stateName: string) => {
                 const index = dependencies.indexOf(stateName);
                 if( index !== -1) {
@@ -106,33 +111,30 @@ export class PageManager {
                 if(dependencies.length === 0) {
                     clearTimeout(timeId);
                     this.eventEmitter.removeEventListener('$state-initial', stateInitialCallback);
-                    const pageSocket = new PageSocket(name, this.eventEmitter, this._state);
-                    this.sockets.push(pageSocket);
-                    callback(pageSocket, this.config[name]);
+                    const socket = new Socket(name, this.eventEmitter, this._state);
+                    this.sockets.push(socket);
+                    callback(socket, this.config[name]);
                 }
             };
             this.eventEmitter.addEventListener('$state-initial', stateInitialCallback);
         }
     }
 
-    public loadModule(name: string, config = null) {
+    public async loadSocket(name: string, config = null) {
         if(this.isSocketExisted(name)) {
             config && console.warn(`[obvious] socket ${name} already exists, your config is invalid`);
-            return Promise.resolve();
         } else {
-            const applyMiddleware = function(name: string) {
-                return this.middleware(name, this.insertScript, this.insertLink);
-            }; 
-            let applyLoad =  this.middleware? applyMiddleware : this.loadModuleFromAssetsConfig;
-            applyLoad = applyLoad.bind(this); 
-            return new Promise((resolve, reject) => {
-                applyLoad(name).then(() => {
-                    this.config[name] = config;
-                    resolve();
-                }).catch((error) => {
-                    reject(error);
-                });
-            });
+            this.config[name] = config;
+            try {
+                if(this.middleware) {
+                    await this.middleware(name, this.loadJs, this.loadCss);
+                } else {
+                    await this.loadSocketFromAssetsConfig(name);
+                }
+            } catch(error) {
+                this.config[name] = null;
+                throw error;
+            }
         }
     }
 }

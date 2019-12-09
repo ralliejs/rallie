@@ -3,9 +3,10 @@ module.exports = {
         "browser": true,
         "commonjs": true,
         "es6": true,
-        "jest": true
+        "jest": true,
+        "node": true
     },
-    "extends": "eslint:recommended",
+    "extends": ["eslint:recommended", "plugin:react/recommended"],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 2015,

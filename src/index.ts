@@ -1,2 +1,2 @@
 export { EventEmitter } from './lib/event-emitter';
-export { PageManager } from './lib/page-manager';
+export { Bus } from './lib/bus';

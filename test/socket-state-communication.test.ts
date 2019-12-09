@@ -1,16 +1,16 @@
 
-import { PageManager } from '../src/lib/page-manager';
+import { Bus } from '../src/lib/bus';
 
 describe('Test state communication capabilities between sockets', () => {
-    const pm = new PageManager();
+    const globalBus = new Bus();
     let ps1 = null, ps2 = null, ps3 =null;
     let dynamicName = ''; // it will be modified as long as state name being changed
     test('# case 1: ps1 init a public state name then ps2 get it', () => {
-        pm.createPageSocket('ps1', [], (socket) => {
+        globalBus.createSocket('ps1', [], (socket) => {
             ps1 = socket;
             ps1.initState('name', 'Bob');
         });
-        pm.createPageSocket('ps2', [], (socket) => {
+        globalBus.createSocket('ps2', [], (socket) => {
             ps2 = socket;
             const name = ps2.getState('name');
             expect(name).toEqual('Bob');
@@ -21,7 +21,7 @@ describe('Test state communication capabilities between sockets', () => {
         const watchCallback = (newValue: string) => {
             dynamicName = newValue;
         };
-        pm.createPageSocket('ps3', [], (socket) => {
+        globalBus.createSocket('ps3', [], (socket) => {
             ps3 = socket;
             ps3.watchState('name', watchCallback);
         });
@@ -41,7 +41,7 @@ describe('Test state communication capabilities between sockets', () => {
         }).toThrowError(new Error('[obvious] state locale is private, you are not allowed to modify it'));
         ps2.setState('locale', 'zh');
         expect(ps1.getState('locale')).toEqual('zh');
-        expect(JSON.stringify(pm.state)).toEqual(JSON.stringify({
+        expect(JSON.stringify(globalBus.state)).toEqual(JSON.stringify({
             name: 'Bob',
             locale: 'zh'
         }));

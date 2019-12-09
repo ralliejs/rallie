@@ -9,9 +9,8 @@ export class EventEmitter {
     private events: eventsType = {
         '$state-initial': [() => {
             // an empty callback to avoid warning of no listener
-            //console.log(stateName, 'initialed');
         }]
-    } // to record the callbacks of corresponding events 
+    }
 
     public addEventListener(event: string, callback: callbackType) {
         this.events[event] = this.events[event] || [];

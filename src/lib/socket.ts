@@ -2,7 +2,7 @@ import { EventEmitter } from './event-emitter'; // eslint-disable-line
 import { callbackType } from './types'; // eslint-disable-line
 import { getmappedState } from './utils';
 
-export class PageSocket {
+export class Socket {
 
     public name: string;
     private eventEmitter: EventEmitter;
