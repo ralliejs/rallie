@@ -21,6 +21,6 @@ globalBus.createSocket('globalSocket', [], (socket) => {
                 <Route path='/vuePage' component={VuePageContainer} />     
             </Switch>        
         </HashRouter>
-    ), document.getElementById('root'));
+    ), document.getElementById('reactRoot'));
 });
 

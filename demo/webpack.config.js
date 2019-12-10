@@ -37,7 +37,7 @@ module.exports = (env, args) => { // eslint-disable-line
                     test: [/\.gif$/, /\.jpe?g$/, /\.png$/, /\.svg$/],
                     loader: 'url-loader',
                     options: {
-                        limit: '1000',
+                        limit: '10000',
                         name: '[name].[ext]'
                     }
                 }

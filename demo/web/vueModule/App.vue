@@ -1,43 +1,46 @@
 <template>
-  <div>
-      <div id="app">
-        <img alt="Vue logo" src="./logo.png">
-        <HelloWorld text=''/>
-      </div>
-  </div>
+    <div>
+        <div id="app">
+            <img alt="Vue logo" src="assets/logo.png">
+            <HelloWorld v-bind:text="text"/>
+        </div>
+    </div>
 </template>
 
 <script>
 import HelloWorld from './HelloWorld.vue'
 
 export default {
-  name: 'app',
-  components: {
-    HelloWorld
-  },
-  data:function(){
-    return {
-      text:''
+    name: 'app',
+    components: {
+        HelloWorld
+    },
+    data:function(){
+        return {
+            text:'abcde'
+        }
+    },
+    watch:{
+        text:function(newValue,oldValue){
+            console.log('1', newValue);
+        }
+    },
+    methods:{
+        changeText: function(text){
+            console.log('2', text);
+            this.text = text;
+            console.log('text', this.text);
+        }
+    },
+    created: function() {
+        console.log('created');
+        this.text = window.vueSocket.getState('text');
+        window.vueSocket.watchState('text', this.changeText);
+    },
+    beforeDestroyed: function() {
+        console.log('before destroy');
+        //window.vueSocket.unwatch('text', this.changeText);
     }
-  },
-  watch:{
-    text:function(newValue,oldValue){
-      console.log(newValue);
-    }
-  },
-  methods:{
-    changeText: function(text){
-      this.text = text;
-      console.log(this.text);
-    }
-  },
-  created: function() {
-    this.text = window.vueSocket.getState('text');
-    window.vueSocket.watchState('text', this.changeText);
-  },
-  beforeDestroyed: function() {
-    window.vueSocket.unwatch('text', this.changeText);
-  }
 }
 </script>
 

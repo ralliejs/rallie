@@ -67,13 +67,15 @@ export class Bus {
                 }
             });
             // load and excute js
-            assets[name].js && assets[name].js.forEach(async (asset: string) => {
-                if((/^.+\.js$/).test(asset)) {
-                    await this.loadJs(asset);
-                } else {
-                    console.error(`[obvious] ${asset} is not valid asset`);
+            if(assets[name].js) {
+                for( let asset of assets[name].js) {
+                    if((/^.+\.js$/).test(asset)) {
+                        await this.loadJs(asset);
+                    } else {
+                        console.error(`[obvious] ${asset} is not valid asset`);
+                    }
                 }
-            });
+            }
         } else {
             throw (new Error(`[obvious] can not find module ${name}, create it first`));
         }
@@ -120,19 +122,19 @@ export class Bus {
         }
     }
 
-    public async loadSocket(name: string, config = null) {
-        if(this.isSocketExisted(name)) {
-            config && console.warn(`[obvious] socket ${name} already exists, your config is invalid`);
+    public async startApp(socketName: string, config = null) {
+        if(this.isSocketExisted(socketName)) {
+            config && console.warn(`[obvious] socket ${socketName} already exists, your config is invalid`);
         } else {
-            this.config[name] = config;
+            this.config[socketName] = config;
             try {
                 if(this.middleware) {
-                    await this.middleware(name, this.loadJs, this.loadCss);
+                    await this.middleware(socketName, this.loadJs, this.loadCss);
                 } else {
-                    await this.loadSocketFromAssetsConfig(name);
+                    await this.loadSocketFromAssetsConfig(socketName);
                 }
             } catch(error) {
-                this.config[name] = null;
+                this.config[socketName] = null;
                 throw error;
             }
         }
