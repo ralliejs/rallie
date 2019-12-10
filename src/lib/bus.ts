@@ -103,7 +103,8 @@ export class Bus {
             const timeId = setTimeout(() => {
                 clearTimeout(timeId);
                 const msg = `[obvious] failed to create socket ${name} because the following state ${JSON.stringify(dependencies)} are not ready`;
-                throw(new Error(msg));
+                // error in macro task can not be caught, therefore, use console.error instead of throwing an error
+                console.error(msg);
             }, timeout);
             const stateInitialCallback = (stateName: string) => {
                 const index = dependencies.indexOf(stateName);

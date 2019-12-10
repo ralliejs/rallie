@@ -12,5 +12,5 @@ export declare class Socket {
     getState(stateName: string): any;
     setState(stateName: string, newValue: any): void;
     watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void): void;
-    unwatchState(stateName: string, callback: (oldValue: any, newValue: any) => void): void;
+    unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void): void;
 }

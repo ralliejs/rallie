@@ -74,7 +74,7 @@ export class Socket {
         this.eventEmitter.addEventListener(`$state-${stateName}-change`, callback);
     }
 
-    unwatchState(stateName: string, callback: (oldValue: any, newValue: any) => void) {
+    unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void) {
         if(this._state[stateName] === undefined) {
             const msg = `[obvious] you are trying to unwatch state ${stateName} before it is initialized, init it first`;
             throw new Error(msg);

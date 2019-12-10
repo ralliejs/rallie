@@ -1,6 +1,6 @@
 {
   "name": "@runnan/obvious",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "a front end micro service communication frame work",
   "main": "index.js",
   "directories": {

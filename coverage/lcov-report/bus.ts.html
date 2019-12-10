@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">63.1% </span>
+        <span class="strong">62.07% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>53/84</span>
+        <span class='fraction'>54/87</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">33.33% </span>
+        <span class="strong">29.73% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>10/30</span>
+        <span class='fraction'>11/37</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">53.33% </span>
+        <span class="strong">61.54% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>8/15</span>
+        <span class='fraction'>8/13</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">63.51% </span>
+        <span class="strong">62.67% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>47/74</span>
+        <span class='fraction'>47/75</span>
       </div>
     </div>
     <p class="quiet">
@@ -188,7 +188,8 @@
 <a name='L140'></a><a href='#L140'>140</a>
 <a name='L141'></a><a href='#L141'>141</a>
 <a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -260,11 +261,13 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -273,8 +276,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -387,11 +389,11 @@ export class Bus {
 <span class="cstat-no" title="statement not covered" >        document.head.appendChild(link);</span>
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    private async l</span>oadModuleFromAssetsConfig(name: string) {
+<span class="fstat-no" title="function not covered" >    private async l</span>oadSocketFromAssetsConfig(name: string) {
         const <span class="cstat-no" title="statement not covered" >assets = this.assets;</span>
-<span class="cstat-no" title="statement not covered" >        if (assets[name]) {</span>
+        if (<span class="cstat-no" title="statement not covered" >assets[</span>name]) {
             // insert link tag first
-<span class="cstat-no" title="statement not covered" >            assets[name].css.forEach(<span class="fstat-no" title="function not covered" >(a</span>sset: string) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            assets[name].css &amp;&amp; assets[name].css.forEach(<span class="fstat-no" title="function not covered" >(a</span>sset: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >                if((/^.+\.css$/).test(asset)) {</span>
 <span class="cstat-no" title="statement not covered" >                    this.loadCss(asset);</span>
                 } else {
@@ -399,26 +401,27 @@ export class Bus {
                 }
             });
             // load and excute js
-<span class="cstat-no" title="statement not covered" >            assets[name].js.forEach(<span class="fstat-no" title="function not covered" >async (a</span>sset: string<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >) =&gt; {</span></span></span>
-                if(<span class="cstat-no" title="statement not covered" >(/</span>^.+\.js$/).test(asset)) {
-<span class="cstat-no" title="statement not covered" >                    await this.loadJs(asset);</span>
-                } else {
-<span class="cstat-no" title="statement not covered" >                    console.error(`[obvious] ${asset} is not valid asset`);</span>
+            if(<span class="cstat-no" title="statement not covered" >assets[</span>name].js) {
+                for( let <span class="cstat-no" title="statement not covered" >asset of <span class="cstat-no" title="statement not covered" >a</span>ssets[name].js<span class="cstat-no" title="statement not covered" >) {</span></span>
+                    if(<span class="cstat-no" title="statement not covered" >(/</span>^.+\.js$/).test(asset)) {
+<span class="cstat-no" title="statement not covered" >                        await this.loadJs(asset);</span>
+                    } else {
+<span class="cstat-no" title="statement not covered" >                        console.error(`[obvious] ${asset} is not valid asset`);</span>
+                    }
                 }
-            });
+            }
         } else {
-<span class="cstat-no" title="statement not covered" >            throw (new Error(`[obvious] can not find module ${name}, create it first`));</span>
+<span class="cstat-no" title="statement not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >            throw (new Error(`[obvious] can not find module ${name}, create it first`));</span></span>
         }
     }
 &nbsp;
     /**
      * @param name socket name
-     * @param dependencies the states which should be initialized before the module created 
-     * @param callback callback function after the module created
+     * @param dependencies the states which should be initialized before the socket created 
      */
-    public createSocket(name: string, dependencies: string[], callback:(Socket: Socket, config?: Object | null ) =&gt; void, timeout?: number) {        
+    public createSocket(name: string, dependencies: string[], callback:(socket: Socket, config?: Object | null ) =&gt; void, timeout = 10*1000) {
         if( this.isSocketExisted(name) ) {
-            throw new Error(`[obvious] ${name} socket already exists, you are not allowed to create it again`);
+            throw(new Error(`[obvious] ${name} socket already exists, you are not allowed to create it again`));
         }
 &nbsp;
         // remove all ready states first
@@ -434,9 +437,9 @@ export class Bus {
             const timeId = setTimeout(() =&gt; {
                 clearTimeout(timeId);
                 const msg = `[obvious] failed to create socket ${name} because the following state ${JSON.stringify(dependencies)} are not ready`;
-                // error in macro task can not be caught, therefor, use console.error instead of throwing error
+                // error in macro task can not be caught, therefore, use console.error instead of throwing an error
                 console.error(msg);
-            }, timeout || <span class="branch-1 cbranch-no" title="branch not covered" >10*1000)</span>;
+            }, timeout);
             const stateInitialCallback = (stateName: string) =&gt; {
                 const index = dependencies.indexOf(stateName);
                 <span class="missing-if-branch" title="else path not taken" >E</span>if( index !== -1) {
@@ -454,19 +457,19 @@ export class Bus {
         }
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    public async l</span>oadModule(name: string, <span class="cstat-no" title="statement not covered" >config = null) {</span>
-        if(<span class="cstat-no" title="statement not covered" >this.</span>isSocketExisted(name)) {
-<span class="cstat-no" title="statement not covered" >            config &amp;&amp; console.warn(`[obvious] socket ${name} already exists, your config is invalid`);</span>
+<span class="fstat-no" title="function not covered" >    public async s</span>tartApp(socketName: string, <span class="cstat-no" title="statement not covered" >config = null) {</span>
+        if(<span class="cstat-no" title="statement not covered" >this.</span>isSocketExisted(socketName)) {
+<span class="cstat-no" title="statement not covered" >            config &amp;&amp; console.warn(`[obvious] socket ${socketName} already exists, your config is invalid`);</span>
         } else {
-<span class="cstat-no" title="statement not covered" >            this.config[name] = config;</span>
+<span class="cstat-no" title="statement not covered" >            this.config[socketName] = config;</span>
             try {
                 if(<span class="cstat-no" title="statement not covered" >this.</span>middleware) {
-<span class="cstat-no" title="statement not covered" >                    await this.middleware(name, this.loadJs, this.loadCss);</span>
+<span class="cstat-no" title="statement not covered" >                    await this.middleware(socketName, this.loadJs, this.loadCss);</span>
                 } else {
-<span class="cstat-no" title="statement not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >                    await this.loadModuleFromAssetsConfig(name);</span></span>
+<span class="cstat-no" title="statement not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >                    await this.loadSocketFromAssetsConfig(socketName);</span></span>
                 }
             } catch(error) {
-<span class="cstat-no" title="statement not covered" >                this.config[name] = null;</span>
+<span class="cstat-no" title="statement not covered" >                this.config[socketName] = null;</span>
 <span class="cstat-no" title="statement not covered" >                throw error;</span>
             }
         }
@@ -478,7 +481,7 @@ export class Bus {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Sun Dec 08 2019 20:54:04 GMT+0800 (GMT+08:00)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Dec 10 2019 19:59:34 GMT+0800 (GMT+08:00)
 </div>
 </div>
 <script src="prettify.js"></script>

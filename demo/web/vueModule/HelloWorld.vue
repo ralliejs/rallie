@@ -2,7 +2,7 @@
   <div class="hello">
     <h1>{{ text }}</h1>
     <p>
-      <a href="/#reactPage">Go back to react page</a>.
+      <a id='react-link' href="/#reactPage">Go back to react page</a>.
     </p>
     <h3>Installed CLI Plugins</h3>
     <ul>
@@ -52,5 +52,9 @@ li {
 }
 a {
   color: #42b983;
+}
+
+#react-link {
+    color: #61dafb;
 }
 </style>

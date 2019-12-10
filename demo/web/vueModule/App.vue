@@ -15,31 +15,23 @@ export default {
     components: {
         HelloWorld
     },
-    data:function(){
+    data: function() {
         return {
-            text:'abcde'
-        }
-    },
-    watch:{
-        text:function(newValue,oldValue){
-            console.log('1', newValue);
+            text:''
         }
     },
     methods:{
         changeText: function(text){
-            console.log('2', text);
             this.text = text;
-            console.log('text', this.text);
         }
     },
     created: function() {
-        console.log('created');
         this.text = window.vueSocket.getState('text');
-        window.vueSocket.watchState('text', this.changeText);
+        window.vueSocket.watchState('text', this.changeText.bind(this));
     },
     beforeDestroyed: function() {
         console.log('before destroy');
-        //window.vueSocket.unwatch('text', this.changeText);
+        window.vueSocket.unwatch('text', this.changeText);
     }
 }
 </script>

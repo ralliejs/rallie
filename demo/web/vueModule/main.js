@@ -11,10 +11,10 @@ window.globalBus.createSocket('vueSocket', ['text'], (socket) => {
         window.vueApp = new Vue({
             render: h => h(App),
         });
-        window.vueApp.$mount('#vueRoot');
+        window.vueApp.$mount('#_vueRoot');
     });
 
     socket.on('unmountVuePage', () => {
-        window.vueApp.$destroy();
+        document.getElementById('vueRoot').innerHTML = "<div id='_vueRoot'></div>"; // eslint-disable-line
     });
 });

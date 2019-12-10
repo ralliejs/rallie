@@ -119,7 +119,8 @@ var Bus = /** @class */ (function () {
             var timeId_1 = setTimeout(function () {
                 clearTimeout(timeId_1);
                 var msg = "[obvious] failed to create socket " + name + " because the following state " + JSON.stringify(dependencies) + " are not ready";
-                throw (new Error(msg));
+                // error in macro task can not be caught, therefore, use console.error instead of throwing an error
+                console.error(msg);
             }, timeout);
             var stateInitialCallback_1 = function (stateName) {
                 var index = dependencies.indexOf(stateName);
