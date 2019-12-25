@@ -14,144 +14,120 @@
   - App： 前端微服务，负责页面渲染或其他功能的前端代码，通过socket与其他app通信， app名与socket必须同名
 
 - ## API
-### Socket:
+  - ### Socket:
+    - **socket.on()**: 监听事件
 
-**socket.on()**: 监听事件
+        |参数名|是否可选|类型|描述|
+        |:---:|:---:|:---:|:---:|
+        |eventName|否|string|事件名|
+        |callback|否|Function|回调函数|
 
-***参数***：
+    - **socket.off()**: 解绑回调函数
 
-|参数名|是否可选|类型|描述|
-|:---:|:---:|:---:|:---:|
-|eventName|否|string|事件名|
-|callback|否|Function|回调函数|
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        | eventName | 否 | string | 事件名 |
+        | callback | 否 | Function | 回调函数 |
 
-**socket.off()**: 解绑回调函数
+        同Node.js的EventEmiter一样，解绑时的回调函数必须和监听事件时绑定的回调函数是同一个
 
-***参数***：
+     - **socket.emit()**: 触发事件
 
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-| eventName | 否 | string | 事件名 |
-| callback | 否 | Function | 回调函数 |
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        | eventName | 否 | string | 事件名 |
+        | ...args | 是 | 不定长参数 | 传递给事件回调函数的参数
 
-同Node.js的EventEmiter一样，解绑时的回调函数必须和监听事件时绑定的回调函数是同一个
+    - **socket.initState()**: 初始化状态
 
-**socket.emit()**: 触发事件
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        | stateName | 否 | string | 状态名 |
+        | value | 否 | any | 状态值 |
+        | private | 是 | boolean | 是否是私有状态， 默认为false， 如果为true，则其他socket将不能修改该状态的值
 
-***参数***：
+    - **socket.getState()**: 获取状态
 
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-| eventName | 否 | string | 事件名 |
-| ...args | 是 | 不定长参数 | 传递给事件回调函数的参数
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        | stateName | 否 | string | 状态名 |
 
-**socket.initState()**: 初始化状态
+    - **socket.setState()**: 修改状态
 
-***参数***：
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        | stateName | 否 | string | 状态名 |
+        | value | 否 | any | 状态值 |
 
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-| stateName | 否 | string | 状态名 |
-| value | 否 | any | 状态值 |
-| private | 是 | boolean | 是否是私有状态， 默认为false， 如果为true，则其他socket将不能修改该状态的值
+        一个状态必须在init之后才能被set，否则将报错，如果状态在init时被声明为私有状态，则只有init该状态的socket才可以修改它的值
 
-**socket.getState()**: 获取状态
+    - **socket.watchState()**: 监听状态
 
-***参数***：
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        | stateName | 否 | string | 状态名 |
+        | callback | 否 | Function | 回调函数， 接收两个参数，分别是newValue和oldValue |
 
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-| stateName | 否 | string | 状态名 |
+    - **socket.unwatchState()**: 取消监听状态
 
-**socket.setState()**: 修改状态
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        | stateName | 否 | string | 状态名 |
+        | callback | 否 | Function | 回调函数， 接收两个参数，分别是newValue和oldValue |
 
-***参数***：
+        解绑时的回调函数必须和监听事件时绑定的回调函数是同一个
 
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-| stateName | 否 | string | 状态名 |
-| value | 否 | any | 状态值 |
+    - **socket.name**: socket的名字
 
-一个状态必须在init之后才能被set，否则将报错，如果状态在init时被声明为私有状态，则只有init该状态的socket才可以修改它的值
+  - ### Bus: 
+    - **Bus()**：构造函数
 
-**socket.watchState()**: 监听状态
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        | assets | 是 |{ [appName: string]: { js: string[], css: string[] } } | 配置要拉取的微服务的静态资源
+        | middleware | 是 |   (appName: string, loadJs?: Function, loadCss?: Function) => Promise<void> |  配置如何拉取js资源的中间件
 
-***参数***：
+        在Bus构造函数中, 可以通过assets手动配置静态资源，只需要配置资源路径即可，这种方式配置的js资源将通过fetch请求拉取并执行，意味着不接受跨域js， css则将以link标签的形式被插入到页面中。
+        如果配置了middleware（插件）, 则assets配置失效， middleware是一个函数，接收三个参数，第一个参数是必选的app名， 插件开发者需要根据app名拉取对应的js和css资源， 插件可接收obvious提供的两个参数loadJS和loadCss， 这两个参数都是函数，入参是资源路径，loadJS(src
+        )将拉取src下的非跨域js代码并执行， loadCss(src)将拉取css资源并插入link标签， 插件最后需要返回一个Promise。
 
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-| stateName | 否 | string | 状态名 |
-| callback | 否 | Function | 回调函数， 接收两个参数，分别是newValue和oldValue |
+    - **startApp()**：拉起app并启动（执行对应的js代码）
 
-**socket.unwatchState()**: 取消监听状态
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        |appName| 否| string | app名，必须与app内声明的socket同名 |
+        | config | 是 | any | app配置， 将在app对应的socket被create时被传给socket，config只能配置一次 |
 
-***参数***：
+        startApp将返回一个Promise, 如果app是第一次被拉起，则bus会加载app对应的资源，等资源加载并执行成功后才进入promise的then回调， 但是如果app已经被start过一次，则执行startApp将直接进入then回调。需要注意的是，startApp的第二个参数是初始化app的配置
 
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-| stateName | 否 | string | 状态名 |
-| callback | 否 | Function | 回调函数， 接收两个参数，分别是newValue和oldValue |
+    - **createSocket()**: 创建前端套接字
 
-解绑时的回调函数必须和监听事件时绑定的回调函数是同一个
+        | 参数名 | 是否可选 | 类型 | 描述 |
+        |:---:|:---:|:---:|:---:|
+        | socketName | 否 | string | socket名，必须与app同名 |
+        | dependencies | 否 | string[] | app依赖的状态列表（状态参见socket介绍）
+        | callback | 否 | Function | 执行app逻辑的函数，例如用React将视图渲染进一个div中。接收两个参数， 一个是app对应的socket实例，用于与其他app通信， 第二个参数是可选的，是Bus在startApp时传入的config对象，用于初始化app |
+        | timeout | 是 | number | 依赖状态的超时时间，默认为10*1000ms
 
-**socket.name**: socket的名字
+        startApp和createSocket需要配合使用，createSocket通常是某个微服务代码的入口函数，在createSocket的callback内执行app具体逻辑，例如有一个helloWorld微服务，作用是将字符串hello {{ config }}渲染到id为root的div中, 其中config由微服务被拉起时初始化，假设该helloWorld微服务的代码伺服在/helloWorld/assets/js/index.js下， 则需要在平台服务中创建Bus并拉起helloWorld微服务：
+        ```
+        window.globalBus = new Bus({
+            helloWorld: {
+                js: ['/helloWorld/assets/js/index.js']
+            }
+        });
+        window.globalBus.startApp('helloWorld', 'world').then(() => {
+            console.log('成功拉起helloWorld微服务');
+        });
+        ```
+        而helloWorld.js的逻辑则是：
+        ```
+        window.globalBus.createSocket('helloWorld', [], (socket, config) => {
+            ReactDOM.render(<div>hello {config}</div>);
+        });
+        ```
 
-
-### Bus: 
-**Bus()**：构造函数
-
-***参数***：
-
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-| assets | 是 |{ [appName: string]: { js: string[], css: string[] } } | 配置要拉取的微服务的静态资源
-| middleware | 是 |   (appName: string, loadJs?: Function, loadCss?: Function) => Promise<void> |  配置如何拉取js资源的中间件
-
-在Bus构造函数中, 可以通过assets手动配置静态资源，只需要配置资源路径即可，这种方式配置的js资源将通过fetch请求拉取并执行，意味着不接受跨域js， css则将以link标签的形式被插入到页面中。
-如果配置了middleware（插件）, 则assets配置失效， middleware是一个函数，接收三个参数，第一个参数是必选的app名， 插件开发者需要根据app名拉取对应的js和css资源， 插件可接收obvious提供的两个参数loadJS和loadCss， 这两个参数都是函数，入参是资源路径，loadJS(src
-)将拉取src下的非跨域js代码并执行， loadCss(src)将拉取css资源并插入link标签， 插件最后需要返回一个Promise。
-
-**startApp()**：拉起app并启动（执行对应的js代码）
-
-***参数***：
-
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-|appName| 否| string | app名，必须与app内声明的socket同名 |
-| config | 是 | any | app配置， 将在app对应的socket被create时被传给socket，config只能配置一次 |
-
-startApp将返回一个Promise, 如果app是第一次被拉起，则bus会加载app对应的资源，等资源加载并执行成功后才进入promise的then回调， 但是如果app已经被start过一次，则执行startApp将直接进入then回调。需要注意的是，startApp的第二个参数是初始化app的配置
-
-**createSocket()**: 创建前端套接字
-
-***参数***：
-
-| 参数名 | 是否可选 | 类型 | 描述 |
-|:---:|:---:|:---:|:---:|
-| socketName | 否 | string | socket名，必须与app同名 |
-| dependencies | 否 | string[] | app依赖的状态列表（状态参见socket介绍）
-| callback | 否 | Function | 执行app逻辑的函数，例如用React将视图渲染进一个div中。接收两个参数， 一个是app对应的socket实例，用于与其他app通信， 第二个参数是可选的，是Bus在startApp时传入的config对象，用于初始化app |
-| timeout | 是 | number | 依赖状态的超时时间，默认为10*1000ms
-
-startApp和createSocket需要配合使用，createSocket通常是某个微服务代码的入口函数，在createSocket的callback内执行app具体逻辑，例如有一个helloWorld微服务，作用是将字符串hello {{ config }}渲染到id为root的div中, 其中config由微服务被拉起时初始化，假设该helloWorld微服务的代码伺服在/helloWorld/assets/js/index.js下， 则需要在平台服务中创建Bus并拉起helloWorld微服务：
-```
-window.globalBus = new Bus({
-    helloWorld: {
-        js: ['/helloWorld/assets/js/index.js']
-    }
-});
-window.globalBus.startApp('helloWorld', 'world').then(() => {
-    console.log('成功拉起helloWorld微服务');
-});
-```
-而helloWorld.js的逻辑则是：
-```
-window.globalBus.createSocket('helloWorld', [], (socket, config) => {
-    ReactDOM.render(<div>hello {config}</div>);
-});
-```
-
-**state**：Bus管理下的所有state，该值是总线状态的一个映射，是只读的，要修改状态必须通过socket.initState和setState进行修改，直接修改bus.state会抛出异常
+    - **state**：Bus管理下的所有state，该值是总线状态的一个映射，是只读的，要修改状态必须通过socket.initState和setState进行修改，直接修改bus.state会抛出异常
 
 - ## 使用
 ```
