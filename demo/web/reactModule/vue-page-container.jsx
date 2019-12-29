@@ -2,14 +2,16 @@ import React from 'react';
 import { useEffect } from 'react';
 
 function VuePageContainer() {
+    const globalBus = window.globalBus;
+    const globalSocket = globalBus.getSocket('globalSocket');
     useEffect(() => {
-        window.globalBus.startApp('vueSocket').then(() => {
-            window.globalSocket.emit('mountVuePage');
+        globalBus.startApp('vueSocket').then(() => {
+            globalSocket.emit('mountVuePage');
         });
 
         return () => {
-            window.globalBus.startApp('vueSocket').then(() => {
-                window.globalSocket.emit('unmountVuePage');
+            globalBus.startApp('vueSocket').then(() => {
+                globalSocket.emit('unmountVuePage');
             });
         };
     }, []);

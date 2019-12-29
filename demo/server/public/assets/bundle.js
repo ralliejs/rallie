@@ -323,6 +323,15 @@ var Bus = /** @class */function () {
             });
         });
     };
+    Bus.prototype.getSocket = function (name) {
+        for (var _i = 0, _a = this.sockets; _i < _a.length; _i++) {
+            var socket = _a[_i];
+            if (socket.name === name) {
+                return socket;
+            }
+        }
+        return null;
+    };
     /**
      * @param name socket name
      * @param dependencies the states which should be initialized before the socket created
@@ -347,7 +356,8 @@ var Bus = /** @class */function () {
             var timeId_1 = setTimeout(function () {
                 clearTimeout(timeId_1);
                 var msg = "[obvious] failed to create socket " + name + " because the following state " + JSON.stringify(dependencies) + " are not ready";
-                throw new Error(msg);
+                // error in macro task can not be caught, therefore, use console.error instead of throwing an error
+                console.error(msg);
             }, timeout);
             var stateInitialCallback_1 = function stateInitialCallback_1(stateName) {
                 var index = dependencies.indexOf(stateName);
@@ -14031,8 +14041,7 @@ window.globalBus = new _obvious.Bus({
 var _window = window,
     globalBus = _window.globalBus;
 
-globalBus.createSocket('globalSocket', [], function (socket) {
-    window.globalSocket = socket;
+globalBus.createSocket('globalSocket', [], function () {
     _reactDom2.default.render(_react2.default.createElement(
         _reactRouterDom.HashRouter,
         null,
@@ -14119,6 +14128,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function ReactPage() {
     var defaultText = 'Hello Obvious';
+    var globalSocket = window.globalBus.getSocket('globalSocket');
 
     var _useState = (0, _react.useState)(defaultText),
         _useState2 = _slicedToArray(_useState, 2),
@@ -14126,7 +14136,6 @@ function ReactPage() {
         setText = _useState2[1];
 
     (0, _react.useEffect)(function () {
-        var globalSocket = window.globalSocket;
         if (globalSocket && globalSocket.getState('text') === undefined) {
             globalSocket.initState('text', defaultText);
         }
@@ -14135,7 +14144,7 @@ function ReactPage() {
 
     var handleOnChange = function handleOnChange(e) {
         setText(e.target.value);
-        window.globalSocket && window.globalSocket.setState('text', e.target.value);
+        globalSocket && globalSocket.setState('text', e.target.value);
     };
 
     return _react2.default.createElement(
@@ -14187,14 +14196,16 @@ var _react2 = _interopRequireDefault(_react);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function VuePageContainer() {
+    var globalBus = window.globalBus;
+    var globalSocket = globalBus.getSocket('globalSocket');
     (0, _react.useEffect)(function () {
-        window.globalBus.startApp('vueSocket').then(function () {
-            window.globalSocket.emit('mountVuePage');
+        globalBus.startApp('vueSocket').then(function () {
+            globalSocket.emit('mountVuePage');
         });
 
         return function () {
-            window.globalBus.startApp('vueSocket').then(function () {
-                window.globalSocket.emit('unmountVuePage');
+            globalBus.startApp('vueSocket').then(function () {
+                globalSocket.emit('unmountVuePage');
             });
         };
     }, []);

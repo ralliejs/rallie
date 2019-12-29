@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import HelloWorld from './HelloWorld.vue'
+import HelloWorld from './HelloWorld.vue';
 
 export default {
     name: 'app',
@@ -26,12 +26,14 @@ export default {
         }
     },
     created: function() {
-        this.text = window.vueSocket.getState('text');
-        window.vueSocket.watchState('text', this.changeText.bind(this));
+        const vueSocket = window.globalBus.getSocket('vueSocket');
+        this.text = vueSocket.getState('text');
+        vueSocket.watchState('text', this.changeText.bind(this));
     },
     beforeDestroyed: function() {
         console.log('before destroy');
-        window.vueSocket.unwatch('text', this.changeText);
+        const vueSocket = window.globalBus.getSocket('vueSocket');
+        vueSocket.unwatch('text', this.changeText);
     }
 }
 </script>

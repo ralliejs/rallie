@@ -1,8 +1,8 @@
 import { Socket } from './socket';
 declare type assetsConfigType = {
     [moduleName: string]: {
-        js: string[];
-        css: string[];
+        js?: string[];
+        css?: string[];
     };
 };
 declare type middlewareType = (name: string, loadJs?: Function, loadCss?: Function) => Promise<void> | undefined;
@@ -19,6 +19,7 @@ export declare class Bus {
     private loadJs;
     private loadCss;
     private loadSocketFromAssetsConfig;
+    getSocket(name: string): Socket;
     /**
      * @param name socket name
      * @param dependencies the states which should be initialized before the socket created

@@ -96,6 +96,15 @@ var Bus = /** @class */ (function () {
             });
         });
     };
+    Bus.prototype.getSocket = function (name) {
+        for (var _i = 0, _a = this.sockets; _i < _a.length; _i++) {
+            var socket = _a[_i];
+            if (socket.name === name) {
+                return socket;
+            }
+        }
+        return null;
+    };
     /**
      * @param name socket name
      * @param dependencies the states which should be initialized before the socket created

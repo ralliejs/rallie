@@ -122,12 +122,14 @@ exports.default = {
         }
     },
     created: function created() {
-        this.text = window.vueSocket.getState('text');
-        window.vueSocket.watchState('text', this.changeText.bind(this));
+        var vueSocket = window.globalBus.getSocket('vueSocket');
+        this.text = vueSocket.getState('text');
+        vueSocket.watchState('text', this.changeText.bind(this));
     },
     beforeDestroyed: function beforeDestroyed() {
         console.log('before destroy');
-        window.vueSocket.unwatch('text', this.changeText);
+        var vueSocket = window.globalBus.getSocket('vueSocket');
+        vueSocket.unwatch('text', this.changeText);
     }
 }; //
 //
@@ -9443,19 +9445,17 @@ _vue2.default.config.productionTip = false;
 
 window.globalBus.createSocket('vueSocket', ['text'], function (socket) {
     console.log('created vue socket');
-    window.vueSocket = socket;
-    window.vueApp = null;
     socket.on('mountVuePage', function () {
-        window.vueApp = new _vue2.default({
+        var vueApp = new _vue2.default({
             render: function render(h) {
                 return h(_App2.default);
             }
         });
-        window.vueApp.$mount('#_vueRoot');
+        vueApp.$mount('#_vueRoot');
     });
 
     socket.on('unmountVuePage', function () {
-        document.getElementById('vueRoot').innerHTML = "<div id='_vueRoot'></div>";
+        document.getElementById('vueRoot').innerHTML = "<div id='_vueRoot'></div>"; // eslint-disable-line
     });
 });
 

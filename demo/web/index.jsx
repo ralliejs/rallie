@@ -12,8 +12,7 @@ window.globalBus = new Bus({
 });
 
 const { globalBus } = window;
-globalBus.createSocket('globalSocket', [], (socket) => {
-    window.globalSocket = socket;
+globalBus.createSocket('globalSocket', [], () => {
     ReactDOM.render((
         <HashRouter>
             <Switch>

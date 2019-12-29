@@ -4,8 +4,8 @@ import { getmappedState } from './utils';
 
 type assetsConfigType = {
     [moduleName: string]: {
-        js: string[],
-        css: string[], 
+        js?: string[],
+        css?: string[], 
     } // configure the assets of the page module to load
 }
 
@@ -79,6 +79,15 @@ export class Bus {
         } else {
             throw (new Error(`[obvious] can not find module ${name}, create it first`));
         }
+    }
+
+    public getSocket(name: string) {
+        for(let socket of this.sockets) {
+            if(socket.name === name) {
+                return socket;
+            }
+        }
+        return null;
     }
 
     /**

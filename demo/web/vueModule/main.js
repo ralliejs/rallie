@@ -4,14 +4,12 @@ import App from './App.vue';
 Vue.config.productionTip = false;
 
 window.globalBus.createSocket('vueSocket', ['text'], (socket) => {
-    console.log('created vue socket');
-    window.vueSocket = socket;
-    window.vueApp = null; 
+    console.log('created vue socket'); 
     socket.on('mountVuePage', () => {
-        window.vueApp = new Vue({
+        const vueApp = new Vue({
             render: h => h(App),
         });
-        window.vueApp.$mount('#_vueRoot');
+        vueApp.$mount('#_vueRoot');
     });
 
     socket.on('unmountVuePage', () => {

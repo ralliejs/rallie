@@ -6,9 +6,9 @@ import { useState, useEffect } from 'react';
 
 function ReactPage() {
     const defaultText = 'Hello Obvious';
+    const globalSocket = window.globalBus.getSocket('globalSocket');
     const [text, setText] = useState(defaultText);
     useEffect(() => {
-        const globalSocket = window.globalSocket;
         if(globalSocket && globalSocket.getState('text') === undefined) {
             globalSocket.initState('text', defaultText);
         }
@@ -17,7 +17,7 @@ function ReactPage() {
 
     const handleOnChange = (e) => {
         setText(e.target.value);
-        window.globalSocket && window.globalSocket.setState('text', e.target.value);
+        globalSocket && globalSocket.setState('text', e.target.value);
     };
     
     return (
