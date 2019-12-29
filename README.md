@@ -143,7 +143,7 @@
 - ## 使用
 
 ```javaScript
-npm install @runnan/obvious // 务必使用1.0.3版本，前两个版本存在一些问题
+npm install @runnan/obvious // 务必使用1.0.3及以上版本，前两个版本存在一些问题
 import { Bus } from '@runnan/obvious'
 ```
 - ## 总结
