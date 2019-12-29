@@ -133,6 +133,7 @@
         ```
 
     - **getSocket()**: 获取Bus管理下的对应名字的socket的实例
+    
         | 参数名 | 是否可选 | 类型 | 描述 |
         |:---:|:---:|:---:|:---:|
         | socketName | 否 | string | socket名 |
