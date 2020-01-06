@@ -44,7 +44,7 @@ var Socket = /** @class */ (function () {
         }
     };
     Socket.prototype.getState = function (stateName) {
-        var mappedState = utils_1.getmappedState(this._state);
+        var mappedState = utils_1.getMappedState(this._state);
         var copiedState = mappedState;
         return copiedState[stateName];
     };

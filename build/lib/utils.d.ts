@@ -1,1 +1,1 @@
-export declare const getmappedState: (state: Object) => any;
+export declare const getMappedState: (state: Object) => any;

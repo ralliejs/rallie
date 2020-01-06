@@ -4,9 +4,9 @@ import App from './App.vue';
 Vue.config.productionTip = false;
 
 window.globalBus.createSocket('vueSocket', ['text'], (socket) => {
-    console.log('created vue socket'); 
+    let vueApp = null;
     socket.on('mountVuePage', () => {
-        const vueApp = new Vue({
+        vueApp = new Vue({
             render: h => h(App),
         });
         vueApp.$mount('#_vueRoot');

@@ -28,10 +28,9 @@ export default {
     created: function() {
         const vueSocket = window.globalBus.getSocket('vueSocket');
         this.text = vueSocket.getState('text');
-        vueSocket.watchState('text', this.changeText.bind(this));
+        vueSocket.watchState('text', this.changeText);
     },
     beforeDestroyed: function() {
-        console.log('before destroy');
         const vueSocket = window.globalBus.getSocket('vueSocket');
         vueSocket.unwatch('text', this.changeText);
     }

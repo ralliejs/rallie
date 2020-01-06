@@ -124,10 +124,9 @@ exports.default = {
     created: function created() {
         var vueSocket = window.globalBus.getSocket('vueSocket');
         this.text = vueSocket.getState('text');
-        vueSocket.watchState('text', this.changeText.bind(this));
+        vueSocket.watchState('text', this.changeText);
     },
     beforeDestroyed: function beforeDestroyed() {
-        console.log('before destroy');
         var vueSocket = window.globalBus.getSocket('vueSocket');
         vueSocket.unwatch('text', this.changeText);
     }
@@ -9444,9 +9443,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _vue2.default.config.productionTip = false;
 
 window.globalBus.createSocket('vueSocket', ['text'], function (socket) {
-    console.log('created vue socket');
+    var vueApp = null;
     socket.on('mountVuePage', function () {
-        var vueApp = new _vue2.default({
+        vueApp = new _vue2.default({
             render: function render(h) {
                 return h(_App2.default);
             }

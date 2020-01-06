@@ -11,24 +11,18 @@ var Bus = /** @class */ (function () {
         this.eventEmitter = new event_emitter_1.EventEmitter();
         this._state = {};
         this.config = {};
-        this.sockets = [];
+        this.sockets = {};
         this.assets = assets;
         this.middleware = middleware;
         Object.defineProperty(this, 'state', {
             configurable: false,
             get: function () {
-                return utils_1.getmappedState(_this._state);
+                return utils_1.getMappedState(_this._state);
             }
         });
     }
     Bus.prototype.isSocketExisted = function (name) {
-        for (var _i = 0, _a = this.sockets; _i < _a.length; _i++) {
-            var socket = _a[_i];
-            if (socket.name === name) {
-                return true;
-            }
-        }
-        return false;
+        return this.sockets[name] !== undefined;
     };
     Bus.prototype.loadJs = function (src) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
@@ -97,11 +91,8 @@ var Bus = /** @class */ (function () {
         });
     };
     Bus.prototype.getSocket = function (name) {
-        for (var _i = 0, _a = this.sockets; _i < _a.length; _i++) {
-            var socket = _a[_i];
-            if (socket.name === name) {
-                return socket;
-            }
+        if (this.isSocketExisted(name)) {
+            return this.sockets[name];
         }
         return null;
     };
@@ -121,7 +112,7 @@ var Bus = /** @class */ (function () {
         });
         if (dependencies.length === 0) {
             var socket = new socket_1.Socket(name, this.eventEmitter, this._state);
-            this.sockets.push(socket);
+            this.sockets[name] = socket;
             callback(socket, this.config[name]);
         }
         else {
@@ -140,7 +131,7 @@ var Bus = /** @class */ (function () {
                     clearTimeout(timeId_1);
                     _this.eventEmitter.removeEventListener('$state-initial', stateInitialCallback_1);
                     var socket = new socket_1.Socket(name, _this.eventEmitter, _this._state);
-                    _this.sockets.push(socket);
+                    _this.sockets[name] = socket;
                     callback(socket, _this.config[name]);
                 }
             };

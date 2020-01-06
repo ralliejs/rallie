@@ -1,6 +1,6 @@
 import { EventEmitter } from './event-emitter'; // eslint-disable-line
 import { callbackType } from './types'; // eslint-disable-line
-import { getmappedState } from './utils';
+import { getMappedState } from './utils';
 
 export class Socket {
 
@@ -46,7 +46,7 @@ export class Socket {
     }
 
     getState(stateName: string) {
-        const mappedState = getmappedState(this._state);
+        const mappedState = getMappedState(this._state);
         const copiedState = mappedState;
         return copiedState[stateName];
     }

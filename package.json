@@ -4,6 +4,7 @@
   "description": "a front end micro service framework",
   "main": "build/index.js",
   "scripts": {
+    "demo": "cd ./demo && npm run start",
     "build": "tsc",
     "postbuild": "node ./demo/dev-tools/copy-lib.js",
     "test": "jest --coverage"

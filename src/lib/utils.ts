@@ -1,4 +1,4 @@
-export const getmappedState = (state: Object) => {
+export const getMappedState = (state: Object) => {
     const mappedState = {}; 
     Object.keys(state).forEach((key) => {
         mappedState[key] = state[key].value;

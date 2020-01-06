@@ -1,12 +1,16 @@
 import { EventEmitter } from './event-emitter';
 import { Socket } from './socket';
-import { getmappedState } from './utils';
+import { getMappedState } from './utils';
 
 type assetsConfigType = {
     [moduleName: string]: {
         js?: string[],
         css?: string[], 
     } // configure the assets of the page module to load
+}
+
+type socketsType = {
+    [socketName: string]: Socket
 }
 
 type middlewareType = (name: string, loadJs?: Function, loadCss?: Function) => Promise<void> | undefined
@@ -17,7 +21,7 @@ export class Bus {
     private _state: Object = {};
     public state: Object;
     private config: Object = {};
-    private sockets: Socket[] = [];
+    private sockets: socketsType = {};
     private assets: assetsConfigType;
     private middleware: middlewareType;
 
@@ -27,18 +31,13 @@ export class Bus {
         Object.defineProperty(this, 'state', {
             configurable: false,
             get: () => {
-                return getmappedState(this._state);
+                return getMappedState(this._state);
             }
         });
     }
 
     private isSocketExisted(name: string) {
-        for( let socket of this.sockets) {
-            if(socket.name === name) {
-                return true;
-            }
-        }
-        return false;
+        return this.sockets[name] !== undefined;
     }
 
     private async loadJs(src: string) {
@@ -82,10 +81,8 @@ export class Bus {
     }
 
     public getSocket(name: string) {
-        for(let socket of this.sockets) {
-            if(socket.name === name) {
-                return socket;
-            }
+        if(this.isSocketExisted(name)) {
+            return this.sockets[name];
         }
         return null;
     }
@@ -106,7 +103,7 @@ export class Bus {
 
         if(dependencies.length === 0) {
             const socket = new Socket(name, this.eventEmitter, this._state);
-            this.sockets.push(socket);
+            this.sockets[name] = socket;
             callback(socket, this.config[name]);
         } else {
             const timeId = setTimeout(() => {
@@ -124,7 +121,7 @@ export class Bus {
                     clearTimeout(timeId);
                     this.eventEmitter.removeEventListener('$state-initial', stateInitialCallback);
                     const socket = new Socket(name, this.eventEmitter, this._state);
-                    this.sockets.push(socket);
+                    this.sockets[name] = socket;
                     callback(socket, this.config[name]);
                 }
             };
