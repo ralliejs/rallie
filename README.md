@@ -2,6 +2,8 @@
 
 轻量级的前端微服务通信框架
 
+![示例](https://user-gold-cdn.xitu.io/2019/12/25/16f38c92aecb9b9c?imageslim)
+
 - ## 介绍
 
 要说前端微服务自然绕不开后端微服务，一个技术或概念的出现并不是凭空产生，而是为
@@ -15,6 +17,8 @@
   - Bus: 消息总线，每new一个Bus实例，实例内部都有一个EventEmitter，可以被传递给微服务, 同时可以配置微服务的伺服路径，由Bus拉取js代码执行
   - Socket: 消息接口，一个微服务与其他微服务通信的前端套接字。在EventEmitter提供的消息通信的基础上，封装了一层状态通信能力
   - App： 前端微服务，负责页面渲染或其他功能的前端代码，通过socket与其他app通信， app名与socket必须同名
+  
+  ![架构](https://user-gold-cdn.xitu.io/2019/12/25/16f38c7dca68cbc0?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 - ## API
 
@@ -133,6 +137,7 @@
         ```
 
     - **getSocket()**: 获取Bus管理下的对应名字的socket的实例
+    
         | 参数名 | 是否可选 | 类型 | 描述 |
         |:---:|:---:|:---:|:---:|
         | socketName | 否 | string | socket名 |
@@ -142,7 +147,7 @@
 - ## 使用
 
 ```javaScript
-npm install @runnan/obvious // 务必使用1.0.3版本，前两个版本存在一些问题
+npm install @runnan/obvious // 务必使用1.0.3及以上版本，前两个版本存在一些问题
 import { Bus } from '@runnan/obvious'
 ```
 - ## 总结
