@@ -118,7 +118,7 @@
         | callback | 否 | Function | 执行app逻辑的函数，例如用React将视图渲染进一个div中。接收两个参数， 一个是app对应的socket实例，用于与其他app通信， 第二个参数是可选的，是Bus在startApp时传入的config对象，用于初始化app |
         | timeout | 是 | number | 依赖状态的超时时间，默认为10*1000ms
 
-        startApp和createSocket需要配合使用，createSocket通常是某个微服务代码的入口函数，在createSocket的callback内执行app具体逻辑，例如有一个helloWorld微服务，作用是将字符串hello {{ config }}渲染到id为root的div中, 其中config由微服务被拉起时初始化，假设该helloWorld微服务的代码伺服在/helloWorld/assets/js/index.js下， 则需要在平台服务中创建Bus并拉起helloWorld微服务：
+        startApp和createSocket需要配合使用，createSocket通常是某个微服务代码的入口函数，在createSocket的callback内执行app具体逻辑，例如有一个helloWorld微服务，作用是将字符串hello {{ config }}渲染到id为hello-wolrd-app的div中, 其中config由微服务被拉起时初始化，假设该helloWorld微服务的代码伺服在/helloWorld/assets/js/index.js下， 则需要在平台服务中创建Bus并拉起helloWorld微服务：
         ```javaScript
         window.globalBus = new Bus({
             helloWorld: {
@@ -129,10 +129,10 @@
             console.log('成功拉起helloWorld微服务');
         });
         ```
-        而helloWorld.js的逻辑则是：
+        而/helloWorld/assets/js/index.js中的逻辑则是：
         ```javaScript
         window.globalBus.createSocket('helloWorld', [], (socket, config) => {
-            ReactDOM.render(<div>hello {config}</div>);
+            ReactDOM.render(<div>hello {config}</div>, document.getElementById('#hello-world-app'));
         });
         ```
 
@@ -152,10 +152,11 @@ import { Bus } from '@runnan/obvious'
 ```
 - ## 总结
 
-前端服务化需要的是一套全套的解决方案，obvious只提供纯净的前端微服务间的通信能力，obvious提供的通过配置assets对象注册微服务的方式只适用于小型前端微服务体系，其实设计这个配置项主要是为了方便各个微服务自己开发的时候mock别的微服务。一个成熟的前端微服务架构应该包含前端资源在后台伺服后的服务发现功能，这也是一个很有意思的议题，在此不再细谈。obvious定位是轻量级的通信框架，通过插件机制避免了与服务端耦合，不同的服务注册机制配合不同的obvious插件即可。
+前端服务化需要的是一套全套的解决方案，obvious只提供纯净的前端微服务间的通信能力，obvious提供的通过配置assets对象注册微服务的方式只适用于小型前端微服务体系，其实设计这个配置项主要是为了方便各个微服务自己开发的时候mock别的微服务。一个成熟的前端微服务架构应该包含前端资源在后台伺服后的服务发现功能，这也是一个很有意思的议题。obvious定位是轻量级的通信框架，通过插件机制避免了与服务端耦合，不同的服务注册机制配合不同的obvious插件即可。
 在前端微服务领域，其实可以深耕的地方很多，新的技术必然引入新的问题，页面中的js和css代码来源不再单一后，如果管理不当，必然会导致全局变量污染和css样式污染。在系统相对小型，团队沟通成本相对较低的时候，或许还可以通过人工约定的方式规避。但是当系统越滚越大时，这将是很严重的问题，或许需要引入AST语法树分析（其实我也只知道名字而已）去实现微服务容器化，这看起来是不是很像前端的docker。
 这是我个人利用下班时间写的一个项目，在demo中实现了用react-router单页框架集成create-react-app欢迎页微服务和vue-cli欢迎页微服务，并实现了两个页面间的通信功能。
 演示demo可以进入demo目录，先npm install, 再npm run build, 资源将以watch模式被webpack打包， 然后npm start, 会启动一个express服务将资源伺服在localhost:3000，服务启动后会自动打开浏览器展示demo的。
 
 
-由于是闭门造车，难免错误百出，现将代码开源，希望感兴趣的朋友能帮忙提出意见，一起多交流，欢迎star和fork，更欢迎参与完善代码。
+闭门造车，水平有限，现将代码开源，希望感兴趣的朋友能帮忙提出意见，一起多交流，欢迎star和fork，更欢迎参与完善代码。
+另外，目前react-obvious的开发已经接近尾声，发布react-obvious之后我会试着写一个包含客户端cli工具，obvious插件，服务端微服务伺服注册的完整解决方案，到时感兴趣的朋友欢迎交流。
