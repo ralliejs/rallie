@@ -1,3 +1,5 @@
+> 预告： [react-obvious](https://github.com/SMIELPF/react-obvious) 已经开发完成，使用方式与react-redux非常相似，欢迎尝鲜。另外，obvious本身会在下周添加几个不影响核心功能的新API，同时完善包括插件机制在内的单元测试。后续演进计划是开发一个默认的资源加载插件，并搭配对应的cli工具和服务端应用程序（以docker镜像发布），实现完整的微前端体系。敬请期待
+
 # obvious.js
 
 轻量级的前端微服务通信框架
