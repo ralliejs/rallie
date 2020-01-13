@@ -1,6 +1,6 @@
 {
   "name": "@runnan/obvious",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "a front end micro service communication frame work",
   "main": "index.js",
   "directories": {
@@ -14,7 +14,7 @@
     "url": "git+ssh://git@github.com/SMIELPF/obvious.git"
   },
   "author": "runnan",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/SMIELPF/obvious/issues"
   },

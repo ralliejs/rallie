@@ -2,18 +2,18 @@ import { EventEmitter } from './event-emitter';
 import { Socket } from './socket';
 import { getMappedState } from './utils';
 
-type assetsConfigType = {
+type socketsType = {
+    [socketName: string]: Socket
+}
+
+export type assetsConfigType = {
     [moduleName: string]: {
         js?: string[],
         css?: string[], 
     } // configure the assets of the page module to load
 }
 
-type socketsType = {
-    [socketName: string]: Socket
-}
-
-type middlewareType = (name: string, loadJs?: Function, loadCss?: Function) => Promise<void> | undefined
+export type middlewareType = (name: string, loadJs?: Function, loadCss?: Function) => Promise<void> | undefined
 
 export class Bus {
 
@@ -29,9 +29,9 @@ export class Bus {
         this.assets = assets;
         this.middleware = middleware;
         Object.defineProperty(this, 'state', {
-            configurable: false,
-            get: () => {
-                return getMappedState(this._state);
+            get: () => getMappedState(this._state),
+            set: () => {
+                throw new Error('[obvious] bus.state is readonly');
             }
         });
     }
@@ -80,6 +80,11 @@ export class Bus {
         }
     }
 
+    /**
+     * get the socket by name
+     * @param {string} name the name of socket
+     * @return {Socket} the socket instance
+     */
     public getSocket(name: string) {
         if(this.isSocketExisted(name)) {
             return this.sockets[name];
@@ -88,8 +93,11 @@ export class Bus {
     }
 
     /**
-     * @param name socket name
-     * @param dependencies the states which should be initialized before the socket created 
+     * create a socket
+     * @param {string} name socket name
+     * @param {string[]} dependencies the states which should be initialized before the socket created
+     * @param {Function} callback the callback after the dependencies are ready
+     * @param {number} timeout the time of waiting for dependencies
      */
     public createSocket(name: string, dependencies: string[], callback:(socket: Socket, config?: Object | null ) => void, timeout = 10*1000) {
         if( this.isSocketExisted(name) ) {
@@ -109,7 +117,6 @@ export class Bus {
             const timeId = setTimeout(() => {
                 clearTimeout(timeId);
                 const msg = `[obvious] failed to create socket ${name} because the following state ${JSON.stringify(dependencies)} are not ready`;
-                // error in macro task can not be caught, therefore, use console.error instead of throwing an error
                 console.error(msg);
             }, timeout);
             const stateInitialCallback = (stateName: string) => {
@@ -129,6 +136,11 @@ export class Bus {
         }
     }
 
+    /**
+     * give a config and start a app
+     * @param {string} socketName socket name
+     * @param {object} config the initial config of app 
+     */
     public async startApp(socketName: string, config = null) {
         if(this.isSocketExisted(socketName)) {
             config && console.warn(`[obvious] socket ${socketName} already exists, your config is invalid`);

@@ -10,6 +10,8 @@
 <script>
 import HelloWorld from './HelloWorld.vue';
 
+const globalBus = window.Bus.global;
+
 export default {
     name: 'app',
     components: {
@@ -26,12 +28,12 @@ export default {
         }
     },
     created: function() {
-        const vueSocket = window.globalBus.getSocket('vueSocket');
+        const vueSocket = globalBus.getSocket('vueSocket');
         this.text = vueSocket.getState('text');
         vueSocket.watchState('text', this.changeText);
     },
     beforeDestroyed: function() {
-        const vueSocket = window.globalBus.getSocket('vueSocket');
+        const vueSocket = globalBus.getSocket('vueSocket');
         vueSocket.unwatch('text', this.changeText);
     }
 }

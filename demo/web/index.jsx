@@ -1,17 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom'; 
-import { Bus } from '@runnan/obvious';
+import { createBus } from '@runnan/obvious';
 import { Switch, Route, HashRouter } from 'react-router-dom';
 import VuePageContainer from './reactModule/vue-page-container';
 import ReactPage from './reactModule/react-page';
 
-window.globalBus = new Bus({
+createBus('global', {
     vueSocket: {
         js: ['/assets/vueModule.js']
     }
 });
 
-const { globalBus } = window;
+const globalBus  = window.Bus.global;
 globalBus.createSocket('globalSocket', [], () => {
     ReactDOM.render((
         <HashRouter>

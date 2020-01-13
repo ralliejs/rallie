@@ -14,18 +14,39 @@ export class Socket {
         this._state = _state;
     }
 
+    /**
+     * add an event listener
+     * @param {string} eventName 
+     * @param {Function} callback 
+     */
     on(eventName: string, callback: callbackType) {
         this.eventEmitter.addEventListener(eventName, callback);
     }
 
+    /**
+     * remove an event listener
+     * @param {string} eventName 
+     * @param {Function} callback 
+     */
     off(eventName: string, callback: callbackType) {
         this.eventEmitter.removeEventListener(eventName, callback);
     }
 
+    /**
+     * emit an event
+     * @param {string} eventName 
+     * @param {...rest} args 
+     */
     emit(eventName: string, ...args: any[]) {
         this.eventEmitter.emit(eventName, ...args);
     }
 
+    /**
+     * init a state
+     * @param {string} key state's name 
+     * @param {any} value state's value 
+     * @param {any} isPrivate is state can only be modified by the socket which initialized it
+     */
     initState(key: string, value: any, isPrivate: boolean = false) {
         if(this._state[key] !== undefined) {
             const msg = `[obvious] state ${key} has been initialized, please use [setState] instead`;
@@ -45,12 +66,21 @@ export class Socket {
         }
     }
 
+    /**
+     * get a state
+     * @param {string} stateName 
+     */
     getState(stateName: string) {
         const mappedState = getMappedState(this._state);
         const copiedState = mappedState;
         return copiedState[stateName];
     }
 
+    /**
+     * set the value of the state
+     * @param {string} stateName 
+     * @param {any} newValue 
+     */
     setState(stateName: string, newValue: any) {
         if(this._state[stateName] === undefined) {
             const msg = `[obvious] you are trying to set state ${stateName} before it is initialized, init it first`;
@@ -66,6 +96,11 @@ export class Socket {
         this.emit(`$state-${stateName}-change`, newValue, oldValue);
     }
 
+    /**
+     * watch the change of state
+     * @param {string} stateName 
+     * @param {Function} callback 
+     */
     watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void) {
         if(this._state[stateName] === undefined) {
             const msg = `[obvious] you are trying to watch state ${stateName} before it is initialized, init it first`;
@@ -74,6 +109,11 @@ export class Socket {
         this.eventEmitter.addEventListener(`$state-${stateName}-change`, callback);
     }
 
+    /**
+     * remove the listener of watching the state
+     * @param {string} stateName 
+     * @param {Function} callback 
+     */
     unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void) {
         if(this._state[stateName] === undefined) {
             const msg = `[obvious] you are trying to unwatch state ${stateName} before it is initialized, init it first`;

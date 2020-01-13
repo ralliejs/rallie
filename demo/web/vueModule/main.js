@@ -3,7 +3,9 @@ import App from './App.vue';
 
 Vue.config.productionTip = false;
 
-window.globalBus.createSocket('vueSocket', ['text'], (socket) => {
+console.log(window.Bus);
+
+window.Bus.global.createSocket('vueSocket', ['text'], (socket) => {
     let vueApp = null;
     socket.on('mountVuePage', () => {
         vueApp = new Vue({

@@ -106,6 +106,16 @@ var _HelloWorld2 = _interopRequireDefault(_HelloWorld);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var globalBus = window.Bus.global; //
+//
+//
+//
+//
+//
+//
+//
+//
+
 exports.default = {
     name: 'app',
     components: {
@@ -122,23 +132,15 @@ exports.default = {
         }
     },
     created: function created() {
-        var vueSocket = window.globalBus.getSocket('vueSocket');
+        var vueSocket = globalBus.getSocket('vueSocket');
         this.text = vueSocket.getState('text');
         vueSocket.watchState('text', this.changeText);
     },
     beforeDestroyed: function beforeDestroyed() {
-        var vueSocket = window.globalBus.getSocket('vueSocket');
+        var vueSocket = globalBus.getSocket('vueSocket');
         vueSocket.unwatch('text', this.changeText);
     }
-}; //
-//
-//
-//
-//
-//
-//
-//
-//
+};
 
 /***/ }),
 
@@ -9442,7 +9444,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _vue2.default.config.productionTip = false;
 
-window.globalBus.createSocket('vueSocket', ['text'], function (socket) {
+console.log(window.Bus);
+
+window.Bus.global.createSocket('vueSocket', ['text'], function (socket) {
     var vueApp = null;
     socket.on('mountVuePage', function () {
         vueApp = new _vue2.default({

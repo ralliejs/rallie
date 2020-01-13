@@ -1,3 +1,4 @@
+/*global Bus*/
 import React from 'react';
 import logo from './logo.svg';
 import './react-page.css';
@@ -6,7 +7,7 @@ import { useState, useEffect } from 'react';
 
 function ReactPage() {
     const defaultText = 'Hello Obvious';
-    const globalSocket = window.globalBus.getSocket('globalSocket');
+    const globalSocket = Bus.global.getSocket('globalSocket');
     const [text, setText] = useState(defaultText);
     useEffect(() => {
         if(globalSocket && globalSocket.getState('text') === undefined) {

@@ -15,9 +15,9 @@ var Bus = /** @class */ (function () {
         this.assets = assets;
         this.middleware = middleware;
         Object.defineProperty(this, 'state', {
-            configurable: false,
-            get: function () {
-                return utils_1.getMappedState(_this._state);
+            get: function () { return utils_1.getMappedState(_this._state); },
+            set: function () {
+                throw new Error('[obvious] bus.state is readonly');
             }
         });
     }
@@ -90,6 +90,11 @@ var Bus = /** @class */ (function () {
             });
         });
     };
+    /**
+     * get the socket by name
+     * @param {string} name the name of socket
+     * @return {Socket} the socket instance
+     */
     Bus.prototype.getSocket = function (name) {
         if (this.isSocketExisted(name)) {
             return this.sockets[name];
@@ -97,8 +102,11 @@ var Bus = /** @class */ (function () {
         return null;
     };
     /**
-     * @param name socket name
-     * @param dependencies the states which should be initialized before the socket created
+     * create a socket
+     * @param {string} name socket name
+     * @param {string[]} dependencies the states which should be initialized before the socket created
+     * @param {Function} callback the callback after the dependencies are ready
+     * @param {number} timeout the time of waiting for dependencies
      */
     Bus.prototype.createSocket = function (name, dependencies, callback, timeout) {
         var _this = this;
@@ -119,7 +127,6 @@ var Bus = /** @class */ (function () {
             var timeId_1 = setTimeout(function () {
                 clearTimeout(timeId_1);
                 var msg = "[obvious] failed to create socket " + name + " because the following state " + JSON.stringify(dependencies) + " are not ready";
-                // error in macro task can not be caught, therefore, use console.error instead of throwing an error
                 console.error(msg);
             }, timeout);
             var stateInitialCallback_1 = function (stateName) {
@@ -138,6 +145,11 @@ var Bus = /** @class */ (function () {
             this.eventEmitter.addEventListener('$state-initial', stateInitialCallback_1);
         }
     };
+    /**
+     * give a config and start a app
+     * @param {string} socketName socket name
+     * @param {object} config the initial config of app
+     */
     Bus.prototype.startApp = function (socketName, config) {
         if (config === void 0) { config = null; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {

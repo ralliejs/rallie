@@ -23,6 +23,8 @@
     "eslint-plugin-react": "^7.17.0",
     "eslint-plugin-standard": "^4.0.1",
     "jest": "^24.9.0",
+    "nock": "^11.7.2",
+    "node-fetch": "^2.6.0",
     "ts-jest": "^24.2.0",
     "typescript": "^3.7.2"
   },

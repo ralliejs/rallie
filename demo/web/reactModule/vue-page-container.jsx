@@ -1,8 +1,9 @@
+/*global Bus*/
 import React from 'react';
 import { useEffect } from 'react';
 
 function VuePageContainer() {
-    const globalBus = window.globalBus;
+    const globalBus = Bus.global;
     const globalSocket = globalBus.getSocket('globalSocket');
     useEffect(() => {
         globalBus.startApp('vueSocket').then(() => {
@@ -16,7 +17,11 @@ function VuePageContainer() {
         };
     }, []);
 
-    return <div></div>;
+    return (
+        <div id='vueRoot'>
+            <div id='_vueRoot'></div>
+        </div>
+    );
 }
 
 export default VuePageContainer;

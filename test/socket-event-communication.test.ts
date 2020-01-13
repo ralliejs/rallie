@@ -5,7 +5,7 @@ describe('Test the event communication capabilities between diffrent page socket
     const callback = (msg: string) => {
         console.log(msg);
     };
-    test('# case 1: listen an event then emit the event', () => {
+    test('# case 1: listen an event then emit the event, callback should be called', () => {
         const expectedMsg = 'receive test event';
         console.log = jest.fn();
         globalBus.createSocket('skt1', [], (socket) => {
@@ -17,7 +17,7 @@ describe('Test the event communication capabilities between diffrent page socket
         });
     });
 
-    test('# case 2: remove the listener then emit', () => {
+    test('# case 2: remove the listener then emit, console.warn should be called', () => {
         const expectedWarning = '[obvious] you have emitted test event, but there is no listener of this event';
         console.warn = jest.fn();
         globalBus.getSocket('skt1').off('test', callback);
