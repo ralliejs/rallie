@@ -22,6 +22,111 @@
   
   ![架构](https://user-gold-cdn.xitu.io/2019/12/25/16f38c7dca68cbc0?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
+- ## 使用
+
+下载依赖包
+
+```javaScript
+npm install @runnan/obvious // 请从1.0.3版本开始使用
+```
+
+在平台微服务中创建bus, 并配置bus所管理的微服务的资源
+
+```javaScript
+// 平台服务
+import { createBus } from '@runnan/obvious';
+
+// 调用完createBus后，window.Bus上将会挂载一个名为global的bus
+createBus('global', {
+    service1：{
+        js: ['/assets/service1/bundle.js', '/assets/service1/chunk.js'],
+        css: ['/assets/service1/app.css']
+    },
+    service2: {
+        js: ['/assets/service2/bundle.js', '/assets/service2/chunk.js'],
+        css: ['/assets/service2/app.css']
+    }
+});
+```
+
+在微服务中创建socket, 并用socket读写状态和收发事件
+
+```javaScript
+// http://localhost/assets/service1/bundle.js
+const bus = window.Bus.global;
+bus.createSocket('service1', [], (socket, config) => {
+    // 监听事件
+    socket.on('service2BroadCast', (message) => {
+        console.log(`get service2 broadCast: ${message}`);
+    });
+
+    /**
+     * 微服务的具体逻辑，与技术栈无关，可以用react、vue、angular
+     * 渲染页面，也可以用jQuery或者原生js操作dom; 甚至也可以专门
+     * 用来发ajax请求。因此微服务的本质只是一段可执行的javaScript
+     * 代码, obvious提供的是用socket与其他微服务通信的能力
+     */
+
+    // 初始化状态
+    socket.initState('service1_ready', true);
+    document.getElementById('addCount').onclick = () => {
+        const currentCount = socket.getState('count');
+        socket.setState('count', currentCount + 1);
+    };
+});
+```
+
+```javaScript
+// http://localhost/assets/service2/bundle.js
+const bus = window.Bus.global;
+bus.createSocket('service2', ['service1_ready'], (socket, config) => {
+    // 读取配置信息
+    console.log(config.initCount);
+    socket.initState('count', config.initCount);
+
+    // 触发事件
+    socket.emit('service2Broadcast', 'hello, I am service2');
+
+});
+```
+
+在平台服务中拉起子微服务
+
+```javaScript
+window.Bus.global.startApp('service2', {initCount: 1}).then(() => {
+    console.log('成功拉起service2');
+});
+
+/**
+ * 虽然拉起service1在拉起service2之后执行
+ * 但是由于ervice2依赖状态service1_ready,
+ * 所以实际是service1中执行完socket.initSta('service1_ready', true);
+ * 之后，才执行service2中的回调
+ */
+window.Bus.global.startApp('service1').then(() => {
+    console.log('成功拉起service1');
+})
+
+```
+
+高级：资源配置中间件
+```javaScript
+
+// 一个最简单的资源加载中间件
+const async simpleMiddleware = (name, loadJs, loadCss) => {
+    await loadJs(`/assets/js/${name}.js`);
+    await loadCss(`/assets/css/${name}.css`);
+}
+
+/**
+ * 在创建bus时，可以跳过第二个参数，通过实现中间件
+ * 来配置如何根据微服务名拉取对应的资源，这一般需要有
+ * 对应的服务端进行配合
+ */
+createBus('global', null, simpleMiddleWare);
+
+```
+
 - ## API
 
   - ### Socket:
@@ -91,7 +196,7 @@
     - **socket.name**: socket的名字
 
   - ### Bus: 
-    - **Bus()**：构造函数
+    - 【unstable】 **Bus()**：构造函数
 
         | 参数名 | 是否可选 | 类型 | 描述 |
         |:---:|:---:|:---:|:---:|
@@ -101,6 +206,7 @@
         在Bus构造函数中, 可以通过assets手动配置静态资源，只需要配置资源路径即可，这种方式配置的js资源将通过fetch请求拉取并执行，意味着不接受跨域js， css则将以link标签的形式被插入到页面中。
         如果配置了middleware（插件）, 则assets配置失效， middleware是一个函数，接收三个参数，第一个参数是必选的app名， 插件开发者需要根据app名拉取对应的js和css资源， 插件可接收obvious提供的两个参数loadJS和loadCss， 这两个参数都是函数，入参是资源路径，loadJS(src
         )将拉取src下的非跨域js代码并执行， loadCss(src)将拉取css资源并插入link标签， 插件最后需要返回一个Promise。
+        直接new出来的Bus往往需要手动挂载到全局变量上，如果bus太多会造成全局变量污染，因此不推荐直接new Bus(), 推荐采用[createBus](#createBus) API
 
     - **startApp()**：拉起app并启动（执行对应的js代码）
 
@@ -146,12 +252,15 @@
 
     - **state**：Bus管理下的所有state，该值是总线状态的一个映射，是只读的，要修改状态必须通过socket.initState和setState进行修改，直接修改bus.state会抛出异常
 
-- ## 使用
+  - ## <span id='createBus'>createBus()</span>
+    | 参数名 | 是否可选 | 类型 | 描述 |
+    |:---:|:---:|:---:|:---:|
+    | name | 否 | string | bus的名字 |
+    | assets | 是 |{ [appName: string]: { js: string[], css: string[] } } | 配置要拉取的微服务的静态资源
+    | middleware | 是 |   (appName: string, loadJs?: Function, loadCss?: Function) => Promise<void> |  配置如何拉取js资源的中间件
 
-```javaScript
-npm install @runnan/obvious // 务必使用1.0.3及以上版本，前两个版本存在一些问题
-import { Bus } from '@runnan/obvious'
-```
+    创建一个Bus，并将其挂载到window.Bus上，例如，执行`createBus('global')`将会new一个Bus实例并挂载在window.Bus上，然后可以通过window.Bus.global执行其他操作。推荐使用createBus来创建bus, 因为不必添加额外的全局变量，且window.Bus做了属性保护，是只读的，挂载在window.Bus上的属性也是只读的，可以保证bus实例创建并挂载后不会被修改
+
 - ## 总结
 
 前端服务化需要的是一套全套的解决方案，obvious只提供纯净的前端微服务间的通信能力，obvious提供的通过配置assets对象注册微服务的方式只适用于小型前端微服务体系，其实设计这个配置项主要是为了方便各个微服务自己开发的时候mock别的微服务。一个成熟的前端微服务架构应该包含前端资源在后台伺服后的服务发现功能，这也是一个很有意思的议题。obvious定位是轻量级的通信框架，通过插件机制避免了与服务端耦合，不同的服务注册机制配合不同的obvious插件即可。
