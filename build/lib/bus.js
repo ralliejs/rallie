@@ -14,6 +14,7 @@ var Bus = /** @class */ (function () {
         this.sockets = {};
         this.assets = assets;
         this.middleware = middleware;
+        this.allowCrossDomainJs = true;
         Object.defineProperty(this, 'state', {
             get: function () { return utils_1.getMappedState(_this._state); },
             set: function () {
@@ -24,7 +25,7 @@ var Bus = /** @class */ (function () {
     Bus.prototype.isSocketExisted = function (name) {
         return this.sockets[name] !== undefined;
     };
-    Bus.prototype.loadJs = function (src) {
+    Bus.prototype.fetchJs = function (src) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var res, code;
             return tslib_1.__generator(this, function (_a) {
@@ -39,6 +40,17 @@ var Bus = /** @class */ (function () {
                         return [2 /*return*/];
                 }
             });
+        });
+    };
+    Bus.prototype.loadJs = function (src) {
+        return new Promise(function (resolve) {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = src;
+            script.onload = function () {
+                resolve();
+            };
+            document.body.appendChild(script);
         });
     };
     Bus.prototype.loadCss = function (href) {
@@ -56,7 +68,7 @@ var Bus = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         assets = this.assets;
-                        if (!assets[name]) return [3 /*break*/, 6];
+                        if (!assets[name]) return [3 /*break*/, 9];
                         // insert link tag first
                         assets[name].css && assets[name].css.forEach(function (asset) {
                             if ((/^.+\.css$/).test(asset)) {
@@ -66,26 +78,32 @@ var Bus = /** @class */ (function () {
                                 console.error("[obvious] " + asset + " is not valid asset");
                             }
                         });
-                        if (!assets[name].js) return [3 /*break*/, 5];
+                        if (!assets[name].js) return [3 /*break*/, 8];
                         _i = 0, _a = assets[name].js;
                         _b.label = 1;
                     case 1:
-                        if (!(_i < _a.length)) return [3 /*break*/, 5];
+                        if (!(_i < _a.length)) return [3 /*break*/, 8];
                         asset = _a[_i];
-                        if (!(/^.+\.js$/).test(asset)) return [3 /*break*/, 3];
+                        if (!(/^.+\.js$/).test(asset)) return [3 /*break*/, 6];
+                        if (!this.allowCrossDomainJs) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.loadJs(asset)];
                     case 2:
                         _b.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        console.error("[obvious] " + asset + " is not valid asset");
-                        _b.label = 4;
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, this.fetchJs(asset)];
                     case 4:
+                        _b.sent();
+                        _b.label = 5;
+                    case 5: return [3 /*break*/, 7];
+                    case 6:
+                        console.error("[obvious] " + asset + " is not valid asset");
+                        _b.label = 7;
+                    case 7:
                         _i++;
                         return [3 /*break*/, 1];
-                    case 5: return [3 /*break*/, 7];
-                    case 6: throw (new Error("[obvious] can not find module " + name + ", create it first"));
-                    case 7: return [2 /*return*/];
+                    case 8: return [3 /*break*/, 10];
+                    case 9: throw (new Error("[obvious] can not find module " + name + ", create it first"));
+                    case 10: return [2 /*return*/];
                 }
             });
         });
@@ -166,7 +184,7 @@ var Bus = /** @class */ (function () {
                     case 2:
                         _a.trys.push([2, 7, , 8]);
                         if (!this.middleware) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.middleware(socketName, this.loadJs, this.loadCss)];
+                        return [4 /*yield*/, this.middleware(socketName, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss)];
                     case 3:
                         _a.sent();
                         return [3 /*break*/, 6];

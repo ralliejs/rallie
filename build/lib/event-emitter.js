@@ -43,7 +43,12 @@ var EventEmitter = /** @class */ (function () {
         var registedcallbacks = this.events[event];
         if (registedcallbacks && registedcallbacks.length !== 0) {
             registedcallbacks.forEach(function (cb) {
-                cb.apply(void 0, args);
+                try {
+                    cb.apply(void 0, args);
+                }
+                catch (error) {
+                    console.error("[obvious] one of the callbacks of " + event + " event throws an uncaught error");
+                }
             });
         }
         else {

@@ -203,9 +203,9 @@ createBus('global', null, simpleMiddleWare);
         | assets | 是 |{ [appName: string]: { js: string[], css: string[] } } | 配置要拉取的微服务的静态资源
         | middleware | 是 |   (appName: string, loadJs?: Function, loadCss?: Function) => Promise<void> |  配置如何拉取js资源的中间件
 
-        在Bus构造函数中, 可以通过assets手动配置静态资源，只需要配置资源路径即可，这种方式配置的js资源将通过fetch请求拉取并执行，意味着不接受跨域js， css则将以link标签的形式被插入到页面中。
+        在Bus构造函数中, 可以通过assets手动配置静态资源，只需要配置资源路径即可
         如果配置了middleware（插件）, 则assets配置失效， middleware是一个函数，接收三个参数，第一个参数是必选的app名， 插件开发者需要根据app名拉取对应的js和css资源， 插件可接收obvious提供的两个参数loadJS和loadCss， 这两个参数都是函数，入参是资源路径，loadJS(src
-        )将拉取src下的非跨域js代码并执行， loadCss(src)将拉取css资源并插入link标签， 插件最后需要返回一个Promise。
+        )将拉取src下的js代码并执行， loadCss(src)将拉取css资源并插入link标签， 插件最后需要返回一个Promise。
         直接new出来的Bus往往需要手动挂载到全局变量上，如果bus太多会造成全局变量污染，因此不推荐直接new Bus(), 推荐采用[createBus](#createBus) API
 
     - **startApp()**：拉起app并启动（执行对应的js代码）

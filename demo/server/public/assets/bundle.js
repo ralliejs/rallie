@@ -252,7 +252,7 @@ var Bus = /** @class */function () {
     Bus.prototype.isSocketExisted = function (name) {
         return this.sockets[name] !== undefined;
     };
-    Bus.prototype.loadJs = function (src) {
+    Bus.prototype.fetchJs = function (src) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var res, code;
             return tslib_1.__generator(this, function (_a) {
@@ -268,6 +268,17 @@ var Bus = /** @class */function () {
                         return [2 /*return*/];
                 }
             });
+        });
+    };
+    Bus.prototype.loadJs = function (src) {
+        return new Promise(function (resolve) {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = src;
+            script.onload = function () {
+                resolve();
+            };
+            document.body.appendChild(script);
         });
     };
     Bus.prototype.loadCss = function (href) {
@@ -513,7 +524,11 @@ var EventEmitter = /** @class */function () {
         var registedcallbacks = this.events[event];
         if (registedcallbacks && registedcallbacks.length !== 0) {
             registedcallbacks.forEach(function (cb) {
-                cb.apply(void 0, args);
+                try {
+                    cb.apply(void 0, args);
+                } catch (error) {
+                    console.error("[obvious] one of the callbacks of " + event + " event throws an uncaught error");
+                }
             });
         } else {
             console.warn("[obvious] you have emitted " + event + " event, but there is no listener of this event");

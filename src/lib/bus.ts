@@ -24,10 +24,12 @@ export class Bus {
     private sockets: socketsType = {};
     private assets: assetsConfigType;
     private middleware: middlewareType;
+    public allowCrossDomainJs: boolean; 
 
     constructor(assets: assetsConfigType = {}, middleware?: middlewareType) {
         this.assets = assets;
         this.middleware = middleware;
+        this.allowCrossDomainJs = true;
         Object.defineProperty(this, 'state', {
             get: () => getMappedState(this._state),
             set: () => {
@@ -40,10 +42,22 @@ export class Bus {
         return this.sockets[name] !== undefined;
     }
 
-    private async loadJs(src: string) {
+    private async fetchJs(src: string) {
         const res = await fetch(src);
         const code = await res.text();
         eval(code);
+    }
+
+    private loadJs(src: string) {
+        return new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.type= 'text/javascript';
+            script.src = src;
+            script.onload = () => {
+                resolve();
+            };
+            document.body.appendChild(script);
+        });
     }
 
     private loadCss(href: string) {
@@ -69,7 +83,11 @@ export class Bus {
             if(assets[name].js) {
                 for( let asset of assets[name].js) {
                     if((/^.+\.js$/).test(asset)) {
-                        await this.loadJs(asset);
+                        if(this.allowCrossDomainJs) {
+                            await this.loadJs(asset);
+                        } else {
+                            await this.fetchJs(asset);
+                        }
                     } else {
                         console.error(`[obvious] ${asset} is not valid asset`);
                     }
@@ -148,7 +166,7 @@ export class Bus {
             this.config[socketName] = config;
             try {
                 if(this.middleware) {
-                    await this.middleware(socketName, this.loadJs, this.loadCss);
+                    await this.middleware(socketName, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
                 } else {
                     await this.loadSocketFromAssetsConfig(socketName);
                 }

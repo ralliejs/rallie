@@ -40,6 +40,7 @@ describe('load resources by sercice name', () => {
         });
 
         const testBus = window.Bus.testAssets;
+        testBus.allowCrossDomainJs = false;
         testBus.startApp('testApp', {
             text: 'hello'
         }).then(() => {
@@ -56,6 +57,7 @@ describe('load resources by sercice name', () => {
         });
 
         const testBus = window.Bus.testMiddleware;
+        testBus.allowCrossDomainJs = false;
         testBus.startApp('testApp', {
             text: 'hello'
         }).then(() => {

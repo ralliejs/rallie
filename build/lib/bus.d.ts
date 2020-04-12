@@ -14,8 +14,10 @@ export declare class Bus {
     private sockets;
     private assets;
     private middleware;
+    allowCrossDomainJs: boolean;
     constructor(assets?: assetsConfigType, middleware?: middlewareType);
     private isSocketExisted;
+    private fetchJs;
     private loadJs;
     private loadCss;
     private loadSocketFromAssetsConfig;

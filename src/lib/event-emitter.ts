@@ -43,7 +43,11 @@ export class EventEmitter {
         const registedcallbacks = this.events[event];
         if(registedcallbacks && registedcallbacks.length !== 0) {
             registedcallbacks.forEach((cb) => {
-                cb(...args);
+                try {
+                    cb(...args);
+                } catch (error) {
+                    console.error(`[obvious] one of the callbacks of ${event} event throws an uncaught error`);
+                }
             });
         } else {
             console.warn(`[obvious] you have emitted ${event} event, but there is no listener of this event`);
