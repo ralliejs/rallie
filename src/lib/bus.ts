@@ -165,10 +165,12 @@ export class Bus {
         } else {
             this.config[socketName] = config;
             try {
-                if(this.middleware) {
+                if(this.assets && this.assets[socketName]) {
+                    await this.loadSocketFromAssetsConfig(socketName);
+                } else if (this.middleware) {
                     await this.middleware(socketName, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
                 } else {
-                    await this.loadSocketFromAssetsConfig(socketName);
+                    throw (new Error(`[obvious] can not find module ${socketName}, create it first`));
                 }
             } catch(error) {
                 this.config[socketName] = null;

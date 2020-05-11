@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1586711191146" clover="3.2.0">
-  <project timestamp="1586711191146" name="All files">
-    <metrics statements="177" coveredstatements="161" conditionals="74" coveredconditionals="60" methods="38" coveredmethods="35" elements="289" coveredelements="256" complexity="0" loc="177" ncloc="177" packages="2" files="6" classes="6"/>
+<coverage generated="1589211648608" clover="3.2.0">
+  <project timestamp="1589211648608" name="All files">
+    <metrics statements="179" coveredstatements="162" conditionals="78" coveredconditionals="62" methods="38" coveredmethods="35" elements="295" coveredelements="259" complexity="0" loc="179" ncloc="179" packages="2" files="6" classes="6"/>
     <package name="src">
       <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <file name="index.ts" path="D:\project\omicro\obvious\src\index.ts">
@@ -12,9 +12,9 @@
       </file>
     </package>
     <package name="src.lib">
-      <metrics statements="174" coveredstatements="158" conditionals="74" coveredconditionals="60" methods="38" coveredmethods="35"/>
+      <metrics statements="176" coveredstatements="159" conditionals="78" coveredconditionals="62" methods="38" coveredmethods="35"/>
       <file name="bus.ts" path="D:\project\omicro\obvious\src\lib\bus.ts">
-        <metrics statements="88" coveredstatements="73" conditionals="42" coveredconditionals="28" methods="18" coveredmethods="15"/>
+        <metrics statements="90" coveredstatements="74" conditionals="46" coveredconditionals="30" methods="18" coveredmethods="15"/>
         <line num="1" count="4" type="stmt"/>
         <line num="2" count="4" type="stmt"/>
         <line num="3" count="4" type="stmt"/>
@@ -97,12 +97,14 @@
         <line num="163" count="4" type="cond" truecount="1" falsecount="1"/>
         <line num="164" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="166" count="2" type="stmt"/>
-        <line num="168" count="3" type="cond" truecount="2" falsecount="0"/>
-        <line num="169" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="171" count="2" type="cond" truecount="1" falsecount="0"/>
-        <line num="174" count="0" type="stmt"/>
-        <line num="175" count="0" type="stmt"/>
-        <line num="179" count="4" type="stmt"/>
+        <line num="168" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="169" count="2" type="stmt"/>
+        <line num="170" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="171" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="173" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="176" count="0" type="stmt"/>
+        <line num="177" count="0" type="stmt"/>
+        <line num="181" count="4" type="stmt"/>
       </file>
       <file name="createBus.ts" path="D:\project\omicro\obvious\src\lib\createBus.ts">
         <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
