@@ -15,8 +15,16 @@ export const createBus = (name: string, assets?:assetsConfigType, middleware?: m
         });
     }
 
-    Object.defineProperty(window.Bus, name, {
-        value: new Bus(assets, middleware),
-        writable: false
-    });
+    if (window.Bus[name]) {
+        throw new Error(`[obvious] the bus named ${name} has been defined before, please rename your bus`);
+    } else {
+        Object.defineProperty(window.Bus, name, {
+            value: new Bus(assets, middleware),
+            writable: false
+        });
+    }
+};
+
+export const getBus = (name: string) => {
+    return window.Bus[name];
 };

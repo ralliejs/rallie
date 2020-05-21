@@ -140,6 +140,7 @@ var Bus = /** @class */ (function () {
             var socket = new socket_1.Socket(name, this.eventEmitter, this._state);
             this.sockets[name] = socket;
             callback(socket, this.config[name]);
+            socket.initState("$" + name, true, true);
         }
         else {
             var timeId_1 = setTimeout(function () {
@@ -158,6 +159,7 @@ var Bus = /** @class */ (function () {
                     var socket = new socket_1.Socket(name, _this.eventEmitter, _this._state);
                     _this.sockets[name] = socket;
                     callback(socket, _this.config[name]);
+                    socket.initState("$" + name, true, true);
                 }
             };
             this.eventEmitter.addEventListener('$state-initial', stateInitialCallback_1);
@@ -177,27 +179,30 @@ var Bus = /** @class */ (function () {
                     case 0:
                         if (!this.isSocketExisted(socketName)) return [3 /*break*/, 1];
                         config && console.warn("[obvious] socket " + socketName + " already exists, your config is invalid");
-                        return [3 /*break*/, 8];
+                        return [3 /*break*/, 9];
                     case 1:
                         this.config[socketName] = config;
                         _a.label = 2;
                     case 2:
-                        _a.trys.push([2, 7, , 8]);
-                        if (!this.middleware) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.middleware(socketName, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss)];
+                        _a.trys.push([2, 8, , 9]);
+                        if (!(this.assets && this.assets[socketName])) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.loadSocketFromAssetsConfig(socketName)];
                     case 3:
                         _a.sent();
-                        return [3 /*break*/, 6];
-                    case 4: return [4 /*yield*/, this.loadSocketFromAssetsConfig(socketName)];
+                        return [3 /*break*/, 7];
+                    case 4:
+                        if (!this.middleware) return [3 /*break*/, 6];
+                        return [4 /*yield*/, this.middleware(socketName, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss)];
                     case 5:
                         _a.sent();
-                        _a.label = 6;
-                    case 6: return [3 /*break*/, 8];
-                    case 7:
+                        return [3 /*break*/, 7];
+                    case 6: throw (new Error("[obvious] can not find module " + socketName + ", create it first"));
+                    case 7: return [3 /*break*/, 9];
+                    case 8:
                         error_1 = _a.sent();
                         this.config[socketName] = null;
                         throw error_1;
-                    case 8: return [2 /*return*/];
+                    case 9: return [2 /*return*/];
                 }
             });
         });

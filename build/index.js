@@ -4,5 +4,7 @@ var event_emitter_1 = require("./lib/event-emitter");
 exports.EventEmitter = event_emitter_1.EventEmitter;
 var createBus_1 = require("./lib/createBus");
 exports.createBus = createBus_1.createBus;
+var createBus_2 = require("./lib/createBus");
+exports.getBus = createBus_2.getBus;
 var bus_1 = require("./lib/bus");
 exports.Bus = bus_1.Bus;

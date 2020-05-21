@@ -15,8 +15,16 @@ exports.createBus = function (name, assets, middleware) {
             writable: false
         });
     }
-    Object.defineProperty(window.Bus, name, {
-        value: new bus_1.Bus(assets, middleware),
-        writable: false
-    });
+    if (window.Bus[name]) {
+        throw new Error("[obvious] the bus named " + name + " has been defined before, please rename your bus");
+    }
+    else {
+        Object.defineProperty(window.Bus, name, {
+            value: new bus_1.Bus(assets, middleware),
+            writable: false
+        });
+    }
+};
+exports.getBus = function (name) {
+    return window.Bus[name];
 };

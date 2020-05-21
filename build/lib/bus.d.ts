@@ -9,7 +9,9 @@ export declare type middlewareType = (name: string, loadJs?: Function, loadCss?:
 export declare class Bus {
     private eventEmitter;
     private _state;
-    state: Object;
+    state: {
+        [name: string]: any;
+    };
     private config;
     private sockets;
     private assets;

@@ -1,24 +1,25 @@
-/*global Bus*/
 import React from 'react';
 import logo from './logo.svg';
 import './react-page.css';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { getBus } from '@runnan/obvious';
 
 function ReactPage() {
+    const bus = getBus('global');
     const defaultText = 'Hello Obvious';
-    const globalSocket = Bus.global.getSocket('globalSocket');
+    const reactSocket = bus.getSocket('reactSocket');
     const [text, setText] = useState(defaultText);
     useEffect(() => {
-        if(globalSocket && globalSocket.getState('text') === undefined) {
-            globalSocket.initState('text', defaultText);
+        if(reactSocket && reactSocket.getState('text') === undefined) {
+            reactSocket.initState('text', defaultText);
         }
-        setText(globalSocket.getState('text'));
+        setText(reactSocket.getState('text'));
     }, []);
 
     const handleOnChange = (e) => {
         setText(e.target.value);
-        globalSocket && globalSocket.setState('text', e.target.value);
+        reactSocket && reactSocket.setState('text', e.target.value);
     };
     
     return (

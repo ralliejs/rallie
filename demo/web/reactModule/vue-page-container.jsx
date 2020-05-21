@@ -1,19 +1,17 @@
-/*global Bus*/
 import React from 'react';
 import { useEffect } from 'react';
+import { getBus } from '@runnan/obvious';
 
 function VuePageContainer() {
-    const globalBus = Bus.global;
-    const globalSocket = globalBus.getSocket('globalSocket');
+    const bus = getBus('global');
+    const reactSocket = bus.getSocket('reactSocket');
     useEffect(() => {
-        globalBus.startApp('vueSocket').then(() => {
-            globalSocket.emit('mountVuePage');
+        bus.startApp('vueSocket').then(() => {
+            reactSocket.emit('mountVuePage');
         });
 
         return () => {
-            globalBus.startApp('vueSocket').then(() => {
-                globalSocket.emit('unmountVuePage');
-            });
+            reactSocket.emit('unmountVuePage');
         };
     }, []);
 

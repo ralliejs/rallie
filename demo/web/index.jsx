@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom'; 
-import { createBus } from '@runnan/obvious';
+import { createBus, getBus } from '@runnan/obvious';
 import { Switch, Route, HashRouter } from 'react-router-dom';
 import VuePageContainer from './reactModule/vue-page-container';
 import ReactPage from './reactModule/react-page';
@@ -10,9 +10,10 @@ createBus('global', {
         js: ['/assets/vueModule.js']
     }
 });
+console.log(window.Bus);
 
-const globalBus  = window.Bus.global;
-globalBus.createSocket('globalSocket', [], () => {
+const bus = getBus('global');
+bus.createSocket('reactSocket', [], () => {
     ReactDOM.render((
         <HashRouter>
             <Switch>

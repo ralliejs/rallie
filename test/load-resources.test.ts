@@ -1,4 +1,4 @@
-import {createBus} from '../src';
+import {createBus, getBus} from '../src';
 import nock from 'nock';
 
 const testAppCode = (busName: string) => {
@@ -39,7 +39,7 @@ describe('load resources by sercice name', () => {
             }
         });
 
-        const testBus = window.Bus.testAssets;
+        const testBus = getBus('testAssets');
         testBus.allowCrossDomainJs = false;
         testBus.startApp('testApp', {
             text: 'hello'
@@ -56,7 +56,7 @@ describe('load resources by sercice name', () => {
             await loadCss(`http://127.0.0.1/testMiddleware/css/${name}.css`);
         });
 
-        const testBus = window.Bus.testMiddleware;
+        const testBus = getBus('testMiddleware');
         testBus.allowCrossDomainJs = false;
         testBus.startApp('testApp', {
             text: 'hello'

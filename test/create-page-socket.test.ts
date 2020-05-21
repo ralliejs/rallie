@@ -1,13 +1,13 @@
-import {createBus} from '../src/index';
+import {createBus, getBus} from '../src/index';
 
 describe('Test creating page socket in diffrent situations', () => {
     createBus('global');
-    const globalBus = window.Bus.global;
+    const globalBus = getBus('global');
     let socket1 = null, socket2 = null, socket3 =null;
 
     test('# Case 0: window.bus should be readonly', () => {
         expect(() => {
-            window.Bus = null;
+            window['Bus'] = null;
         }).toThrowError();
     });
 
@@ -41,7 +41,7 @@ describe('Test creating page socket in diffrent situations', () => {
         }, 400);
     });
 
-    test('# Case 3: waiting state out, console.error should be called', (done) => {
+    test('# Case 3: waiting state time out, console.error should be called', (done) => {
         console.error = jest.fn();
         globalBus.createSocket('socket4', ['icon'] , (socket) => {
             socket.getState('icon');

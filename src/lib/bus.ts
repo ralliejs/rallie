@@ -19,7 +19,7 @@ export class Bus {
 
     private eventEmitter: EventEmitter = new EventEmitter();
     private _state: Object = {};
-    public state: Object;
+    public state: {[name: string]: any};
     private config: Object = {};
     private sockets: socketsType = {};
     private assets: assetsConfigType;
@@ -131,6 +131,7 @@ export class Bus {
             const socket = new Socket(name, this.eventEmitter, this._state);
             this.sockets[name] = socket;
             callback(socket, this.config[name]);
+            socket.initState(`$${name}`, true, true);
         } else {
             const timeId = setTimeout(() => {
                 clearTimeout(timeId);
@@ -148,6 +149,7 @@ export class Bus {
                     const socket = new Socket(name, this.eventEmitter, this._state);
                     this.sockets[name] = socket;
                     callback(socket, this.config[name]);
+                    socket.initState(`$${name}`, true, true);
                 }
             };
             this.eventEmitter.addEventListener('$state-initial', stateInitialCallback);

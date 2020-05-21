@@ -208,6 +208,8 @@ var event_emitter_1 = __webpack_require__(/*! ./lib/event-emitter */ "./node_mod
 exports.EventEmitter = event_emitter_1.EventEmitter;
 var createBus_1 = __webpack_require__(/*! ./lib/createBus */ "./node_modules/@runnan/obvious/lib/createBus.js");
 exports.createBus = createBus_1.createBus;
+var createBus_2 = __webpack_require__(/*! ./lib/createBus */ "./node_modules/@runnan/obvious/lib/createBus.js");
+exports.getBus = createBus_2.getBus;
 var bus_1 = __webpack_require__(/*! ./lib/bus */ "./node_modules/@runnan/obvious/lib/bus.js");
 exports.Bus = bus_1.Bus;
 
@@ -240,6 +242,7 @@ var Bus = /** @class */function () {
         this.sockets = {};
         this.assets = assets;
         this.middleware = middleware;
+        this.allowCrossDomainJs = true;
         Object.defineProperty(this, 'state', {
             get: function get() {
                 return utils_1.getMappedState(_this._state);
@@ -296,7 +299,7 @@ var Bus = /** @class */function () {
                 switch (_b.label) {
                     case 0:
                         assets = this.assets;
-                        if (!assets[name]) return [3 /*break*/, 6];
+                        if (!assets[name]) return [3 /*break*/, 9];
                         // insert link tag first
                         assets[name].css && assets[name].css.forEach(function (asset) {
                             if (/^.+\.css$/.test(asset)) {
@@ -305,28 +308,36 @@ var Bus = /** @class */function () {
                                 console.error("[obvious] " + asset + " is not valid asset");
                             }
                         });
-                        if (!assets[name].js) return [3 /*break*/, 5];
+                        if (!assets[name].js) return [3 /*break*/, 8];
                         _i = 0, _a = assets[name].js;
                         _b.label = 1;
                     case 1:
-                        if (!(_i < _a.length)) return [3 /*break*/, 5];
+                        if (!(_i < _a.length)) return [3 /*break*/, 8];
                         asset = _a[_i];
-                        if (!/^.+\.js$/.test(asset)) return [3 /*break*/, 3];
+                        if (!/^.+\.js$/.test(asset)) return [3 /*break*/, 6];
+                        if (!this.allowCrossDomainJs) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.loadJs(asset)];
                     case 2:
                         _b.sent();
-                        return [3 /*break*/, 4];
+                        return [3 /*break*/, 5];
                     case 3:
-                        console.error("[obvious] " + asset + " is not valid asset");
-                        _b.label = 4;
+                        return [4 /*yield*/, this.fetchJs(asset)];
                     case 4:
-                        _i++;
-                        return [3 /*break*/, 1];
+                        _b.sent();
+                        _b.label = 5;
                     case 5:
                         return [3 /*break*/, 7];
                     case 6:
-                        throw new Error("[obvious] can not find module " + name + ", create it first");
+                        console.error("[obvious] " + asset + " is not valid asset");
+                        _b.label = 7;
                     case 7:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 8:
+                        return [3 /*break*/, 10];
+                    case 9:
+                        throw new Error("[obvious] can not find module " + name + ", create it first");
+                    case 10:
                         return [2 /*return*/];
                 }
             });
@@ -366,6 +377,7 @@ var Bus = /** @class */function () {
             var socket = new socket_1.Socket(name, this.eventEmitter, this._state);
             this.sockets[name] = socket;
             callback(socket, this.config[name]);
+            socket.initState("$" + name, true, true);
         } else {
             var timeId_1 = setTimeout(function () {
                 clearTimeout(timeId_1);
@@ -383,6 +395,7 @@ var Bus = /** @class */function () {
                     var socket = new socket_1.Socket(name, _this.eventEmitter, _this._state);
                     _this.sockets[name] = socket;
                     callback(socket, _this.config[name]);
+                    socket.initState("$" + name, true, true);
                 }
             };
             this.eventEmitter.addEventListener('$state-initial', stateInitialCallback_1);
@@ -404,29 +417,32 @@ var Bus = /** @class */function () {
                     case 0:
                         if (!this.isSocketExisted(socketName)) return [3 /*break*/, 1];
                         config && console.warn("[obvious] socket " + socketName + " already exists, your config is invalid");
-                        return [3 /*break*/, 8];
+                        return [3 /*break*/, 9];
                     case 1:
                         this.config[socketName] = config;
                         _a.label = 2;
                     case 2:
-                        _a.trys.push([2, 7,, 8]);
-                        if (!this.middleware) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.middleware(socketName, this.loadJs, this.loadCss)];
+                        _a.trys.push([2, 8,, 9]);
+                        if (!(this.assets && this.assets[socketName])) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.loadSocketFromAssetsConfig(socketName)];
                     case 3:
                         _a.sent();
-                        return [3 /*break*/, 6];
+                        return [3 /*break*/, 7];
                     case 4:
-                        return [4 /*yield*/, this.loadSocketFromAssetsConfig(socketName)];
+                        if (!this.middleware) return [3 /*break*/, 6];
+                        return [4 /*yield*/, this.middleware(socketName, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss)];
                     case 5:
                         _a.sent();
-                        _a.label = 6;
+                        return [3 /*break*/, 7];
                     case 6:
-                        return [3 /*break*/, 8];
+                        throw new Error("[obvious] can not find module " + socketName + ", create it first");
                     case 7:
+                        return [3 /*break*/, 9];
+                    case 8:
                         error_1 = _a.sent();
                         this.config[socketName] = null;
                         throw error_1;
-                    case 8:
+                    case 9:
                         return [2 /*return*/];
                 }
             });
@@ -464,10 +480,17 @@ exports.createBus = function (name, assets, middleware) {
             writable: false
         });
     }
-    Object.defineProperty(window.Bus, name, {
-        value: new bus_1.Bus(assets, middleware),
-        writable: false
-    });
+    if (window.Bus[name]) {
+        throw new Error("[obvious] the bus named " + name + " has been defined before, please rename your bus");
+    } else {
+        Object.defineProperty(window.Bus, name, {
+            value: new bus_1.Bus(assets, middleware),
+            writable: false
+        });
+    }
+};
+exports.getBus = function (name) {
+    return window.Bus[name];
 };
 
 /***/ }),
@@ -14133,9 +14156,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         js: ['/assets/vueModule.js']
     }
 });
+console.log(window.Bus);
 
-var globalBus = window.Bus.global;
-globalBus.createSocket('globalSocket', [], function () {
+var bus = (0, _obvious.getBus)('global');
+bus.createSocket('reactSocket', [], function () {
     _reactDom2.default.render(_react2.default.createElement(
         _reactRouterDom.HashRouter,
         null,
@@ -14204,8 +14228,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /*global Bus*/
-
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 
@@ -14219,11 +14242,14 @@ __webpack_require__(/*! ./react-page.css */ "./web/reactModule/react-page.css");
 
 var _reactRouterDom = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 
+var _obvious = __webpack_require__(/*! @runnan/obvious */ "./node_modules/@runnan/obvious/index.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function ReactPage() {
+    var bus = (0, _obvious.getBus)('global');
     var defaultText = 'Hello Obvious';
-    var globalSocket = Bus.global.getSocket('globalSocket');
+    var reactSocket = bus.getSocket('reactSocket');
 
     var _useState = (0, _react.useState)(defaultText),
         _useState2 = _slicedToArray(_useState, 2),
@@ -14231,15 +14257,15 @@ function ReactPage() {
         setText = _useState2[1];
 
     (0, _react.useEffect)(function () {
-        if (globalSocket && globalSocket.getState('text') === undefined) {
-            globalSocket.initState('text', defaultText);
+        if (reactSocket && reactSocket.getState('text') === undefined) {
+            reactSocket.initState('text', defaultText);
         }
-        setText(globalSocket.getState('text'));
+        setText(reactSocket.getState('text'));
     }, []);
 
     var handleOnChange = function handleOnChange(e) {
         setText(e.target.value);
-        globalSocket && globalSocket.setState('text', e.target.value);
+        reactSocket && reactSocket.setState('text', e.target.value);
     };
 
     return _react2.default.createElement(
@@ -14288,21 +14314,20 @@ var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _obvious = __webpack_require__(/*! @runnan/obvious */ "./node_modules/@runnan/obvious/index.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/*global Bus*/
 function VuePageContainer() {
-    var globalBus = Bus.global;
-    var globalSocket = globalBus.getSocket('globalSocket');
+    var bus = (0, _obvious.getBus)('global');
+    var reactSocket = bus.getSocket('reactSocket');
     (0, _react.useEffect)(function () {
-        globalBus.startApp('vueSocket').then(function () {
-            globalSocket.emit('mountVuePage');
+        bus.startApp('vueSocket').then(function () {
+            reactSocket.emit('mountVuePage');
         });
 
         return function () {
-            globalBus.startApp('vueSocket').then(function () {
-                globalSocket.emit('unmountVuePage');
-            });
+            reactSocket.emit('unmountVuePage');
         };
     }, []);
 

@@ -9,8 +9,9 @@
 
 <script>
 import HelloWorld from './HelloWorld.vue';
+import { getBus } from '@runnan/obvious';
 
-const globalBus = window.Bus.global;
+const bus = getBus('global');
 
 export default {
     name: 'app',
@@ -28,12 +29,12 @@ export default {
         }
     },
     created: function() {
-        const vueSocket = globalBus.getSocket('vueSocket');
+        const vueSocket = bus.getSocket('vueSocket');
         this.text = vueSocket.getState('text');
         vueSocket.watchState('text', this.changeText);
     },
     beforeDestroyed: function() {
-        const vueSocket = globalBus.getSocket('vueSocket');
+        const vueSocket = bus.getSocket('vueSocket');
         vueSocket.unwatch('text', this.changeText);
     }
 }

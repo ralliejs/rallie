@@ -1,34 +1,38 @@
-import { createBus } from '../src';
+import { createBus, getBus } from '../src';
 
 describe('Test state communication capabilities between sockets', () => {
     createBus('global');
-    const globalBus = window.Bus.global;
+    const bus = getBus('global');
     let socket1 = null, socket2 = null, socket3 =null;
     let dynamicName = ''; // it will be modified as long as the state named name being changed
 
     test('# case 0: bus.state should be readonly', () => {
         expect(() => {
-            globalBus.state = {'a': 'nasdad'};
+            bus.state = {'a': 'nasdad'};
         }).toThrowError('[obvious] bus.state is readonly');
     });
 
     test('# case 1: socket1 init a public state name, socket2 should access it', () => {
-        globalBus.createSocket('socket1', [], (socket) => {
+        expect(bus.state.$socket1).toBeUndefined();
+        bus.createSocket('socket1', [], (socket) => {
             socket1 = socket;
             socket1.initState('name', 'Bob');
         });
-        globalBus.createSocket('socket2', [], (socket) => {
+        expect(bus.state.$socket1).toEqual(true);
+        expect(bus.state.$socket2).toBeUndefined();
+        bus.createSocket('socket2', [], (socket) => {
             socket2 = socket;
             const name = socket2.getState('name');
             expect(name).toEqual('Bob');
         });
+        expect(bus.state.$socket2).toEqual(true);
     });
 
     test('# case 2: socket3 watch state name then socket2 set it, name should be set and socket', () => {
         const watchCallback = (newValue: string) => {
             dynamicName = newValue;
         };
-        globalBus.createSocket('socket3', [], (socket) => {
+        bus.createSocket('socket3', [], (socket) => {
             socket3 = socket;
             socket3.watchState('name', watchCallback);
         });
@@ -48,9 +52,12 @@ describe('Test state communication capabilities between sockets', () => {
         }).toThrowError(new Error('[obvious] state locale is private, you are not allowed to modify it'));
         socket2.setState('locale', 'zh');
         expect(socket1.getState('locale')).toEqual('zh');
-        expect(JSON.stringify(globalBus.state)).toEqual(JSON.stringify({
+        expect(JSON.stringify(bus.state)).toEqual(JSON.stringify({
             name: 'Bob',
-            locale: 'zh'
+            $socket1: true,
+            $socket2: true,
+            $socket3: true,
+            locale: 'zh',
         }));
     });
 
