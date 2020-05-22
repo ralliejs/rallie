@@ -52,6 +52,7 @@ createBus('global', {
 ```javaScript
 // http://localhost/assets/service1/bundle.js
 import { getBus } from '@runnan/obvious';
+
 const bus = getBus('global');
 
 bus.createSocket('service1', [], (socket, config) => {
@@ -81,6 +82,7 @@ bus.createSocket('service1', [], (socket, config) => {
 ```javaScript
 // http://localhost/assets/service2/bundle.js
 import { getBus } from '@runnan/obvious';
+
 const bus = getBus('global');
 
 bus.createSocket('service2', ['service1_ready'], (socket, config) => {
@@ -95,10 +97,22 @@ bus.createSocket('service2', ['service1_ready'], (socket, config) => {
 在平台服务中拉起子微服务
 
 ```javaScript
-import { getBus } from '@runnan/obvious';
+import { createBus, getBus } from '@runnan/obvious';
+
+createBus('global', {
+    service1：{
+        js: ['/assets/service1/bundle.js', '/assets/service1/chunk.js'],
+        css: ['/assets/service1/app.css']
+    },
+    service2: {
+        js: ['/assets/service2/bundle.js', '/assets/service2/chunk.js'],
+        css: ['/assets/service2/app.css']
+    }
+});
+
 const bus = getBus('global');
 
-bus.global.startApp('service2', {initCount: 1}).then(() => {
+bus.startApp('service2', {initCount: 1}).then(() => {
     console.log('成功拉起service2');
 });
 
@@ -108,7 +122,7 @@ bus.global.startApp('service2', {initCount: 1}).then(() => {
  * 所以实际是service1中执行完socket.initSta('service1_ready', true);
  * 之后，才执行service2中的回调
  */
-window.Bus.global.startApp('service1').then(() => {
+bus.startApp('service1').then(() => {
     console.log('成功拉起service1');
 })
 
@@ -318,10 +332,15 @@ createBus('global', null, simpleMiddleWare);
 
 - # Q&A
     - **Q:** 不同微服务定义的全局变量和样式如何避免互相影响？
+    
       **A:** 对于要定义全局变量的场景，建议改为通过socket定义微服务私有状态, 或者使用Symbol把全局变量挂载到window对象上；为了避免样式污染，建议在构建时加入css module特性
+      
     - **Q:** 事件收发和状态更改是同步的还是异步的? 
+    
       **A:** EventEmitter的所有操作都是同步的，obvious的状态机制也是基于同步的EventEmitter实现的
+      
     - **Q:** 内置状态`${appName}`就绪可以保证app的所有代码都执行完了吗？
+    
       **A:** `${appName}`就绪只能保证app内的所有同步逻辑都执行完了，而不能保证异步逻辑也执行完了
 
 - # 关联项目
