@@ -222,7 +222,7 @@ createBus('global', null, simpleMiddleWare);
 
         startApp将返回一个Promise, 如果app是第一次被拉起，则bus会加载app对应的资源，等资源加载并执行成功后才进入promise的then回调， 但是如果app已经被start过一次，则执行startApp将直接进入then回调。需要注意的是，startApp的第二个参数是初始化app的配置
 
-    - **createSocket()**: 创建前端套接字
+    - **<span id='createSocket'>createSocket()</span>**: 创建前端套接字
 
         | 参数名 | 是否可选 | 类型 | 描述 |
         |:---:|:---:|:---:|:---:|
@@ -264,8 +264,8 @@ createBus('global', null, simpleMiddleWare);
     | assets | 是 |{ [appName: string]: { js: string[], css: string[] } } | 配置要拉取的微服务的静态资源
     | middleware | 是 |   (appName: string, loadJs?: Function, loadCss?: Function) => Promise<void> |  配置如何拉取js资源的中间件
 
-    正如`createSocket`中的样例代码所示，独立部署的两个微服务要进行通信，需要基于同一个bus实例，为了达到这个目的，在`new Bus()`创建出bus实例后，我们把这个实例手动挂载到window对象上，这样带来的一个问题是，当有多个团队分别基于多个bus进行通信时，有可能会不小心命名出重名bus，出现全局变量冲突。因此，obvious提供了`createBus`函数，它会创建一个Bus，并将其挂载到window.Bus上，例如，执行`createBus('global')`将会new一个Bus实例并挂载在window.Bus上，然后可以通过`getBus('global')`获取bus实例，执行其他操作。推荐使用createBus来创建bus, 因为不必添加额外的全局变量，且window.Bus做了属性保护，是只读的，挂载在window.Bus上的属性也是只读的，可以保证bus实例创建并挂载后不会被修改。用createBus创建同名bus，在运行时会抛出错误提示。
-- ## getBus() ##
+    正如[createSocket](#createSocket)中的样例代码所示，独立部署的两个微服务要进行通信，需要基于同一个bus实例，为了达到这个目的，在`new Bus()`创建出bus实例后，我们把这个实例手动挂载到window对象上，这样带来的一个问题是，当有多个团队分别基于多个bus进行通信时，有可能会不小心命名出重名bus，出现全局变量冲突。因此，obvious提供了`createBus`函数，它会创建一个Bus，并将其挂载到window.Bus上，例如，执行`createBus('global')`将会new一个Bus实例并挂载在window.Bus上，然后可以通过`getBus('global')`获取bus实例，执行其他操作。推荐使用createBus来创建bus, 因为不必添加额外的全局变量，且window.Bus做了属性保护，是只读的，挂载在window.Bus上的属性也是只读的，可以保证bus实例创建并挂载后不会被修改。用createBus创建同名bus，在运行时会抛出错误提示。
+  - ## <span id='getBus'>getBus()</span> ##
     | 参数名 | 是否可选 | 类型 | 描述 |
     |:---:|:---:|:---:|:---:|
     | name | 否 | string | bus的名字 |
@@ -273,18 +273,64 @@ createBus('global', null, simpleMiddleWare);
     获取bus实例，与createBus搭配使用
 
 
-- # 预置事件
-    文档待完善
+- # 预置状态
+    - ${appName}: 表示app就绪，用createSocket创建app对应的socket，且回调函数执行完后，该状态被init。该状态常用于声明微服务依赖
+    例子：
+        有两个微服务A和B，基于demoBus进行消息通信
+        微服务A在启动时监听printHelloWorld事件:
+        ```javaScript
+        import {getBus} from '@runnan/obvious';
+
+        const bus = getBus('demoBus');
+        bus.createSocket('A', [], (socket) => {
+            socket.on('printHelloWorld', () => {
+                console.log('Hello World');
+            });
+        });
+        ```
+        微服务B在启动时触发printHelloWorld事件，为了保证在触发事件时，微服务A已经监听了该事件，微服务B在创建socket时可以把$A作为状态依赖：
+        ```javaScript
+        import {getBus} from '@runnan/obvious';
+
+        const bus = getBus('demoBus');
+        bus.createSocket('B', ['$A'], (socket) => {
+            socket.emit('printHelloWorld');
+        });
+        ```
+        在平台服务中，由于微服务B已经声明了它依赖微服务A，因此即使demoBus先拉起微服务B，B的回调逻辑也会等待A的回调逻辑执行完后才执行
+        ```javaScript
+        import {createBus, getBus} from '@runnan/obvious';
+
+        createBus('demoBus', {
+            A: {
+                js: ['http://{hosta}/assets/a.js'] // 先执行A
+            },
+            B: {
+                js: ['http://{hostb}/assets/b.js'] // 后执行B
+            }
+        });
+
+        const bus = getBus('demoBus');
+
+        bus.startApp('B'); // 先拉起B
+        bus.startApp('A'); // 后拉起A
+        ```
 
 - # Q&A
-    文档待完善
+    - **Q:** 不同微服务定义的全局变量和样式如何避免互相影响？
+      **A:** 对于要定义全局变量的场景，建议改为通过socket定义微服务私有状态, 或者使用Symbol把全局变量挂载到window对象上；为了避免样式污染，建议在构建时加入css module特性
+    - **Q:** 事件收发和状态更改是同步的还是异步的? 
+      **A:** EventEmitter的所有操作都是同步的，obvious的状态机制也是基于同步的EventEmitter实现的
+    - **Q:** 内置状态`${appName}`就绪可以保证app的所有代码都执行完了吗？
+      **A:** `${appName}`就绪只能保证app内的所有同步逻辑都执行完了，而不能保证异步逻辑也执行完了
 
 - # 关联项目
-    文档待完善
-
+    - [react-obvious](https://github.com/SMIELPF/react-obvious)： 结合了obvious和react的一个类react-redux框架
+    - [omicro-cli](https://github.com/SMIELPF/omicro-cli)：obvious微前端体系的脚手架工具，支持生成代码模板和上传包到Feda
+    - [feda](https://github.com/SMIELPF/feda): Front End Deploy Agent, 基于Node.js、Nginx、docker技术构建的一个前端静态资源管理应用，可以帮助你理解obvious资源配置中间件的使用场景
 - # TO DO
-    文档待完善
+    - 对Vue、Angular框架的适配
 
-
-闭门造车，水平有限，现将代码开源，希望感兴趣的朋友能帮忙提出意见，一起多交流，欢迎star和fork，更欢迎参与完善代码。
-另外，目前react-obvious的开发已经接近尾声，发布react-obvious之后我会试着写一个包含客户端cli工具，obvious插件，服务端微服务伺服注册的完整解决方案，到时感兴趣的朋友欢迎交流。
+- # 写在最后
+    本代码仓的demo目录是一个简单的微前端示例工程，实现了把Vue页面嵌入React单页框架中的功能，为了方便开发者理解不同微服务能独立部署，没有使用dev-server热更新，而是用express进行静态伺服。
+    闭门造车，水平有限，现将代码开源，希望感兴趣的朋友能帮忙提出意见，一起多交流，欢迎star和fork，更欢迎参与完善代码。
