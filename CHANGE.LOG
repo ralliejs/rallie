@@ -1,6 +1,12 @@
 # 2019/12/10 - V1.0.3
-- 实现核心微服务通信功能
-# 2019/12/230 - V1.0.4
-- bus添加getSocket接口
+- [feature] 实现核心微服务通信功能
+# 2019/12/23 - V1.0.4
+- [feature] bus添加getSocket接口
 # 2020/01/14 - V1.0.5
-- 添加createBus接口，修复 this.state 依然可写的bug
+- [feature] 添加createBus接口
+- [fix] 修复 this.state 依然可写的bug
+# 2020/05/24 - v1.1.0
+- [feature] 添加getBus接口
+- [feature] assets配置和middleware配置可共存
+- [feature] 添加预置状态${appName}
+- [feature] js资源不再通过fetch加载，而是通过创建script加载，支持跨域js
