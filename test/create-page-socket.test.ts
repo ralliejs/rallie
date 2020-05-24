@@ -5,9 +5,13 @@ describe('Test creating page socket in diffrent situations', () => {
     const globalBus = getBus('global');
     let socket1 = null, socket2 = null, socket3 =null;
 
-    test('# Case 0: window._Bus_ should be readonly', () => {
+    test('# Case 0: __Bus__ and __Bus__.global should be readonly', () => {
         expect(() => {
-            window['Bus'] = null;
+            window.__Bus__ = null;
+        }).toThrowError();
+
+        expect(() => {
+            window.__Bus__.global = null;
         }).toThrowError();
     });
 

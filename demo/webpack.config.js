@@ -1,16 +1,17 @@
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const path = require('path');
 
-module.exports = (env, args) => { // eslint-disable-line
+module.exports = () => {
     return {
         mode: 'development',
         entry: {
-            vueModule: './web/vueModule/main.js',
-            bundle: './web/index.jsx'
+            vueModule: './web/vuePage/main.js',
+            reactModule: './web/index.jsx'
         },
         output: {
-            path: path.resolve(__dirname, './server/public/assets'),
-            filename: '[name].js'
+            path: path.resolve(__dirname, './server/public/assets/js'),
+            filename: '[name].js',
+            publicPath: '/assets'
         },
         devtool: 'source-map',
         resolve: {

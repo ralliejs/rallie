@@ -2,7 +2,7 @@ import { Bus } from './index'; // eslint-disable-line
 
 declare global {
     interface Window {
-        _Bus_: {
+        __Bus__: {
             [name: string]: Bus;
         };
     }

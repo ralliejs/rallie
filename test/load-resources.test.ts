@@ -3,7 +3,7 @@ import nock from 'nock';
 
 const testAppCode = (busName: string) => {
     return `
-        window._Bus_.${busName}.createSocket('testApp', [], (socket, config) => {
+        window.__Bus__.${busName}.createSocket('testApp', [], (socket, config) => {
             console.log(config.text);
         });`
     ;

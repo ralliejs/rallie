@@ -1,7 +1,7 @@
 <template>
     <div>
         <div id="app">
-            <img alt="Vue logo" src="assets/logo.png">
+            <img alt="Vue logo" src="/assets/images/logo.png">
             <HelloWorld v-bind:text="text"/>
         </div>
     </div>
