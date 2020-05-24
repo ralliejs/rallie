@@ -10,7 +10,7 @@ createBus('global', {
         js: ['/assets/vueModule.js']
     }
 });
-console.log(window.Bus);
+console.log(window._Bus_);
 
 const bus = getBus('global');
 bus.createSocket('reactSocket', [], () => {
