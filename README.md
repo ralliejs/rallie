@@ -130,9 +130,9 @@
     ```javaScript
 
     // 一个最简单的资源加载中间件
-    const async XsimpleMiddleware = (name, loadJs, loadCss) => {
-        await loadJs(`https://cdn.x.com/assets/js/${name}.js`);
-        await loadCss(`https://cdn.x.com/assets/css/${name}.css`);
+    const XsimpleMiddleware = async (name, loadJs, loadCss) => {
+        loadCss(`https://cdn.x.com/assets/css/${name}.css`); // 同步
+        await loadJs(`https://cdn.x.com/assets/js/${name}.js`); // 异步
     }
 
     createBus('global', null, XsimpleMiddleWare);
