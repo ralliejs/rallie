@@ -1,24 +1,24 @@
 import { callbackType } from './types'; // eslint-disable-line
 
-type eventsType = {
-    [evnetName: string] : Array<callbackType>
+type broadCastEventsType = {
+    [eventName: string] : Array<callbackType>
 }
 
 export class EventEmitter {
     
-    private events: eventsType = {
+    private broadCastEvents: broadCastEventsType = {
         '$state-initial': [() => {
             // an empty callback to avoid warning of no listener
         }]
     }
 
     public addEventListener(event: string, callback: callbackType) {
-        this.events[event] = this.events[event] || [];
-        this.events[event].push(callback);
+        this.broadCastEvents[event] = this.broadCastEvents[event] || [];
+        this.broadCastEvents[event].push(callback);
     }
 
     public removeEventListener(event: string, callback: callbackType) {
-        const registedcallbacks = this.events[event];
+        const registedcallbacks = this.broadCastEvents[event];
         if (registedcallbacks) {
             let targetIndex = -1;
             for(let i = 0; i < registedcallbacks.length; i++) {
@@ -40,7 +40,7 @@ export class EventEmitter {
     }
 
     public emit(event: string, ...args: any[]) {
-        const registedcallbacks = this.events[event];
+        const registedcallbacks = this.broadCastEvents[event];
         if(registedcallbacks && registedcallbacks.length !== 0) {
             registedcallbacks.forEach((cb) => {
                 try {

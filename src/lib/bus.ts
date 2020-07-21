@@ -122,38 +122,13 @@ export class Bus {
             throw(new Error(`[obvious] ${name} socket already exists, you are not allowed to create it again`));
         }
 
-        // remove all ready states first
-        dependencies = dependencies.filter((stateName: string) => {
-            return this._state[stateName] === undefined;
-        });
-
-        if(dependencies.length === 0) {
-            const socket = new Socket(name, this.eventEmitter, this._state);
+        const socket = new Socket(name, this.eventEmitter, this._state);
+        socket.waitState(dependencies, timeout).then(() => {
             this.sockets[name] = socket;
             callback(socket, this.config[name]);
-            socket.initState(`$${name}`, true, true);
-        } else {
-            const timeId = setTimeout(() => {
-                clearTimeout(timeId);
-                const msg = `[obvious] failed to create socket ${name} because the following state ${JSON.stringify(dependencies)} are not ready`;
-                console.error(msg);
-            }, timeout);
-            const stateInitialCallback = (stateName: string) => {
-                const index = dependencies.indexOf(stateName);
-                if( index !== -1) {
-                    dependencies.splice(index, 1);
-                }
-                if(dependencies.length === 0) {
-                    clearTimeout(timeId);
-                    this.eventEmitter.removeEventListener('$state-initial', stateInitialCallback);
-                    const socket = new Socket(name, this.eventEmitter, this._state);
-                    this.sockets[name] = socket;
-                    callback(socket, this.config[name]);
-                    socket.initState(`$${name}`, true, true);
-                }
-            };
-            this.eventEmitter.addEventListener('$state-initial', stateInitialCallback);
-        }
+        }).catch((error) => {
+            console.error(error.message);
+        });
     }
 
     /**

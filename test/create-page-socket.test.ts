@@ -28,8 +28,8 @@ describe('Test creating page socket in diffrent situations', () => {
             socket2 = socket;
             const locale = socket2.getState('locale');
             console.log(locale);
+            expect(console.log).toBeCalledWith('en');
         });
-        expect(console.log).toBeCalledWith('en');
     });
 
     test('# Case 2: waiting for some unready state, state should be accessed after it is ready', (done) => {
@@ -51,9 +51,9 @@ describe('Test creating page socket in diffrent situations', () => {
             socket.getState('icon');
         }, 100);
         setTimeout(() => {
-            expect(console.error).toBeCalledWith('[obvious] failed to create socket socket4 because the following state ["icon"] are not ready');
+            expect(console.error).toBeCalledWith('[obvious] wait for states ["icon"] timeout');
             done();
-        },200);
+        }, 200);
     });
 
     test('# Case 4: create an existed socket, it should throw an error', () => {

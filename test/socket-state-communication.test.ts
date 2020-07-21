@@ -18,14 +18,11 @@ describe('Test state communication capabilities between sockets', () => {
             socket1 = socket;
             socket1.initState('name', 'Bob');
         });
-        expect(bus.state.$socket1).toEqual(true);
-        expect(bus.state.$socket2).toBeUndefined();
-        bus.createSocket('socket2', [], (socket) => {
+        bus.createSocket('socket2', ['name'], (socket) => {
             socket2 = socket;
             const name = socket2.getState('name');
             expect(name).toEqual('Bob');
         });
-        expect(bus.state.$socket2).toEqual(true);
     });
 
     test('# case 2: socket3 watch state name then socket2 set it, name should be set and socket', () => {
@@ -35,13 +32,14 @@ describe('Test state communication capabilities between sockets', () => {
         bus.createSocket('socket3', [], (socket) => {
             socket3 = socket;
             socket3.watchState('name', watchCallback);
+            socket2.setState('name', 'Jack');
+            expect(dynamicName).toEqual('Jack');
+            socket3.unwatchState('name', watchCallback);
+            socket2.setState('name', 'Bob');
+            expect(socket2.getState('name')).toEqual('Bob');
+            expect(dynamicName).toEqual('Jack');
         });
-        socket2.setState('name', 'Jack');
-        expect(dynamicName).toEqual('Jack');
-        socket3.unwatchState('name', watchCallback);
-        socket2.setState('name', 'Bob');
-        expect(socket2.getState('name')).toEqual('Bob');
-        expect(dynamicName).toEqual('Jack');
+        
     });
 
     test('# case 3: socket2 init a private state then socket1 and socket2 set it', () => {
@@ -54,9 +52,6 @@ describe('Test state communication capabilities between sockets', () => {
         expect(socket1.getState('locale')).toEqual('zh');
         expect(JSON.stringify(bus.state)).toEqual(JSON.stringify({
             name: 'Bob',
-            $socket1: true,
-            $socket2: true,
-            $socket3: true,
             locale: 'zh',
         }));
     });

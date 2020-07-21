@@ -121,5 +121,41 @@ export class Socket {
         }
         this.eventEmitter.removeEventListener(`$state-${stateName}-change`, callback);
     }
+
+    /**
+     * waiting for some states to be initialized
+     * @param {string[]} dependencies the states to be waited for
+     * @param {number} timeout the time to wait
+     */
+    waitState(dependencies: string[], timeout = 10 * 1000) {
+        // remove all ready states first
+        dependencies = dependencies.filter((stateName: string) => {
+            return this._state[stateName] === undefined;
+        });
+
+        if (dependencies.length === 0) {
+            return Promise.resolve();
+        } else {
+            return new Promise((resolve, reject) => {
+                const timeId = setTimeout(() => {
+                    clearTimeout(timeId);
+                    const msg = `[obvious] wait for states ${JSON.stringify(dependencies)} timeout`;
+                    reject(new Error(msg));
+                }, timeout);
+                const stateInitialCallback = (stateName: string) => {
+                    const index = dependencies.indexOf(stateName);
+                    if( index !== -1) {
+                        dependencies.splice(index, 1);
+                    }
+                    if(dependencies.length === 0) {
+                        clearTimeout(timeId);
+                        this.off('$state-initial', stateInitialCallback);
+                        resolve();
+                    }
+                };
+                this.on('$state-initial', stateInitialCallback);
+            });
+        }
+    }
 }
 
