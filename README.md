@@ -284,49 +284,6 @@
     获取bus实例，与createBus搭配使用
 
 
-- # 预置状态
-    - ${appName}: 表示名字是appName的微服务就绪。这个状态在用createSocket创建出app对应的socket，且回调函数执行完后被init，常用于声明微服务依赖
-    例子：
-        有两个微服务A和B，基于demoBus进行消息通信
-        微服务A在启动时监听printHelloWorld事件:
-        ```javaScript
-        import {getBus} from '@runnan/obvious';
-
-        const bus = getBus('demoBus');
-        bus.createSocket('A', [], (socket) => {
-            socket.on('printHelloWorld', () => {
-                console.log('Hello World');
-            });
-        });
-        ```
-        微服务B在启动时触发printHelloWorld事件，为了保证在触发事件时，微服务A已经监听了该事件，微服务B在创建socket时可以把$A作为状态依赖：
-        ```javaScript
-        import {getBus} from '@runnan/obvious';
-
-        const bus = getBus('demoBus');
-        bus.createSocket('B', ['$A'], (socket) => {
-            socket.emit('printHelloWorld');
-        });
-        ```
-        在平台服务中，由于微服务B已经声明了它依赖微服务A，因此即使demoBus先拉起微服务B，B的回调逻辑也会等待A的回调逻辑执行完后才执行
-        ```javaScript
-        import {createBus, getBus} from '@runnan/obvious';
-
-        createBus('demoBus', {
-            A: {
-                js: ['http://{hosta}/assets/a.js'] // 先执行A
-            },
-            B: {
-                js: ['http://{hostb}/assets/b.js'] // 后执行B
-            }
-        });
-
-        const bus = getBus('demoBus');
-
-        bus.startApp('B'); // 先拉起B
-        bus.startApp('A'); // 后拉起A
-        ```
-
 - # Q&A
     - **Q:** 不同微服务定义的全局变量和样式如何避免互相影响？
     
@@ -335,10 +292,6 @@
     - **Q:** 事件收发和状态更改是同步的还是异步的? 
     
       **A:** EventEmitter的所有操作都是同步的，obvious的状态机制也是基于同步的EventEmitter实现的
-      
-    - **Q:** 内置状态`${appName}`就绪可以保证app的所有代码都执行完了吗？
-    
-      **A:** `${appName}`就绪只能保证app内的所有同步逻辑都执行完了，而不能保证异步逻辑也执行完了
 
 - # 关联项目
     - [react-obvious](https://github.com/SMIELPF/react-obvious)： 结合了obvious和react的一个类react-redux框架
@@ -351,5 +304,6 @@
 
 - # 写在最后
     本代码仓的demo目录是一个简单的微前端示例工程，实现了把Vue页面嵌入React单页框架中的功能，为了方便开发者理解“不同微服务能独立部署”的含义，没有使用dev-server热更新，而是用express进行静态伺服。
-
     闭门造车，水平有限，现将代码开源，希望感兴趣的朋友能提出意见，一起交流，欢迎issue、fork和PR。你的star是我前进的动力
+
+    **PS:** 本项目只是前端微服务框架的一个个人实践，请勿将该项目用于生产环境中
