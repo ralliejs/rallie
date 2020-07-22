@@ -15,30 +15,57 @@ export class Socket {
     }
 
     /**
-     * add an event listener
+     * add a broadcast event listener
      * @param {string} eventName 
      * @param {Function} callback 
      */
-    on(eventName: string, callback: callbackType) {
-        this.eventEmitter.addEventListener(eventName, callback);
+    public onBroadcast(eventName: string, callback: callbackType) {
+        this.eventEmitter.addBroadcastEventListener(eventName, callback);
     }
 
     /**
-     * remove an event listener
+     * remove a broadcast event listener
      * @param {string} eventName 
      * @param {Function} callback 
      */
-    off(eventName: string, callback: callbackType) {
-        this.eventEmitter.removeEventListener(eventName, callback);
+    public offBroadcast(eventName: string, callback: callbackType) {
+        this.eventEmitter.removeBroadcastEventListener(eventName, callback);
     }
 
     /**
-     * emit an event
+     * emit a broadcast event
      * @param {string} eventName 
      * @param {...rest} args 
      */
-    emit(eventName: string, ...args: any[]) {
-        this.eventEmitter.emit(eventName, ...args);
+    public emitBroadcast(eventName: string, ...args: any[]) {
+        this.eventEmitter.emitBroadcast(eventName, ...args);
+    }
+
+    /**
+     * add a unicast event listener
+     * @param {string} eventName 
+     * @param {Function} callback 
+     */
+    public onUnicast(eventName: string, callback: callbackType) {
+        this.eventEmitter.addUnicastEventListener(eventName, callback);
+    }
+
+    /**
+     * remove a unicast event listener
+     * @param {string} eventName 
+     * @param {Function} callback 
+     */
+    public offUnicast(eventName: string, callback: callbackType) {
+        this.eventEmitter.removeUnicastEventListener(eventName, callback);
+    }
+
+    /**
+     * emit a unicast event
+     * @param eventName 
+     * @param args 
+     */
+    public emitUnicast(eventName: string, ...args: any[]) {
+        this.eventEmitter.emitUnicast(eventName, ...args);
     }
 
     /**
@@ -47,7 +74,7 @@ export class Socket {
      * @param {any} value state's value 
      * @param {any} isPrivate is state can only be modified by the socket which initialized it
      */
-    initState(key: string, value: any, isPrivate: boolean = false) {
+    public initState(key: string, value: any, isPrivate: boolean = false) {
         if(this._state[key] !== undefined) {
             const msg = `[obvious] state ${key} has been initialized, please use [setState] instead`;
             throw(new Error(msg));
@@ -59,10 +86,10 @@ export class Socket {
                 value,
                 owner: isPrivate ? this : null
             };
-            this.on(`$state-${key}-change`, () => {
+            this.onBroadcast(`$state-${key}-change`, () => {
                 // an empty callback to avoid warning of no listener
             });
-            this.emit('$state-initial', key);
+            this.emitBroadcast('$state-initial', key);
         }
     }
 
@@ -70,7 +97,7 @@ export class Socket {
      * get a state
      * @param {string} stateName 
      */
-    getState(stateName: string) {
+    public getState(stateName: string) {
         const mappedState = getMappedState(this._state);
         const copiedState = mappedState;
         return copiedState[stateName];
@@ -81,7 +108,7 @@ export class Socket {
      * @param {string} stateName 
      * @param {any} newValue 
      */
-    setState(stateName: string, newValue: any) {
+    public setState(stateName: string, newValue: any) {
         if(this._state[stateName] === undefined) {
             const msg = `[obvious] you are trying to set state ${stateName} before it is initialized, init it first`;
             throw new Error(msg);
@@ -93,7 +120,7 @@ export class Socket {
         }
         const oldValue = this._state[stateName].value;
         this._state[stateName].value = newValue;
-        this.emit(`$state-${stateName}-change`, newValue, oldValue);
+        this.emitBroadcast(`$state-${stateName}-change`, newValue, oldValue);
     }
 
     /**
@@ -101,12 +128,12 @@ export class Socket {
      * @param {string} stateName 
      * @param {Function} callback 
      */
-    watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void) {
+    public watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void) {
         if(this._state[stateName] === undefined) {
             const msg = `[obvious] you are trying to watch state ${stateName} before it is initialized, init it first`;
             throw new Error(msg);
         }
-        this.eventEmitter.addEventListener(`$state-${stateName}-change`, callback);
+        this.eventEmitter.addBroadcastEventListener(`$state-${stateName}-change`, callback);
     }
 
     /**
@@ -114,12 +141,12 @@ export class Socket {
      * @param {string} stateName 
      * @param {Function} callback 
      */
-    unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void) {
+    public unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void) {
         if(this._state[stateName] === undefined) {
             const msg = `[obvious] you are trying to unwatch state ${stateName} before it is initialized, init it first`;
             throw new Error(msg);
         }
-        this.eventEmitter.removeEventListener(`$state-${stateName}-change`, callback);
+        this.eventEmitter.removeBroadcastEventListener(`$state-${stateName}-change`, callback);
     }
 
     /**
@@ -127,7 +154,7 @@ export class Socket {
      * @param {string[]} dependencies the states to be waited for
      * @param {number} timeout the time to wait
      */
-    waitState(dependencies: string[], timeout = 10 * 1000) {
+    public waitState(dependencies: string[], timeout = 10 * 1000) {
         // remove all ready states first
         dependencies = dependencies.filter((stateName: string) => {
             return this._state[stateName] === undefined;
@@ -149,13 +176,29 @@ export class Socket {
                     }
                     if(dependencies.length === 0) {
                         clearTimeout(timeId);
-                        this.off('$state-initial', stateInitialCallback);
+                        this.offBroadcast('$state-initial', stateInitialCallback);
                         resolve();
                     }
                 };
-                this.on('$state-initial', stateInitialCallback);
+                this.onBroadcast('$state-initial', stateInitialCallback);
             });
         }
     }
+
+    /**
+     * deprecated
+     */
+    public on = this.onBroadcast;
+
+    /**
+     * deprecated
+     */
+    public off = this.offBroadcast;
+
+    /**
+     * deprecated
+     */
+    public emit = this.emitBroadcast
+
 }
 

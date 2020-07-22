@@ -1,24 +1,38 @@
 import { callbackType } from './types'; // eslint-disable-line
+import { Errors, Warnings} from './utils';
 
-type broadCastEventsType = {
+type broadcastEventsType = {
     [eventName: string] : Array<callbackType>
+}
+
+type unicastEventsType = {
+    [eventName: string] : callbackType
 }
 
 export class EventEmitter {
     
-    private broadCastEvents: broadCastEventsType = {
+    private broadcastEvents: broadcastEventsType = {
         '$state-initial': [() => {
             // an empty callback to avoid warning of no listener
         }]
     }
 
-    public addEventListener(event: string, callback: callbackType) {
-        this.broadCastEvents[event] = this.broadCastEvents[event] || [];
-        this.broadCastEvents[event].push(callback);
+    private uniCastEvents: unicastEventsType = {}
+
+    public addBroadcastEventListener(event: string, callback: callbackType) {
+        this.broadcastEvents[event] = this.broadcastEvents[event] || [];
+        this.broadcastEvents[event].push(callback);
     }
 
-    public removeEventListener(event: string, callback: callbackType) {
-        const registedcallbacks = this.broadCastEvents[event];
+    public addUnicastEventListener(event: string, callback: callbackType) {
+        if (this.uniCastEvents[event]) {
+            throw new Error(Errors.registedExistedUnicast(event));
+        }
+        this.uniCastEvents[event] = callback;
+    }
+
+    public removeBroadcastEventListener(event: string, callback: callbackType) {
+        const registedcallbacks = this.broadcastEvents[event];
         if (registedcallbacks) {
             let targetIndex = -1;
             for(let i = 0; i < registedcallbacks.length; i++) {
@@ -30,27 +44,46 @@ export class EventEmitter {
             if(targetIndex !== -1) {
                 registedcallbacks.splice(targetIndex, 1);
             } else {
-                const msg = `[obvious] you are trying to remove a listener of ${event} event, but the listener hasn't been registed`;
+                const msg = Errors.wrongBroadcastCallback(event);
                 throw new Error(msg);
             }
         } else {
-            const msg = `[obvious] you are trying to remove a listener of ${event} event, but ${event} hasn't been registed as a event`;
+            const msg = Errors.removeNonExistedBroadcast(event);
             throw new Error(msg);
         }
     }
 
-    public emit(event: string, ...args: any[]) {
-        const registedcallbacks = this.broadCastEvents[event];
-        if(registedcallbacks && registedcallbacks.length !== 0) {
-            registedcallbacks.forEach((cb) => {
+    public removeUnicastEventListener(event: string, callback: callbackType) {
+        if (!this.uniCastEvents[event]) {
+            const msg = Errors.removeNonExistedUnicast(event);
+            throw new Error(msg);
+        }
+
+        if (this.uniCastEvents[event] !== callback) {
+            const msg = Errors.wrongUnicastCallback(event);
+            throw new Error(msg);
+        }
+        delete this.uniCastEvents[event];
+    }
+
+    public emitBroadcast(event: string, ...args: any[]) {
+        const registedcallbacks = this.broadcastEvents[event];
+        if (registedcallbacks && registedcallbacks.length !== 0) {
+            registedcallbacks.forEach((callback) => {
                 try {
-                    cb(...args);
+                    callback(...args);
                 } catch (error) {
-                    console.error(`[obvious] one of the callbacks of ${event} event throws an uncaught error`);
+                    console.error(Errors.broadcastCallbackError);
+                    console.error(error);
                 }
             });
         } else {
-            console.warn(`[obvious] you have emitted ${event} event, but there is no listener of this event`);
+            console.warn(Warnings.emptyBroadcastEvents(event));
         }
+    }
+
+    public emitUnicast(event: string, ...args: any[]) {
+        const callback = this.uniCastEvents[event];
+        return callback(...args);
     }
 }
