@@ -12,7 +12,7 @@ createBus('global', {
 });
 
 const bus = getBus('global');
-bus.createSocket('reactSocket', [], () => {
+bus.DEPRECATED_createSocket('reactSocket', [], () => {
     ReactDOM.render((
         <HashRouter>
             <Switch>

@@ -4,13 +4,11 @@ import { getMappedState } from './utils';
 
 export class Socket {
 
-    public name: string;
     private eventEmitter: EventEmitter;
     private _state: Object;
 
-    constructor(name: string, eventEmitter: EventEmitter, _state: Object) {
+    constructor(eventEmitter: EventEmitter, _state: Object) {
         this.eventEmitter = eventEmitter;
-        this.name = name;
         this._state = _state;
     }
 
@@ -76,7 +74,7 @@ export class Socket {
      */
     public initState(key: string, value: any, isPrivate: boolean = false) {
         if(this._state[key] !== undefined) {
-            const msg = `[obvious] state ${key} has been initialized, please use [setState] instead`;
+            const msg = `[obvious] state ${key} has been initialized, please use "setState" instead`;
             throw(new Error(msg));
         } else if(value === undefined) {
             const msg = `[obvious] state ${key} can't be initialized to undefined, please initial it to null instead`;
@@ -186,17 +184,17 @@ export class Socket {
     }
 
     /**
-     * deprecated
+     * @deprecated
      */
     public on = this.onBroadcast;
 
     /**
-     * deprecated
+     * @deprecated
      */
     public off = this.offBroadcast;
 
     /**
-     * deprecated
+     * @deprecated
      */
     public emit = this.emitBroadcast
 

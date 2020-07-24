@@ -3,7 +3,7 @@ import nock from 'nock';
 
 const testAppCode = (busName: string) => {
     return `
-        window.__Bus__.${busName}.createSocket('testApp', [], (socket, config) => {
+        window.__Bus__.${busName}.DEPRECATED_createSocket('testApp', [], (socket, config) => {
             console.log(config.text);
         });`
     ;
@@ -41,7 +41,7 @@ describe('load resources by sercice name', () => {
 
         const testBus = getBus('testAssets');
         testBus.allowCrossDomainJs = false;
-        testBus.startApp('testApp', {
+        testBus.DEPRECATED_startApp('testApp', {
             text: 'hello'
         }).then(() => {
             expect(console.log).toBeCalledWith('hello');
@@ -58,7 +58,7 @@ describe('load resources by sercice name', () => {
 
         const testBus = getBus('testMiddleware');
         testBus.allowCrossDomainJs = false;
-        testBus.startApp('testApp', {
+        testBus.DEPRECATED_startApp('testApp', {
             text: 'hello'
         }).then(() => {
             expect(console.log).toBeCalledWith('hello');

@@ -50,7 +50,7 @@
 
 3. **微服务开发团队在约定好bus之后，分头开发微服务:** 
 
-    在微服务的入口文件中用 `bus.createSocket`创建socket, 并用socket读写状态和收发事件来与其他微服务通信
+    在微服务的入口文件中用 `bus.DEPRECATED_createSocket`创建socket, 并用socket读写状态和收发事件来与其他微服务通信
 
     ```javaScript
     // http://localhost/assets/service1/entry.js
@@ -58,7 +58,7 @@
 
     const bus = getBus('global');
 
-    bus.createSocket('service1', [], (socket, config) => {
+    bus.DEPRECATED_createSocket('service1', [], (socket, config) => {
         /**
          * callback函数里写微服务的业务逻辑: 与技术栈无关，可以用react、vue、angular
          * 渲染页面，也可以用jQuery或者原生js操作dom; 甚至也可以专门
@@ -88,7 +88,7 @@
 
     const bus = getBus('global');
 
-    bus.createSocket('service2', ['service1_ready'], (socket, config) => {
+    bus.DEPRECATED_createSocket('service2', ['service1_ready'], (socket, config) => {
         // 读取配置信息
         socket.initState('count', config.initCount);
 
@@ -97,7 +97,7 @@
     });
     ```
 
-4. **在平台服务中通过`bus.startApp()`启动子微服务:** 
+4. **在平台服务中通过`bus.DEPRECATED_startApp()`启动子微服务:** 
 
     在创建bus时，已经配置过微服务的css和js资源有哪些，所谓启动微服务，就是先依次加载配置的css资源，再依次加载并执行配置的js资源。
 
@@ -106,7 +106,7 @@
 
     const bus = getBus('global');
 
-    bus.startApp('service2', {initCount: 1}).then(() => {
+    bus.DEPRECATED_startApp('service2', {initCount: 1}).then(() => {
         console.log('成功拉起service2');
     });
 
@@ -116,7 +116,7 @@
      * 所以实际是service1中执行完socket.initSta('service1_ready', true);
      * 之后，才执行service2中的回调
      */
-    bus.startApp('service1').then(() => {
+    bus.DEPRECATED_startApp('service1').then(() => {
         console.log('成功拉起service1');
     })
 
@@ -137,7 +137,7 @@
 
     createBus('global', null, XsimpleMiddleWare);
 
-    bus.startApp('service1');
+    bus.DEPRECATED_startApp('service1');
     ```
 
 - ## API
@@ -221,32 +221,32 @@
         如果同时assets和middleware都配置了同一个微服务的资源，则assets的配置生效。
         关联API: [createBus](#createBus)
 
-    - **startApp()**：拉起app并启动（执行对应的js代码）
+    - **DEPRECATED_startApp()**：拉起app并启动（执行对应的js代码）
 
         | 参数名 | 是否必选 | 类型 | 描述 |
         |:---:|:---:|:---:|:---:|
         |appName| 是| string | app名，必须与app内声明的socket同名 |
         | config | 否 | any | app配置， 将在app对应的socket被create时被传给socket，如果多次start同一个app，则只有第一次传入的config生效 |
 
-        startApp将返回一个Promise, 如果app是第一次被拉起，则bus会加载app对应的资源，等资源加载并执行成功后才进入promise的then回调， 但是如果app已经被start过一次，则执行startApp将直接进入then回调，且不会把config配置传递给对应的微服务。
+        DEPRECATED_startApp将返回一个Promise, 如果app是第一次被拉起，则bus会加载app对应的资源，等资源加载并执行成功后才进入promise的then回调， 但是如果app已经被start过一次，则执行DEPRECATED_startApp将直接进入then回调，且不会把config配置传递给对应的微服务。
 
-    - **<span id='createSocket'>createSocket()</span>**: 创建前端套接字
+    - **<span id='DEPRECATED_createSocket'>DEPRECATED_createSocket()</span>**: 创建前端套接字
 
         | 参数名 | 是否必选 | 类型 | 描述 |
         |:---:|:---:|:---:|:---:|
         | socketName | 是 | string | socket名，必须与app同名 |
         | dependencies | 是 | string[] | app依赖的状态列表，如果不依赖任何状态则传入一个空数组即可（状态参见socket介绍）
-        | callback | 是 | Function | 执行app逻辑的函数，例如用React将视图渲染进一个div中。接收两个参数， 第一个参数是app对应的socket实例，用于与其他app通信， 第二个参数是Bus在startApp时传入的config对象，用于初始化app |
+        | callback | 是 | Function | 执行app逻辑的函数，例如用React将视图渲染进一个div中。接收两个参数， 第一个参数是app对应的socket实例，用于与其他app通信， 第二个参数是Bus在DEPRECATED_startApp时传入的config对象，用于初始化app |
         | timeout | 否 | number | 依赖状态的超时时间，默认为10*1000ms
 
-        startApp和createSocket需要配合使用，createSocket通常是某个微服务代码的入口函数，在createSocket的callback内执行app具体逻辑，例如有一个printString微服务，作用是将字符串`{{config.text}}`渲染到id为`{{config.container}}`的div中, 其中config由微服务被拉起时初始化，假设该微服务的代码伺服在/printString/assets/js/index.js下， 则需要在平台服务中创建Bus并拉起微服务：
+        DEPRECATED_startApp和DEPRECATED_createSocket需要配合使用，DEPRECATED_createSocket通常是某个微服务代码的入口函数，在DEPRECATED_createSocket的callback内执行app具体逻辑，例如有一个printString微服务，作用是将字符串`{{config.text}}`渲染到id为`{{config.container}}`的div中, 其中config由微服务被拉起时初始化，假设该微服务的代码伺服在/printString/assets/js/index.js下， 则需要在平台服务中创建Bus并拉起微服务：
         ```javaScript
         window.globalBus = new Bus({
             printString: {
                 js: ['/printString/assets/js/index.js']
             }
         });
-        window.globalBus.startApp('printString', {
+        window.globalBus.DEPRECATED_startApp('printString', {
             text: 'hello world',
             container: 'container'
         }).then(() => {
@@ -255,7 +255,7 @@
         ```
         而/printString/assets/js/index.js中的逻辑则是：
         ```javaScript
-        window.globalBus.createSocket('printString', [], (socket, config) => {
+        window.globalBus.DEPRECATED_createSocket('printString', [], (socket, config) => {
             ReactDOM.render(<div>{config.text}</div>, document.getElementById(config.container));
         });
         ```
@@ -275,7 +275,7 @@
     | assets | 是 |{ [appName: string]: { js: string[], css: string[] } } | 配置要拉取的微服务的静态资源
     | middleware | 否 |   (appName: string, loadJs?: Function, loadCss?: Function) => Promise<void> |  配置如何拉取js资源的中间件
 
-    正如[createSocket](#createSocket)中的样例代码所示，独立部署的两个微服务要进行通信，需要基于同一个bus实例，为了达到这个目的，在`new Bus()`创建出bus实例后，我们把这个实例手动挂载到window对象上，这样带来的一个问题是，当有多个团队分别基于多个bus进行通信时，有可能会不小心命名出重名bus，出现全局变量冲突。因此，obvious提供了`createBus`函数，它会创建一个Bus，并将其挂载到`window.__Bus__`上，例如，执行`createBus('global')`将会new一个Bus实例并挂载在`window.__Bus__`上，然后可以通过`getBus('global')`获取bus实例，执行其他操作。推荐使用`createBus`来创建bus, 因为不必添加额外的全局变量，且`window.__Bus__`做了属性保护，是只读的，挂载在`window.__Bus__`上的属性也是只读的，可以保证bus实例创建并挂载后不会被修改。用createBus创建同名bus，在运行时会抛出错误提示。
+    正如[DEPRECATED_createSocket](#DEPRECATED_createSocket)中的样例代码所示，独立部署的两个微服务要进行通信，需要基于同一个bus实例，为了达到这个目的，在`new Bus()`创建出bus实例后，我们把这个实例手动挂载到window对象上，这样带来的一个问题是，当有多个团队分别基于多个bus进行通信时，有可能会不小心命名出重名bus，出现全局变量冲突。因此，obvious提供了`createBus`函数，它会创建一个Bus，并将其挂载到`window.__Bus__`上，例如，执行`createBus('global')`将会new一个Bus实例并挂载在`window.__Bus__`上，然后可以通过`getBus('global')`获取bus实例，执行其他操作。推荐使用`createBus`来创建bus, 因为不必添加额外的全局变量，且`window.__Bus__`做了属性保护，是只读的，挂载在`window.__Bus__`上的属性也是只读的，可以保证bus实例创建并挂载后不会被修改。用createBus创建同名bus，在运行时会抛出错误提示。
   - ## <span id='getBus'>getBus()</span> ##
     | 参数名 | 是否必选 | 类型 | 描述 |
     |:---:|:---:|:---:|:---:|

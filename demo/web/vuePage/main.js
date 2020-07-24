@@ -5,7 +5,7 @@ import {getBus} from '@runnan/obvious';
 Vue.config.productionTip = false;
 const bus = getBus('global');
 
-bus.createSocket('vueSocket', ['text'], (socket) => {
+bus.DEPRECATED_createSocket('vueSocket', ['text'], (socket) => {
     let vueApp = null;
     socket.on('mountVuePage', () => {
         vueApp = new Vue({

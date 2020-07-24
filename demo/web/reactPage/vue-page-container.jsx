@@ -6,7 +6,7 @@ function VuePageContainer() {
     const bus = getBus('global');
     const reactSocket = bus.getSocket('reactSocket');
     useEffect(() => {
-        bus.startApp('vueSocket').then(() => {
+        bus.DEPRECATED_startApp('vueSocket').then(() => {
             reactSocket.emit('mountVuePage');
         });
 

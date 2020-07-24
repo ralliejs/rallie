@@ -8,10 +8,10 @@ describe('Test the event communication capabilities between diffrent page socket
     test('# case 1: listen an event then emit the event, callback should be called', () => {
         const expectedMsg = 'receive test event';
         console.log = jest.fn();
-        globalBus.createSocket('skt1', [], (socket) => {
+        globalBus.DEPRECATED_createSocket('skt1', [], (socket) => {
             socket.on('test', callback);
         });
-        globalBus.createSocket('skt2', [], (socket) => {
+        globalBus.DEPRECATED_createSocket('skt2', [], (socket) => {
             socket.emit('test', expectedMsg);
             expect(console.log).toBeCalledWith(expectedMsg);
         });

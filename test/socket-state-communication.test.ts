@@ -14,11 +14,11 @@ describe('Test state communication capabilities between sockets', () => {
 
     test('# case 1: socket1 init a public state name, socket2 should access it', () => {
         expect(bus.state.$socket1).toBeUndefined();
-        bus.createSocket('socket1', [], (socket) => {
+        bus.DEPRECATED_createSocket('socket1', [], (socket) => {
             socket1 = socket;
             socket1.initState('name', 'Bob');
         });
-        bus.createSocket('socket2', ['name'], (socket) => {
+        bus.DEPRECATED_createSocket('socket2', ['name'], (socket) => {
             socket2 = socket;
             const name = socket2.getState('name');
             expect(name).toEqual('Bob');
@@ -29,7 +29,7 @@ describe('Test state communication capabilities between sockets', () => {
         const watchCallback = (newValue: string) => {
             dynamicName = newValue;
         };
-        bus.createSocket('socket3', [], (socket) => {
+        bus.DEPRECATED_createSocket('socket3', [], (socket) => {
             socket3 = socket;
             socket3.watchState('name', watchCallback);
             socket2.setState('name', 'Jack');

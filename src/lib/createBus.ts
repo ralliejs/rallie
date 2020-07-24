@@ -19,10 +19,11 @@ export const createBus = (name: string, assets?:assetsConfigType, middleware?: m
         throw new Error(`[obvious] the bus named ${name} has been defined before, please rename your bus`);
     } else {
         Object.defineProperty(window.__Bus__, name, {
-            value: new Bus(assets, middleware),
+            value: new Bus(name, assets, middleware),
             writable: false
         });
     }
+    return window.__Bus__[name];
 };
 
 export const getBus = (name: string) => {

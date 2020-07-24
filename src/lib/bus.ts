@@ -1,33 +1,33 @@
 import { EventEmitter } from './event-emitter';
 import { Socket } from './socket';
-import { getMappedState } from './utils';
+import { App } from './app';
+import { getMappedState, Errors } from './utils';
 
-type socketsType = {
-    [socketName: string]: Socket
-}
 
 export type assetsConfigType = {
     [moduleName: string]: {
         js?: string[],
-        css?: string[], 
-    } // configure the assets of the page module to load
+        css?: string[],
+        isRawResource?: boolean
+    } // configure the assets of the app
 }
 
 export type middlewareType = (name: string, loadJs?: Function, loadCss?: Function) => Promise<void> | undefined
 
 export class Bus {
 
+    private name: string;
     private eventEmitter: EventEmitter = new EventEmitter();
     private _state: Object = {};
     public state: {[name: string]: any};
-    private config: Object = {};
-    private sockets: socketsType = {};
     private assets: assetsConfigType;
+    private apps: {[name: string]: App | boolean} = {};
     private middleware: middlewareType;
     public allowCrossDomainJs: boolean; 
 
-    constructor(assets: assetsConfigType = {}, middleware?: middlewareType) {
+    constructor(name: string = '', assets: assetsConfigType = {}, middleware?: middlewareType) {
         this.assets = assets;
+        this.name = name;
         this.middleware = middleware;
         this.allowCrossDomainJs = true;
         Object.defineProperty(this, 'state', {
@@ -36,10 +36,6 @@ export class Bus {
                 throw new Error('[obvious] bus.state is readonly');
             }
         });
-    }
-
-    private isSocketExisted(name: string) {
-        return this.sockets[name] !== undefined;
     }
 
     private async fetchJs(src: string) {
@@ -68,90 +64,85 @@ export class Bus {
         document.head.appendChild(link);
     }
 
-    private async loadSocketFromAssetsConfig(name: string) {
+    private async loadResourcesFromAssetsConfig(name: string) {
         const assets = this.assets;
-        if (assets[name]) {
-            // insert link tag first
-            assets[name].css && assets[name].css.forEach((asset: string) => {
-                if((/^.+\.css$/).test(asset)) {
-                    this.loadCss(asset);
+        // insert link tag first
+        assets[name].css && assets[name].css.forEach((asset: string) => {
+            if((/^.+\.css$/).test(asset)) {
+                this.loadCss(asset);
+            } else {
+                console.error(`[obvious] ${asset} is not valid asset`);
+            }
+        });
+        // load and excute js
+        if (assets[name].js) {
+            for( let asset of assets[name].js) {
+                if((/^.+\.js$/).test(asset)) {
+                    if(this.allowCrossDomainJs) {
+                        await this.loadJs(asset);
+                    } else {
+                        await this.fetchJs(asset);
+                    }
                 } else {
                     console.error(`[obvious] ${asset} is not valid asset`);
                 }
-            });
-            // load and excute js
-            if(assets[name].js) {
-                for( let asset of assets[name].js) {
-                    if((/^.+\.js$/).test(asset)) {
-                        if(this.allowCrossDomainJs) {
-                            await this.loadJs(asset);
-                        } else {
-                            await this.fetchJs(asset);
-                        }
-                    } else {
-                        console.error(`[obvious] ${asset} is not valid asset`);
-                    }
-                }
             }
-        } else {
-            throw (new Error(`[obvious] can not find module ${name}, create it first`));
         }
-    }
-
-    /**
-     * get the socket by name
-     * @param {string} name the name of socket
-     * @return {Socket} the socket instance
-     */
-    public getSocket(name: string) {
-        if(this.isSocketExisted(name)) {
-            return this.sockets[name];
+        // create app for raw resource
+        if (assets[name].isRawResource) {
+            this.apps[name] = true;
         }
-        return null;
     }
 
     /**
      * create a socket
-     * @param {string} name socket name
-     * @param {string[]} dependencies the states which should be initialized before the socket created
-     * @param {Function} callback the callback after the dependencies are ready
-     * @param {number} timeout the time of waiting for dependencies
+     * @return the socket instance
      */
-    public createSocket(name: string, dependencies: string[], callback:(socket: Socket, config?: Object | null ) => void, timeout = 10*1000) {
-        if( this.isSocketExisted(name) ) {
-            throw(new Error(`[obvious] ${name} socket already exists, you are not allowed to create it again`));
-        }
-
-        const socket = new Socket(name, this.eventEmitter, this._state);
-        socket.waitState(dependencies, timeout).then(() => {
-            this.sockets[name] = socket;
-            callback(socket, this.config[name]);
-        }).catch((error) => {
-            console.error(error.message);
-        });
+    public createSocket() {
+        return new Socket(this.eventEmitter, this._state);
     }
 
     /**
-     * give a config and start a app
-     * @param {string} socketName socket name
-     * @param {object} config the initial config of app 
+     * create an app
+     * @param {string} name the name of the app
+     * @return the app instance
      */
-    public async startApp(socketName: string, config = null) {
-        if(this.isSocketExisted(socketName)) {
-            config && console.warn(`[obvious] socket ${socketName} already exists, your config is invalid`);
-        } else {
-            this.config[socketName] = config;
-            try {
-                if(this.assets && this.assets[socketName]) {
-                    await this.loadSocketFromAssetsConfig(socketName);
-                } else if (this.middleware) {
-                    await this.middleware(socketName, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
-                } else {
-                    throw (new Error(`[obvious] can not find module ${socketName}, create it first`));
-                }
-            } catch(error) {
-                this.config[socketName] = null;
-                throw error;
+    public createApp(name: string) {
+        if (this.apps[name]) {
+            throw new Error(Errors.createExistingApp(name));
+        }
+        const app = new App(name);
+        this.apps[name] = app;
+        return app;
+    }
+
+    /**
+     * start up an app
+     * @param {string} name 
+     * @param {any} config 
+     */
+    public async activateApp(name: string, config?: any) {
+        if (!this.apps[name]) {
+            // load the resources
+            if(this.assets && this.assets[name]) {
+                await this.loadResourcesFromAssetsConfig(name);
+            } else if (this.middleware) {
+                await this.middleware(name, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
+            } else {
+                throw (new Error(Errors.resourceNotFound(name, this.name)));
+            }
+        }
+        if (!this.apps[name]) {
+            throw new Error(Errors.appNotCreated(name));
+        }
+        const isApp = typeof this.apps[name] !== 'boolean';
+        if (isApp) {
+            const app = this.apps[name] as App;
+            if (!app.bootstrapted) {
+                await app.activateDependenciesApp(this.activateApp.bind(this));
+                app.doBootstrap && app.doBootstrap(config);
+            } else {
+                app.doReactivate && app.doReactivate(config);
             }
         }
     }
