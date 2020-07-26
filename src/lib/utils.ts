@@ -15,7 +15,7 @@ export const Errors = {
         return `[obvious] you are trying to remove a listener of the broadcast event ${eventName}, but the listener hasn't been registed`;
     },
     broadcastCallbackError: (eventName: string) => {
-        return `[obvious] one of the callbacks of the broadcast event ${eventName}  hrows an uncaught error`;
+        return `[obvious] one of the callbacks of the broadcast event ${eventName} throws an uncaught error`;
     },
     // ================= EventEmitter.unicast ====================
     removeNonExistedUnicast: (eventName: string) => {
@@ -31,11 +31,39 @@ export const Errors = {
     createExistingApp: (appName: string) => {
         return `[obvious] ${appName} is existing, you are not allowed to create it again`;
     },
-    resourceNotFound: (appName: string, busName: string) => {
+    resourceNotDeclared: (appName: string, busName: string) => {
         return `[obvious] can not find any assets of the app ${appName} on the bus ${busName}`;
     },
     appNotCreated: (appName: string) => {
-        return `[obvious] you are trying to start app ${appName}, but it was not created`;
+        return `[obvious] you are trying to activate app ${appName}, but it was not created`;
+    },
+    // ================= Socket ===============
+    modifyPrivateState: (stateName: string) => {
+        return `[obvious] state ${stateName} is private, you are not allowed to set it`;
+    },
+    accessUninitializedState: (stateName: string) => {
+        return `[obvious] it's not allowed to set, watch or unwatch state ${stateName} before it is initialized`;
+    },
+    waitStateTimeout: (states: string[]) => {
+        return `[obvious] wait for states ${JSON.stringify(states)} timeout`;
+    },
+    duplicatedInitial: (stateName: string) => {
+        return `[obvious] duplicated initialized state ${stateName}`;
+    },
+    initialStateAsUndefined: (stateName: string) => {
+        return `[obvious] state ${stateName} can't be initialized to undefined, please initial it to null instead`;
+    },
+    // ================= Bus ==================
+    stateIsReadOnly: () => {
+        return '[obvious] bus.state is readonly';
+    },
+    invalidResource: (asset: string) => {
+        return `[obvious] ${asset} is not a valid asset`;
+    },
+    dependenciesOverflow: () => {
+        return '[obvious] the number of apps bootstraped at a time is greater than the maximum value of 100, ' + 
+               'it means that there may be circular dependencies, please check the app dependencies declaration' +
+               'or reset the bus\'s maxDependenciesNum';
     }
 };
 

@@ -1,6 +1,6 @@
 import { EventEmitter } from './event-emitter'; // eslint-disable-line
 import { callbackType } from './types'; // eslint-disable-line
-import { getMappedState } from './utils';
+import { getMappedState, Errors } from './utils';
 
 export class Socket {
 
@@ -14,8 +14,8 @@ export class Socket {
 
     /**
      * add a broadcast event listener
-     * @param {string} eventName 
-     * @param {Function} callback 
+     * @param eventName 
+     * @param callback 
      */
     public onBroadcast(eventName: string, callback: callbackType) {
         this.eventEmitter.addBroadcastEventListener(eventName, callback);
@@ -23,8 +23,8 @@ export class Socket {
 
     /**
      * remove a broadcast event listener
-     * @param {string} eventName 
-     * @param {Function} callback 
+     * @param eventName 
+     * @param callback 
      */
     public offBroadcast(eventName: string, callback: callbackType) {
         this.eventEmitter.removeBroadcastEventListener(eventName, callback);
@@ -32,8 +32,8 @@ export class Socket {
 
     /**
      * emit a broadcast event
-     * @param {string} eventName 
-     * @param {...rest} args 
+     * @param eventName 
+     * @param args 
      */
     public emitBroadcast(eventName: string, ...args: any[]) {
         this.eventEmitter.emitBroadcast(eventName, ...args);
@@ -50,8 +50,8 @@ export class Socket {
 
     /**
      * remove a unicast event listener
-     * @param {string} eventName 
-     * @param {Function} callback 
+     * @param eventName 
+     * @param callback 
      */
     public offUnicast(eventName: string, callback: callbackType) {
         this.eventEmitter.removeUnicastEventListener(eventName, callback);
@@ -63,31 +63,29 @@ export class Socket {
      * @param args 
      */
     public emitUnicast(eventName: string, ...args: any[]) {
-        this.eventEmitter.emitUnicast(eventName, ...args);
+        return this.eventEmitter.emitUnicast(eventName, ...args);
     }
 
     /**
      * init a state
-     * @param {string} key state's name 
-     * @param {any} value state's value 
-     * @param {any} isPrivate is state can only be modified by the socket which initialized it
+     * @param stateName
+     * @param value
+     * @param isPrivate is state can only be modified by the socket which initialized it
      */
-    public initState(key: string, value: any, isPrivate: boolean = false) {
-        if(this._state[key] !== undefined) {
-            const msg = `[obvious] state ${key} has been initialized, please use "setState" instead`;
-            throw(new Error(msg));
+    public initState(stateName: string, value: any, isPrivate: boolean = false) {
+        if(this._state[stateName] !== undefined) {
+            throw(new Error(Errors.duplicatedInitial(stateName)));
         } else if(value === undefined) {
-            const msg = `[obvious] state ${key} can't be initialized to undefined, please initial it to null instead`;
-            throw(new Error(msg));
+            throw(new Error(Errors.initialStateAsUndefined(stateName)));
         }else {
-            this._state[key] = {
+            this._state[stateName] = {
                 value,
                 owner: isPrivate ? this : null
             };
-            this.onBroadcast(`$state-${key}-change`, () => {
+            this.onBroadcast(`$state-${stateName}-change`, () => {
                 // an empty callback to avoid warning of no listener
             });
-            this.emitBroadcast('$state-initial', key);
+            this.emitBroadcast('$state-initial', stateName);
         }
     }
 
@@ -103,32 +101,34 @@ export class Socket {
 
     /**
      * set the value of the state
-     * @param {string} stateName 
-     * @param {any} newValue 
+     * @param stateName 
+     * @param arg 
      */
-    public setState(stateName: string, newValue: any) {
+    public setState(stateName: string, arg: any) {
         if(this._state[stateName] === undefined) {
-            const msg = `[obvious] you are trying to set state ${stateName} before it is initialized, init it first`;
+            const msg = Errors.accessUninitializedState(stateName);
             throw new Error(msg);
         }
         const stateOwner = this._state[stateName].owner;
         if( stateOwner !== this && stateOwner !== null ) {
-            const msg = `[obvious] state ${stateName} is private, you are not allowed to modify it`;
+            const msg = Errors.modifyPrivateState(stateName);
             throw new Error(msg);
         }
         const oldValue = this._state[stateName].value;
+        const getFunctionArg = typeof arg === 'function';
+        const newValue = getFunctionArg ? arg(oldValue) : arg;
         this._state[stateName].value = newValue;
         this.emitBroadcast(`$state-${stateName}-change`, newValue, oldValue);
     }
 
     /**
      * watch the change of state
-     * @param {string} stateName 
-     * @param {Function} callback 
+     * @param stateName 
+     * @param callback 
      */
     public watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void) {
         if(this._state[stateName] === undefined) {
-            const msg = `[obvious] you are trying to watch state ${stateName} before it is initialized, init it first`;
+            const msg = Errors.accessUninitializedState(stateName);
             throw new Error(msg);
         }
         this.eventEmitter.addBroadcastEventListener(`$state-${stateName}-change`, callback);
@@ -136,21 +136,20 @@ export class Socket {
 
     /**
      * remove the listener of watching the state
-     * @param {string} stateName 
-     * @param {Function} callback 
+     * @param stateName 
+     * @param callback 
      */
     public unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void) {
         if(this._state[stateName] === undefined) {
-            const msg = `[obvious] you are trying to unwatch state ${stateName} before it is initialized, init it first`;
-            throw new Error(msg);
+            throw new Error(Errors.accessUninitializedState(stateName));
         }
         this.eventEmitter.removeBroadcastEventListener(`$state-${stateName}-change`, callback);
     }
 
     /**
      * waiting for some states to be initialized
-     * @param {string[]} dependencies the states to be waited for
-     * @param {number} timeout the time to wait
+     * @param dependencies the states to be waited for
+     * @param timeout the time to wait
      */
     public waitState(dependencies: string[], timeout = 10 * 1000) {
         // remove all ready states first
@@ -159,44 +158,28 @@ export class Socket {
         });
 
         if (dependencies.length === 0) {
-            return Promise.resolve();
+            return Promise.resolve(getMappedState(this._state));
         } else {
             return new Promise((resolve, reject) => {
                 const timeId = setTimeout(() => {
                     clearTimeout(timeId);
-                    const msg = `[obvious] wait for states ${JSON.stringify(dependencies)} timeout`;
+                    const msg = Errors.waitStateTimeout(dependencies);
                     reject(new Error(msg));
                 }, timeout);
                 const stateInitialCallback = (stateName: string) => {
                     const index = dependencies.indexOf(stateName);
-                    if( index !== -1) {
+                    if (index !== -1) {
                         dependencies.splice(index, 1);
                     }
-                    if(dependencies.length === 0) {
+                    if (dependencies.length === 0) {
                         clearTimeout(timeId);
                         this.offBroadcast('$state-initial', stateInitialCallback);
-                        resolve();
+                        resolve(getMappedState(this._state));
                     }
                 };
                 this.onBroadcast('$state-initial', stateInitialCallback);
             });
         }
     }
-
-    /**
-     * @deprecated
-     */
-    public on = this.onBroadcast;
-
-    /**
-     * @deprecated
-     */
-    public off = this.offBroadcast;
-
-    /**
-     * @deprecated
-     */
-    public emit = this.emitBroadcast
-
 }
 

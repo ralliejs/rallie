@@ -3,37 +3,38 @@ import { Socket } from './socket';
 import { App } from './app';
 import { getMappedState, Errors } from './utils';
 
-
 export type assetsConfigType = {
     [moduleName: string]: {
         js?: string[],
         css?: string[],
-        isRawResource?: boolean
+        isLib?: boolean
     } // configure the assets of the app
 }
 
-export type middlewareType = (name: string, loadJs?: Function, loadCss?: Function) => Promise<void> | undefined
+export type middlewareType = (name: string, loadJs?: (src: string) => Promise<void>, loadCss?: (src: string) => void) => Promise<void> | undefined
 
 export class Bus {
 
     private name: string;
+    private assets: assetsConfigType;
+    private middleware: middlewareType;
     private eventEmitter: EventEmitter = new EventEmitter();
     private _state: Object = {};
-    public state: {[name: string]: any};
-    private assets: assetsConfigType;
     private apps: {[name: string]: App | boolean} = {};
-    private middleware: middlewareType;
-    public allowCrossDomainJs: boolean; 
+    private activatingCntOnce = 0;
+
+    public state: {[name: string]: any};
+    public allowCrossDomainJs: boolean = true;
+    public maxDependenciesNum = 100;
 
     constructor(name: string = '', assets: assetsConfigType = {}, middleware?: middlewareType) {
         this.assets = assets;
         this.name = name;
         this.middleware = middleware;
-        this.allowCrossDomainJs = true;
         Object.defineProperty(this, 'state', {
             get: () => getMappedState(this._state),
             set: () => {
-                throw new Error('[obvious] bus.state is readonly');
+                throw new Error(Errors.stateIsReadOnly());
             }
         });
     }
@@ -45,7 +46,7 @@ export class Bus {
     }
 
     private loadJs(src: string) {
-        return new Promise((resolve) => {
+        const promise: Promise<void> = new Promise((resolve) => {
             const script = document.createElement('script');
             script.type= 'text/javascript';
             script.src = src;
@@ -54,6 +55,7 @@ export class Bus {
             };
             document.body.appendChild(script);
         });
+        return promise;
     }
 
     private loadCss(href: string) {
@@ -71,7 +73,7 @@ export class Bus {
             if((/^.+\.css$/).test(asset)) {
                 this.loadCss(asset);
             } else {
-                console.error(`[obvious] ${asset} is not valid asset`);
+                console.error(Errors.invalidResource(asset));
             }
         });
         // load and excute js
@@ -84,12 +86,12 @@ export class Bus {
                         await this.fetchJs(asset);
                     }
                 } else {
-                    console.error(`[obvious] ${asset} is not valid asset`);
+                    console.error(Errors.invalidResource(asset));
                 }
             }
         }
         // create app for raw resource
-        if (assets[name].isRawResource) {
+        if (assets[name].isLib) {
             this.apps[name] = true;
         }
     }
@@ -104,7 +106,7 @@ export class Bus {
 
     /**
      * create an app
-     * @param {string} name the name of the app
+     * @param name the name of the app
      * @return the app instance
      */
     public createApp(name: string) {
@@ -117,20 +119,29 @@ export class Bus {
     }
 
     /**
-     * start up an app
-     * @param {string} name 
-     * @param {any} config 
+     * load the resources of an app
+     * @param name 
+     */
+    public async loadApp(name: string) {
+        // load the resources
+        if(this.assets && this.assets[name]) {
+            await this.loadResourcesFromAssetsConfig(name);
+        } else if (this.middleware) {
+            await this.middleware(name, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
+        } else {
+            throw (new Error(Errors.resourceNotDeclared(name, this.name)));
+        }
+    }
+
+    /**
+     * activate an app
+     * @todo: how to handle circular dependency dead lock
+     * @param name 
+     * @param config 
      */
     public async activateApp(name: string, config?: any) {
         if (!this.apps[name]) {
-            // load the resources
-            if(this.assets && this.assets[name]) {
-                await this.loadResourcesFromAssetsConfig(name);
-            } else if (this.middleware) {
-                await this.middleware(name, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
-            } else {
-                throw (new Error(Errors.resourceNotFound(name, this.name)));
-            }
+            await this.loadApp(name);
         }
         if (!this.apps[name]) {
             throw new Error(Errors.appNotCreated(name));
@@ -139,11 +150,34 @@ export class Bus {
         if (isApp) {
             const app = this.apps[name] as App;
             if (!app.bootstrapted) {
+                if (this.activatingCntOnce > this.maxDependenciesNum) {
+                    throw new Error(Errors.dependenciesOverflow());
+                }
+                this.activatingCntOnce++;
                 await app.activateDependenciesApp(this.activateApp.bind(this));
-                app.doBootstrap && app.doBootstrap(config);
+                if (app.doBootstrap) {
+                    await app.doBootstrap(config);
+                } else if (app.doActivate) {
+                    await app.doActivate(config);
+                }
+                app.bootstrapted = true;
+                this.activatingCntOnce--;
             } else {
-                app.doReactivate && app.doReactivate(config);
+                app.doActivate && await app.doActivate(config);
             }
+        }
+    }
+
+    /**
+     * destroy an app
+     * @param name 
+     * @param config 
+     */
+    public async destroyApp(name: string, config?: any) {
+        const app = this.apps[name];
+        if (app && typeof app !== 'boolean') {
+            app.doDestroy && await app.doDestroy(config);
+            delete this.apps[name];
         }
     }
 }

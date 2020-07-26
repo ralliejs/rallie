@@ -2,9 +2,9 @@ import {Bus, assetsConfigType, middlewareType} from './bus'; // eslint-disable-l
 
 /**
  * create a bus and record it on window.__Bus__
- * @param {string} name the name of bus 
- * @param {assetsConfigType} assets the assets config
- * @param {middlewareType} middleware the middleware to load resources 
+ * @param name the name of bus 
+ * @param assets the assets config
+ * @param middleware the middleware to load resources 
  */
 const busProxy = {};
 export const createBus = (name: string, assets?:assetsConfigType, middleware?: middlewareType) => {
@@ -18,12 +18,13 @@ export const createBus = (name: string, assets?:assetsConfigType, middleware?: m
     if (window.__Bus__[name]) {
         throw new Error(`[obvious] the bus named ${name} has been defined before, please rename your bus`);
     } else {
+        const bus = new Bus(name, assets, middleware);
         Object.defineProperty(window.__Bus__, name, {
-            value: new Bus(name, assets, middleware),
+            value: bus,
             writable: false
         });
+        return bus;
     }
-    return window.__Bus__[name];
 };
 
 export const getBus = (name: string) => {
