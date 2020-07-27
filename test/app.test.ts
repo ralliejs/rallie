@@ -1,7 +1,7 @@
 import { createBus } from '../src/lib/createBus';
 import { Errors } from '../src/lib/utils';
 
-describe('Test lifecycles of app', () => {
+describe('Test lifecycles of App', () => {
     const bus = createBus('testBus');
     test('# case 1: test the lifecycle of the app which indicate both bootstrap and activate callback', (done) => {
         /**
@@ -96,6 +96,82 @@ describe('Test lifecycles of app', () => {
 
 });
 
-describe('Test dependencies of app', () => {
-    // TO DO
+describe('Test dependencies of App', () => {
+    const bus = createBus('testBus2');
+    let appNames = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+    let apps: any = {};
+    let bootstrapedApps = [];
+    let reactivateApps = [];
+    beforeEach(() => {
+        appNames.map((appName) => {
+            const app =  bus.createApp(appName);
+            apps[appName] = app;
+            app.bootstrap(async () => {
+                bootstrapedApps.push(appName);
+            }).activate(async () => {
+                reactivateApps.push(appName);
+            }).destroy(async () => {
+                delete apps[appName];
+                bootstrapedApps.splice(bootstrapedApps.indexOf(appName), 1);
+            } );
+            return app;
+        });
+    });
+
+    afterEach(() => {
+        appNames.forEach((appName) => {
+            reactivateApps = [];
+            bus.destroyApp(appName);
+        });
+    });
+
+    test('# case 1: test normal dependencies', (done) => {
+        /** the dependencies relationship
+         * |-- a
+         *     |--b
+         *        |--c
+         *     |--d
+         *        |--e
+         *        |--f
+         *     |--g
+         */
+        apps.a.relyOn(['b', 'd', 'g']);
+        apps.b.relyOn(['c']);
+        apps.c.relyOn([]);
+        apps.d.relyOn(['e', 'f']);
+        bus.activateApp('a').then(() => {
+            expect(bootstrapedApps.join(',')).toEqual('c,b,e,f,d,g,a');
+            bootstrapedApps = [];
+            return bus.activateApp('a');
+        }).then(() => {
+            // reactivate app 'a', its dependencies shouldn't be reactivated
+            expect(bootstrapedApps.join(',')).toEqual('');
+            expect(reactivateApps.join(',')).toEqual('a');
+            done();
+        });
+    });
+    
+    test('# case 2: test circular dependency', (done) => {
+        apps.a.relyOn(['b']);
+        apps.b.relyOn(['a']);
+        bus.activateApp('a').then(() => {
+            throw new Error('you should never reach here');
+        }).catch((error) => {
+            expect(error.message).toEqual(Errors.bootstrapNumberOverflow());
+            done();
+        });
+    });
+
+    test('# case 3: test params of lifecycles', (done) => {
+        apps.a.relyOn([ { c: 'app named a activate me'} ]);
+        apps.c.relyOn([]).bootstrap(async (config) => {
+            console.log(config);
+        });
+        console.log = jest.fn();
+        bus.activateApp('a').then(() => {
+            expect(console.log).toBeCalledWith('app named a activate me');
+            done();
+        });
+    });
+    
 });

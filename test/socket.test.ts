@@ -86,7 +86,7 @@ describe('Test state communication capabilities between sockets', () => {
     });
 
     test('# case 4: wait for some states to be initialized, callback should be called after all states are ready', (done) => {
-        socketF.waitState(['user', 'theme'], 2 * 1000).then((state) => {
+        socketF.waitState(['user', 'theme'], 2 * 1000).then((state: any) => {
             expect(state.user).toEqual('tom');
             expect(state.theme).toEqual('dark');
             done();
@@ -109,7 +109,7 @@ describe('Test state communication capabilities between sockets', () => {
             clearTimeout(timerId1);
         }, 3 * 1000);
         const timerId2 = setTimeout(() => {
-            socketF.waitState(['user', 'session']).then((state) => {
+            socketF.waitState(['user', 'session']).then((state: any) => {
                 expect(state.session).toEqual('abc');
                 done();
             });

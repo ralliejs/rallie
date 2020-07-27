@@ -21,11 +21,11 @@ export class Bus {
     private eventEmitter: EventEmitter = new EventEmitter();
     private _state: Object = {};
     private apps: {[name: string]: App | boolean} = {};
-    private activatingCntOnce = 0;
+    private bootstrapNumberOnce = 0;
 
     public state: {[name: string]: any};
     public allowCrossDomainJs: boolean = true;
-    public maxDependenciesNum = 100;
+    public maxBootstrapNumberOnce = 100;
 
     constructor(name: string = '', assets: assetsConfigType = {}, middleware?: middlewareType) {
         this.assets = assets;
@@ -150,10 +150,11 @@ export class Bus {
         if (isApp) {
             const app = this.apps[name] as App;
             if (!app.bootstrapted) {
-                if (this.activatingCntOnce > this.maxDependenciesNum) {
-                    throw new Error(Errors.dependenciesOverflow());
+                if (this.bootstrapNumberOnce > this.maxBootstrapNumberOnce) {
+                    this.bootstrapNumberOnce = 0;
+                    throw new Error(Errors.bootstrapNumberOverflow());
                 }
-                this.activatingCntOnce++;
+                this.bootstrapNumberOnce++;
                 await app.activateDependenciesApp(this.activateApp.bind(this));
                 if (app.doBootstrap) {
                     await app.doBootstrap(config);
@@ -161,7 +162,7 @@ export class Bus {
                     await app.doActivate(config);
                 }
                 app.bootstrapted = true;
-                this.activatingCntOnce--;
+                this.bootstrapNumberOnce--;
             } else {
                 app.doActivate && await app.doActivate(config);
             }

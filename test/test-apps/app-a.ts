@@ -10,13 +10,13 @@ bus.createApp('app-a')
     .relyOn([
         'react'
     ])
-    .bootstrap(() => {
+    .bootstrap(async () => {
         console.log('bootstraped');
     })
-    .activate(() => {
+    .activate(async () => {
         console.log('reactivated');
     })
-    .destroy(() => {
+    .destroy(async () => {
         console.log('destroy');
     });
 `;
