@@ -1,6 +1,7 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <h1 v-on:click="focusOnReactInput">{{ msg }}</h1>
+    <button v-on:click="changeRotate">{{ rotate ? 'stop rotate' : 'rotate' }}</button>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
@@ -31,10 +32,33 @@
 </template>
 
 <script>
+import {getBus} from '@runnan/obvious-core';
+
+const bus = getBus('demo');
+const socket = bus.createSocket();
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  data: function() {
+    return {
+      rotate: true
+    };
+  },
+  methods: {
+    changeRotate: function() {
+      this.rotate = !this.rotate;
+      if (this.rotate) {
+        socket.emitBroadcast('rotate');
+      } else {
+        socket.emitBroadcast('stop-rotate');
+      }
+    },
+    focusOnReactInput: function() {
+      const inputDOM = socket.emitUnicast('get-input-dom');
+      inputDOM && inputDOM.focus();
+    }
   }
 }
 </script>
@@ -54,5 +78,20 @@ li {
 }
 a {
   color: #42b983;
+}
+
+button {
+  border: none;
+  outline: none;
+  width: 10rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: white;
+  background: #42b983
+}
+
+button:hover {
+  opacity: 0.8
 }
 </style>

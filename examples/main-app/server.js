@@ -16,5 +16,5 @@ app.use(express.static(path.join(__dirname, './dist/')));
 app.listen('9999', () => {
     setTimeout(() => {
         child_process.execSync('start http://localhost:9999/index.html');
-    });
+    }, 3000);
 });

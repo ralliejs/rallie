@@ -1,10 +1,11 @@
-import {createBus} from '@runnan/obvious-core';
+import { createBus } from '@runnan/obvious-core';
 
 const bus = createBus('demo', {
     'react-app': {
         js: [
             'http://localhost:3000/static/js/bundle.js',
             'http://localhost:3000/static/js/0.chunk.js',
+            'http://localhost:3000/static/js/1.chunk.js',
             'http://localhost:3000/static/js/main.chunk.js'
         ]
     },
