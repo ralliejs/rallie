@@ -1,5 +1,5 @@
-/node_modules
+node_modules
 /demo/node_modules
 /demo/server/public/assets
-/build
-/coverage
+build
+coverage

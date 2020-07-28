@@ -1,7 +1,7 @@
 {
   "name": "obvious",
-  "version": "1.1.0",
-  "description": "a front end micro service framework",
+  "version": "0.0.1",
+  "description": "a  progressive micro front framework",
   "main": "build/index.js",
   "scripts": {
     "demo": "cd ./demo && npm run start",
@@ -33,10 +33,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SMIELPF/obvious.git"
+    "url": "git+https://github.com/run-nan/obvious.git"
   },
   "bugs": {
-    "url": "https://github.com/SMIELPF/obvious/issues"
+    "url": "https://github.com/SMIELPF/run-nan/issues"
   },
-  "homepage": "https://github.com/SMIELPF/obvious#readme"
+  "homepage": "https://github.com/run-nan/obvious#readme"
 }

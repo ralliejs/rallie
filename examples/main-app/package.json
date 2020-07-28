@@ -1,0 +1,23 @@
+{
+  "name": "main-app",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack -w",
+    "start": "node ./server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@runnan/obvious-core": "0.0.1"
+  },
+  "devDependencies": {
+    "express": "^4.17.1",
+    "html-webpack-plugin": "^4.3.0",
+    "webpack": "^4.44.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
