@@ -3,7 +3,7 @@
 > 渐进式微前端框架
 
 - 简单，轻量
-- 易于理解，快速上手
+- 轻松理解，快速上手
 - 灵活适配，易于扩展
 
 [GitHub](https://github.com/docsifyjs/docsify/)
