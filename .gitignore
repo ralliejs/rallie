@@ -1,5 +1,6 @@
 node_modules
 /demo/node_modules
 /demo/server/public/assets
+/examples/main-app/dist
 build
 coverage

@@ -14,6 +14,7 @@
     "@runnan/obvious-core": "0.0.1"
   },
   "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
     "express": "^4.17.1",
     "html-webpack-plugin": "^4.3.0",
     "webpack": "^4.44.0",

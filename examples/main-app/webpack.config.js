@@ -15,6 +15,19 @@ module.exports = () => {
     return {
         entry,
         devtool: 'source-map',
-        plugins
+        plugins,
+        resolve: {
+            alias: {
+                '@runnan/obvious-core': path.join(__dirname, '../../src/index.ts')
+            }
+        },
+        module: {
+            rules: [
+                {
+                    test: /.tsx?$/,
+                    use: ['awesome-typescript-loader']
+                }
+            ]
+        }
     };
 };

@@ -6,8 +6,7 @@ const bus = createBus('demo', {
             'http://localhost:3000/static/js/bundle.js',
             'http://localhost:3000/static/js/0.chunk.js',
             'http://localhost:3000/static/js/main.chunk.js'
-        ],
-        isLib: true
+        ]
     },
     'vue-app': {
         js: [

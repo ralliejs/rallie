@@ -1,4 +1,5 @@
-/build
-/node_modules
+build
+node_modules
+dist
 /demo/server
 /demo/node_modules
