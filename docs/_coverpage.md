@@ -6,8 +6,8 @@
 - 轻松理解，快速上手
 - 灵活适配，易于扩展
 
-[GitHub](https://github.com/docsifyjs/docsify/)
+[GitHub](https://github.com/obviousJs/obvious)
 [API](#API)
-[Get Started](#docsify)
+[Get Started](#介绍)
 
 ![color](#f0f0f0)

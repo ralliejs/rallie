@@ -53,6 +53,8 @@ obvious.js是一个渐进式的微前端框架，它专注于解决微应用的�
     - 在vue区域可以通过点击绿色按钮控制react图标是否旋转
     - 点击vue区域的标题react区域的输入框获得焦点
 
+本教程的最终代码在 [https://github.com/run-nan/obvious/tree/dev/examples](https://github.com/run-nan/obvious/tree/dev/examples)
+
 ## 准备工作
 
 ## Bus
