@@ -42,7 +42,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={`http://localhost:3000${logo}`} className={logoClass} alt="logo" />
+        <img src={`http://localhost:3001${logo}`} className={logoClass} alt="logo" />
         <div>
             <div>Edit the text showed in vue area: </div>
             <input ref={inputRef} onChange={handleOnChange} value={text}></input>

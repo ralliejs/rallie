@@ -9,7 +9,9 @@ if (!fs.existsSync('./dist')) {
     fs.mkdirSync('./dist');
 }
 
-child_process.exec('npm run watch');
+const childProcess = child_process.exec('npm run watch');
+childProcess.stdout.pipe(process.stdout);
+childProcess.stderr.pipe(process.stderr);
 
 app.use(express.static(path.join(__dirname, './dist/')));
 
