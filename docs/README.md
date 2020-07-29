@@ -195,6 +195,7 @@ app.listen('9999', () => {
 
 # 进阶
 ------
+## App的生命周期
 ## 绝对轻量引入
 ## 共享运行时
 ## 资源加载中间件
@@ -206,8 +207,8 @@ app.listen('9999', () => {
 # API
 ------
 ## Bus
-## App
 ## Socket
+## App
 
 # 扩展生态
 -------
@@ -216,7 +217,6 @@ app.listen('9999', () => {
 ## obvious-cli
 ## obvious-spa
 ## sand-box-plugin
-## app-repo
 
 # 历史版本
 -------

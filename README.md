@@ -1,5 +1,7 @@
 # obvious.js
 
+> 由于对obvious做了破坏性重构，这篇README的内容已经几乎完全作废，请移步[obvious官方文档](https://run-nan.github.io/obvious/#/)
+
 轻量级的微前端框架
 
 ![示例](https://user-gold-cdn.xitu.io/2019/12/25/16f38c92aecb9b9c?imageslim)
