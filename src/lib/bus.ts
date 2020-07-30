@@ -22,7 +22,6 @@ export class Bus {
     private _state: Object = {};
     private apps: {[name: string]: App | boolean} = {};
     private bootstrapNumberOnce = 0;
-    private internalSocket: Socket;
 
     public state: {[name: string]: any};
     public allowCrossDomainJs: boolean = true;
@@ -32,7 +31,6 @@ export class Bus {
         this.assets = assets;
         this.name = name;
         this.middleware = middleware;
-        this.internalSocket = this.createSocket();
         Object.defineProperty(this, 'state', {
             get: () => getMappedState(this._state),
             set: () => {
@@ -117,7 +115,6 @@ export class Bus {
         }
         const app = new App(name);
         this.apps[name] = app;
-        this.internalSocket.initState(`$app-${name}-created`, true, true);
         return app;
     }
 
@@ -143,11 +140,10 @@ export class Bus {
      * @param config 
      */
     public async activateApp(name: string, config?: any) {
-        if (!this.state[`app-${name}-created`]) {
+        if (!this.apps[name]) {
             await this.loadApp(name);
         }
-        const state = await this.internalSocket.waitState([`$app-${name}-created`]);
-        if (!state[`$app-${name}-created`]) {
+        if (!this.apps[name]) {
             throw new Error(Errors.appNotCreated(name));
         }
         const isApp = typeof this.apps[name] !== 'boolean';
