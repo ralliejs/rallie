@@ -46,12 +46,18 @@ describe('Test the capability to load the resources of an app or lib', () => {
     };
 
     window['appLoadedByMiddleware'] = [];
-    const assetsConfigMiddleware: middlewareType = async (name, loadJs) => {
-        await loadJs(`https://localhost/assets/${name}.js`);
-        window['appLoadedByMiddleware'].push(name);
+    const middleware: middlewareType = {
+        handleLoad: async (name, loadJs) => {
+            await loadJs(`https://localhost/assets/${name}.js`);
+            window['appLoadedByMiddleware'].push(name);
+        },
+        handleExcute: async (code, src) => {
+            window['currentLoadedSrc'] = src;
+            eval(code);
+        }
     };
 
-    const bus = createBus('testBus', staticAssetsConfig, assetsConfigMiddleware);
+    const bus = createBus('testBus', staticAssetsConfig, middleware);
     bus.allowCrossDomainJs = false;
     test('# case 1: create a bus, it should be mounted on window.__Bus__ ', () => {
         expect(getBus('testBus')).toBe(bus);
@@ -64,10 +70,8 @@ describe('Test the capability to load the resources of an app or lib', () => {
         console.log = jest.fn();
         bus.activateApp('app-a').then(() => {
             expect(window['React']).toEqual('reactSourceCode');
+            expect(window['currentLoadedSrc']).toEqual('https://cdn.obvious.com/assets/react.js');
             expect(console.log).toBeCalledWith('bootstraped');
-            done();
-        }).catch((error) => {
-            console.error(error);
             done();
         });
     });
@@ -84,7 +88,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
         });
     });
 
-    test('# case 4: activate an app which does not hava valid resource declaration, console.error should be called', (done) => {
+    test('# case 4: activate an app which does not have valid resource declaration, console.error should be called', (done) => {
         console.error = jest.fn();
         bus.activateApp('invalid-resource-app').then(() => {
             throw new Error('this callback should not be reached');

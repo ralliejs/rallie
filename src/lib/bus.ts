@@ -11,7 +11,10 @@ export type assetsConfigType = {
     } // configure the assets of the app
 }
 
-export type middlewareType = (name: string, loadJs?: (src: string) => Promise<void>, loadCss?: (src: string) => void) => Promise<void> | undefined
+export type middlewareType = {
+    handleLoad?: (name: string, loadJs?: (src: string) => Promise<void>, loadCss?: (src: string) => void) => Promise<void>;
+    handleExcute?: (code: any, src: string) => Promise<void>
+}
 
 export class Bus {
 
@@ -27,7 +30,7 @@ export class Bus {
     public allowCrossDomainJs: boolean = true;
     public maxBootstrapNumberOnce = 100;
 
-    constructor(name: string = '', assets: assetsConfigType = {}, middleware?: middlewareType) {
+    constructor(name: string = '', assets: assetsConfigType = {}, middleware: middlewareType = {}) {
         this.assets = assets;
         this.name = name;
         this.middleware = middleware;
@@ -39,13 +42,17 @@ export class Bus {
         });
     }
 
-    private async fetchJs(src: string) {
+    /**
+     * define fetchJs、loadJs and loadCss as arrow function because 
+     * they will be the arguments of the handleLoad middleware
+     * */ 
+    private fetchJs = async (src: string) => {
         const res = await fetch(src);
         const code = await res.text();
-        eval(code);
+        this.middleware?.handleExcute ? this.middleware.handleExcute(code, src) : eval(code);
     }
 
-    private loadJs(src: string) {
+    private loadJs = async (src: string) => {
         const promise: Promise<void> = new Promise((resolve) => {
             const script = document.createElement('script');
             script.type= 'text/javascript';
@@ -58,7 +65,7 @@ export class Bus {
         return promise;
     }
 
-    private loadCss(href: string) {
+    private loadCss = async (href: string) => {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.type = 'text/css';
@@ -126,8 +133,8 @@ export class Bus {
         // load the resources
         if(this.assets && this.assets[name]) {
             await this.loadResourcesFromAssetsConfig(name);
-        } else if (this.middleware) {
-            await this.middleware(name, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
+        } else if (this.middleware?.handleLoad) {
+            await this.middleware?.handleLoad(name, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
         } else {
             throw (new Error(Errors.resourceNotDeclared(name, this.name)));
         }
