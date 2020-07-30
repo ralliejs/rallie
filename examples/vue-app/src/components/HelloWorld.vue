@@ -34,7 +34,7 @@
 <script>
 import {getBus} from '@runnan/obvious-core';
 
-const bus = getBus('demo');
+const bus = getBus('host');
 const socket = bus.createSocket();
 export default {
   name: 'HelloWorld',

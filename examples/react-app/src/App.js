@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import { getBus } from '@runnan/obvious-core';
 
-const bus = getBus('demo');
+const bus = getBus('host');
 const socket = bus.createSocket();
 
 function App() {

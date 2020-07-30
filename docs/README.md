@@ -60,6 +60,21 @@ obvious.js是一个轻量级的渐进式的微前端框架，它专注于解决�
 ![init-react](_media/init-react.png)
 vue-app被部署在 http://localhost:8081 上
 ![init-vue](_media/init-vue.png)
+
+然后我们分别修改一下应用挂载点，为了配合之后的聚合，我们微调一下样式，并修改publicPath
+
+react-app做如下修改：
+![](_media/react-change-1.png)
+![](_media/react-change-2.png)
+![](_media/react-change-3.png)
+
+vue-app做如下修改：
+![](_media/vue-change-0.png)
+![](_media/vue-change-1.png)
+![](_media/vue-change-2.png)
+![](_media/vue-change-3.png)
+
+
 我们最终要将这两个应用在 http://localhost:9999 上聚合，因此需要搭建一个叫做host-app的宿主工程
 > 如果不了解前端构建和Node.js的一些基础知识，下面的部分内容可能会让你感觉有些难以理解，你可以选择直接复制教程中的代码，而不必理解为什么要这么做
 
@@ -184,12 +199,58 @@ app.listen('9999', () => {
      |--- webpack.config.js
      |--- package.json
 ```
-最后，执行一下npm start，http://localhost:9999 被打开
+执行一下npm start，http://localhost:9999 被打开
 ![init-host](_media/init-host.png)
+
+最后，让我们在三个app中都安装依赖 `npm install @runnan/obvious-core`
 
 ?> <strong>You are ready to learn obvious.js</strong>
 
-## 资源配置和加载
+## 资源注册和加载
+并不难理解，react-app和vue-app上能呈现页面是因为加载了包含渲染逻辑的javaScript代码
+
+![](_media/react-network-panel.png)
+
+![](_media/vue-network-panel.png)
+
+现在我们要把这两个应用在 http://localhost:9999 上聚合，其实也只需要做同样的事情
+
+?> 类比后端的概念，一个后端微服务本质上是一个或几个被编译为二进制的机器码启动为进程后调度操作系统资源，一个前端微应用的本质是一个或几个被编译为原生js的script被加载到html中后调度DOM资源
+
+在obvious中，专门做这件事情的是一个叫做Bus的对象，它是整个obvious微前端体系的内核，是调度不同微应用的枢纽。创建一个Bus时，你只需要把要聚合的微应用的资源信息告诉Bus，之后就可以用Bus提供的API调度前端资源和编排前端应用。
+
+```js
+// ./host-app/main.js
+import {createBus} from '@runnan/obvious-core';
+
+const bus = createBus('host', {
+    'react-app': {
+        js: [
+            'http://localhost:3000/static/js/bundle.js',
+            'http://localhost:3000/static/js/1.chunk.js',
+            'http://localhost:3000/static/js/main.chunk.js'
+        ],
+        isLib: true
+    },
+    'vue-app': {
+        js: [
+            'http://localhost:8081/js/app.js',
+            'http://localhost:8081/js/chunk-vendors.js'
+        ],
+        isLib: true
+    }
+});
+
+bus.activateApp('react-app');
+bus.activateApp('vue-app');
+```
+我们在host-app中创建了一个叫做host的Bus，声明了管理的微应用的资源，紧接着我们用创建出的Bus实例分别“激活”react-app和vue-app，带着页面渲染逻辑的代码就会被加载和执行，react和vue应用分别将各自的顶层组件挂载到我们预留好的挂载点上，页面就变成了这个样子
+![](_media/unit.png)
+
+看起来还不错！
+
+?> 你可能发现在声明资源时，我们添加了一个isLib属性，这告诉Bus现在加载的资源并不是一个app，而是一个library，后续的学习中你将会了解到二者的区别
+
 ## 应用通信
 ## 应用编排
 

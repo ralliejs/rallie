@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import { getBus } from '@runnan/obvious-core';
 
-const bus = getBus('demo');
+const bus = getBus('host');
 
 bus.createApp('react-app')
     .bootstrap(async () => {
