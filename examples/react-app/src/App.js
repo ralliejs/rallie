@@ -20,7 +20,6 @@ function App() {
       setLogoClass('App-logo');
     };
     const getInputDOM = () => {
-        console.log(inputRef);
         return inputRef && inputRef.current;
     }
     socket.onBroadcast('rotate', onRotate);

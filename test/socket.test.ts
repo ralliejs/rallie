@@ -18,14 +18,14 @@ describe('Test event communication capabilities between sockets', () => {
         socketA.onBroadcast('message', socketA['onMessage']);
         socketB.onBroadcast('message', socketB['onMessage']);
         const hello = 'hello';
-        socketA.emitBroadcast('message', hello);
+        socketA.broadcast('message', hello);
         expect(socketA['message']).toBe(hello);
         expect(socketB['message']).toBe(hello);
     });
 
     test('# case 2: socketA stop to listen the broadcast event, emit it, callback should be called once', () => {
         socketA.offBroadcast('message', socketA['onMessage']);
-        socketA.emitBroadcast('message', world);
+        socketA.broadcast('message', world);
         expect(socketA['message']).toBe(hello);
         expect(socketB['message']).toBe(world);
     });
@@ -35,14 +35,14 @@ describe('Test event communication capabilities between sockets', () => {
             return socketA['message'];
         };
         socketA.onUnicast('getSocketAMessage', socketA['getMessage']);
-        const socketAMessage = socketB.emitUnicast('getSocketAMessage');
+        const socketAMessage = socketB.unicast('getSocketAMessage');
         expect(socketAMessage).toBe(hello);
     });
 
     test('# case 5: socket A stop to listen the unicast event, socketB emit it, an error should be throwed', () => {
         expect(() => {
             socketA.offUnicast('getSocketAMessage', socketA['getMessage']);
-            const socketAMessage = socketB.emitUnicast('getSocketAMessage');
+            const socketAMessage = socketB.unicast('getSocketAMessage');
             expect(socketAMessage).toBeUndefined();
         }).toThrowError();
     });

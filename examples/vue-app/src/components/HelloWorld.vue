@@ -50,13 +50,13 @@ export default {
     changeRotate: function() {
       this.rotate = !this.rotate;
       if (this.rotate) {
-        socket.emitBroadcast('rotate');
+        socket.broadcast('rotate');
       } else {
-        socket.emitBroadcast('stop-rotate');
+        socket.broadcast('stop-rotate');
       }
     },
     focusOnReactInput: function() {
-      const inputDOM = socket.emitUnicast('get-input-dom');
+      const inputDOM = socket.unicast('get-input-dom');
       inputDOM && inputDOM.focus();
     }
   }

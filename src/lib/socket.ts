@@ -35,7 +35,7 @@ export class Socket {
      * @param eventName 
      * @param args 
      */
-    public emitBroadcast(eventName: string, ...args: any[]) {
+    public broadcast(eventName: string, ...args: any[]) {
         this.eventEmitter.emitBroadcast(eventName, ...args);
     }
 
@@ -62,7 +62,7 @@ export class Socket {
      * @param eventName 
      * @param args 
      */
-    public emitUnicast(eventName: string, ...args: any[]) {
+    public unicast(eventName: string, ...args: any[]) {
         return this.eventEmitter.emitUnicast(eventName, ...args);
     }
 
@@ -85,7 +85,7 @@ export class Socket {
             this.onBroadcast(`$state-${stateName}-change`, () => {
                 // an empty callback to avoid warning of no listener
             });
-            this.emitBroadcast('$state-initial', stateName);
+            this.broadcast('$state-initial', stateName);
         }
     }
 
@@ -118,7 +118,7 @@ export class Socket {
         const getFunctionArg = typeof arg === 'function';
         const newValue = getFunctionArg ? arg(oldValue) : arg;
         this._state[stateName].value = newValue;
-        this.emitBroadcast(`$state-${stateName}-change`, newValue, oldValue);
+        this.broadcast(`$state-${stateName}-change`, newValue, oldValue);
     }
 
     /**

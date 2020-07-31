@@ -4,6 +4,7 @@ const bus = createBus('host', {
     'react-app': {
         js: [
             'http://localhost:3001/static/js/bundle.js',
+            'http://localhost:3001/static/js/0.chunk.js',
             'http://localhost:3001/static/js/1.chunk.js',
             'http://localhost:3001/static/js/main.chunk.js'
         ],
