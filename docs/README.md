@@ -1,6 +1,6 @@
 # 介绍
 -----------
-obvious是一个轻量级渐进式微前端框架，在微前端架构中，obvious专注于解决前端微应用的依赖编排和应用间的通信问题，旨在通过简洁易懂，符合编程直觉的API以及灵活的中间件机制，帮助用户快速搭建好基础微前端体系，并支持进行更深层次地定制，从而实现完整可靠的微前端架构
+obvious是一个渐进式微前端框架，在微前端架构中，obvious专注于解决前端微应用的依赖编排和应用间的通信问题，旨在通过简洁易懂，符合编程直觉的API以及灵活的中间件机制，帮助用户快速搭建好基础微前端体系，并支持进行更深层次地定制，从而实现完整可靠的微前端架构
 
 ## 关于微前端
 前端在软件工程中是迭代更新速度比较快的一个领域，虽然前端人常以"学不动了"自嘲，但是客观地说，技术演进是问题复杂度增加，量变引起质变的结果，新的技术出现后能解决更复杂的问题，反之又驱动了问题复杂度的增加。因此前端的快速更新正说明了前端在业务中能做的事情越来越多，地位越来越重要。
@@ -11,12 +11,12 @@ obvious是一个轻量级渐进式微前端框架，在微前端架构中，obvi
 1. 应用间技术栈解耦，互不感知，可增量升级
 2. 应用间代码仓库和开发团队解耦，每个应用提供相对独立的功能，由相对独立的团队开发和维护
 3. 应用间部署解耦，每个微应用可以单独部署和发布，然后在一个集合应用中编排和聚合
-4. 应用可以在同一个页面上聚合，且具备相互通信的能力，可以做到跨script的数据交换
+4. 应用在聚合后，具备相互通信的能力，可以做到跨script的数据交换
 
 > [micro frontend](https://martinfowler.com/articles/micro-frontends.html)
 
 ## 业界实践
-微前端是一个说旧不旧,说新不新的概念，目前比较知名的开源微前端库有国外的[single-spa](https://single-spa.js.org/)， 国内的阿里基于此封装的[qiankun](https://qiankun.umijs.org/zh/guide)以及同样出自阿里的相对独立的微前端库[icestark](https://ice.work/docs/icestark/about)，同时，在各种前端交流会议中，许多公司也分享了自己的微前端解决方案，综合网络上的各种资料，可以大致总结出微前端落地过程中需要解决的几个问题：
+微前端是一个说旧不旧，说新不新的概念，目前比较知名的开源微前端库有国外的[single-spa](https://single-spa.js.org/)， 国内的阿里基于此封装的[qiankun](https://qiankun.umijs.org/zh/guide)以及同样出自阿里的相对独立的微前端库[icestark](https://ice.work/docs/icestark/about)，同时，在各种前端交流会议中，许多公司也分享了自己的微前端解决方案，综合网络上的各种资料，可以大致总结出微前端落地过程中需要解决的几个问题：
 
 1. 微应用的资源如何注册和加载（编排）
 2. 微应用间如何通信（通信）
@@ -204,7 +204,7 @@ app.listen('9999', () => {
 
 最后，让我们在三个工程中都安装依赖 `npm install @runnan/obvious-core`
 
-?> <strong>Now You are ready to learn obvious.js</strong>
+?> <strong>You are ready to learn obvious.js</strong>
 
 ## 资源注册和加载
 并不难理解，react-app和vue-app上能呈现页面是因为加载了包含渲染逻辑的javaScript代码
@@ -289,7 +289,7 @@ function App() {
 export default App;
 ```
 对于vue-app，为了方便后续改造，我们把标题变成App组件的data，然后将其作为props传递给HelloWorld组件
-```vue
+```js
 // part of ./vue-app/src/App.vue
 <template>
   <div id="app">
@@ -314,7 +314,7 @@ export default {
 }
 </script>
 ```
-很好，现在我们有了两个准备就绪的微应用，在宿主环境上还有一个名为host的Bus。Bus可以让消息在两个应用之间传递。我们只需要在微应用代码中获取这个Bus，并用它创建出通信插口——Socket
+很好，现在我们有了两个准备就绪的微应用，在宿主环境上还有一个名为host的Bus。Bus可以让消息在两个应用之间传递。我们只需要在微应用代码中获取这个Bus，并用它创建出通信接口——Socket
 ```js
 import {getBus} from '@runnan/obvious-core';
 
@@ -350,7 +350,7 @@ function App() {
 
 !> 重要规则：一个状态必须通过socket.initState初始化后才能被修改和监听，否则将抛出异常。obvious判断一个状态是否被初始化的依据是该状态的值是否是undefined，因此，将状态初始化为undefined也是不合法的
 
-在vue-app中，我们同样用名为host的Bus创建一个socket，并用这个socket监听状态text，当状态变化时，更新组件的data
+在vue-app中，我们同样用名为host的Bus创建一个socket，并用这个socket监听状态text，当状态变化时，更新组件的data。由于我们只有在状态初始化后才能监听和修改它，因此socket还提供了waitState方法，让你可以等待一个或几个状态被初始化后再执行后续操作
 ```js
 // part of ./vue-app/src/App.vue
 import HelloWorld from './components/HelloWorld.vue';
@@ -382,9 +382,274 @@ export default {
   }
 }
 ```
-由于我们只有在状态初始化后才能监听和修改它，因此socket提供了waitState方法，让你可以等待一个或几个状态被初始化后才执行后续操作
+现在我们的微前端应用效果是这样的
+![](_media/state-communicate.gif)
+
+由于React和Vue本质上都是状态驱动的框架，因此在微前端中使用状态通信非常方便和优雅，大多数场景都建议你使用这种通信方式。
+
+?> 忍不住再次表达我对React和Vue两大框架的敬意，它们通过复杂的机制把数据变更映射为UI变更，暴露给开发人员的API却如此简洁优美，让人深深地感受到软件工程魅力。obvious需要做的只是把状态变更在它们之间传递而已，这像极了我们工作中的某些领导
+
+除了状态通信，obvious还提供了包含广播和单播在内的事件通信机制供你使用。我们尝试用这两种方式分别实现[目标](#/?id=目标)中的另外两个功能。
+
+首先我们为vue-app添加一个绿色按钮，当点击这个按钮的时候，我们同样使用刚刚创建好的socket实例发送一个change-rotate广播事件。
+```js
+<template>
+  <div class="hello">
+    <h1>{{ msg }}</h1>
+    <button v-on:click="changeRotate">{{ rotate ? 'stop rotate' : 'rotate' }}</button>
+    <!-- omitted code -->
+<template>
+
+<script>
+import {getBus} from '@runnan/obvious-core';
+
+const bus = getBus('host');
+const socket = bus.createSocket();
+
+export default {
+  name: 'HelloWorld',
+  props: {
+    msg: String
+  },
+  data: function() {
+    return {
+      rotate: true
+    };
+  },
+  methods: {
+    changeRotate: function() {
+      this.rotate = !this.rotate;
+      socket.broadcast('change-rotate', this.rotate);
+    }
+  }
+}
+</script>
+
+<style>
+// omitted code
+button {
+  border: none;
+  outline: none;
+  width: 10rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: white;
+  background: #42b983
+}
+
+button:hover {
+  opacity: 0.8
+}
+</style>
+```
+而在react-app中，我们在Effect Hook中用socket监听change-rotate事件，并根据事件参数，更改图标类名，从而达到控制图标旋转的效果
+```js
+// part of ./react-app/src/
+import React from 'react';
+import logo from './logo.svg';
+import { getBus } from '@runnan/obvious-core';
+import './App.css';
+
+const bus = getBus('host');
+const socket = bus.createSocket();
+
+// omit some code
+function App() {
+  const [logoClass, setLogoClass] = React.useState('App-logo rotate');
+
+  React.useEffect(() => {
+    const changeRotate = (rotate) => {
+      if (rotate) {
+        setLogoClass('App-logo rotate');
+      } else {
+        setLogoClass('App-logo');
+      }
+    };
+    socket.onBroadcast('change-rotate', changeRotate);
+    return () => {
+      socket.offBroadcast('change-rotate', changeRotate);
+    };
+  }, []);
+  
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={`http://localhost:3001${logo}`} className={logoClass} alt="logo" />
+      </header>
+    </div>
+  );
+}
+
+export default App;
+```
+
+接下来我们用事件单播机制实现点击vue-app的标题，react-app的输入框获得焦点的功能。单播和广播的用法非常相似，唯一的区别是，广播事件可以有多个订阅者，且订阅的回调函数没有返回值，在触发广播事件时，事件触发者并不清楚事件订阅者的订阅回调是否执行成功。而单播事件只允许有一个订阅者，且订阅的回调函数有返回值，使得单播事件触发者能拿到订阅者回调的返回值，通信双方之间的消息传递像RPC调用一样有来有回，或者说，事件单播就是前端的RSC调用（Remote Script Call）
+
+在本例中，我们让react-app订阅一个名为get-input-dom的单播事件，当事件被触发时，react-app把input框的ref作为返回值返回
+
+```js
+// part of ./react-app/src/App.js, omit some code
+import React from 'react';
+import { getBus } from '@runnan/obvious-core';
+
+const bus = getBus('host');
+const socket = bus.createSocket();
+
+function App() {
+  const inputRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const getInputDom = () => {
+      return inputRef && inputRef.current;
+    };
+    socket.onUnicast('get-input-dom', getInputDom);
+    return () => {
+      socket.offUnicast('get-input-dom', getInputDom);
+    };
+  }, []);
+  
+  return (
+    <div className="App">
+      <header className="App-header">
+        <div>
+            <div>Edit the text showed in vue area: </div>
+            <input ref={inputRef} onChange={handleOnChange} value={text}></input>
+        </div>
+      </header>
+    </div>
+  );
+}
+
+export default App;
+```
+在vue-app中，我们在标题的点击事件回调中，用socket触发get-input-dom单播事件，拿到react-app传来的dom节点，并让它获得焦点
+```js
+// part of ./vue-app/src/HelloWorld.vue, omit some code
+<template>
+  <div class="hello">
+    <h1 v-on:click="focusOnReactInput">{{ msg }}</h1>
+  <div>
+</template>
+
+<script>
+import {getBus} from '@runnan/obvious-core';
+
+const bus = getBus('host');
+const socket = bus.createSocket();
+
+export default {
+  name: 'HelloWorld',
+  methods: {
+    focusOnReactInput: function() {
+      const inputDOM = socket.unicast('get-input-dom');
+      inputDOM && inputDOM.focus();
+    }
+  }
+}
+</script>
+```
+事实上，到目前为止，我们已经成功实现了目标中的三个功能，用obvious实现微应用通信就是这么简单！
+![](_media/tutorial-target.gif)
 
 ## 应用编排
+现在我们还遗留着一个小问题，还记得在资源注册声明的时候，我们给react-app和vue-app都加了一个isLib属性吗，试试把这个属性去掉，你会发现页面不再正常显示，而且在控制台出现了这样的报错
+![](_media/app-not-created.png)
+这是因为，obvious把注册的微应用分为了app和library两种，library一般是多个微应用公用的一些第三方库，比如react、vue的源码，它们被bus加载并执行一次之后就完成了自己的使命，然后作为整个环境的runtime使用。而app则需要按照obvious的规则，用bus实例去创建。将你的微应用定义为app可以让你的微应用拥有生命周期，从而可以被bus启动、激活、销毁，且在启动、激活和销毁时可以接收一些定制参数。
+把react-app声明为app的方法非常简单，在入口函数中使用bus.createApp，你就获得了一个app实例
+```js
+// ./react-app/src/index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import { getBus } from '@runnan/obvious-core';
+
+const bus = getBus('host');
+
+bus.createApp('react-app')
+    .bootstrap(async (config) => {
+        ReactDOM.render(
+            <React.StrictMode>
+              <App />
+            </React.StrictMode>,
+            document.querySelector(config.mountPoint)
+        );
+    });
+```
+创建完app实例后，我们在它的bootstrap生命周期中渲染根组件，而且现在，我们的挂载点不需要再去跟host-enviroment约定，然后硬编码在我们的应用代码中了，而是从生命周期方法参数中获取。接着我们对vue-app做同样的改造
+```js
+// ./vue-app/src/main.js
+import Vue from 'vue';
+import App from './App.vue';
+import { getBus } from '@runnan/obvious-core';
+
+Vue.config.productionTip = false
+
+const bus = getBus('host');
+
+bus.createApp('vue-app')
+    .bootstrap(async (config) => {
+        new Vue({
+            render: h => h(App),
+        }).$mount(config.mountPoint);
+    });
+```
+再把host-enviroment中的激活逻辑修改为
+```js
+bus.activateApp('react-app', {
+    mountPoint: '#react-app'
+});
+bus.activateApp('vue-app', {
+    mountPoint: '#vue-app'
+});
+```
+你的微应用又可以正常显示了，一切看起来已经非常完美。最后加一个小彩蛋，现在你已经拥有了两个微应用，你还想基于它们做一些新的开发，从而变成一个新的微应用，App的依赖功能让你的这个需求变得无比简单
+```js
+import { createBus } from '@runnan/obvious-core';
+
+const bus = createBus('host', {
+    'react-app': {
+        js: [
+            'http://localhost:3001/static/js/bundle.js',
+            'http://localhost:3001/static/js/0.chunk.js',
+            'http://localhost:3001/static/js/1.chunk.js',
+            'http://localhost:3001/static/js/main.chunk.js'
+        ]
+    },
+    'vue-app': {
+        js: [
+            'http://localhost:8081/js/app.js',
+            'http://localhost:8081/js/chunk-vendors.js'
+        ]
+    }
+});
+
+bus.createApp('unit-app')
+    .relyOn([
+        {
+            'vue-app': { mountPoint: '#vue-app' }
+        },
+        {
+            'react-app': { mountPoint: '#react-app'}
+        }
+    ])
+    .bootstrap(async () => {
+        setTimeout(() => {
+            alert('I can not wait to star obvious.js');
+        }, 2000);
+    });
+
+bus.activateApp('unit-app');
+```
+我们声明一个unit-app，让它依赖vue-app和react-app，在host-environment中激活的时候，我们不再分别激活vue-app和react-app这两个原子app，而是直接激活合设的unit-app，bus会自动激活它的依赖，事实上，如果vue-app和react-app又依赖别的微应用的话，这个过程也会递归地传递下去。
+![](_media/unit-app.png)
+
+恭喜你已经通过这个小demo成功入门obvious，正如你所看到的，学会obvious只需要搞懂三个概念：
+- Bus: 它是消息的传递者和应用的管理者
+- App: 它被Bus创建出来，让你的微应用可以声明依赖关系和生命周期
+- Socket：它同样被Bus所创建，是微应用的通信接口，支持状态和事件通信
+
+<strong>用obvious构建一个微前端体系就是这么简单！</strong>
 
 # 进阶
 ------
