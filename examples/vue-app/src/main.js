@@ -1,14 +1,13 @@
 import Vue from 'vue';
 import App from './App.vue';
-import { getBus } from '@runnan/obvious-core';
+import {getBus} from '@runnan/obvious-core';
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 const bus = getBus('host');
-
 bus.createApp('vue-app')
-    .bootstrap(async () => {
-        new Vue({
-            render: h => h(App),
-        }).$mount('#vue-app');
-    });
+  .bootstrap(async (config) => {
+    new Vue({
+      render: h => h(App),
+    }).$mount(config.mountPoint);
+  });
