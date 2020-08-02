@@ -653,24 +653,274 @@ bus.activateApp('unit-app');
 
 # 进阶
 ------
+相信你已经大概弄懂了obvious中的Bus、App和Socket是什么，本章节将带你深入它们的一些高级用法和优秀实践
 ## App的生命周期
+在[教程](#/id=教程)中，我们已经知道，如果你要开发的是一个应用，而不是一个lib的话，你需要在入口文件中创建App，并且可以给你的app指定生命周期。obvious为app设计了bootstrap、activate、destroy三个生命周期，它们都是通过函数式API指定的。
+```js
+const bus = getBus('host');
+
+bus.createApp('demo-app')
+    .bootstrap(async (config) => {
+        // do something to bootstrap your app, e.g mount your UI
+    })
+    .activate(async (config) => {
+        // do something to update your app, e.g change some global state
+    })
+    .destroy(async (config) => {
+        // do something to destroy your app, e.g unmount your UI, unbind event callback
+    })
+```
+然后你可以同样用bus来激活、销毁app。bootstrap生命周期会在app被第一次激活时调用，你应该在该生命周期中做一些初始化操作；app被激活过一次之后，再激活app会执行activate生命周期的回调，你应该在这个生命周期中执行更新你的微应用的操作；最后，当你的app被bus销毁时，会执行destroy生命周期回调，你应该在这个生命周期中做一些清理工作
+```js
+// bootstrap activate
+bus.activateApp('demo-app', config1);
+// reactivate
+bus.activateApp('demo-app', config2);
+// destroy
+bus.destroyApp('demo-app', config3);
+```
+你不必为每个生命周期都指定回调函数，事实上，对生命周期的取舍能让你的应用有不同的响应效果。
+- 如果只指定了bootstrap生命周期，应用将只在第一次被激活执行bootstrap回调，而不会理会后续的激活
+- 如果只指定了activate生命周期，应用将在每次被激活时都执行activate回调
+- 如果同时指定了bootstrap和activate生命周期，应用将在第一次被激活时执行bootstrap回调，在后续被激活时执行activate回调
+
+最后，用下面这个图展示一下App的生命周期图谱
+![](_media/app-lifecycles.drawio.svg)
+
 ## 资源预加载
+正如生命周期图谱中所示，当第一次激活应用时，如果应用的资源还没有被加载过，bus会先加载应用的资源，然后再进入生命周期回调，这可能会让应用的第一次激活响应迟缓。为了解决这个问题，bus提供了loadApp方法，对于一些不需要立刻激活的app，我们可以在浏览器空闲时执行该方法，去加载app对应的资源，但是不启动app。而当app需要被激活时，执行`bus.activateApp`就会直接进入生命周期回调，而跳过了加载资源的步骤
+```js
+bus.loadApp('demo-app').then(() => {
+    bus.activateApp('demo-app');
+});
+```
 ## 共享运行时
+微前端架构是将一个大型前端系统解耦为多个微应用的聚合。因此还应该考虑避免多个微应用的公共资源重复加载。比如，现在你的微前端环境上有三个React开发的微应用，两个Vue开发的微应用，如果不把React和Vue的源码单独抽离为公共runtime，会导致你的整个前端应用需要加载三次React的源码和两次Vue的源码，这个代价是很高的。
+作为框架作者，我可以很骄傲地说，obvious为你提供了完美的解决方案。你可以在创建bus注册资源时，把公共的第三方依赖定义为lib
+```js
+const bus = createBus('host', {
+    react: {
+        js: [
+            'https://unpkg.com/react@16/umd/react.production.min.js',
+            'https://unpkg.com/react-dom@16/umd/react-dom.production.min.js'
+        ],
+        isLib: true
+    ],
+    'react-app': {
+        js: [
+            'https://host/react-app/main.js'
+        ],
+        css: [
+            'https://host/react-app/main.css'
+        ]
+    }
+});
+```
+而在创建app时，通过relyOn方法将第三方依赖lib加入到app的依赖中
+
+?> 由于app依赖的lib在app被激活时才会被加载，所以请在bootstrap生命周期中以commonJS模块的形式同步引入对应的库
+
+```js
+bus.createApp('react-app')
+    .relyOn([
+      'react'
+    ])
+    .bootstrap(async (config) => {
+        const React = require('react');
+        const ReactDOM = require('react-dom');
+        ReactDOM.render(<App />, config.mountPoint);
+    })
+```
+最后，在webpack中配置一下[externals](https://webpack.docschina.org/configuration/externals/)即可。
+通过这种方式引入第三方依赖可以做到按需加载，且不会重复加载
+
 ## 中间件
+接下来向你介绍的是obvious中一个非常实用的功能——中间件机制。通过注入中间件，obvious可以变得更强大，更能适应一些超大规模的前端架构建设
 ### 资源加载中间件
+在[教程](#/?id=教程)中，我们的微前端系统仅仅是由两个微应用组成的，资源注册是通过在创建bus时传递一个静态的资源声明对象实现的。当你的微应用体积变大，code split出更多的chunk时，你需要通知host enviroment的维护人员，让他帮忙修改资源声明，这还算小事，假如为了提高缓存效率，你的微应用资源文件名带了hash值的话，那么每次微应用升级更新都需要通过这样非常原始的方式人工修改资源声明。对于一个只由几个微应用组成的系统来说，这样做或许勉强可以接受，但是，对于一些企业级的超大规模前端应用，比如一个OA系统，一个网元管理系统来说，它们可能会被划分成好几十个微应用，这样的系统使用静态的资源注册方式会是宿主环境开发维护人员的噩梦。
+
+对于这种超大规模的系统，我们需要宿主环境建设更多一些基础设施。比如，我们可以建这样一个静态文件夹并将它伺服
+```
+|--- static-config
+     | --- app1
+           resource.json
+     | --- app2
+           resource.json
+     | --- app3
+           resource.json
+     ......
+```
+每个微应用在自己的代码仓下放置一个resource.json，内容是微应用的资源声明
+```json
+{
+  "js": [
+    "/static/app1/main.8e18cf.js",
+    "/static/app1/vendor.8e18cf.js"
+  ],
+  "css": [
+    "/static/app1/main.8e18cf.js",
+    "/static/app1/vendor.8e18cf.css"
+  ]
+}
+```
+在CI的时候将这个resource.json更新放置到static-config静态私服仓，我们就不必再人工通知宿主环境的维护同事，实现资源自动注册了。而宿主环境的维护者在创建bus时，只需要注入这样一个资源加载中间件
+```js
+// middleware is the 3rd parameter of the createBus method 
+const bus = createBus('host', {}, {
+  handleLoad: async (name, loadJs, loadCss) => {
+      const res = await fetch(`/static-config/${name}/resource.json`);
+      const config = await res.json();
+      config.css?.forEach((src) => {
+          loadCss(src);
+      });
+      for (const src of config.js) {
+          await loadJs(src);
+      }
+  }
+});
+```
+bus每次在加载资源时，都会执行先获取resource.json资源声明文件，解析后再加载资源的逻辑。一个简单的中间件成功将服务端注册机制与obvious微前端框架紧紧结合在了一起，助力超大型前端应用的开发。
+
 ### 资源运行中间件
+所谓资源运行中间件，就是用户可以拿到加载的代码源码文本，然后对源码进行一些处理后再执行（类似webpack的loader的逻辑）。例如，我们希望在执行加载的每段js资源前后都打印一段日志，从而能在控制台看到js资源的执行顺序，那么我们可以写这样一个资源运行中间件
+```js
+const bus = createBus('host', {}, {
+    handleLoad: loadMiddleware,
+    handleExcute: async (code, src) => {
+        console.log(`started to excute code ${src}`);
+        eval(code);
+        console.log(`finished to excute code ${src}`);
+    }
+})
+```
+这样，每次加载并执行资源，都会在控台打印资源路径日志，从而确定资源执行顺序。
+
+然而，使用资源运行中间件是有一定代价的。默认情况下，obvious加载一段js代码的方法是在body中插入这段js资源对应的script标签，这确保了js资源可以跨域，且在调试时对source-map的支持更友好，但是，这种加载方式无法在框架层面直接获取源码的文本，为了使用资源运行中间件，你必须放弃这些好处，在创建好bus后，你需要将bus的allowCrossOriginScript属性设为false，这会让obvious加载代码的方式变为通过fetch加载，你设置的资源运行中间件也才会生效
+```js
+const bus = createBus('host', {}, {
+    handleLoad: loadMiddleware,
+    handleExcute: async (code, src) => {
+        console.log(`started to excute code ${src}`);
+        eval(code);
+        console.log(`finished to excute code ${src}`);
+    }
+});
+
+bus.allowCrossOriginScript = false;
+```
+在[介绍](#/id=介绍)中我们提到过，微前端架构需要实现编排、通信和容器三大功能。而在生产实践中，我个人感受是容器功能并没有那么刚需（[为什么不做应用隔离](#/id=为什么不做应用隔离)），所以obvious没有把重点放在资源隔离的实现上。但是obvious并没有完全放弃这一块阵地，而是把这项能力交给用户去实现，你完全可以按照作用域链上劫持window的思路实现一个js沙箱，或者使用开源的js沙箱实现。然后作为资源运行中间件注入到obvious中。
+
+> 参考: [如何取巧实现一个微前端沙箱](https://developer.aliyun.com/article/761449)
+
 ## 最佳实践
+在这一小节，你将会了解到使用obvious的一些实用技巧和一些有用的建议
 ### 优雅地本地调试
+你一定已经发现，在[教程](#/?id=教程)中，如果我们直接打开 http://localhost:3000 和 http://localhost:8081 ，页面一片空白，且控制台出现了这样的报错
+![](_media/error-no-bus.png)
+这是因为Bus是连接不同微应用的枢纽，而Bus是由宿主环境提供的。一个很重要的问题是我们如何在本地能完全模拟宿主环境，并且mock与我们交互的微应用。得益于资源加载中间件，这个需求非常简单
+```js
+import {createBus, getBus} from '@runnan/obvious-core';
+
+let bus = null;
+if (process.env.NODE_ENV === 'development') {
+    bus = createBus('host', {}, {
+        handleLoad: async (name) => {
+            switch(name) {
+                case 'vue-app':
+                    const default = await import('./your/local/mock/vue-app.js');
+                    default();
+                case 'other-app':
+                    const default = await import('./your/local/mock/other-app.js');
+                    default();
+            }
+        }
+    })
+} else {
+    bus = getBus('host');
+}
+```
+你看，一个资源加载中间件本质就是一个根据微应用的名字做一个异步操作的函数而已，这个异步操作完全可以是异步导入我们本地的文件，这让你的本地调试变得如此方便和优雅。
+
 ### 绝对轻量引入
+obvious的定位是轻量级的框架，有多轻量呢？答案是，在微应用中，它的体积可以是0kb。我们可以看一下createBus和getBus的实现
+```js
+const busProxy = {};
+export const createBus = (name: string, assets?:assetsConfigType, middleware?: middlewareType) => {
+    if(window.__Bus__ === undefined) {
+        Object.defineProperty(window, '__Bus__', {
+            value: busProxy,
+            writable: false
+        });
+    }
+
+    if (window.__Bus__[name]) {
+        throw new Error(`[obvious] the bus named ${name} has been defined before, please rename your bus`);
+    } else {
+        const bus = new Bus(name, assets, middleware);
+        Object.defineProperty(window.__Bus__, name, {
+            value: bus,
+            writable: false
+        });
+        return bus;
+    }
+};
+
+export const getBus = (name: string) => {
+    return window.__Bus__ && window.__Bus__[name];
+};
+```
+你可以看到，createBus就是new一个Bus实例并把它挂载到`window.__Bus__`上，而getBus就是从`window.__Bus__`上拿到对应的Bus实例。得益于工厂模式的使用，微应用中需要的App实例和Socket实例都是通过Bus实例调用工厂方法创建的。因此，如果我们微应用的代码这么写
+```js
+let bus = null;
+if (process.env.NODE_ENV === 'development') {
+    const createBus = require('@runnan/obvious-core').createBus;
+    bus = createBus('host', {}, {
+        handleLoad: async (name) => {
+            switch(name) {
+                case 'vue-app':
+                    const default = await import('./your/local/mock/vue-app.js');
+                    default();
+                case 'other-app':
+                    const default = await import('./your/local/mock/other-app.js');
+                    default();
+            }
+        }
+    })
+} else {
+    bus = window.__Bus__.host;
+}
+```
+那么在最终打包时就不会有obvious框架的代码被打进你的微应用bundle中
+
 ### 局部Bus通信
+接下来我们聊聊微应用通信中的一点建议。obvious提供了广播、单播、全局状态三种通信方式，虽然框架层面已经帮你避免了同名单播事件和同名state的出现，但是广播事件可以有多个订阅者，对于一些超大型的前端应用来说，这可能会带来不必要的麻烦，很有可能你与一个微应用开发团队约定好一个广播事件通信，但是这个事件名其实已经被另外两个团队约定过了，而你们对这一无所知，在环境上联调的时候可能会摸不着头脑地发现你们的事件回调被莫名其妙地调用了。
+
+在obvious中，所有的事件和状态都是由Bus管理的，如果两个微应用之间的通信不使用全局Bus，而是双方自己约定一个局部Bus，就可以避免这个问题。我们建议，全局Bus的主要任务是App调度和处理一些全局状态和事件，单独的两个微应用之间的通信应该约定局部Bus。理想情况下，你的微前端架构应该是这样的
+
 ![](_media/architecture.drawio.svg)
-### 控制依赖关系
+
+### 合理划分微应用和控制依赖关系
+最后我们来聊一聊微应用划分的问题。虽然微前端架构让你可以把大型前端系统拆分为许多个微应用。但是请注意这样的划分不应该是矫枉过正的，微应用的业务功能应该是相对独立的，微应用之间的通信应该是少量的，有限的。如果你发现两个微应用之间需要大量依靠框架通信能力，你应该考虑把这两个微应用合并为一个微应用来开发。
+
+另外，在obvious中，一个App可以定义依赖，这助力了微应用的合设和二次开发。但是如果没有控制好依赖关系可能会带来意想不到的麻烦，比如这种情况
+
+![](_media/app-deadlocak.drawio.svg)
+
+当你的微应用树中存在循环依赖的时候，会造成应用一直无法被激活，这是一个典型的死锁场景。这种情况试图激活A，你会在控制台看到这样的信息
+![](_media/dead-lock-error.png)
+obvious为了避免这种场景，设定了一个单次最大可激活的app数，默认值是100，当出现循环依赖场景时，单次激活的app数会无限递增，直到达到这个阈值的时候抛出异常，当你碰到这个异常的时候，就要好好排查一下你的微应用有没有循环依赖的情况
 
 # API
 ------
 ## Bus
 ## Socket
 ## App
+
+# Q&A
+------
+## 可以用于生产环境吗
+## 为什么不做应用隔离
+## 为什么叫obvious
 
 # 扩展生态
 -------
@@ -683,7 +933,4 @@ bus.activateApp('unit-app');
 -------
 
 # 加入我们
--------
-
-# 捐赠
 -------

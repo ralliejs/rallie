@@ -27,7 +27,7 @@ export class Bus {
     private bootstrapNumberOnce = 0;
 
     public state: {[name: string]: any};
-    public allowCrossDomainJs: boolean = true;
+    public allowCrossOriginScript: boolean = true;
     public maxBootstrapNumberOnce = 100;
 
     constructor(name: string = '', assets: assetsConfigType = {}, middleware: middlewareType = {}) {
@@ -87,7 +87,7 @@ export class Bus {
         if (assets[name].js) {
             for( let asset of assets[name].js) {
                 if((/^.+\.js$/).test(asset)) {
-                    if(this.allowCrossDomainJs) {
+                    if(this.allowCrossOriginScript) {
                         await this.loadJs(asset);
                     } else {
                         await this.fetchJs(asset);
@@ -134,7 +134,7 @@ export class Bus {
         if(this.assets && this.assets[name]) {
             await this.loadResourcesFromAssetsConfig(name);
         } else if (this.middleware?.handleLoad) {
-            await this.middleware?.handleLoad(name, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
+            await this.middleware?.handleLoad(name, this.allowCrossOriginScript ? this.loadJs : this.fetchJs, this.loadCss);
         } else {
             throw (new Error(Errors.resourceNotDeclared(name, this.name)));
         }
