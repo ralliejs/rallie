@@ -12,6 +12,8 @@ Obvious is a progressive micro-front-end framework. In the micro-front-end archi
 `npm install @runnan/obvious-core`
 
 ## Quick Start
+![](docs/_media/tutorial-target.gif)
+
 In host enviroment, create a bus and declare the resource info
 ```js
 import {createBus} from '@runnan/obvious-core';
