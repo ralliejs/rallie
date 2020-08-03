@@ -23,7 +23,7 @@ obvious是一个渐进式微前端框架，在微前端架构中，obvious专注
 3. 微应用间如何保证全局变量和样式互不影响（容器）
 
 ## 关于obvious
-事实上，我所在的公司也有自己的微前端实现方案，在使用该方案过程中，我发现针对上面所说的三个问题，解决前两个是架构的基础和刚需，是否有灵活优雅的注册和加载机制以及方便的通信机制是衡量一个微前端框架使用体验的最重要指标，可惜我个人觉得公司内部的实现方案给开发人员的体验实在是太糟糕了。而了解业界其他方案的过程中，我发现当前的主流微前端库似乎都是通过硬编码的方式注册应用资源，然后在主应用上通过劫持路由来识别微应用并加载资源，我觉得这依然不够灵活。同时，针对应用间的通信，除了icestark有提供一个eventBus之外，其他两个框架好像鲜有提及。而社区讨论的热点似乎主要是在于如何解决第三个问题——一个在我看来属于锦上添花的功能。正是上面的这些原因让我萌生了写一个自己的基础微前端框架的想法，于是就有了obvious.js
+事实上，我所在的公司也有自己的微前端实现方案，在使用该方案过程中，我发现针对上面所说的三个问题，解决前两个是架构的基础和刚需，是否有灵活优雅的注册和加载机制以及方便的通信机制是衡量一个微前端框架使用体验的最重要指标，可惜我个人觉得公司内部的已有方案给开发人员的体验实在是太糟糕了。而了解业界其他方案的过程中，我发现当前的主流微前端库似乎都是通过硬编码的方式注册应用资源，然后在主应用上通过劫持路由来识别微应用并加载资源，我觉得这依然不够灵活。同时，针对应用间的通信，除了icestark有提供一个eventBus之外，其他两个框架好像鲜有提及。而社区讨论的热点似乎主要是在于如何解决第三个问题——一个在我看来属于锦上添花的功能。正是上面的这些原因让我萌生了写一个自己的基础微前端框架的想法，于是就有了obvious.js
 
 > 我只粗略浏览过其他微前端库的文档，没有具体实践应用过，如果对其他框架的理解有误，欢迎指正
 
@@ -34,7 +34,7 @@ obvious.js是一个轻量级，渐进式的微前端框架，它专注于解决�
 - 天然支持单屏页面中加载多个微应用，可以基于它封装出高阶的spa微前端框架，同时微应用激活条件完全由开发者自由制定，不再局限于路由劫持
 - 概念简单，函数式API清晰易理解，可以做到脱离文档开发
 
-这是我在一个又一个996之后挤出时间开发的项目，如果能帮助你解决业务中的问题或者让你感觉有所收获，希望您能给我的github仓库点一个小小的star以示鼓励，如果愿意提issue或者pull request帮助我改进它就更好了。
+这是我在一个又一个996之后挤出时间开发的项目，如果能帮助你解决业务中的问题或者让你感觉有所收获，希望您能给我的[Github仓库](https://github.com/run-nan/obvious)点一个小小的star以示鼓励，如果愿意提issue或者pull request帮助我改进它就更好了。
 
 接下来，我将带你完整实现一个用obvious搭建微前端环境，并在该环境上把react官方脚手架create-react-app和vue官方脚手架vue-cli开发并部署的两个微应用集成在一起的小示例，带你走进obvious.js
 
@@ -202,7 +202,7 @@ app.listen('9999', () => {
 在host-enviroment执行一下npm start，http://localhost:9999 被打开
 ![init-host](_media/init-host.png)
 
-最后，让我们在三个工程中都安装依赖 `npm install @runnan/obvious-core`
+最后，让我们在三个工程中都安装依赖 `npm install obvious-core`
 
 ?> <strong>You are ready to learn obvious.js</strong>
 
@@ -221,7 +221,7 @@ app.listen('9999', () => {
 
 ```js
 // ./host-enviroment/main.js
-import {createBus} from '@runnan/obvious-core';
+import {createBus} from 'obvious-core';
 
 const bus = createBus('host', {
     'react-app': {
@@ -316,7 +316,7 @@ export default {
 ```
 很好，现在我们有了两个准备就绪的微应用，在宿主环境上还有一个名为host的Bus。Bus可以让消息在两个应用之间传递。我们只需要在微应用代码中获取这个Bus，并用它创建出通信接口——Socket
 ```js
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
@@ -325,7 +325,7 @@ obvious提供了一套状态管理机制，让不同的微应用可以通过读�
 ```js
 // part of ./react-app/src/App.js
 import React from 'react';
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
@@ -354,7 +354,7 @@ function App() {
 ```js
 // part of ./vue-app/src/App.vue
 import HelloWorld from './components/HelloWorld.vue';
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
@@ -389,7 +389,7 @@ export default {
 
 ?> 忍不住再次表达我对React和Vue两大框架的敬意，它们通过复杂的机制把数据变更映射为UI变更，暴露给开发人员的API却如此简洁优美，让人深深地感受到软件工程魅力。obvious需要做的只是把状态变更在它们之间传递而已，这像极了我们工作中的某些领导
 
-除了状态通信，obvious还提供了包含广播和单播在内的事件通信机制供你使用。我们尝试用这两种方式分别实现[目标](#/?id=目标)中的另外两个功能。
+除了状态通信，obvious还提供了包含广播和单播在内的事件通信机制供你使用。我们尝试用这两种方式分别实现[目标](#目标)中的另外两个功能。
 
 首先我们为vue-app添加一个绿色按钮，当点击这个按钮的时候，我们同样使用刚刚创建好的socket实例发送一个change-rotate广播事件。
 ```js
@@ -401,7 +401,7 @@ export default {
 <template>
 
 <script>
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
@@ -448,7 +448,7 @@ button:hover {
 // part of ./react-app/src/
 import React from 'react';
 import logo from './logo.svg';
-import { getBus } from '@runnan/obvious-core';
+import { getBus } from 'obvious-core';
 import './App.css';
 
 const bus = getBus('host');
@@ -491,7 +491,7 @@ export default App;
 ```js
 // part of ./react-app/src/App.js, omit some code
 import React from 'react';
-import { getBus } from '@runnan/obvious-core';
+import { getBus } from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
@@ -533,7 +533,7 @@ export default App;
 </template>
 
 <script>
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
@@ -562,7 +562,7 @@ export default {
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import { getBus } from '@runnan/obvious-core';
+import { getBus } from 'obvious-core';
 
 const bus = getBus('host');
 
@@ -581,7 +581,7 @@ bus.createApp('react-app')
 // ./vue-app/src/main.js
 import Vue from 'vue';
 import App from './App.vue';
-import { getBus } from '@runnan/obvious-core';
+import { getBus } from 'obvious-core';
 
 Vue.config.productionTip = false
 
@@ -605,7 +605,7 @@ bus.activateApp('vue-app', {
 ```
 你的微应用又可以正常显示了，一切看起来已经非常完美。最后加一个小彩蛋，现在你已经拥有了两个微应用，你还想基于它们做一些新的开发，从而变成一个新的微应用，App的依赖功能让你的这个需求变得无比简单
 ```js
-import { createBus } from '@runnan/obvious-core';
+import { createBus } from 'obvious-core';
 
 const bus = createBus('host', {
     'react-app': {
@@ -655,7 +655,7 @@ bus.activateApp('unit-app');
 ------
 相信你已经大概弄懂了obvious中的Bus、App和Socket是什么，本章节将带你深入它们的一些高级用法和优秀实践
 ## App的生命周期
-在[教程](#/id=教程)中，我们已经知道，如果你要开发的是一个应用，而不是一个lib的话，你需要在入口文件中创建App，并且可以给你的app指定生命周期。obvious为app设计了bootstrap、activate、destroy三个生命周期，它们都是通过函数式API指定的。
+在[教程](#教程)中，我们已经知道，如果你要开发的是一个应用，而不是一个lib的话，你需要在入口文件中创建App，并且可以给你的app指定生命周期。obvious为app设计了bootstrap、activate、destroy三个生命周期，它们都是通过函数式API指定的。
 ```js
 const bus = getBus('host');
 
@@ -737,7 +737,7 @@ bus.createApp('react-app')
 ## 中间件
 接下来向你介绍的是obvious中一个非常实用的功能——中间件机制。通过注入中间件，obvious可以变得更强大，更能适应一些超大规模的前端架构建设
 ### 资源加载中间件
-在[教程](#/?id=教程)中，我们的微前端系统仅仅是由两个微应用组成的，资源注册是通过在创建bus时传递一个静态的资源声明对象实现的。当你的微应用体积变大，code split出更多的chunk时，你需要通知host enviroment的维护人员，让他帮忙修改资源声明，这还算小事，假如为了提高缓存效率，你的微应用资源文件名带了hash值的话，那么每次微应用升级更新都需要通过这样非常原始的方式人工修改资源声明。对于一个只由几个微应用组成的系统来说，这样做或许勉强可以接受，但是，对于一些企业级的超大规模前端应用，比如一个OA系统，一个网元管理系统来说，它们可能会被划分成好几十个微应用，这样的系统使用静态的资源注册方式会是宿主环境开发维护人员的噩梦。
+在[教程](#教程)中，我们的微前端系统仅仅是由两个微应用组成的，资源注册是通过在创建bus时传递一个静态的资源声明对象实现的。当你的微应用体积变大，code split出更多的chunk时，你需要通知host enviroment的维护人员，让他帮忙修改资源声明，这还算小事，假如为了提高缓存效率，你的微应用资源文件名带了hash值的话，那么每次微应用升级更新都需要通过这样非常原始的方式人工修改资源声明。对于一个只由几个微应用组成的系统来说，这样做或许勉强可以接受，但是，对于一些企业级的超大规模前端应用，比如一个OA系统，一个网元管理系统来说，它们可能会被划分成好几十个微应用，这样的系统使用静态的资源注册方式会是宿主环境开发维护人员的噩梦。
 
 对于这种超大规模的系统，我们需要宿主环境建设更多一些基础设施。比如，我们可以建这样一个静态文件夹并将它伺服
 ```
@@ -808,18 +808,18 @@ const bus = createBus('host', {}, {
 
 bus.allowCrossOriginScript = false;
 ```
-在[介绍](#/id=介绍)中我们提到过，微前端架构需要实现编排、通信和容器三大功能。而在生产实践中，我个人感受是容器功能并没有那么刚需（[为什么不做应用隔离](#/id=为什么不做应用隔离)），所以obvious没有把重点放在资源隔离的实现上。但是obvious并没有完全放弃这一块阵地，而是把这项能力交给用户去实现，你完全可以按照作用域链上劫持window的思路实现一个js沙箱，或者使用开源的js沙箱实现。然后作为资源运行中间件注入到obvious中。
+在[介绍](#介绍)中我们提到过，微前端架构需要实现编排、通信和容器三大功能。而在生产实践中，我个人感受是容器功能并没有那么刚需（[为什么不做应用隔离](#为什么不做应用隔离)），所以obvious没有把重点放在资源隔离的实现上。但是obvious并没有完全放弃这一块阵地，而是把这项能力交给用户去实现，你完全可以按照作用域链上劫持window的思路实现一个js沙箱，或者使用开源的js沙箱实现。然后作为资源运行中间件注入到obvious中。
 
 > 参考: [如何取巧实现一个微前端沙箱](https://developer.aliyun.com/article/761449)
 
 ## 最佳实践
 在这一小节，你将会了解到使用obvious的一些实用技巧和一些有用的建议
 ### 优雅地本地调试
-你一定已经发现，在[教程](#/?id=教程)中，如果我们直接打开 http://localhost:3000 和 http://localhost:8081 ，页面一片空白，且控制台出现了这样的报错
+你一定已经发现，在[教程](#教程)中，如果我们直接打开 http://localhost:3000 和 http://localhost:8081 ，页面一片空白，且控制台出现了这样的报错
 ![](_media/error-no-bus.png)
 这是因为Bus是连接不同微应用的枢纽，而Bus是由宿主环境提供的。一个很重要的问题是我们如何在本地能完全模拟宿主环境，并且mock与我们交互的微应用。得益于资源加载中间件，这个需求非常简单
 ```js
-import {createBus, getBus} from '@runnan/obvious-core';
+import {createBus, getBus} from 'obvious-core';
 
 let bus = null;
 if (process.env.NODE_ENV === 'development') {
@@ -873,7 +873,7 @@ export const getBus = (name: string) => {
 ```js
 let bus = null;
 if (process.env.NODE_ENV === 'development') {
-    const createBus = require('@runnan/obvious-core').createBus;
+    const createBus = require('obvious-core').createBus;
     bus = createBus('host', {}, {
         handleLoad: async (name) => {
             switch(name) {
@@ -912,15 +912,200 @@ obvious为了避免这种场景，设定了一个单次最大可激活的app数�
 
 # API
 ------
+## Type
+```ts
+type assetsType = {
+    [moduleName: string]: {
+        js?: string[];
+        css?: string[];
+        isLib?: boolean;
+    };
+};
+
+type middlewareType = {
+    handleLoad?: (name: string, loadJs?: (src: string) => Promise<void>, loadCss?: (src: string) => void) => Promise<void>;
+    handleExcute?: (code: string, src: string) => Promise<void>
+};
+
+type lifeCycleType = (config: any) => Promise<void>;
+
+type dependencyType = Array<string | {[appName: string] : any}>;
+```
+
+## 创建和获取Bus
+- 创建Bus: **createBus**: (name, assets, middleware) => Bus
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|name|是|string|Bus名|
+|assets|否|assetsType|资源静态配置|
+|middleware|否|middlewareType|中间件|
+
+- 获取Bus: **getBus**:  (name) => Bus
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|name|是|string|Bus名|
+
 ## Bus
+- 属性：**allowCrossOriginScript**
+|类型|默认值|描述|
+|:---:|:---:|:---:|
+|boolean|true|是否允许跨域脚本，设为true后，js资源将通过fetch加载|
+
+- 属性：**maxBootstrapNumberOnce**
+|类型|默认值|描述|
+|:---:|:---:|:---:|
+|number|100|单次最大可激活app数|
+
+- 属性：**state**(readonly)
+|类型|默认值|描述|
+|:---:|:---:|:---:|
+|object|null|Bus管理的所有状态|
+
+- 创建App：**createApp**：(name) => App
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|name|是|string|App名|
+
+- 创建Socket：**createSocket**：() => Socket
+
+- 加载App资源：**loadApp**：(name) => Promise<void>
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|name|是|string|App名|
+
+- 激活App：**activateApp**：(name, config) => Promise<void>
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|name|是|string|App名|
+|config|否|any|激活参数|
+
+- 销毁App：**destroyApp**：(name, config) => Promise<void>
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|name|是|string|App名|
+|config|否|any|销毁参数|
+
 ## Socket
+- 初始化状态：**initState**：(stateName, value) => void
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|stateName|是|string|状态名|
+|value|是|any|状态值|
+
+- 获取状态：**getState**: (stateName) => any
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|stateName|是|string|状态名|
+
+- 修改状态：**setState**：(stateName, value) => void
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|stateName|是|string|状态名|
+|value|是|any|状态值|
+
+    value可以传一个函数，函数入参是旧的状态值，返回新的状态值
+
+- 监听状态：**watchState**：(stateName, callback) => void
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|stateName|是|string|状态名|
+|callback|是|Function|监听回调|
+
+- 等待状态：**waitState**： (stateNames, timeout) => Promise
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|stateNames|是|string[]|等待的状态名列表|
+|timeout|否|number|超时时间, 默认为10 * 1000|
+
+    返回的Promise的参数是Bus.state
+
+- 监听广播：**onBroadcast**：(eventName, callback) => void
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|eventName|是|string|事件名|
+|callback|是|Function|事件回调|
+
+- 触发广播：**broadcast**：(eventName， ...args) => void
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|eventName|是|string|事件名|
+|...args|否|any|事件回调参数|
+
+- 取消监听广播：**offBroadcast**：(eventName， callback) => void
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|eventName|是|string|事件名|
+|callback|是|Function|事件回调|
+
+    监听和取消监听的回调必须是同一个
+
+- 监听单播：**onUnicast**：(eventName, callback) => void
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|eventName|是|string|事件名|
+|callback|是|Function|事件回调|
+
+- 触发单播：**unicast**：(eventName， ...args) => any
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|eventName|是|string|事件名|
+|...args|否|any|事件回调参数|
+
+- 取消监听单播：**offUnicast**：(eventName， callback) => void
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|eventName|是|string|事件名|
+|callback|是|Function|事件回调|
+
+    监听和取消监听的回调必须是同一个
+
 ## App
+- 指定依赖：**relyOn**：(dependencies) => App
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|dependencies|是|dependencyType[]|依赖的app列表，可以指定依赖激活时传递的激活参数|
+
+- 指定bootstrap生命周期：**bootstrap**: (lifecycleCallback) => App
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|lifecycleCallback|是|(config?: any) => Promise<void>|指定的生命周期函数|
+
+- 指定activate生命周期：**activate**：(lifecycleCallback) => App
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|lifecycleCallback|是|(config?: any) => Promise<void>|指定的生命周期函数|
+
+- 指定destroy生命周期：**destroy**：(lifecycleCallback) => App
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|lifecycleCallback|是|(config?: any) => Promise<void>|指定的生命周期函数|
 
 # Q&A
 ------
 ## 可以用于生产环境吗
+目前obvious是我个人闭门造车的产物，还没有经历过生产环境的考验，但是整个项目有认真地做单元测试，如果您愿意在生产环境中试用，我会感到非常荣幸并将认真维护好它。
+![](_media/ut.png)
 ## 为什么不做应用隔离
+理论上说，如果在项目架构时增加一点规划和沟通成本，应用隔离可以不通过技术手段实现。比如
+- 宿主环境应该定义好normalize全局样式；
+- 集成的微应用应该尽可能不使用全局变量；
+- 对于会引入全局变量的第三方库，应该由宿主环境通过lib形式引入
+- 构建时微应用都配置好css module；
+
+而从技术角度分析应用隔离的话，应用隔离包括全局变量隔离和css样式隔离。css样式隔离可以采用shadow DOM、css module等方案。而全局变量隔离目前主流的实现方案有两种，一种是在微应用挂载前记录全局变量快照，在微应用卸载时恢复全局变量快照，但是这种实现方案的缺点非常明显——一个页面只允许有一个微应用。另一种实现方案则是把源码用闭包包裹，然后在作用域链上劫持window等全局变量，使用我们自己构造的沙箱全局变量，这种实现方案有一定实现成本，而且经过我个人实践，我认为效果依然不够理想，比如我通过这种方式使用全局变量
+```js
+window.a = 'a global varialble';
+console.log(a);
+```
+作用域链劫持式沙箱毫无办法（我觉得不必把with考虑进来，这是一个根本不应该存在的语言特性）
+
+> 参考：[微前端qiankun，聊聊js运行环境沙箱](https://juejin.im/post/6844904118499164174)
+
+总之，我觉得目前没有一个沙箱方案是完美的，就算有，我觉得也是其他框架的卖点，是别人造好的轮子。obvious希望在应用编排和通信的易用性和可扩展性上提供新的思路，而不在应用隔离性上做太大文章。事实上，我觉得如果你的微前端方案更注重隔离性而不在乎应用间的交互和编排的话，iframe或许也差不到哪去。
+
+抛开应用场景谈框架的优劣是伪命题，obvious更适合对应用隔离性要求不高的微前端架构，如果你需要应用间严格隔离，obvious并不能为你减少什么工作量，但是如果你自己解决了应用隔离问题，obvious支持通过中间件的形式让你接入进来
 ## 为什么叫obvious
+我写这个框架的初衷是觉得目前网上微前端相关的文章大多停留在理论，让大家觉得这个概念有些神秘，我希望能以简洁优雅的API帮助大家揭开微前端这个本来不神秘，也不高级的技术的面纱。正好我之前有一个用了很久的网名叫obvious，obvious有明显的意思，感觉跟我的初衷很契合，因此取了这个名字。
 
 # 扩展生态
 -------
@@ -929,8 +1114,8 @@ obvious为了避免这种场景，设定了一个单次最大可激活的app数�
 ## obvious-cli
 ## obvious-spa
 
-# 历史版本
--------
-
 # 加入我们
 -------
+非常感谢您能看到这里，目前obvious只有我一个人维护，希望有志同道合的朋友能加入进来，扩展它的生态，为它翻译英文文档和构建CI。
+
+希望大家都能取得技术进步 : )

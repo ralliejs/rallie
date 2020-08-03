@@ -9,14 +9,14 @@ Obvious is a progressive micro-front-end framework. In the micro-front-end archi
 - The concept is simple, the functional API is clear and easy to understand, and it can be developed without documentation
 
 ## Installation
-`npm install @runnan/obvious-core`
+`npm install obvious-core`
 
 ## Quick Start
 ![](docs/_media/tutorial-target.gif)
 
 In host enviroment, create a bus and declare the resource info
 ```js
-import {createBus} from '@runnan/obvious-core';
+import {createBus} from 'obvious-core';
 
 const bus = createBus('host', {
     'react-app': {
@@ -41,7 +41,7 @@ react-app
 ```js
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
@@ -58,7 +58,7 @@ vue-app
 ```js
 import Vue from 'vue';
 import App from './App.vue';
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 Vue.config.productionTip = false;
 
@@ -83,13 +83,13 @@ bus.createApp('vue-app')
 
 In host enviroment, activate the application
 ```js
-bus.activate('react-app', '#react-app');
-bus.activate('vue-app', '#vue-app');
+bus.activateApp('react-app', '#react-app');
+bus.activateApp('vue-app', '#vue-app');
 ```
 
 ## Document
 
-[obvious.js](https://run-nan.github.io/obvious/#/)
+[obvious.js: the progressive micro frontend framework](https://run-nan.github.io/obvious/#/)
 
 ## License
 obvious is [MIT Licensed](https://github.com/run-nan/obvious/blob/master/LICENSE)
