@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 bus.createApp('react-app')

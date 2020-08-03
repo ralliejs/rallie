@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import App from './App.vue';
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 Vue.config.productionTip = false;
 

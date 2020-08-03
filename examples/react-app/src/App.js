@@ -1,6 +1,6 @@
 import React from 'react';
 import logo from './logo.svg';
-import { getBus } from '@runnan/obvious-core';
+import { getBus } from 'obvious-core';
 import './App.css';
 
 const bus = getBus('host');

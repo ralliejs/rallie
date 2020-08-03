@@ -1,4 +1,4 @@
-import { createBus } from '@runnan/obvious-core';
+import { createBus } from 'obvious-core';
 
 const bus = createBus('host', {
     'react-app': {

@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
