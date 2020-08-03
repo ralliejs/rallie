@@ -1,6 +1,6 @@
 {
   "name": "obvious",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "a  progressive micro front framework",
   "main": "build/index.js",
   "scripts": {
