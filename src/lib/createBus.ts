@@ -1,13 +1,13 @@
-import {Bus, assetsConfigType, middlewareType} from './bus'; // eslint-disable-line
+import {Bus, AssetsConfigType, middlewareType} from './bus'; // eslint-disable-line
 
 /**
  * create a bus and record it on window.__Bus__
- * @param name the name of bus 
+ * @param name the name of bus
  * @param assets the assets config
- * @param middleware the middleware to load resources 
+ * @param middleware the middleware to load resources
  */
 const busProxy = {};
-export const createBus = (name: string, assets?:assetsConfigType, middleware?: middlewareType) => {
+export const createBus = (name: string, assets?:AssetsConfigType, middleware?: middlewareType) => {
     if(window.__Bus__ === undefined) {
         Object.defineProperty(window, '__Bus__', {
             value: busProxy,

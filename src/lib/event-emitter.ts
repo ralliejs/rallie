@@ -1,37 +1,33 @@
-import { callbackType } from './types'; // eslint-disable-line
+import { CallbackType } from './types'; // eslint-disable-line
 import { Errors, Warnings} from './utils';
 
-type broadcastEventsType = {
-    [eventName: string] : Array<callbackType>
-}
+type BroadcastEventsType = Record<string, Array<CallbackType>>
 
-type unicastEventsType = {
-    [eventName: string] : callbackType
-}
+type UnicastEventsType = Record<string, CallbackType>
 
 export class EventEmitter {
-    
-    private broadcastEvents: broadcastEventsType = {
+
+    private broadcastEvents: BroadcastEventsType = {
         '$state-initial': [() => {
             // an empty callback to avoid warning of no listener
         }]
     }
 
-    private uniCastEvents: unicastEventsType = {}
+    private uniCastEvents: UnicastEventsType = {}
 
-    public addBroadcastEventListener(event: string, callback: callbackType) {
+    public addBroadcastEventListener(event: string, callback: CallbackType) {
         this.broadcastEvents[event] = this.broadcastEvents[event] || [];
         this.broadcastEvents[event].push(callback);
     }
 
-    public addUnicastEventListener(event: string, callback: callbackType) {
+    public addUnicastEventListener(event: string, callback: CallbackType) {
         if (this.uniCastEvents[event]) {
             throw new Error(Errors.registedExistedUnicast(event));
         }
         this.uniCastEvents[event] = callback;
     }
 
-    public removeBroadcastEventListener(event: string, callback: callbackType) {
+    public removeBroadcastEventListener(event: string, callback: CallbackType) {
         const registedcallbacks = this.broadcastEvents[event];
         if (registedcallbacks) {
             let targetIndex = -1;
@@ -53,7 +49,7 @@ export class EventEmitter {
         }
     }
 
-    public removeUnicastEventListener(event: string, callback: callbackType) {
+    public removeUnicastEventListener(event: string, callback: CallbackType) {
         if (!this.uniCastEvents[event]) {
             const msg = Errors.removeNonExistedUnicast(event);
             throw new Error(msg);

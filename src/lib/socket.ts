@@ -1,39 +1,36 @@
 import { EventEmitter } from './event-emitter'; // eslint-disable-line
-import { callbackType } from './types'; // eslint-disable-line
+import { CallbackType } from './types'; // eslint-disable-line
 import { getMappedState, Errors } from './utils';
 
 export class Socket {
 
-    private eventEmitter: EventEmitter;
-    private _state: Object;
-
-    constructor(eventEmitter: EventEmitter, _state: Object) {
+    constructor(private eventEmitter: EventEmitter, private _state: Object) {
         this.eventEmitter = eventEmitter;
         this._state = _state;
     }
 
     /**
      * add a broadcast event listener
-     * @param eventName 
-     * @param callback 
+     * @param eventName
+     * @param callback
      */
-    public onBroadcast(eventName: string, callback: callbackType) {
+    public onBroadcast(eventName: string, callback: CallbackType) {
         this.eventEmitter.addBroadcastEventListener(eventName, callback);
     }
 
     /**
      * remove a broadcast event listener
-     * @param eventName 
-     * @param callback 
+     * @param eventName
+     * @param callback
      */
-    public offBroadcast(eventName: string, callback: callbackType) {
+    public offBroadcast(eventName: string, callback: CallbackType) {
         this.eventEmitter.removeBroadcastEventListener(eventName, callback);
     }
 
     /**
      * emit a broadcast event
-     * @param eventName 
-     * @param args 
+     * @param eventName
+     * @param args
      */
     public broadcast(eventName: string, ...args: any[]) {
         this.eventEmitter.emitBroadcast(eventName, ...args);
@@ -41,26 +38,26 @@ export class Socket {
 
     /**
      * add a unicast event listener
-     * @param {string} eventName 
-     * @param {Function} callback 
+     * @param {string} eventName
+     * @param {Function} callback
      */
-    public onUnicast(eventName: string, callback: callbackType) {
+    public onUnicast(eventName: string, callback: CallbackType) {
         this.eventEmitter.addUnicastEventListener(eventName, callback);
     }
 
     /**
      * remove a unicast event listener
-     * @param eventName 
-     * @param callback 
+     * @param eventName
+     * @param callback
      */
-    public offUnicast(eventName: string, callback: callbackType) {
+    public offUnicast(eventName: string, callback: CallbackType) {
         this.eventEmitter.removeUnicastEventListener(eventName, callback);
     }
 
     /**
      * emit a unicast event
-     * @param eventName 
-     * @param args 
+     * @param eventName
+     * @param args
      */
     public unicast(eventName: string, ...args: any[]) {
         return this.eventEmitter.emitUnicast(eventName, ...args);
@@ -91,7 +88,7 @@ export class Socket {
 
     /**
      * get a state
-     * @param {string} stateName 
+     * @param {string} stateName
      */
     public getState(stateName: string) {
         const mappedState = getMappedState(this._state);
@@ -101,8 +98,8 @@ export class Socket {
 
     /**
      * set the value of the state
-     * @param stateName 
-     * @param arg 
+     * @param stateName
+     * @param arg
      */
     public setState(stateName: string, arg: any) {
         if(this._state[stateName] === undefined) {
@@ -123,8 +120,8 @@ export class Socket {
 
     /**
      * watch the change of state
-     * @param stateName 
-     * @param callback 
+     * @param stateName
+     * @param callback
      */
     public watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void) {
         if(this._state[stateName] === undefined) {
@@ -136,8 +133,8 @@ export class Socket {
 
     /**
      * remove the listener of watching the state
-     * @param stateName 
-     * @param callback 
+     * @param stateName
+     * @param callback
      */
     public unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void) {
         if(this._state[stateName] === undefined) {

@@ -4,9 +4,7 @@ import { getBus } from './lib/createBus';
 
 declare global {
     interface Window {
-        __Bus__: {
-            [name: string]: Bus;
-        };
+        __Bus__: Record<string, Bus>;
     }
 }
 
