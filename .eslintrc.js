@@ -7,6 +7,9 @@ module.exports = {
         "node": true
     },
     "extends": ["eslint:recommended", "plugin:react/recommended"],
+    "globals": {
+        "__Bus__": true
+    },
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 2015,

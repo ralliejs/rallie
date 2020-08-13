@@ -1,5 +1,5 @@
 import { createBus, getBus } from '../src/lib/createBus';
-import { middlewareType } from '../src/lib/bus'; // eslint-disable-line
+import { MiddlewareType } from '../src/lib/bus'; // eslint-disable-line
 import nock from 'nock';
 import cssCode from './test-apps/css';
 import appACode from './test-apps/app-a';
@@ -46,12 +46,12 @@ describe('Test the capability to load the resources of an app or lib', () => {
     };
 
     window['appLoadedByMiddleware'] = [];
-    const middleware: middlewareType = {
+    const middleware: MiddlewareType = {
         handleLoad: async (name, loadJs) => {
             await loadJs(`https://localhost/assets/${name}.js`);
             window['appLoadedByMiddleware'].push(name);
         },
-        handleExcute: async (code, src) => {
+        handleExecute: async (code, src) => {
             window['currentLoadedSrc'] = src;
             eval(code);
         }

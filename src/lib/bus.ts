@@ -9,7 +9,7 @@ export type AssetsConfigType = Record<string, {
     isLib?: boolean;
 }> // configure the assets of the app
 
-export type middlewareType = {
+export type MiddlewareType = {
     handleLoad?: (
         name: string,
         loadJs?: (src: string) => Promise<void>,
@@ -31,7 +31,7 @@ export class Bus {
     constructor(
         private name: string = '',
         private assets: AssetsConfigType = {},
-        private middleware: middlewareType = {}
+        private middleware: MiddlewareType = {}
     ) {
         this.assets = assets;
         this.name = name;
