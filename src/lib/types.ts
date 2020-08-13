@@ -1,1 +1,1 @@
-export type callbackType = (...args: any[]) => void
+export type CallbackType = (...args: any[]) => void
