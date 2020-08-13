@@ -53,7 +53,7 @@ obvious.js是一个轻量级，渐进式的微前端框架，它专注于解决�
     - 在vue区域可以通过点击绿色按钮控制react图标是否旋转
     - 点击vue区域的标题，react区域的输入框获得焦点
 
-你可以在[这里](https://github.com/run-nan/obvious/tree/dev/examples)查看教程示例的源码
+你可以在[这里](https://github.com/run-nan/obvious/tree/master/examples)查看教程示例的源码
 
 ## 准备工作
 首先，我们参照[create-react-app](https://github.com/facebook/create-react-app#creating-an-app)和[vue-cli](https://cli.vuejs.org/)官方教程的说明，分别创建一个叫做react-app的react工程和一个叫做vue-app的vue工程，在本地开启dev-server伺服后，react-app被部署在 http://localhost:3000 上
