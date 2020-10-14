@@ -23,7 +23,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "jest": "^24.9.0",
     "nock": "^11.7.2",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "ts-jest": "^24.2.0",
     "typescript": "^3.7.2"
   },
@@ -32,10 +32,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/run-nan/obvious.git"
+    "url": "git+https://github.com/ObviousJs/obvious-core.git"
   },
   "bugs": {
     "url": "https://github.com/SMIELPF/run-nan/issues"
   },
-  "homepage": "https://github.com/run-nan/obvious#readme"
+  "homepage": "https://github.com/ObviousJs/obvious-core#readme"
 }
