@@ -83,13 +83,13 @@ bus.createApp('vue-app')
 
 In host enviroment, activate the application
 ```js
-bus.activateApp('react-app', '#react-app');
-bus.activateApp('vue-app', '#vue-app');
+bus.activateApp('react-app', {mountPoint: '#react-app'});
+bus.activateApp('vue-app', {mountPoint: '#vue-app'});
 ```
 
 ## Document
 
-[obvious.js: the progressive micro frontend framework](https://run-nan.github.io/obvious/#/)
+[obvious.js: the progressive micro frontend framework](https://obviousjs.github.io/obvious-core/#/)
 
 ## License
-obvious is [MIT Licensed](https://github.com/run-nan/obvious/blob/master/LICENSE)
+obvious is [MIT Licensed](https://github.com/ObviousJs/obvious-core/blob/master/LICENSE)

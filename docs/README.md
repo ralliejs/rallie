@@ -34,7 +34,7 @@ obvious.js是一个轻量级，渐进式的微前端框架，它专注于解决�
 - 天然支持单屏页面中加载多个微应用，可以基于它封装出高阶的spa微前端框架，同时微应用激活条件完全由开发者自由制定，不再局限于路由劫持
 - 概念简单，函数式API清晰易理解，可以做到脱离文档开发
 
-这是我在一个又一个996之后挤出时间开发的项目，如果能帮助你解决业务中的问题或者让你感觉有所收获，希望您能给我的[Github仓库](https://github.com/run-nan/obvious)点一个小小的star以示鼓励，如果愿意提issue或者pull request帮助我改进它就更好了。
+这是我在一个又一个996之后挤出时间开发的项目，如果能帮助你解决业务中的问题或者让你感觉有所收获，希望您能给我的[Github仓库](https://github.com/ObviousJs/obvious-core)点一个小小的star以示鼓励，如果愿意提issue或者pull request帮助我改进它就更好了。
 
 接下来，我将带你完整实现一个用obvious搭建微前端环境，并在该环境上把react官方脚手架create-react-app和vue官方脚手架vue-cli开发并部署的两个微应用集成在一起的小示例，带你走进obvious.js
 
@@ -53,7 +53,7 @@ obvious.js是一个轻量级，渐进式的微前端框架，它专注于解决�
     - 在vue区域可以通过点击绿色按钮控制react图标是否旋转
     - 点击vue区域的标题，react区域的输入框获得焦点
 
-你可以在[这里](https://github.com/run-nan/obvious/tree/master/examples)查看教程示例的源码
+你可以在[这里](https://github.com/ObviousJs/obvious-core/tree/master/examples)查看教程示例的源码
 
 ## 准备工作
 首先，我们参照[create-react-app](https://github.com/facebook/create-react-app#creating-an-app)和[vue-cli](https://cli.vuejs.org/)官方教程的说明，分别创建一个叫做react-app的react工程和一个叫做vue-app的vue工程，在本地开启dev-server伺服后，react-app被部署在 http://localhost:3000 上
@@ -685,6 +685,7 @@ bus.destroyApp('demo-app', config3);
 - 如果同时指定了bootstrap和activate生命周期，应用将在第一次被激活时执行bootstrap回调，在后续被激活时执行activate回调
 
 最后，用下面这个图展示一下App的生命周期图谱
+
 ![](_media/app-lifecycles.drawio.svg)
 
 ## 资源预加载
