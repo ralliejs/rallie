@@ -1020,6 +1020,8 @@ type dependencyType = Array<string | {[appName: string] : any}>;
 
     返回的Promise的参数是Bus.state
 
+> setState, getState和watchState支持深度设值，读取和监听状态值。例如调用socket.setState('foo.bar', value), socket.getState('foo.bar'), socket.watchState('foo.bar', callback)是对bus.state.foo.bar就行设值，读取和监听。initState和waitState仅只允许初始化和等待根状态，不支持深度状态
+
 - 监听广播：**onBroadcast**：(eventName, callback) => void
 |参数名|是否必选|类型|描述|
 |:---:|:---:|:---:|:---:|
