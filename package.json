@@ -1,8 +1,8 @@
 {
-  "name": "obvious",
-  "version": "0.1.1",
+  "name": "obvious-core",
+  "version": "0.2.1",
   "description": "a  progressive micro front framework",
-  "main": "build/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "demo": "cd ./demo && npm run start",
     "build": "tsc",
