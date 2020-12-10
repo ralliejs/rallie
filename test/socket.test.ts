@@ -208,7 +208,7 @@ describe('Test deep state', () => {
     
         socketI.setState('foo.bar.can.be.accessed', 'otherValue');
         expect(foo_bar_can_be_accessed_changed).toBeTruthy();
-        expect(foo_bar_changed).toBeFalsy();
+        expect(foo_bar_changed).toBeTruthy();
         expect(foo_bar_new_can_be_accessed).toBeFalsy();
     
         socketI.unwatchState('foo.bar.can.be.accessed', callback1);
@@ -216,6 +216,7 @@ describe('Test deep state', () => {
         socketH.unwatchState('foo.bar.new.can.be.accessed', callback3);
 
         foo_bar_can_be_accessed_changed = false;
+        foo_bar_changed = false;
 
         const newFooBar = 'newFooBar';
 

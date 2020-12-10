@@ -156,6 +156,9 @@ export const getResolvedStates = (stateName: string, events: Array<string>) => {
             if (matchedState.startsWith(stateName)) {
                 result.push(matchedState);
             }
+            if (stateName.startsWith(matchedState) && !result.includes(matchedState)) {
+                result.push(matchedState);
+            }
         }
     });
     return result;
