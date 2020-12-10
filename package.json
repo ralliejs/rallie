@@ -1,11 +1,12 @@
 {
-  "name": "obvious",
-  "version": "0.1.1",
+  "name": "obvious-core",
+  "version": "0.2.1",
   "description": "a  progressive micro front framework",
-  "main": "build/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "demo": "cd ./demo && npm run start",
     "build": "tsc",
+    "docs": "docsify serve docs",
     "test": "jest --coverage"
   },
   "author": "Philip Lau",
@@ -14,6 +15,7 @@
     "@types/jest": "^24.0.23",
     "@typescript-eslint/eslint-plugin": "^2.9.0",
     "@typescript-eslint/parser": "^2.9.0",
+    "docsify-cli": "^4.4.2",
     "eslint": "^6.7.2",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.18.2",

@@ -1,9 +1,5 @@
-export const getMappedState = (state: Object) => {
-    const mappedState = {}; 
-    Object.keys(state).forEach((key) => {
-        mappedState[key] = state[key].value;
-    });
-    return JSON.parse(JSON.stringify(mappedState));
+const isObject = (object: any) => {
+    return Object.prototype.toString.call(object) === '[object Object]';
 };
 
 export const Errors = {
@@ -64,6 +60,13 @@ export const Errors = {
         return '[obvious] the number of apps bootstraped at a time is greater than the maximum value of 100, ' + 
                'it means that there may be circular dependencies, please check the app dependencies declaration ' +
                'or reset the bus\'s maxBootstrapNumberOnce';
+    },
+    // ================= State ==================
+    regardArrayAsObject: (subStateName: string, subscript: string) => {
+        return `[obvious] state.${subStateName} is an Array, but the subscript you set("${subscript}") is not a number, therefore, the state will not be changed`;
+    },
+    regardBasicTypeAsObject: (subStateName: string, type: string) => {
+        return `[obvious] state.${subStateName} is a ${type}, buy you regard it as a object and try to traverse it while setting state, therefore, the state will not be changed`;
     }
 };
 
@@ -71,4 +74,92 @@ export const Warnings = {
     emptyBroadcastEvents: (eventName: string) => {
         return `[obvious] you have emitted ${eventName} event, but there is no listener of this event`;
     }
+};
+
+export const getMappedState = (state: object) => {
+    const mappedState = {}; 
+    Object.keys(state).forEach((key) => {
+        mappedState[key] = state[key].value;
+    });
+    return JSON.parse(JSON.stringify(mappedState));
+};
+
+export const get = (rootState: object | Array<any>, stateLink: Array<string>) => {
+    let current = rootState;
+    for (const key of stateLink) {
+        if (Array.isArray(current)) {
+            const index = Number(key);
+            if (isNaN(index)) {
+                return undefined;
+            }
+            current = current[index];
+        } else if (isObject(current)) {
+            current = current[key];
+        } else {
+            return undefined;
+        }
+    }
+    return current;
+};
+
+export const set = (rootStateName: string, rootState: object, stateLink: Array<string>, value: any) => {
+    let current = rootState;
+    for (let i = 0; i < stateLink.length; i++) {
+        const key = stateLink[i];
+        const index = Number(key);
+        if (i === stateLink.length - 1) {
+            if (Array.isArray(current)) {
+                if (isNaN(index)) {
+                    const stateName = `${rootStateName}.${stateLink.slice(0, i).join('.')}`;
+                    console.error(Errors.regardArrayAsObject(stateName, key));
+                    return false;
+                } else {
+                    current[index] = value;
+                }
+            } else {
+                current[key] = value;
+            }
+        } else {
+            let next = null;
+            if (Array.isArray(current)) {
+                if (!isNaN(index)) {
+                    next = index;
+                } else {
+                    const stateName = `${rootStateName}.${stateLink.slice(0, i).join('.')}`;
+                    console.error(Errors.regardArrayAsObject(stateName, key));
+                    return false;
+                }
+            } else {
+                next = key;
+            }
+            if (current[next] === undefined || current[next] === null) {
+                current[next] = {};
+            } else if (!(Array.isArray(current[next]) || isObject(current[next]))) {
+                const stateName = `${rootStateName}.${stateLink.slice(0, i + 1).join('.')}`;
+                const type = typeof current[next];
+                console.error(Errors.regardBasicTypeAsObject(stateName, type));
+                return false;
+            }
+            current = current[next];
+        }
+    }
+    return true;
+};
+
+export const getResolvedStates = (stateName: string, events: Array<string>) => {
+    const regex = /^\$state-(.+)-change$/;
+    const result = [];
+    events.forEach((eventName: string) => {
+        const regexMatchedResult = regex.exec(eventName);
+        if (regexMatchedResult) {
+            const matchedState = regexMatchedResult[1];
+            if (matchedState.startsWith(stateName)) {
+                result.push(matchedState);
+            }
+            if (stateName.startsWith(matchedState) && !result.includes(matchedState)) {
+                result.push(matchedState);
+            }
+        }
+    });
+    return result;
 };

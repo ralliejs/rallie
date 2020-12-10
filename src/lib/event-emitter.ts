@@ -7,13 +7,13 @@ type UnicastEventsType = Record<string, CallbackType>
 
 export class EventEmitter {
 
-    private broadcastEvents: BroadcastEventsType = {
-        '$state-initial': [() => {
-            // an empty callback to avoid warning of no listener
-        }]
-    }
+    private broadcastEvents: BroadcastEventsType = {}
 
     private uniCastEvents: UnicastEventsType = {}
+
+    public getBroadcastEvents() {
+        return this.broadcastEvents;
+    }
 
     public addBroadcastEventListener(event: string, callback: CallbackType) {
         this.broadcastEvents[event] = this.broadcastEvents[event] || [];
@@ -64,6 +64,7 @@ export class EventEmitter {
 
     public emitBroadcast(event: string, ...args: any[]) {
         const registedcallbacks = this.broadcastEvents[event];
+        const isInternalStateEvent = event.startsWith('$state');
         if (registedcallbacks && registedcallbacks.length !== 0) {
             registedcallbacks.forEach((callback) => {
                 try {
@@ -73,7 +74,7 @@ export class EventEmitter {
                     console.error(error);
                 }
             });
-        } else {
+        } else if (!isInternalStateEvent) {
             console.warn(Warnings.emptyBroadcastEvents(event));
         }
     }
