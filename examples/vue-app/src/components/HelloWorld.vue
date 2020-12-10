@@ -32,10 +32,11 @@
 </template>
 
 <script>
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
+
 export default {
   name: 'HelloWorld',
   props: {
@@ -49,14 +50,10 @@ export default {
   methods: {
     changeRotate: function() {
       this.rotate = !this.rotate;
-      if (this.rotate) {
-        socket.emitBroadcast('rotate');
-      } else {
-        socket.emitBroadcast('stop-rotate');
-      }
+      socket.broadcast('change-rotate', this.rotate);
     },
     focusOnReactInput: function() {
-      const inputDOM = socket.emitUnicast('get-input-dom');
+      const inputDOM = socket.unicast('get-input-dom');
       inputDOM && inputDOM.focus();
     }
   }

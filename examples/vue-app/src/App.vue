@@ -7,7 +7,7 @@
 
 <script>
 import HelloWorld from './components/HelloWorld.vue';
-import {getBus} from '@runnan/obvious-core';
+import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
@@ -19,7 +19,7 @@ export default {
   },
   data: function() {
     return {
-      text:''
+      text: ''
     }
   },
   methods:{
@@ -30,8 +30,8 @@ export default {
   created: function() {
     socket.waitState(['text']).then((state) => {
         this.changeText(state.text);
-    })
-    socket.watchState('text', this.changeText);
+        socket.watchState('text', this.changeText);
+    });
   }
 }
 </script>

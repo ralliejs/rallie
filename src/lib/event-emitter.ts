@@ -1,37 +1,33 @@
-import { callbackType } from './types'; // eslint-disable-line
+import { CallbackType } from './types'; // eslint-disable-line
 import { Errors, Warnings} from './utils';
 
-type broadcastEventsType = {
-    [eventName: string] : Array<callbackType>
-}
+type BroadcastEventsType = Record<string, Array<CallbackType>>
 
-type unicastEventsType = {
-    [eventName: string] : callbackType
-}
+type UnicastEventsType = Record<string, CallbackType>
 
 export class EventEmitter {
-    
-    private broadcastEvents: broadcastEventsType = {
-        '$state-initial': [() => {
-            // an empty callback to avoid warning of no listener
-        }]
+
+    private broadcastEvents: BroadcastEventsType = {}
+
+    private uniCastEvents: UnicastEventsType = {}
+
+    public getBroadcastEvents() {
+        return this.broadcastEvents;
     }
 
-    private uniCastEvents: unicastEventsType = {}
-
-    public addBroadcastEventListener(event: string, callback: callbackType) {
+    public addBroadcastEventListener(event: string, callback: CallbackType) {
         this.broadcastEvents[event] = this.broadcastEvents[event] || [];
         this.broadcastEvents[event].push(callback);
     }
 
-    public addUnicastEventListener(event: string, callback: callbackType) {
+    public addUnicastEventListener(event: string, callback: CallbackType) {
         if (this.uniCastEvents[event]) {
             throw new Error(Errors.registedExistedUnicast(event));
         }
         this.uniCastEvents[event] = callback;
     }
 
-    public removeBroadcastEventListener(event: string, callback: callbackType) {
+    public removeBroadcastEventListener(event: string, callback: CallbackType) {
         const registedcallbacks = this.broadcastEvents[event];
         if (registedcallbacks) {
             let targetIndex = -1;
@@ -53,7 +49,7 @@ export class EventEmitter {
         }
     }
 
-    public removeUnicastEventListener(event: string, callback: callbackType) {
+    public removeUnicastEventListener(event: string, callback: CallbackType) {
         if (!this.uniCastEvents[event]) {
             const msg = Errors.removeNonExistedUnicast(event);
             throw new Error(msg);
@@ -68,6 +64,7 @@ export class EventEmitter {
 
     public emitBroadcast(event: string, ...args: any[]) {
         const registedcallbacks = this.broadcastEvents[event];
+        const isInternalStateEvent = event.startsWith('$state');
         if (registedcallbacks && registedcallbacks.length !== 0) {
             registedcallbacks.forEach((callback) => {
                 try {
@@ -77,7 +74,7 @@ export class EventEmitter {
                     console.error(error);
                 }
             });
-        } else {
+        } else if (!isInternalStateEvent) {
             console.warn(Warnings.emptyBroadcastEvents(event));
         }
     }

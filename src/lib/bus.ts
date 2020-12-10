@@ -3,34 +3,36 @@ import { Socket } from './socket';
 import { App } from './app';
 import { getMappedState, Errors } from './utils';
 
-export type assetsConfigType = {
-    [moduleName: string]: {
-        js?: string[],
-        css?: string[],
-        isLib?: boolean
-    } // configure the assets of the app
-}
+export type AssetsConfigType = Record<string, {
+    js?: string[];
+    css?: string[];
+    isLib?: boolean;
+}> // configure the assets of the app
 
-export type middlewareType = {
-    handleLoad?: (name: string, loadJs?: (src: string) => Promise<void>, loadCss?: (src: string) => void) => Promise<void>;
-    handleExcute?: (code: any, src: string) => Promise<void>
-}
+export type MiddlewareType = {
+    handleLoad?: (
+        name: string,
+        loadJs?: (src: string) => Promise<void>,
+        loadCss?: (src: string) => void
+    ) => Promise<void>;
+    handleExecute?: (code: any, src: string) => Promise<void>;
+};
 
 export class Bus {
-
-    private name: string;
-    private assets: assetsConfigType;
-    private middleware: middlewareType;
     private eventEmitter: EventEmitter = new EventEmitter();
-    private _state: Object = {};
-    private apps: {[name: string]: App | boolean} = {};
+    private _state: object = {};
+    private apps: Record<string, App | boolean> = {};
     private bootstrapNumberOnce = 0;
 
-    public state: {[name: string]: any};
-    public allowCrossDomainJs: boolean = true;
+    public state: Record<string, any>;
+    public allowCrossOriginScript: boolean = true;
     public maxBootstrapNumberOnce = 100;
 
-    constructor(name: string = '', assets: assetsConfigType = {}, middleware: middlewareType = {}) {
+    constructor(
+        private name: string = '',
+        private assets: AssetsConfigType = {},
+        private middleware: MiddlewareType = {}
+    ) {
         this.assets = assets;
         this.name = name;
         this.middleware = middleware;
@@ -43,19 +45,21 @@ export class Bus {
     }
 
     /**
-     * define fetchJs、loadJs and loadCss as arrow function because 
+     * define fetchJs、loadJs and loadCss as arrow function because
      * they will be the arguments of the handleLoad middleware
-     * */ 
+     * */
     private fetchJs = async (src: string) => {
         const res = await fetch(src);
         const code = await res.text();
-        this.middleware?.handleExcute ? this.middleware.handleExcute(code, src) : eval(code);
-    }
+        this.middleware?.handleExecute
+            ? this.middleware.handleExecute(code, src)
+            : eval(code);
+    };
 
     private loadJs = async (src: string) => {
-        const promise: Promise<void> = new Promise((resolve) => {
+        const promise: Promise<void> = new Promise(resolve => {
             const script = document.createElement('script');
-            script.type= 'text/javascript';
+            script.type = 'text/javascript';
             script.src = src;
             script.onload = () => {
                 resolve();
@@ -63,7 +67,7 @@ export class Bus {
             document.body.appendChild(script);
         });
         return promise;
-    }
+    };
 
     private loadCss = async (href: string) => {
         const link = document.createElement('link');
@@ -71,23 +75,24 @@ export class Bus {
         link.type = 'text/css';
         link.href = href;
         document.head.appendChild(link);
-    }
+    };
 
     private async loadResourcesFromAssetsConfig(name: string) {
         const assets = this.assets;
         // insert link tag first
-        assets[name].css && assets[name].css.forEach((asset: string) => {
-            if((/^.+\.css$/).test(asset)) {
-                this.loadCss(asset);
-            } else {
-                console.error(Errors.invalidResource(asset));
-            }
-        });
-        // load and excute js
+        assets[name].css &&
+            assets[name].css.forEach((asset: string) => {
+                if (/^.+\.css$/.test(asset)) {
+                    this.loadCss(asset);
+                } else {
+                    console.error(Errors.invalidResource(asset));
+                }
+            });
+        // load and execute js
         if (assets[name].js) {
-            for( let asset of assets[name].js) {
-                if((/^.+\.js$/).test(asset)) {
-                    if(this.allowCrossDomainJs) {
+            for (let asset of assets[name].js) {
+                if (/^.+\.js$/.test(asset)) {
+                    if (this.allowCrossOriginScript) {
                         await this.loadJs(asset);
                     } else {
                         await this.fetchJs(asset);
@@ -127,24 +132,28 @@ export class Bus {
 
     /**
      * load the resources of an app
-     * @param name 
+     * @param name
      */
     public async loadApp(name: string) {
         // load the resources
-        if(this.assets && this.assets[name]) {
+        if (this.assets && this.assets[name]) {
             await this.loadResourcesFromAssetsConfig(name);
         } else if (this.middleware?.handleLoad) {
-            await this.middleware?.handleLoad(name, this.allowCrossDomainJs ? this.loadJs : this.fetchJs, this.loadCss);
+            await this.middleware?.handleLoad(
+                name,
+                this.allowCrossOriginScript ? this.loadJs : this.fetchJs,
+                this.loadCss
+            );
         } else {
-            throw (new Error(Errors.resourceNotDeclared(name, this.name)));
+            throw new Error(Errors.resourceNotDeclared(name, this.name));
         }
     }
 
     /**
      * activate an app
      * @todo: how to handle circular dependency dead lock
-     * @param name 
-     * @param config 
+     * @param name
+     * @param config
      */
     public async activateApp(name: string, config?: any) {
         if (!this.apps[name]) {
@@ -156,7 +165,7 @@ export class Bus {
         const isApp = typeof this.apps[name] !== 'boolean';
         if (isApp) {
             const app = this.apps[name] as App;
-            if (!app.bootstrapted) {
+            if (!app.bootstrapped) {
                 if (this.bootstrapNumberOnce > this.maxBootstrapNumberOnce) {
                     this.bootstrapNumberOnce = 0;
                     throw new Error(Errors.bootstrapNumberOverflow());
@@ -168,23 +177,23 @@ export class Bus {
                 } else if (app.doActivate) {
                     await app.doActivate(config);
                 }
-                app.bootstrapted = true;
+                app.bootstrapped = true;
                 this.bootstrapNumberOnce--;
             } else {
-                app.doActivate && await app.doActivate(config);
+                app.doActivate && (await app.doActivate(config));
             }
         }
     }
 
     /**
      * destroy an app
-     * @param name 
-     * @param config 
+     * @param name
+     * @param config
      */
     public async destroyApp(name: string, config?: any) {
         const app = this.apps[name];
         if (app && typeof app !== 'boolean') {
-            app.doDestroy && await app.doDestroy(config);
+            app.doDestroy && (await app.doDestroy(config));
             delete this.apps[name];
             delete this._state[`app-${name}-created`];
         }

@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
+import { getBus } from 'obvious-core';
 import './App.css';
-import { getBus } from '@runnan/obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
@@ -13,24 +13,21 @@ function App() {
 
   React.useEffect(() => {
     socket.initState('text', 'Hello Obvious');
-    const onRotate = () => {
-      setLogoClass('App-logo rotate');
+    const changeRotate = (rotate) => {
+      if (rotate) {
+        setLogoClass('App-logo rotate');
+      } else {
+        setLogoClass('App-logo');
+      }
     };
-    const onStopRotate = () => {
-      setLogoClass('App-logo');
+    const getInputDom = () => {
+      return inputRef && inputRef.current;
     };
-    const getInputDOM = () => {
-        console.log(inputRef);
-        return inputRef && inputRef.current;
-    }
-    socket.onBroadcast('rotate', onRotate);
-    socket.onBroadcast('stop-rotate', onStopRotate);
-    socket.onUnicast('get-input-dom', getInputDOM);
-
+    socket.onBroadcast('change-rotate', changeRotate);
+    socket.onUnicast('get-input-dom', getInputDom);
     return () => {
-      socket.offBroadcast('rotate', onRotate);
-      socket.offBroadcast('stop-rotate', onStopRotate);
-      socket.offUnicast('get-input-dom', getInputDOM);
+      socket.offBroadcast('change-rotate', changeRotate);
+      socket.offUnicast('get-input-dom', getInputDom);
     };
   }, []);
 
@@ -42,7 +39,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={`http://localhost:3001${logo}`} className={logoClass} alt="logo" />
+        <img src={`http://localhost:3000${logo}`} className={logoClass} alt="logo" />
         <div>
             <div>Edit the text showed in vue area: </div>
             <input ref={inputRef} onChange={handleOnChange} value={text}></input>

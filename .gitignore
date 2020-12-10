@@ -1,6 +1,6 @@
 node_modules
 /demo/node_modules
 /demo/server/public/assets
-dist
 build
 coverage
+.idea

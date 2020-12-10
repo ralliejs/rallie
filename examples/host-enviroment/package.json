@@ -1,5 +1,5 @@
 {
-  "name": "host-app",
+  "name": "host-enviroment",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@runnan/obvious-core": "0.0.1"
+    "obvious-core": "^0.1.1"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",

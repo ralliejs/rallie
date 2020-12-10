@@ -18,14 +18,14 @@ describe('Test event communication capabilities between sockets', () => {
         socketA.onBroadcast('message', socketA['onMessage']);
         socketB.onBroadcast('message', socketB['onMessage']);
         const hello = 'hello';
-        socketA.emitBroadcast('message', hello);
+        socketA.broadcast('message', hello);
         expect(socketA['message']).toBe(hello);
         expect(socketB['message']).toBe(hello);
     });
 
     test('# case 2: socketA stop to listen the broadcast event, emit it, callback should be called once', () => {
         socketA.offBroadcast('message', socketA['onMessage']);
-        socketA.emitBroadcast('message', world);
+        socketA.broadcast('message', world);
         expect(socketA['message']).toBe(hello);
         expect(socketB['message']).toBe(world);
     });
@@ -35,14 +35,14 @@ describe('Test event communication capabilities between sockets', () => {
             return socketA['message'];
         };
         socketA.onUnicast('getSocketAMessage', socketA['getMessage']);
-        const socketAMessage = socketB.emitUnicast('getSocketAMessage');
+        const socketAMessage = socketB.unicast('getSocketAMessage');
         expect(socketAMessage).toBe(hello);
     });
 
     test('# case 5: socket A stop to listen the unicast event, socketB emit it, an error should be throwed', () => {
         expect(() => {
             socketA.offUnicast('getSocketAMessage', socketA['getMessage']);
-            const socketAMessage = socketB.emitUnicast('getSocketAMessage');
+            const socketAMessage = socketB.unicast('getSocketAMessage');
             expect(socketAMessage).toBeUndefined();
         }).toThrowError();
     });
@@ -138,5 +138,125 @@ describe('Test state communication capabilities between sockets', () => {
         expect(() => {
             socketC.unwatchState('gender', callbackNeverReached);
         }).toThrowError(new Error(Errors.accessUninitializedState('gender')));
+    });
+});
+
+describe('Test deep state', () => {
+    const bus = createBus('socketTester3');
+    const socketG = bus.createSocket();
+    const socketH = bus.createSocket();
+    const socketI = bus.createSocket();
+    const message = 'hello obvious';
+    socketG.initState('foo', {
+        bar: {
+            can: {
+                be: {
+                    accessed: message
+                }
+            }
+        }
+    });
+    test('# case 1: socketG init a state, other sockets can get the value deeply', () => {
+        expect(socketH.getState('foo.bar.can.be.accessed')).toEqual(message);
+        expect(socketH.getState('foo.bar.can')['be']['accessed']).toEqual(message);
+        expect(socketI.getState('foo.bar.not.be.accessed')).toBeUndefined();
+    });
+
+    test('# case 2: socket can set the state deeply',() => {
+        socketH.setState('foo.bar.can.be.accessed', (oldValue: string) => oldValue + oldValue);
+        expect(socketI.getState('foo.bar.can.be.accessed')).toEqual(message + message);
+        socketH.setState('foo.bar.new.can.be.accessed', 'hello_obvious');
+        expect(Object.keys(socketI.getState('foo.bar'))).toHaveLength(2);
+        expect(socketI.getState('foo.bar.new.can.be.accessed')).toEqual('hello_obvious');
+        expect(() => {
+            socketH.setState('foooo.bar.can.be.accessed', 'error');
+        }).toThrow(new Error(Errors.accessUninitializedState('foooo')));
+    });
+
+    test('# case 3: test the deep state with array', () => {
+        console.error = jest.fn();
+        socketH.setState('foo.bar.array', ['a', 'b', 'c']);
+        expect(socketI.getState('foo.bar.array.1')).toEqual('b');
+        socketH.setState('foo.bar.array.a', 'shouldPrintError');
+        socketH.setState('foo.bar.array.3', 'd');
+        expect(socketI.getState('foo.bar.array')).toHaveLength(4);
+        expect(bus.state.foo.bar.array[3]).toEqual('d');
+        socketH.setState('foo.bar.array.f.g', 'h');
+        socketH.setState('foo.bar.array.1.a', 'test');
+        expect(console.error).toHaveBeenCalledTimes(3);
+        expect(console.error).toHaveBeenCalledWith(Errors.regardArrayAsObject('foo.bar.array', 'a'));
+        expect(console.error).toHaveBeenCalledWith(Errors.regardArrayAsObject('foo.bar.array', 'f'));
+        expect(console.error).toHaveBeenCalledWith(Errors.regardBasicTypeAsObject('foo.bar.array.1', 'string'));
+    });
+
+    test('# case 4: socket can watch and unwatch the state deeply', () => {
+        let foo_bar_changed = false;
+        let foo_bar_can_be_accessed_changed = false;
+        let foo_bar_new_can_be_accessed = false;
+        const callback1 = () => {
+            foo_bar_can_be_accessed_changed = true;
+        };
+        const callback2 = () => {
+            foo_bar_changed = true;
+        };
+        const callback3 = () => {
+            foo_bar_new_can_be_accessed = true;
+        };
+        socketH.watchState('foo.bar.can.be.accessed', callback1);
+        socketH.watchState('foo.bar', callback2);
+        socketH.watchState('foo.bar.new.can.be.accessed', callback3);
+    
+        socketI.setState('foo.bar.can.be.accessed', 'otherValue');
+        expect(foo_bar_can_be_accessed_changed).toBeTruthy();
+        expect(foo_bar_changed).toBeTruthy();
+        expect(foo_bar_new_can_be_accessed).toBeFalsy();
+    
+        socketI.unwatchState('foo.bar.can.be.accessed', callback1);
+        socketH.unwatchState('foo.bar', callback2);
+        socketH.unwatchState('foo.bar.new.can.be.accessed', callback3);
+
+        foo_bar_can_be_accessed_changed = false;
+        foo_bar_changed = false;
+
+        const newFooBar = 'newFooBar';
+
+        const callback5 = (newValue, oldValue) => {
+            expect(newValue).toBeUndefined();
+            expect(oldValue).toEqual('otherValue');
+            callback1();
+        };
+        const callback6 = (newValue, oldValue) => {
+            expect(newValue).toEqual(newFooBar);
+            expect(oldValue.can.be.accessed).toEqual('otherValue');
+            expect(oldValue.new).toBeDefined();
+            callback2();
+        };
+        const callback7 = (newValue, oldValue) => {
+            expect(newValue).toBeUndefined();
+            expect(oldValue).toEqual('hello_obvious');
+            callback3();
+        };
+
+        socketH.watchState('foo.bar.can.be.accessed', callback5);
+        socketH.watchState('foo.bar', callback6);
+        socketH.watchState('foo.bar.new.can.be.accessed', callback7);
+
+        socketI.setState('foo.bar', newFooBar);
+        expect(foo_bar_can_be_accessed_changed).toBeTruthy();
+        expect(foo_bar_changed).toBeTruthy();
+        expect(foo_bar_new_can_be_accessed).toBeTruthy();
+
+        socketH.unwatchState('foo.bar.can.be.accessed', callback5);
+        socketH.unwatchState('foo.bar', callback6);
+        socketH.unwatchState('foo.bar.new.can.be.accessed', callback7);
+
+        foo_bar_changed = false;
+        foo_bar_can_be_accessed_changed = false;
+        foo_bar_new_can_be_accessed = false;
+
+        socketI.setState('foo.bar', 'anotherValue');
+        expect(foo_bar_can_be_accessed_changed).toBeFalsy();
+        expect(foo_bar_changed).toBeFalsy();
+        expect(foo_bar_new_can_be_accessed).toBeFalsy();
     });
 });

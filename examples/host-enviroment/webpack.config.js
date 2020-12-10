@@ -19,7 +19,7 @@ module.exports = () => {
         resolve: {
             extensions: ['.tsx', '.ts', '.jsx', '.js'],
             alias: {
-                '@runnan/obvious-core': path.join(__dirname, '../../src/')
+                'obvious-core': path.join(__dirname, '../../src/')
             }
         },
         module: {

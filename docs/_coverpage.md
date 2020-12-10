@@ -1,4 +1,4 @@
-# <b>obvious.js</b> <small>0.0.1</small>
+# <b>obvious.js</b> <small>0.1.1</small>
 
 > 渐进式微前端框架
 
@@ -6,7 +6,7 @@
 - 轻松理解，快速上手
 - 灵活适配，易于扩展
 
-[GitHub](https://github.com/obviousJs/obvious)
+[GitHub](https://github.com/ObviousJs/obvious-core)
 [API](#API)
 [Get Started](#介绍)
 
