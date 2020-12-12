@@ -66,6 +66,6 @@
   "exclude": [
       "node_modules",
       "test",
-      "build"
+      "dist"
   ]
 }
