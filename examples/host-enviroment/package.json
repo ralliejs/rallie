@@ -10,9 +10,7 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "obvious-core": "^0.1.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
     "express": "^4.17.1",

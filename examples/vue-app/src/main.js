@@ -1,10 +1,9 @@
 import Vue from 'vue';
 import App from './App.vue';
-import {getBus} from 'obvious-core';
 
 Vue.config.productionTip = false;
 
-const bus = getBus('host');
+const bus = window.__Bus__.host;
 bus.createApp('vue-app')
   .bootstrap(async (config) => {
     new Vue({

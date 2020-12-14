@@ -11,8 +11,8 @@ const bus = createBus('host', {
     },
     'vue-app': {
         js: [
-            'http://localhost:8081/js/app.js',
-            'http://localhost:8081/js/chunk-vendors.js'
+            'http://localhost:8080/js/app.js',
+            'http://localhost:8080/js/chunk-vendors.js'
         ]
     }
 });

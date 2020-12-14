@@ -3,9 +3,8 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import {getBus} from 'obvious-core';
 
-const bus = getBus('host');
+const bus = window.__Bus__.host;
 bus.createApp('react-app')
   .bootstrap(async (config) => {
     ReactDOM.render(

@@ -17,6 +17,10 @@ app.use(express.static(path.join(__dirname, './dist/')));
 
 app.listen('9999', () => {
     setTimeout(() => {
-        child_process.execSync('start http://localhost:9999/index.html');
+        try {
+            child_process.execSync('open http://localhost:9999/index.html'); // mac
+        } catch (err) {
+            child_process.execSync('start http://localhost:9999/index.html'); // windows
+        }
     }, 3000);
 });

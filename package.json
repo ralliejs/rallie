@@ -2,12 +2,15 @@
   "name": "obvious-core",
   "version": "0.2.1",
   "description": "a  progressive micro front framework",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "demo": "cd ./demo && npm run start",
     "build": "tsc",
     "docs": "docsify serve docs",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "demo:install": "cd ./examples/react-app && npm install && cd ../vue-app && npm install && cd ../host-enviroment && npm install",
+    "demo:react": "cd ./examples/react-app && npm run start",
+    "demo:vue": "cd ./examples/vue-app && npm run serve",
+    "demo:host": "cd ./examples/host-enviroment && npm start"
   },
   "author": "Philip Lau",
   "license": "ISC",
@@ -37,7 +40,7 @@
     "url": "git+https://github.com/ObviousJs/obvious-core.git"
   },
   "bugs": {
-    "url": "https://github.com/SMIELPF/run-nan/issues"
+    "url": "https://github.com/ObviousJs/obvious-core/issues"
   },
   "homepage": "https://github.com/ObviousJs/obvious-core#readme"
 }

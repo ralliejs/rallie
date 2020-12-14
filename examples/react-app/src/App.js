@@ -1,9 +1,8 @@
 import React from 'react';
 import logo from './logo.svg';
-import { getBus } from 'obvious-core';
 import './App.css';
 
-const bus = getBus('host');
+const bus = window.__Bus__.host;
 const socket = bus.createSocket();
 
 function App() {

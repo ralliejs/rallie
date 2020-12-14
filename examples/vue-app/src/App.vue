@@ -7,9 +7,8 @@
 
 <script>
 import HelloWorld from './components/HelloWorld.vue';
-import {getBus} from 'obvious-core';
 
-const bus = getBus('host');
+const bus = window.__Bus__.host;
 const socket = bus.createSocket();
 
 export default {

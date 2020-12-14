@@ -161,6 +161,9 @@ exports.getResolvedStates = function (stateName, events) {
             if (matchedState.startsWith(stateName)) {
                 result.push(matchedState);
             }
+            if (stateName.startsWith(matchedState) && !result.includes(matchedState)) {
+                result.push(matchedState);
+            }
         }
     });
     return result;

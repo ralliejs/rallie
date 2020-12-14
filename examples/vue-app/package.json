@@ -8,9 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "obvious-core": "0.0.1",
     "core-js": "^3.6.5",
-    "obvious-core": "^0.1.1",
     "vue": "^2.6.11"
   },
   "devDependencies": {
@@ -42,6 +40,9 @@
     "not dead"
   ],
   "vue": {
-    "publicPath": "http://localhost:8081/"
+    "publicPath": "http://localhost:8080/",
+    "devServer": {
+      "port": 8080
+    }
   }
 }
