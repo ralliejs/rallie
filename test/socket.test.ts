@@ -61,7 +61,9 @@ describe('Test state communication capabilities between sockets', () => {
     });
     
     test('# case 2: socketC init a public state, other sockets should be able to get and set it', () => {
+        expect(socketC.existState('locale')).toBeFalsy();
         socketC.initState('locale', 'en');
+        expect(socketC.existState('locale')).toBeTruthy();
         expect(socketD.getState('locale')).toEqual('en');
         socketD.setState('locale', 'zh');
         expect(socketF.getState('locale')).toEqual('zh');

@@ -1,6 +1,6 @@
 {
   "name": "obvious-core",
-  "version": "0.2.1",
+  "version": "0.2.2-alpha",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.js",
   "scripts": {

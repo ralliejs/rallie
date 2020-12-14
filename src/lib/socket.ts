@@ -64,6 +64,14 @@ export class Socket {
     }
 
     /**
+     * judge if state has been initialized
+     * @param stateName
+     */
+    public existState(stateName: string) {
+        return this._state[stateName] !== undefined;
+    }
+
+    /**
      * init a state
      * @param stateName
      * @param value
