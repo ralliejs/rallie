@@ -952,7 +952,7 @@ type dependencyType = Array<string | {[appName: string] : any}>;
 |:---:|:---:|:---:|
 |boolean|true|是否允许跨域脚本，设为true后，js资源将通过fetch加载|
 
-- 属性：**maxBootstrapNumberOnce**
+- 属性：**maxDependencyDepth**
 |类型|默认值|描述|
 |:---:|:---:|:---:|
 |number|100|单次最大可激活app数|
@@ -992,6 +992,11 @@ type dependencyType = Array<string | {[appName: string] : any}>;
 |:---:|:---:|:---:|:---:|
 |stateName|是|string|状态名|
 |value|是|any|状态值|
+
+- 判断状态是否已经被初始化：**existsState**：(stateName) => boolean
+|参数名|是否必选|类型|描述|
+|:---:|:---:|:---:|:---:|
+|stateName|是|string|状态名|
 
 - 获取状态：**getState**: (stateName) => any
 |参数名|是否必选|类型|描述|
