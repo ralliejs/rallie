@@ -3,13 +3,13 @@ import { Errors, Warnings} from './utils';
 
 type BroadcastEventsType = Record<string, Array<CallbackType>>
 
-type UnicastEventsType = Record<string, CallbackType>
+type unicastEventsType = Record<string, CallbackType>
 
 export class EventEmitter {
 
     private broadcastEvents: BroadcastEventsType = {}
 
-    private uniCastEvents: UnicastEventsType = {}
+    private unicastEvents: unicastEventsType = {}
 
     public getBroadcastEvents() {
         return this.broadcastEvents;
@@ -21,10 +21,10 @@ export class EventEmitter {
     }
 
     public addUnicastEventListener(event: string, callback: CallbackType) {
-        if (this.uniCastEvents[event]) {
+        if (this.unicastEvents[event]) {
             throw new Error(Errors.registedExistedUnicast(event));
         }
-        this.uniCastEvents[event] = callback;
+        this.unicastEvents[event] = callback;
     }
 
     public removeBroadcastEventListener(event: string, callback: CallbackType) {
@@ -50,16 +50,16 @@ export class EventEmitter {
     }
 
     public removeUnicastEventListener(event: string, callback: CallbackType) {
-        if (!this.uniCastEvents[event]) {
+        if (!this.unicastEvents[event]) {
             const msg = Errors.removeNonExistedUnicast(event);
             throw new Error(msg);
         }
 
-        if (this.uniCastEvents[event] !== callback) {
+        if (this.unicastEvents[event] !== callback) {
             const msg = Errors.wrongUnicastCallback(event);
             throw new Error(msg);
         }
-        delete this.uniCastEvents[event];
+        delete this.unicastEvents[event];
     }
 
     public emitBroadcast(event: string, ...args: any[]) {
@@ -80,7 +80,7 @@ export class EventEmitter {
     }
 
     public emitUnicast(event: string, ...args: any[]) {
-        const callback = this.uniCastEvents[event];
+        const callback = this.unicastEvents[event];
         return callback(...args);
     }
 }
