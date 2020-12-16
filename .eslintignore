@@ -1,5 +1,3 @@
-build
 node_modules
 dist
-/demo/server
-/demo/node_modules
+examples

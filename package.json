@@ -5,6 +5,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
+    "lint": "eslint --ext .ts,.js src",
     "docs": "docsify serve docs",
     "test": "jest --coverage",
     "demo:install": "cd ./examples/react-app && npm install && cd ../vue-app && npm install && cd ../host-enviroment && npm install",
@@ -14,6 +15,11 @@
   },
   "author": "Philip Lau",
   "license": "ISC",
+  "husky": {
+    "hooks": {
+        "pre-commit": "npm run lint"
+    }
+  },
   "devDependencies": {
     "@types/jest": "^24.0.23",
     "@typescript-eslint/eslint-plugin": "^2.9.0",
@@ -26,6 +32,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.17.0",
     "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.3.6",
     "jest": "^24.9.0",
     "nock": "^11.7.2",
     "node-fetch": "^2.6.1",
