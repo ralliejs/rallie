@@ -1,7 +1,7 @@
 import { CallbackType } from './types';
 export declare class EventEmitter {
     private broadcastEvents;
-    private uniCastEvents;
+    private unicastEvents;
     getBroadcastEvents(): Record<string, CallbackType[]>;
     addBroadcastEventListener(event: string, callback: CallbackType): void;
     addUnicastEventListener(event: string, callback: CallbackType): void;
