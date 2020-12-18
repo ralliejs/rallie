@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint --ext .ts,.js src",
+    "lint": "eslint --fix --ext .ts,.js src",
     "docs": "docsify serve docs",
     "test": "jest --coverage",
     "demo:install": "cd ./examples/react-app && npm install && cd ../vue-app && npm install && cd ../host-enviroment && npm install",
@@ -17,7 +17,7 @@
   "license": "ISC",
   "husky": {
     "hooks": {
-        "pre-commit": "npm run lint"
+        "pre-commit": "npm run lint && npm run build && git add ."
     }
   },
   "devDependencies": {

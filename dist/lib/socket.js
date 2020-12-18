@@ -68,6 +68,13 @@ var Socket = /** @class */ (function () {
         return (_a = this.eventEmitter).emitUnicast.apply(_a, tslib_1.__spreadArrays([eventName], args));
     };
     /**
+     * judge if state has been initialized
+     * @param stateName
+     */
+    Socket.prototype.existState = function (stateName) {
+        return this._state[stateName] !== undefined;
+    };
+    /**
      * init a state
      * @param stateName
      * @param value

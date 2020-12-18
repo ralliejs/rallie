@@ -60,7 +60,7 @@ exports.Errors = {
     bootstrapNumberOverflow: function () {
         return '[obvious] the number of apps bootstraped at a time is greater than the maximum value of 100, ' +
             'it means that there may be circular dependencies, please check the app dependencies declaration ' +
-            'or reset the bus\'s maxBootstrapNumberOnce';
+            'or reset the bus\'s maxDependencyDepth';
     },
     // ================= State ==================
     regardArrayAsObject: function (subStateName, subscript) {
