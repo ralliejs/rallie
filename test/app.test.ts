@@ -69,27 +69,36 @@ describe('Test lifecycles of App', () => {
         /**
          * app 'd' indicate the destroy callback
          * the destroy callback should be called before it is destroyed
-         * after it is destroyed, when the bus reactivate the app, it will try
-         * to reload the resources
+         * after it is destroyed, when the bus reactivate the app, it will recall the bootstrap lifecycle callback
          */
-        let activateCount = 0;
+        let bootstraped = false;
+        let activated = false;
         bus.createApp('d')
             .bootstrap(async () => {
-                activateCount++; 
+                bootstraped = true; 
+            })
+            .activate(async () => {
+                activated = true;
             })
             .destroy(async () => {
-                activateCount = 0;
+                bootstraped = false;
+                activated = false;
             });
         bus.activateApp('d').then(() => {
-            expect(activateCount).toEqual(1);
-            return bus.destroyApp('d');
-        }).then(() => {
-            expect(activateCount).toEqual(0);
+            expect(bootstraped).toBeTruthy();
+            expect(activated).toBeFalsy();
             return bus.activateApp('d');
         }).then(() => {
-            throw new Error('this callback should never be reached');
-        }).catch((error) => {
-            expect(error.message).toEqual(Errors.resourceNotDeclared('d', 'testBus'));
+            expect(bootstraped).toBeTruthy();
+            expect(activated).toBeTruthy();
+            return bus.destroyApp('d');
+        }).then(() => {
+            expect(bootstraped).toBeFalsy();
+            expect(activated).toBeFalsy();
+            return bus.activateApp('d');
+        }).then(() => {
+            expect(bootstraped).toBeTruthy();
+            expect(activated).toBeFalsy();
             done();
         });
     });
@@ -100,23 +109,19 @@ describe('Test dependencies of App', () => {
     const bus = createBus('testBus2');
     let appNames = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
     let apps: any = {};
+    appNames.forEach((appName) => {
+        const app =  bus.createApp(appName);
+        apps[appName] = app;
+        app.bootstrap(async () => {
+            bootstrapedApps.push(appName);
+        }).activate(async () => {
+            reactivateApps.push(appName);
+        }).destroy(async () => {
+            bootstrapedApps.splice(bootstrapedApps.indexOf(appName), 1);
+        } );
+    });
     let bootstrapedApps = [];
     let reactivateApps = [];
-    beforeEach(() => {
-        appNames.map((appName) => {
-            const app =  bus.createApp(appName);
-            apps[appName] = app;
-            app.bootstrap(async () => {
-                bootstrapedApps.push(appName);
-            }).activate(async () => {
-                reactivateApps.push(appName);
-            }).destroy(async () => {
-                delete apps[appName];
-                bootstrapedApps.splice(bootstrapedApps.indexOf(appName), 1);
-            } );
-            return app;
-        });
-    });
 
     afterEach(() => {
         appNames.forEach((appName) => {

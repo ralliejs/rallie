@@ -194,8 +194,8 @@ export class Bus {
         const app = this.apps[name];
         if (app && typeof app !== 'boolean') {
             app.doDestroy && (await app.doDestroy(config));
-            delete this.apps[name];
-            delete this._state[`app-${name}-created`];
+            app.bootstrapped = false;
+            app.dependenciesReady = false;
         }
     }
 }
