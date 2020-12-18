@@ -1,10 +1,10 @@
 # obvious.js
-Obvious is a progressive micro-front-end framework. In the micro-front-end architecture, Obvious focuses on solving the  problem of orchestration and communication between micro frontend applications. It aims to help users quickly build a basic micro-front-end system and support deeper customization to achieve a complete and reliable micro-front-end architecture by providing easy-to-understand APIs flexible middleware mechanisms.
+Obvious is a progressive micro-front-end framework. In the micro-front-end architecture, Obvious focuses on solving the  problem of orchestration and communication between micro frontend applications. It aims to help users quickly build a basic micro-front-end system and support deeper customization to achieve a complete and reliable micro-front-end architecture by providing easy-to-understand APIs and flexible middleware mechanisms.
 
 ## Features
-- Provide flexible and convenient capabilities based on global status, event broadcast, and event unicast
-- Support declaring dependencies capabilities when defining micro applications, and automatically activate dependencies when activating micro applications, allowing micro applications to be freely split and combine
-- Have a flexible middleware mechanism. Allow developers to freely customize the unified registration and loading rules of resources in the form of writing middleware to realize automatic registration. At the same time, allow developers to write middleware to control the code excuting, so that developers can elegantly access log, js sandbox and other functions
+- Provide flexible and convenient communication capabilities based on global status, event broadcast, and event unicast
+- Support declaring dependencies when defining micro applications, and automatically activate dependencies when activating micro applications, allowing micro applications to be freely split and combine
+- Have a flexible middleware mechanism which allows developers to freely customize the unified registration and loading rules of resources in the form of writing middleware to realize automatic registration. At the same time, allow developers to write middleware to control the code excuting, so that developers can elegantly access log, js sandbox and other functions
 - Naturally supports loading multiple micro-applications in a single-screen page, based on which a high-end spa micro-front-end framework can be encapsulated, and the activation conditions of the micro-applications are completely freely set by the developer, no longer limited to routing hijacking.
 - The concept is simple, the functional API is clear and easy to understand, and it can be developed without documentation
 
