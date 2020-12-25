@@ -2,7 +2,7 @@ declare type CallbackType = (config?: any) => Promise<void>;
 declare type DependenciesType = Array<Record<string, any> | string>;
 export declare class App {
     name: string;
-    private dependenciesReady;
+    dependenciesReady: boolean;
     bootstrapped: boolean;
     dependencies: DependenciesType;
     doBootstrap?: CallbackType;

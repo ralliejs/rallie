@@ -17,9 +17,9 @@ var Bus = /** @class */ (function () {
         this.eventEmitter = new event_emitter_1.EventEmitter();
         this._state = {};
         this.apps = {};
-        this.bootstrapNumberOnce = 0;
+        this.dependencyDepth = 0;
         this.allowCrossOriginScript = true;
-        this.maxBootstrapNumberOnce = 100;
+        this.maxDependencyDepth = 100;
         /**
          * define fetchJs、loadJs and loadCss as arrow function because
          * they will be the arguments of the handleLoad middleware
@@ -200,11 +200,11 @@ var Bus = /** @class */ (function () {
                         if (!isApp) return [3 /*break*/, 11];
                         app = this.apps[name];
                         if (!!app.bootstrapped) return [3 /*break*/, 8];
-                        if (this.bootstrapNumberOnce > this.maxBootstrapNumberOnce) {
-                            this.bootstrapNumberOnce = 0;
+                        if (this.dependencyDepth > this.maxDependencyDepth) {
+                            this.dependencyDepth = 0;
                             throw new Error(utils_1.Errors.bootstrapNumberOverflow());
                         }
-                        this.bootstrapNumberOnce++;
+                        this.dependencyDepth++;
                         return [4 /*yield*/, app.activateDependenciesApp(this.activateApp.bind(this))];
                     case 3:
                         _b.sent();
@@ -221,7 +221,7 @@ var Bus = /** @class */ (function () {
                         _b.label = 7;
                     case 7:
                         app.bootstrapped = true;
-                        this.bootstrapNumberOnce--;
+                        this.dependencyDepth--;
                         return [3 /*break*/, 11];
                     case 8:
                         _a = app.doActivate;
@@ -259,8 +259,8 @@ var Bus = /** @class */ (function () {
                         _b.label = 2;
                     case 2:
                         _a;
-                        delete this.apps[name];
-                        delete this._state["app-" + name + "-created"];
+                        app.bootstrapped = false;
+                        app.dependenciesReady = false;
                         _b.label = 3;
                     case 3: return [2 /*return*/];
                 }

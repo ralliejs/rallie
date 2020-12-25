@@ -2,8 +2,7 @@ type CallbackType = (config?: any) => Promise<void>;
 type DependenciesType = Array<Record<string, any> | string>;
 
 export class App {
-    private dependenciesReady: boolean = false;
-
+    public dependenciesReady: boolean = false;
     public bootstrapped: boolean = false;
     public dependencies: DependenciesType = [];
     public doBootstrap?: CallbackType;

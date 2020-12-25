@@ -4,7 +4,7 @@ var utils_1 = require("./utils");
 var EventEmitter = /** @class */ (function () {
     function EventEmitter() {
         this.broadcastEvents = {};
-        this.uniCastEvents = {};
+        this.unicastEvents = {};
     }
     EventEmitter.prototype.getBroadcastEvents = function () {
         return this.broadcastEvents;
@@ -14,10 +14,10 @@ var EventEmitter = /** @class */ (function () {
         this.broadcastEvents[event].push(callback);
     };
     EventEmitter.prototype.addUnicastEventListener = function (event, callback) {
-        if (this.uniCastEvents[event]) {
+        if (this.unicastEvents[event]) {
             throw new Error(utils_1.Errors.registedExistedUnicast(event));
         }
-        this.uniCastEvents[event] = callback;
+        this.unicastEvents[event] = callback;
     };
     EventEmitter.prototype.removeBroadcastEventListener = function (event, callback) {
         var registedcallbacks = this.broadcastEvents[event];
@@ -43,15 +43,15 @@ var EventEmitter = /** @class */ (function () {
         }
     };
     EventEmitter.prototype.removeUnicastEventListener = function (event, callback) {
-        if (!this.uniCastEvents[event]) {
+        if (!this.unicastEvents[event]) {
             var msg = utils_1.Errors.removeNonExistedUnicast(event);
             throw new Error(msg);
         }
-        if (this.uniCastEvents[event] !== callback) {
+        if (this.unicastEvents[event] !== callback) {
             var msg = utils_1.Errors.wrongUnicastCallback(event);
             throw new Error(msg);
         }
-        delete this.uniCastEvents[event];
+        delete this.unicastEvents[event];
     };
     EventEmitter.prototype.emitBroadcast = function (event) {
         var args = [];
@@ -80,7 +80,7 @@ var EventEmitter = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             args[_i - 1] = arguments[_i];
         }
-        var callback = this.uniCastEvents[event];
+        var callback = this.unicastEvents[event];
         return callback.apply(void 0, args);
     };
     return EventEmitter;

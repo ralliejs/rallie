@@ -22,11 +22,11 @@ export class Bus {
     private eventEmitter: EventEmitter = new EventEmitter();
     private _state: object = {};
     private apps: Record<string, App | boolean> = {};
-    private bootstrapNumberOnce = 0;
+    private dependencyDepth = 0;
 
     public state: Record<string, any>;
     public allowCrossOriginScript: boolean = true;
-    public maxBootstrapNumberOnce = 100;
+    public maxDependencyDepth = 100;
 
     constructor(
         private name: string = '',
@@ -166,11 +166,11 @@ export class Bus {
         if (isApp) {
             const app = this.apps[name] as App;
             if (!app.bootstrapped) {
-                if (this.bootstrapNumberOnce > this.maxBootstrapNumberOnce) {
-                    this.bootstrapNumberOnce = 0;
+                if (this.dependencyDepth > this.maxDependencyDepth) {
+                    this.dependencyDepth = 0;
                     throw new Error(Errors.bootstrapNumberOverflow());
                 }
-                this.bootstrapNumberOnce++;
+                this.dependencyDepth++;
                 await app.activateDependenciesApp(this.activateApp.bind(this));
                 if (app.doBootstrap) {
                     await app.doBootstrap(config);
@@ -178,7 +178,7 @@ export class Bus {
                     await app.doActivate(config);
                 }
                 app.bootstrapped = true;
-                this.bootstrapNumberOnce--;
+                this.dependencyDepth--;
             } else {
                 app.doActivate && (await app.doActivate(config));
             }
@@ -194,8 +194,8 @@ export class Bus {
         const app = this.apps[name];
         if (app && typeof app !== 'boolean') {
             app.doDestroy && (await app.doDestroy(config));
-            delete this.apps[name];
-            delete this._state[`app-${name}-created`];
+            app.bootstrapped = false;
+            app.dependenciesReady = false;
         }
     }
 }

@@ -41,6 +41,11 @@ export declare class Socket {
      */
     unicast(eventName: string, ...args: any[]): void;
     /**
+     * judge if state has been initialized
+     * @param stateName
+     */
+    existState(stateName: string): boolean;
+    /**
      * init a state
      * @param stateName
      * @param value

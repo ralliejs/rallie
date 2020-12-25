@@ -16,10 +16,10 @@ export declare class Bus {
     private eventEmitter;
     private _state;
     private apps;
-    private bootstrapNumberOnce;
+    private dependencyDepth;
     state: Record<string, any>;
     allowCrossOriginScript: boolean;
-    maxBootstrapNumberOnce: number;
+    maxDependencyDepth: number;
     constructor(name?: string, assets?: AssetsConfigType, middleware?: MiddlewareType);
     /**
      * define fetchJs、loadJs and loadCss as arrow function because

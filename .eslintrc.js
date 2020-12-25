@@ -6,7 +6,7 @@ module.exports = {
         "jest": true,
         "node": true
     },
-    "extends": ["eslint:recommended", "plugin:react/recommended"],
+    "extends": ["eslint:recommended"],
     "globals": {
         "__Bus__": true
     },
