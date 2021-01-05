@@ -51,9 +51,10 @@ export class Bus {
     private fetchJs = async (src: string) => {
         const res = await fetch(src);
         const code = await res.text();
+        const fn = new Function(code);
         this.middleware?.handleExecute
             ? this.middleware.handleExecute(code, src)
-            : eval(code);
+            : fn();
     };
 
     private loadJs = async (src: string) => {
