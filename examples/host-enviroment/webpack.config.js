@@ -19,7 +19,7 @@ module.exports = () => {
         resolve: {
             extensions: ['.tsx', '.ts', '.jsx', '.js'],
             alias: {
-                'obvious-core': path.join(__dirname, '../../src/')
+                'obvious-core': path.join(__dirname, '../../dist/index.umd.js')
             }
         },
         module: {

@@ -2,9 +2,11 @@
   "name": "obvious-core",
   "version": "0.2.2-alpha",
   "description": "a  progressive micro front framework",
-  "main": "./dist/index.js",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rollup -c rollup.config.js",
     "lint": "eslint --fix --ext .ts,.js src",
     "docs": "docsify serve docs",
     "test": "jest --coverage",
@@ -17,10 +19,12 @@
   "license": "ISC",
   "husky": {
     "hooks": {
-        "pre-commit": "npm run lint && npm run build && git add ."
+      "pre-commit": "npm run lint && npm run build && git add ."
     }
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.1",
     "@types/jest": "^24.0.23",
     "@typescript-eslint/eslint-plugin": "^2.9.0",
     "@typescript-eslint/parser": "^2.9.0",
@@ -36,11 +40,13 @@
     "jest": "^24.9.0",
     "nock": "^11.7.2",
     "node-fetch": "^2.6.1",
+    "rollup": "^2.35.1",
+    "rollup-plugin-typescript2": "^0.29.0",
     "ts-jest": "^24.2.0",
     "typescript": "^3.7.2"
   },
   "dependencies": {
-    "tslib": "^1.10.0"
+    "tslib": "^2.0.3"
   },
   "repository": {
     "type": "git",
