@@ -1,6 +1,6 @@
-# <b>obvious.js</b> <small>0.1.1</small>
+# <b>obvious.js</b> <small>0.2.2</small>
 
-> 渐进式微前端框架
+> 渐进式微前端库
 
 - 简单，轻量
 - 轻松理解，快速上手
