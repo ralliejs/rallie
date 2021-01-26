@@ -25,7 +25,7 @@ export class Bus {
     private dependencyDepth = 0;
 
     public state: Record<string, any>;
-    public allowCrossOriginScript: boolean = true;
+    public loadScriptByFetch: boolean = false;
     public maxDependencyDepth = 100;
 
     constructor(
@@ -93,7 +93,7 @@ export class Bus {
         if (assets[name].js) {
             for (let asset of assets[name].js) {
                 if (/^.+\.js$/.test(asset)) {
-                    if (this.allowCrossOriginScript) {
+                    if (!this.loadScriptByFetch) {
                         await this.loadJs(asset);
                     } else {
                         await this.fetchJs(asset);
@@ -142,7 +142,7 @@ export class Bus {
         } else if (this.middleware?.handleLoad) {
             await this.middleware?.handleLoad(
                 name,
-                this.allowCrossOriginScript ? this.loadJs : this.fetchJs,
+                this.loadScriptByFetch ? this.fetchJs : this.loadJs,
                 this.loadCss
             );
         } else {

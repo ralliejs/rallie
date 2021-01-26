@@ -178,20 +178,25 @@ describe('Test deep state', () => {
     test('# case 3: test the deep state with array', () => {
         console.error = jest.fn();
         socketH.setState('foo.bar.array', ['a', 'b', 'c']);
-        expect(socketI.getState('foo.bar.array.1')).toEqual('b');
+        expect(socketI.getState('foo.bar.array[1]')).toEqual('b');
         socketH.setState('foo.bar.array.a', 'shouldPrintError');
-        socketH.setState('foo.bar.array.3', 'd');
+        socketH.setState('foo.bar.array[3]', 'd');
         expect(socketI.getState('foo.bar.array')).toHaveLength(4);
         expect(bus.state.foo.bar.array[3]).toEqual('d');
+        socketH.setState('foo.multiDimensionalArray[0][0][0]', 1)
+        expect(Array.isArray(socketH.getState('foo.multiDimensionalArray'))).toBeTruthy()
+        expect(Array.isArray(socketH.getState('foo.multiDimensionalArray[0]'))).toBeTruthy()
+        expect(Array.isArray(socketH.getState('foo.multiDimensionalArray[0][0]'))).toBeTruthy()
+        expect(socketH.getState('foo.multiDimensionalArray[0][0][0]')).toEqual(1)
         socketH.setState('foo.bar.array.f.g', 'h');
-        socketH.setState('foo.bar.array.1.a', 'test');
+        socketH.setState('foo.bar.array[1].a', 'test');
         expect(console.error).toHaveBeenCalledTimes(3);
         expect(console.error).toHaveBeenCalledWith(Errors.regardArrayAsObject('foo.bar.array', 'a'));
         expect(console.error).toHaveBeenCalledWith(Errors.regardArrayAsObject('foo.bar.array', 'f'));
-        expect(console.error).toHaveBeenCalledWith(Errors.regardBasicTypeAsObject('foo.bar.array.1', 'string'));
+        expect(console.error).toHaveBeenCalledWith(Errors.regardBasicTypeAsObject('foo.bar.array[1]', 'string'));
     });
 
-    test('# case 4: socket can watch and unwatch the state deeply', () => {
+    test('# case 5: socket can watch and unwatch the state deeply', () => {
         let foo_bar_changed = false;
         let foo_bar_can_be_accessed_changed = false;
         let foo_bar_new_can_be_accessed = false;

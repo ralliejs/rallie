@@ -58,7 +58,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
     };
 
     const bus = createBus('testBus', staticAssetsConfig, middleware);
-    bus.allowCrossOriginScript = false;
+    bus.loadScriptByFetch = true;
     test('# case 1: create a bus, it should be mounted on window.__Bus__ ', () => {
         expect(getBus('testBus')).toBe(bus);
         expect(() => {

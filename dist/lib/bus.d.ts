@@ -18,7 +18,7 @@ export declare class Bus {
     private apps;
     private dependencyDepth;
     state: Record<string, any>;
-    allowCrossOriginScript: boolean;
+    loadScriptByFetch: boolean;
     maxDependencyDepth: number;
     constructor(name?: string, assets?: AssetsConfigType, middleware?: MiddlewareType);
     /**
