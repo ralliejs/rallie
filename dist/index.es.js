@@ -657,7 +657,7 @@ var Bus = /** @class */ (function () {
         this._state = {};
         this.apps = {};
         this.dependencyDepth = 0;
-        this.allowCrossOriginScript = true;
+        this.loadScriptByFetch = false;
         this.maxDependencyDepth = 100;
         /**
          * define fetchJs、loadJs and loadCss as arrow function because
@@ -742,7 +742,7 @@ var Bus = /** @class */ (function () {
                         if (!(_i < _a.length)) return [3 /*break*/, 8];
                         asset = _a[_i];
                         if (!/^.+\.js$/.test(asset)) return [3 /*break*/, 6];
-                        if (!this.allowCrossOriginScript) return [3 /*break*/, 3];
+                        if (!!this.loadScriptByFetch) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.loadJs(asset)];
                     case 2:
                         _b.sent();
@@ -805,7 +805,7 @@ var Bus = /** @class */ (function () {
                         return [3 /*break*/, 5];
                     case 2:
                         if (!((_a = this.middleware) === null || _a === void 0 ? void 0 : _a.handleLoad)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, ((_b = this.middleware) === null || _b === void 0 ? void 0 : _b.handleLoad(name, this.allowCrossOriginScript ? this.loadJs : this.fetchJs, this.loadCss))];
+                        return [4 /*yield*/, ((_b = this.middleware) === null || _b === void 0 ? void 0 : _b.handleLoad(name, this.loadScriptByFetch ? this.fetchJs : this.loadJs, this.loadCss))];
                     case 3:
                         _c.sent();
                         return [3 /*break*/, 5];
