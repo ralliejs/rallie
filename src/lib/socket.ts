@@ -1,6 +1,6 @@
 import { EventEmitter } from './event-emitter'; // eslint-disable-line
 import { CallbackType } from './types'; // eslint-disable-line
-import { get, set, getMappedState, getResolvedStates,Errors } from './utils';
+import { get, set, getMappedState, getResolvedStates,Errors, getStateNameLink } from './utils';
 
 export class Socket {
 
@@ -68,7 +68,9 @@ export class Socket {
      * @param stateName
      */
     public existState(stateName: string) {
-        return this._state[stateName] !== undefined;
+        const stateNameLink = getStateNameLink(stateName)
+        const rootStateName = stateNameLink[0] as string
+        return this._state[rootStateName] !== undefined;
     }
 
     /**
@@ -97,7 +99,7 @@ export class Socket {
      */
     public getState(stateName: string) {
         const mappedState = getMappedState(this._state);
-        return get(mappedState, stateName.split('.'));
+        return get(mappedState, getStateNameLink(stateName));
     }
 
     /**
@@ -106,8 +108,8 @@ export class Socket {
      * @param arg
      */
     public setState(stateName: string, arg: any) {
-        const stateLink = stateName.split('.');
-        const rootStateName = stateLink[0];
+        const stateNameLink = getStateNameLink(stateName)
+        const rootStateName = stateNameLink[0] as string;
         if(this._state[rootStateName] === undefined) {
             const msg = Errors.accessUninitializedState(rootStateName);
             throw new Error(msg);
@@ -122,11 +124,11 @@ export class Socket {
         const isFunctionArg = typeof arg === 'function';
         const oldValue = this.getState(stateName);
         const newValue = isFunctionArg ? arg(oldValue) : arg;
-        if (stateLink.length === 1) {
+        if (stateNameLink.length === 1) {
             this._state[rootStateName].value = newValue;
         } else {
-            const subStateLink = stateLink.slice(1);
-            const isSuccess = set(rootStateName, this._state[rootStateName].value, subStateLink, newValue);
+            const subStateNameLink = stateNameLink.slice(1);
+            const isSuccess = set(rootStateName, this._state[rootStateName].value, subStateNameLink, newValue);
             if (!isSuccess) {
                 return;
             }
@@ -136,7 +138,8 @@ export class Socket {
         const events = Object.keys(this.eventEmitter.getBroadcastEvents());
         const resolvedStates = getResolvedStates(stateName, events);
         resolvedStates.forEach((name) => {
-            this.broadcast(`$state-${name}-change`, get(newState, name.split('.')), get(oldState, name.split('.')));
+            const notifiedStateNameLink = getStateNameLink(name)
+            this.broadcast(`$state-${name}-change`, get(newState, notifiedStateNameLink), get(oldState, notifiedStateNameLink));
         });
     }
 
@@ -146,8 +149,8 @@ export class Socket {
      * @param callback
      */
     public watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void) {
-        const stateLink = stateName.split('.');
-        const rootStateName = stateLink[0];
+        const stateNameLink = getStateNameLink(stateName);
+        const rootStateName = stateNameLink[0] as string;
         if(this._state[rootStateName] === undefined) {
             const msg = Errors.accessUninitializedState(rootStateName);
             throw new Error(msg);
@@ -161,9 +164,7 @@ export class Socket {
      * @param callback
      */
     public unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void) {
-        const stateLink = stateName.split('.');
-        const rootStateName = stateLink[0];
-        if(this._state[rootStateName] === undefined) {
+        if (!this.existState(stateName)) {
             throw new Error(Errors.accessUninitializedState(stateName));
         }
         this.eventEmitter.removeBroadcastEventListener(`$state-${stateName}-change`, callback);
@@ -175,9 +176,12 @@ export class Socket {
      * @param timeout the time to wait
      */
     public waitState(dependencies: string[], timeout = 10 * 1000) {
-        // remove all ready states first
-        dependencies = dependencies.filter((stateName: string) => {
-            return this._state[stateName] === undefined;
+        dependencies = dependencies.map((stateName: string) => { // get root state array
+            const stateNameLink = getStateNameLink(stateName)
+            const rootStateName = stateNameLink[0] as string
+            return rootStateName
+        }).filter((rootStateName: string) => { // remove all ready states first
+            return this._state[rootStateName] === undefined;
         });
 
         if (dependencies.length === 0) {
@@ -189,8 +193,8 @@ export class Socket {
                     const msg = Errors.waitStateTimeout(dependencies);
                     reject(new Error(msg));
                 }, timeout);
-                const stateInitialCallback = (stateName: string) => {
-                    const index = dependencies.indexOf(stateName);
+                const stateInitialCallback = (rootStateName: string) => {
+                    const index = dependencies.indexOf(rootStateName);
                     if (index !== -1) {
                         dependencies.splice(index, 1);
                     }

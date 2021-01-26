@@ -84,15 +84,48 @@ export const getMappedState = (state: object) => {
     return JSON.parse(JSON.stringify(mappedState));
 };
 
-export const get = (rootState: object | Array<any>, stateLink: Array<string>) => {
+export const getStateName = (stateNameLink: Array<string | number>): string => {
+    let result = ''
+    stateNameLink.forEach((item, index) => {
+        const nextStateName = stateNameLink[index + 1]
+        const isNextObject = (typeof nextStateName) === 'string'
+        if (typeof item === 'number') {
+            result += (isNextObject ? `[${item}].` : `[${item}]`)
+        } else {
+            result += (isNextObject ? `${item}.` : item)
+        }
+    })
+    return result
+}
+
+export const getStateNameLink = (stateName: string): Array<string | number> => {
+    const tempLink = stateName.split('.')
+    const resultLink = []
+    tempLink.forEach((item: string) => {
+        const arrayPattern = /(.+)\[(\d+)\]$/
+        const matchedResult = arrayPattern.exec(item)
+        if (matchedResult !== null) {
+            const arrayName = matchedResult[1]
+            const arrayIndex = matchedResult[2]
+            getStateNameLink(arrayName).forEach((item) => {
+                resultLink.push(item)
+            })
+            resultLink.push(Number(arrayIndex))
+        } else {
+            resultLink.push(item)
+        }
+    })
+    return resultLink
+};
+
+export const get = (rootState: object | Array<any>, stateLink: Array<string | number>) => {
     let current = rootState;
     for (const key of stateLink) {
         if (Array.isArray(current)) {
-            const index = Number(key);
-            if (isNaN(index)) {
+            if (typeof key !== 'number') {
                 return undefined;
             }
-            current = current[index];
+            current = current[key];
         } else if (isObject(current)) {
             current = current[key];
         } else {
@@ -102,19 +135,18 @@ export const get = (rootState: object | Array<any>, stateLink: Array<string>) =>
     return current;
 };
 
-export const set = (rootStateName: string, rootState: object, stateLink: Array<string>, value: any) => {
+export const set = (rootStateName: string, rootState: object, subStateLink: Array<string | number>, value: any) => {
     let current = rootState;
-    for (let i = 0; i < stateLink.length; i++) {
-        const key = stateLink[i];
-        const index = Number(key);
-        if (i === stateLink.length - 1) {
+    for (let i = 0; i < subStateLink.length; i++) {
+        const key = subStateLink[i];
+        if (i === subStateLink.length - 1) { // traverse to the last
             if (Array.isArray(current)) {
-                if (isNaN(index)) {
-                    const stateName = `${rootStateName}.${stateLink.slice(0, i).join('.')}`;
+                if (typeof key !== 'number') {
+                    const stateName = getStateName([rootStateName, ...subStateLink.slice(0, i)]);
                     console.error(Errors.regardArrayAsObject(stateName, key));
                     return false;
                 } else {
-                    current[index] = value;
+                    current[key] = value;
                 }
             } else {
                 current[key] = value;
@@ -122,20 +154,21 @@ export const set = (rootStateName: string, rootState: object, stateLink: Array<s
         } else {
             let next = null;
             if (Array.isArray(current)) {
-                if (!isNaN(index)) {
-                    next = index;
-                } else {
-                    const stateName = `${rootStateName}.${stateLink.slice(0, i).join('.')}`;
+                if (typeof key !== 'number') {
+                    const stateName = getStateName([rootStateName, ...subStateLink.slice(0, i)]);
                     console.error(Errors.regardArrayAsObject(stateName, key));
                     return false;
+                } else {
+                    next = key;
                 }
             } else {
                 next = key;
             }
             if (current[next] === undefined || current[next] === null) {
-                current[next] = {};
+                const nextNext = subStateLink[i + 1]
+                current[next] = (typeof nextNext === 'number') ? [] : {};
             } else if (!(Array.isArray(current[next]) || isObject(current[next]))) {
-                const stateName = `${rootStateName}.${stateLink.slice(0, i + 1).join('.')}`;
+                const stateName = getStateName([rootStateName, ...subStateLink.slice(0, i + 1)])
                 const type = typeof current[next];
                 console.error(Errors.regardBasicTypeAsObject(stateName, type));
                 return false;

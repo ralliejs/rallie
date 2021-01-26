@@ -23,6 +23,8 @@ export declare const Warnings: {
     emptyBroadcastEvents: (eventName: string) => string;
 };
 export declare const getMappedState: (state: object) => any;
-export declare const get: (rootState: object | any[], stateLink: string[]) => object;
-export declare const set: (rootStateName: string, rootState: object, stateLink: string[], value: any) => boolean;
+export declare const getStateName: (stateNameLink: (string | number)[]) => string;
+export declare const getStateNameLink: (stateName: string) => (string | number)[];
+export declare const get: (rootState: object | any[], stateLink: (string | number)[]) => object;
+export declare const set: (rootStateName: string, rootState: object, subStateLink: (string | number)[], value: any) => boolean;
 export declare const getResolvedStates: (stateName: string, events: string[]) => any[];
