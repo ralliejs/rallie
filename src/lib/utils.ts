@@ -85,37 +85,37 @@ export const getMappedState = (state: object) => {
 };
 
 export const getStateName = (stateNameLink: Array<string | number>): string => {
-    let result = ''
+    let result = '';
     stateNameLink.forEach((item, index) => {
-        const nextStateName = stateNameLink[index + 1]
-        const isNextObject = (typeof nextStateName) === 'string'
+        const nextStateName = stateNameLink[index + 1];
+        const isNextObject = (typeof nextStateName) === 'string';
         if (typeof item === 'number') {
-            result += (isNextObject ? `[${item}].` : `[${item}]`)
+            result += (isNextObject ? `[${item}].` : `[${item}]`);
         } else {
-            result += (isNextObject ? `${item}.` : item)
+            result += (isNextObject ? `${item}.` : item);
         }
-    })
-    return result
-}
+    });
+    return result;
+};
 
 export const getStateNameLink = (stateName: string): Array<string | number> => {
-    const tempLink = stateName.split('.')
-    const resultLink = []
+    const tempLink = stateName.split('.');
+    const resultLink = [];
     tempLink.forEach((item: string) => {
-        const arrayPattern = /(.+)\[(\d+)\]$/
-        const matchedResult = arrayPattern.exec(item)
+        const arrayPattern = /(.+)\[(\d+)\]$/;
+        const matchedResult = arrayPattern.exec(item);
         if (matchedResult !== null) {
-            const arrayName = matchedResult[1]
-            const arrayIndex = matchedResult[2]
+            const arrayName = matchedResult[1];
+            const arrayIndex = matchedResult[2];
             getStateNameLink(arrayName).forEach((item) => {
-                resultLink.push(item)
-            })
-            resultLink.push(Number(arrayIndex))
+                resultLink.push(item);
+            });
+            resultLink.push(Number(arrayIndex));
         } else {
-            resultLink.push(item)
+            resultLink.push(item);
         }
-    })
-    return resultLink
+    });
+    return resultLink;
 };
 
 export const get = (rootState: object | Array<any>, stateLink: Array<string | number>) => {
@@ -165,10 +165,10 @@ export const set = (rootStateName: string, rootState: object, subStateLink: Arra
                 next = key;
             }
             if (current[next] === undefined || current[next] === null) {
-                const nextNext = subStateLink[i + 1]
+                const nextNext = subStateLink[i + 1];
                 current[next] = (typeof nextNext === 'number') ? [] : {};
             } else if (!(Array.isArray(current[next]) || isObject(current[next]))) {
-                const stateName = getStateName([rootStateName, ...subStateLink.slice(0, i + 1)])
+                const stateName = getStateName([rootStateName, ...subStateLink.slice(0, i + 1)]);
                 const type = typeof current[next];
                 console.error(Errors.regardBasicTypeAsObject(stateName, type));
                 return false;

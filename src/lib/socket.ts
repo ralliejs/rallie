@@ -68,8 +68,8 @@ export class Socket {
      * @param stateName
      */
     public existState(stateName: string) {
-        const stateNameLink = getStateNameLink(stateName)
-        const rootStateName = stateNameLink[0] as string
+        const stateNameLink = getStateNameLink(stateName);
+        const rootStateName = stateNameLink[0] as string;
         return this._state[rootStateName] !== undefined;
     }
 
@@ -108,7 +108,7 @@ export class Socket {
      * @param arg
      */
     public setState(stateName: string, arg: any) {
-        const stateNameLink = getStateNameLink(stateName)
+        const stateNameLink = getStateNameLink(stateName);
         const rootStateName = stateNameLink[0] as string;
         if(this._state[rootStateName] === undefined) {
             const msg = Errors.accessUninitializedState(rootStateName);
@@ -138,7 +138,7 @@ export class Socket {
         const events = Object.keys(this.eventEmitter.getBroadcastEvents());
         const resolvedStates = getResolvedStates(stateName, events);
         resolvedStates.forEach((name) => {
-            const notifiedStateNameLink = getStateNameLink(name)
+            const notifiedStateNameLink = getStateNameLink(name);
             this.broadcast(`$state-${name}-change`, get(newState, notifiedStateNameLink), get(oldState, notifiedStateNameLink));
         });
     }
@@ -177,9 +177,9 @@ export class Socket {
      */
     public waitState(dependencies: string[], timeout = 10 * 1000) {
         dependencies = dependencies.map((stateName: string) => { // get root state array
-            const stateNameLink = getStateNameLink(stateName)
-            const rootStateName = stateNameLink[0] as string
-            return rootStateName
+            const stateNameLink = getStateNameLink(stateName);
+            const rootStateName = stateNameLink[0] as string;
+            return rootStateName;
         }).filter((rootStateName: string) => { // remove all ready states first
             return this._state[rootStateName] === undefined;
         });

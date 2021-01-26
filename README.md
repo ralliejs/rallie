@@ -20,7 +20,6 @@ umd:
 `<script src="https://unpkg.com/obvious-core@{version}/dist/index.umd.js"></script>`
 
 ## Quick Start
-![](docs/_media/tutorial-target.gif)
 
 In host enviroment, create a bus and declare the resource info
 ```js
@@ -94,6 +93,16 @@ In host enviroment, activate the application
 ```js
 bus.activateApp('react-app', {mountPoint: document.getElementById('#react-app')});
 bus.activateApp('vue-app', {mountPoint: document.getElementById('#vue-app')});
+```
+
+## Example
+![](docs/_media/tutorial-target.gif)
+
+```
+npm run demo:install
+npm run demo:react
+npm run demo:vue
+npm run demo:host
 ```
 
 ## Document
