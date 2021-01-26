@@ -1,7 +1,7 @@
 # obvious.js
 [![Coverage Status](https://coveralls.io/repos/github/ObviousJs/obvious-core/badge.svg?branch=master)](https://coveralls.io/github/ObviousJs/obvious-core?branch=master) [![release](https://img.shields.io/github/release/ObviousJs/obvious-core.svg)](https://github.com/ObviousJs/obvious-core/releases) [![lastCommit](https://img.shields.io/github/last-commit/ObviousJs/obvious-core)](https://github.com/ObviousJs/obvious-core/commits/master) [![](https://img.shields.io/badge/document-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-brightgreen)](https://github.com/ObviousJs/obvious-core/blob/master/README.zh.md)
 
-Obvious is a progressive micro-front-end framework. In the micro-front-end architecture, Obvious focuses on solving the  problem of orchestration and communication between micro frontend applications. It aims to help users quickly build a basic micro-front-end system and support deeper customization to achieve a complete and reliable micro-front-end architecture by providing easy-to-understand APIs and flexible middleware mechanisms.
+Obvious is a progressive micro-front-end library. In the micro-front-end architecture, Obvious focuses on solving the  problem of orchestration and communication between micro frontend applications. It aims to help users quickly build a basic micro-front-end system and support deeper customization to achieve a complete and reliable micro-front-end architecture by providing easy-to-understand APIs and flexible middleware mechanisms.
 
 ## Features
 - Provide flexible and convenient communication capabilities based on global state, event broadcast, and event unicast
@@ -20,7 +20,6 @@ umd:
 `<script src="https://unpkg.com/obvious-core@{version}/dist/index.umd.js"></script>`
 
 ## Quick Start
-![](docs/_media/tutorial-target.gif)
 
 In host enviroment, create a bus and declare the resource info
 ```js
@@ -57,7 +56,7 @@ bus.createApp('react-app')
     .bootstrap(async (config) => {
         socket.unicast('unicast-event');
         socket.broadcast('broadcast-event');
-        socket.initState('some-state', true);
+        socket.initState('someState', true);
         ReactDOM.render(<App />, document.querySelector(config.mountPoint));
     });
 ```  
@@ -80,7 +79,8 @@ bus.createApp('vue-app')
         socket.onBroadcast('broadcast-event', () => {
             // do something
         });
-        socket.watchState('some-state', () => {
+        socket.setState('someState.sub.prop.array', [])
+        socket.watchState('someState.sub.prop.array[0]', (val) => {
             // do something
         });
         new Vue({
@@ -91,8 +91,18 @@ bus.createApp('vue-app')
 
 In host enviroment, activate the application
 ```js
-bus.activateApp('react-app', {mountPoint: '#react-app'});
-bus.activateApp('vue-app', {mountPoint: '#vue-app'});
+bus.activateApp('react-app', {mountPoint: document.getElementById('#react-app')});
+bus.activateApp('vue-app', {mountPoint: document.getElementById('#vue-app')});
+```
+
+## Example
+![](docs/_media/tutorial-target.gif)
+
+```
+npm run demo:install
+npm run demo:react
+npm run demo:vue
+npm run demo:host
 ```
 
 ## Document

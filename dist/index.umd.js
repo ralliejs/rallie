@@ -147,16 +147,49 @@
         });
         return JSON.parse(JSON.stringify(mappedState));
     };
+    var getStateName = function (stateNameLink) {
+        var result = '';
+        stateNameLink.forEach(function (item, index) {
+            var nextStateName = stateNameLink[index + 1];
+            var isNextObject = (typeof nextStateName) === 'string';
+            if (typeof item === 'number') {
+                result += (isNextObject ? "[" + item + "]." : "[" + item + "]");
+            }
+            else {
+                result += (isNextObject ? item + "." : item);
+            }
+        });
+        return result;
+    };
+    var getStateNameLink = function (stateName) {
+        var tempLink = stateName.split('.');
+        var resultLink = [];
+        tempLink.forEach(function (item) {
+            var arrayPattern = /(.+)\[(\d+)\]$/;
+            var matchedResult = arrayPattern.exec(item);
+            if (matchedResult !== null) {
+                var arrayName = matchedResult[1];
+                var arrayIndex = matchedResult[2];
+                getStateNameLink(arrayName).forEach(function (item) {
+                    resultLink.push(item);
+                });
+                resultLink.push(Number(arrayIndex));
+            }
+            else {
+                resultLink.push(item);
+            }
+        });
+        return resultLink;
+    };
     var get = function (rootState, stateLink) {
         var current = rootState;
         for (var _i = 0, stateLink_1 = stateLink; _i < stateLink_1.length; _i++) {
             var key = stateLink_1[_i];
             if (Array.isArray(current)) {
-                var index = Number(key);
-                if (isNaN(index)) {
+                if (typeof key !== 'number') {
                     return undefined;
                 }
-                current = current[index];
+                current = current[key];
             }
             else if (isObject(current)) {
                 current = current[key];
@@ -167,20 +200,19 @@
         }
         return current;
     };
-    var set = function (rootStateName, rootState, stateLink, value) {
+    var set = function (rootStateName, rootState, subStateLink, value) {
         var current = rootState;
-        for (var i = 0; i < stateLink.length; i++) {
-            var key = stateLink[i];
-            var index = Number(key);
-            if (i === stateLink.length - 1) {
+        for (var i = 0; i < subStateLink.length; i++) {
+            var key = subStateLink[i];
+            if (i === subStateLink.length - 1) { // traverse to the last
                 if (Array.isArray(current)) {
-                    if (isNaN(index)) {
-                        var stateName = rootStateName + "." + stateLink.slice(0, i).join('.');
+                    if (typeof key !== 'number') {
+                        var stateName = getStateName(__spreadArrays([rootStateName], subStateLink.slice(0, i)));
                         console.error(Errors.regardArrayAsObject(stateName, key));
                         return false;
                     }
                     else {
-                        current[index] = value;
+                        current[key] = value;
                     }
                 }
                 else {
@@ -190,23 +222,24 @@
             else {
                 var next = null;
                 if (Array.isArray(current)) {
-                    if (!isNaN(index)) {
-                        next = index;
-                    }
-                    else {
-                        var stateName = rootStateName + "." + stateLink.slice(0, i).join('.');
+                    if (typeof key !== 'number') {
+                        var stateName = getStateName(__spreadArrays([rootStateName], subStateLink.slice(0, i)));
                         console.error(Errors.regardArrayAsObject(stateName, key));
                         return false;
+                    }
+                    else {
+                        next = key;
                     }
                 }
                 else {
                     next = key;
                 }
                 if (current[next] === undefined || current[next] === null) {
-                    current[next] = {};
+                    var nextNext = subStateLink[i + 1];
+                    current[next] = (typeof nextNext === 'number') ? [] : {};
                 }
                 else if (!(Array.isArray(current[next]) || isObject(current[next]))) {
-                    var stateName = rootStateName + "." + stateLink.slice(0, i + 1).join('.');
+                    var stateName = getStateName(__spreadArrays([rootStateName], subStateLink.slice(0, i + 1)));
                     var type = typeof current[next];
                     console.error(Errors.regardBasicTypeAsObject(stateName, type));
                     return false;
@@ -389,7 +422,9 @@
          * @param stateName
          */
         Socket.prototype.existState = function (stateName) {
-            return this._state[stateName] !== undefined;
+            var stateNameLink = getStateNameLink(stateName);
+            var rootStateName = stateNameLink[0];
+            return this._state[rootStateName] !== undefined;
         };
         /**
          * init a state
@@ -419,7 +454,7 @@
          */
         Socket.prototype.getState = function (stateName) {
             var mappedState = getMappedState(this._state);
-            return get(mappedState, stateName.split('.'));
+            return get(mappedState, getStateNameLink(stateName));
         };
         /**
          * set the value of the state
@@ -428,8 +463,8 @@
          */
         Socket.prototype.setState = function (stateName, arg) {
             var _this = this;
-            var stateLink = stateName.split('.');
-            var rootStateName = stateLink[0];
+            var stateNameLink = getStateNameLink(stateName);
+            var rootStateName = stateNameLink[0];
             if (this._state[rootStateName] === undefined) {
                 var msg = Errors.accessUninitializedState(rootStateName);
                 throw new Error(msg);
@@ -443,12 +478,12 @@
             var isFunctionArg = typeof arg === 'function';
             var oldValue = this.getState(stateName);
             var newValue = isFunctionArg ? arg(oldValue) : arg;
-            if (stateLink.length === 1) {
+            if (stateNameLink.length === 1) {
                 this._state[rootStateName].value = newValue;
             }
             else {
-                var subStateLink = stateLink.slice(1);
-                var isSuccess = set(rootStateName, this._state[rootStateName].value, subStateLink, newValue);
+                var subStateNameLink = stateNameLink.slice(1);
+                var isSuccess = set(rootStateName, this._state[rootStateName].value, subStateNameLink, newValue);
                 if (!isSuccess) {
                     return;
                 }
@@ -457,7 +492,8 @@
             var events = Object.keys(this.eventEmitter.getBroadcastEvents());
             var resolvedStates = getResolvedStates(stateName, events);
             resolvedStates.forEach(function (name) {
-                _this.broadcast("$state-" + name + "-change", get(newState, name.split('.')), get(oldState, name.split('.')));
+                var notifiedStateNameLink = getStateNameLink(name);
+                _this.broadcast("$state-" + name + "-change", get(newState, notifiedStateNameLink), get(oldState, notifiedStateNameLink));
             });
         };
         /**
@@ -466,8 +502,8 @@
          * @param callback
          */
         Socket.prototype.watchState = function (stateName, callback) {
-            var stateLink = stateName.split('.');
-            var rootStateName = stateLink[0];
+            var stateNameLink = getStateNameLink(stateName);
+            var rootStateName = stateNameLink[0];
             if (this._state[rootStateName] === undefined) {
                 var msg = Errors.accessUninitializedState(rootStateName);
                 throw new Error(msg);
@@ -480,9 +516,7 @@
          * @param callback
          */
         Socket.prototype.unwatchState = function (stateName, callback) {
-            var stateLink = stateName.split('.');
-            var rootStateName = stateLink[0];
-            if (this._state[rootStateName] === undefined) {
+            if (!this.existState(stateName)) {
                 throw new Error(Errors.accessUninitializedState(stateName));
             }
             this.eventEmitter.removeBroadcastEventListener("$state-" + stateName + "-change", callback);
@@ -495,9 +529,12 @@
         Socket.prototype.waitState = function (dependencies, timeout) {
             var _this = this;
             if (timeout === void 0) { timeout = 10 * 1000; }
-            // remove all ready states first
-            dependencies = dependencies.filter(function (stateName) {
-                return _this._state[stateName] === undefined;
+            dependencies = dependencies.map(function (stateName) {
+                var stateNameLink = getStateNameLink(stateName);
+                var rootStateName = stateNameLink[0];
+                return rootStateName;
+            }).filter(function (rootStateName) {
+                return _this._state[rootStateName] === undefined;
             });
             if (dependencies.length === 0) {
                 return Promise.resolve(getMappedState(this._state));
@@ -509,8 +546,8 @@
                         var msg = Errors.waitStateTimeout(dependencies);
                         reject(new Error(msg));
                     }, timeout);
-                    var stateInitialCallback = function (stateName) {
-                        var index = dependencies.indexOf(stateName);
+                    var stateInitialCallback = function (rootStateName) {
+                        var index = dependencies.indexOf(rootStateName);
                         if (index !== -1) {
                             dependencies.splice(index, 1);
                         }
@@ -626,7 +663,7 @@
             this._state = {};
             this.apps = {};
             this.dependencyDepth = 0;
-            this.allowCrossOriginScript = true;
+            this.loadScriptByFetch = false;
             this.maxDependencyDepth = 100;
             /**
              * define fetchJs、loadJs and loadCss as arrow function because
@@ -711,7 +748,7 @@
                             if (!(_i < _a.length)) return [3 /*break*/, 8];
                             asset = _a[_i];
                             if (!/^.+\.js$/.test(asset)) return [3 /*break*/, 6];
-                            if (!this.allowCrossOriginScript) return [3 /*break*/, 3];
+                            if (!!this.loadScriptByFetch) return [3 /*break*/, 3];
                             return [4 /*yield*/, this.loadJs(asset)];
                         case 2:
                             _b.sent();
@@ -774,7 +811,7 @@
                             return [3 /*break*/, 5];
                         case 2:
                             if (!((_a = this.middleware) === null || _a === void 0 ? void 0 : _a.handleLoad)) return [3 /*break*/, 4];
-                            return [4 /*yield*/, ((_b = this.middleware) === null || _b === void 0 ? void 0 : _b.handleLoad(name, this.allowCrossOriginScript ? this.loadJs : this.fetchJs, this.loadCss))];
+                            return [4 /*yield*/, ((_b = this.middleware) === null || _b === void 0 ? void 0 : _b.handleLoad(name, this.loadScriptByFetch ? this.fetchJs : this.loadJs, this.loadCss))];
                         case 3:
                             _c.sent();
                             return [3 /*break*/, 5];

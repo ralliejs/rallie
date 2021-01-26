@@ -348,7 +348,7 @@ function App() {
 }
 ```
 
-!> 重要规则：一个状态必须通过socket.initState初始化后才能被修改和监听，否则将抛出异常。obvious判断一个状态是否被初始化的依据是该状态的值是否是undefined，因此，将状态初始化为undefined也是不合法的
+!> 重要规则：一个状态必须通过socket.initState初始化后才能被修改和监听，否则将抛出异常
 
 在vue-app中，我们同样用名为host的Bus创建一个socket，并用这个socket监听状态text，当状态变化时，更新组件的data。由于我们只有在状态初始化后才能监听和修改它，因此socket还提供了waitState方法，让你可以等待一个或几个状态被初始化后再执行后续操作
 ```js
@@ -796,7 +796,7 @@ const bus = createBus('host', {}, {
 ```
 这样，每次加载并执行资源，都会在控台打印资源路径日志，从而确定资源执行顺序。
 
-然而，使用资源运行中间件是有一定代价的。默认情况下，obvious加载一段js代码的方法是在body中插入这段js资源对应的script标签，这确保了js资源可以跨域，且在调试时对source-map的支持更友好，但是，这种加载方式无法在框架层面直接获取源码的文本，为了使用资源运行中间件，你必须放弃这些好处，在创建好bus后，你需要将bus的allowCrossOriginScript属性设为false，这会让obvious加载代码的方式变为通过fetch加载，你设置的资源运行中间件也才会生效
+然而，使用资源运行中间件是有一定代价的。默认情况下，obvious加载一段js代码的方法是在body中插入这段js资源对应的script标签，这确保了js资源可以跨域，且在调试时对source-map的支持更友好，但是，这种加载方式无法在框架层面直接获取源码的文本，为了使用资源运行中间件，你必须放弃这些好处，在创建好bus后，你需要将bus的loadScriptByFetch属性设为false，这会让obvious加载代码的方式变为通过fetch加载，你设置的资源运行中间件也才会生效
 ```js
 const bus = createBus('host', {}, {
     handleLoad: loadMiddleware,
@@ -807,7 +807,7 @@ const bus = createBus('host', {}, {
     }
 });
 
-bus.allowCrossOriginScript = false;
+bus.loadScriptByFetch = false;
 ```
 在[介绍](#介绍)中我们提到过，微前端架构需要实现编排、通信和容器三大功能。而在生产实践中，我个人感受是容器功能并没有那么刚需（[为什么不做应用隔离](#为什么不做应用隔离)），所以obvious没有把重点放在资源隔离的实现上。但是obvious并没有完全放弃这一块阵地，而是把这项能力交给用户去实现，你完全可以按照作用域链上劫持window的思路实现一个js沙箱，或者使用开源的js沙箱实现。然后作为资源运行中间件注入到obvious中。
 
@@ -909,7 +909,7 @@ if (process.env.NODE_ENV === 'development') {
 
 当你的微应用树中存在循环依赖的时候，会造成应用一直无法被激活，这是一个典型的死锁场景。这种情况试图激活A，你会在控制台看到这样的信息
 ![](_media/dead-lock-error.png)
-obvious为了避免这种场景，设定了一个单次最大可激活的app数，默认值是100，当出现循环依赖场景时，单次激活的app数会无限递增，直到达到这个阈值的时候抛出异常，当你碰到这个异常的时候，就要好好排查一下你的微应用有没有循环依赖的情况
+obvious为了避免这种场景，给Bus设定了一个依赖深度上限，默认值是100，当出现循环依赖场景时，依赖深度会无限递增，直到达到这个阈值的时候抛出异常，当你碰到这个异常的时候，就要好好排查一下你的微应用有没有循环依赖的情况
 
 # API
 ------
@@ -947,15 +947,15 @@ type dependencyType = Array<string | {[appName: string] : any}>;
 |name|是|string|Bus名|
 
 ## Bus
-- 属性：**allowCrossOriginScript**
+- 属性：**loadScriptByFetch**
 |类型|默认值|描述|
 |:---:|:---:|:---:|
-|boolean|true|是否允许跨域脚本，设为true后，js资源将通过fetch加载|
+|boolean|false|是否通过fetch的方式加载script脚本，设为true后，js资源将通过fetch加载，要使用handleExcute中间件必须将该属性设置为true|
 
 - 属性：**maxDependencyDepth**
 |类型|默认值|描述|
 |:---:|:---:|:---:|
-|number|100|单次最大可激活app数|
+|number|100|依赖深度上限|
 
 - 属性：**state**(readonly)
 |类型|默认值|描述|
@@ -1025,8 +1025,8 @@ type dependencyType = Array<string | {[appName: string] : any}>;
 
     返回的Promise的参数是Bus.state
 
-> setState, getState和watchState支持深度设置，读取和监听状态值。例如调用`socket.setState('foo.bar', value)`, `socket.getState('foo.bar')`, `socket.watchState('foo.bar', callback)`是对bus.state.foo.bar进行设值，读取和监听。initState和waitState仅允许初始化和等待根状态，不支持深度状态。
-当设置一个深度状态时，其父子关联状态的watcher监听函数都会被触发，例如，有一个状态`{ a: { b: { c: { d: { e: 'someValue' } } } } }`, 当调用`socket.setState('a.b.c', anotherValue)`时，状态a, a.b, a.b.c, a.b.c.d, a.b.c.d.e的监听函数都会被触发
+> setState, getState，watchState，waitState支持深度设置，读取，监听和等待状态值。例如调用`socket.setState('foo.bar', value)`, `socket.getState('foo.bar')`, `socket.watchState('foo.bar', callback)`是对bus.state.foo.bar进行设值，读取和监听，`socket.waitState(['foo.bar']， callback)`则会等待状态foo被init之后执行回调。如果要处理状态中的数组，则只需要把数组下标包裹在`[]`运算符中即可，例如`socket.setState('foo.bar.array[0]', value)`。initState仅允许初始化根状态，不支持深度状态。
+当设置一个深度状态时，其父子关联状态的watcher监听函数都会被触发，例如，有一个状态`{ a: { b: { c: { d: { e: 'someValue' } } } } }`, 当调用`socket.setState('a.b.c', anotherValue)`时，对状态a, a.b, a.b.c, a.b.c.d, a.b.c.d.e的监听函数都会被触发
 
 - 监听广播：**onBroadcast**：(eventName, callback) => void
 |参数名|是否必选|类型|描述|
@@ -1092,7 +1092,7 @@ type dependencyType = Array<string | {[appName: string] : any}>;
 # Q&A
 ------
 ## 可以用于生产环境吗
-目前obvious是我个人闭门造车的产物，还没有经历过生产环境的考验，但是整个项目有认真地做单元测试，如果您愿意在生产环境中试用，我会感到非常荣幸并将认真维护好它。
+最好不要，目前obvious是我个人闭门造车的产物，还没有经历过生产环境的考验，但是整个项目有认真地做单元测试，如果您觉得这个项目的想法还不错或者您有什么新的好点子，非常欢迎您提Issue和提交Pull Request
 ![](_media/ut.png)
 ## 为什么不做应用隔离
 理论上说，如果在项目架构时增加一点规划和沟通成本，应用隔离可以不通过技术手段实现。比如
@@ -1112,7 +1112,7 @@ console.log(a);
 
 总之，我觉得目前没有一个沙箱方案是完美的，就算有，我觉得也是其他框架的卖点，是别人造好的轮子。obvious希望在应用编排和通信的易用性和可扩展性上提供新的思路，而不在应用隔离性上做太大文章。事实上，我觉得如果你的微前端方案更注重隔离性而不在乎应用间的交互和编排的话，iframe或许也差不到哪去。
 
-抛开应用场景谈框架的优劣是伪命题，obvious更适合对应用隔离性要求不高的微前端架构，如果你需要应用间严格隔离，obvious并不能为你减少什么工作量，但是如果你自己解决了应用隔离问题，obvious支持通过中间件的形式让你接入进来
+抛开应用场景谈框架的优劣是伪命题，obvious更适合对应用隔离性要求不高的微前端架构，如果你需要应用间严格隔离，obvious并不能为你减少什么工作量，但是如果你自己解决了应用隔离问题，obvious支持通过中间件的形式让你接入进来，如果时间允许，或许我会找一个可靠的开源js沙箱实现并将它改造为obvious的中间件提供出来
 ## 为什么叫obvious
 我写这个框架的初衷是觉得目前网上微前端相关的文章大多停留在理论，让大家觉得这个概念有些神秘，我希望能以简洁优雅的API帮助大家揭开微前端这个本来不神秘，也不高级的技术的面纱。正好我之前有一个用了很久的网名叫obvious，obvious有明显的意思，感觉跟我的初衷很契合，因此取了这个名字。
 
@@ -1125,6 +1125,6 @@ console.log(a);
 
 # 加入我们
 -------
-非常感谢您能看到这里，目前obvious只有我一个人维护，希望有志同道合的朋友能加入进来，扩展它的生态，为它翻译英文文档和构建CI。
+非常感谢您能看到这里，目前obvious只有我一个人维护，希望有志同道合的朋友能加入进来，扩展它的生态，为它翻译英文文档。
 
 希望大家都能取得技术进步 : )

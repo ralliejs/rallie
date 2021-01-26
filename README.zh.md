@@ -20,8 +20,6 @@ umd:
 `<script src="https://unpkg.com/obvious-core@{version}/dist/index.umd.js"></script>`
 
 ## 快速开始
-![](docs/_media/tutorial-target.gif)
-
 在宿主环境中创建bus，并声明微应用资源
 ```js
 import {createBus} from 'obvious-core';
@@ -57,7 +55,7 @@ bus.createApp('react-app')
     .bootstrap(async (config) => {
         socket.unicast('unicast-event');
         socket.broadcast('broadcast-event');
-        socket.initState('some-state', true);
+        socket.initState('someState', true);
         ReactDOM.render(<App />, document.querySelector(config.mountPoint));
     });
 ```  
@@ -80,7 +78,8 @@ bus.createApp('vue-app')
         socket.onBroadcast('broadcast-event', () => {
             // do something
         });
-        socket.watchState('some-state', () => {
+        socket.setState('someState.sub.prop.array', [])
+        socket.watchState('someState.sub.prop.array[0]', (val) => {
             // do something
         });
         new Vue({
@@ -91,12 +90,21 @@ bus.createApp('vue-app')
 
 在宿主环境中，通过bus激活微应用
 ```js
-bus.activateApp('react-app', {mountPoint: '#react-app'});
-bus.activateApp('vue-app', {mountPoint: '#vue-app'});
+bus.activateApp('react-app', {mountPoint: document.getElementById('#react-app')});
+bus.activateApp('vue-app', {mountPoint: document.getElementById('#vue-app')});
+```
+
+## 样例
+![](docs/_media/tutorial-target.gif)
+
+```
+npm run demo:install
+npm run demo:react
+npm run demo:vue
+npm run demo:host
 ```
 
 ## 文档
-
 [obvious.js: 渐进式微前端库](https://obviousjs.github.io/obvious-core/#/)
 
 ## License
