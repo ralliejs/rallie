@@ -81,7 +81,7 @@ export const getMappedState = (state: object) => {
     Object.keys(state).forEach((key) => {
         mappedState[key] = state[key].value;
     });
-    return JSON.parse(JSON.stringify(mappedState));
+    return mappedState;
 };
 
 export const getStateName = (stateNameLink: Array<string | number>): string => {

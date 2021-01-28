@@ -22,7 +22,7 @@ export declare const Errors: {
 export declare const Warnings: {
     emptyBroadcastEvents: (eventName: string) => string;
 };
-export declare const getMappedState: (state: object) => any;
+export declare const getMappedState: (state: object) => {};
 export declare const getStateName: (stateNameLink: (string | number)[]) => string;
 export declare const getStateNameLink: (stateName: string) => (string | number)[];
 export declare const get: (rootState: object | any[], stateLink: (string | number)[]) => object;

@@ -145,7 +145,7 @@
         Object.keys(state).forEach(function (key) {
             mappedState[key] = state[key].value;
         });
-        return JSON.parse(JSON.stringify(mappedState));
+        return mappedState;
     };
     var getStateName = function (stateNameLink) {
         var result = '';
@@ -474,7 +474,17 @@
                 var msg = Errors.modifyPrivateState(rootStateName);
                 throw new Error(msg);
             }
+            var events = Object.keys(this.eventEmitter.getBroadcastEvents());
+            var resolvedStates = getResolvedStates(stateName, events);
+            var resolvedStateNameLinks = resolvedStates.map(function (name) { return getStateNameLink(name); });
+            // record all the old value of the resolved states
             var oldState = getMappedState(this._state);
+            var resolvedStatesOldValues = {};
+            resolvedStates.forEach(function (name, index) {
+                var notifiedStateNameLink = resolvedStateNameLinks[index];
+                resolvedStatesOldValues[name] = get(oldState, notifiedStateNameLink);
+            });
+            // change the value of the state
             var isFunctionArg = typeof arg === 'function';
             var oldValue = this.getState(stateName);
             var newValue = isFunctionArg ? arg(oldValue) : arg;
@@ -488,12 +498,15 @@
                     return;
                 }
             }
+            // record all the new value of the resolved states
             var newState = getMappedState(this._state);
-            var events = Object.keys(this.eventEmitter.getBroadcastEvents());
-            var resolvedStates = getResolvedStates(stateName, events);
+            var resolvedStatesNewValues = {};
+            resolvedStates.forEach(function (name, index) {
+                var notifiedStateNameLink = resolvedStateNameLinks[index];
+                resolvedStatesNewValues[name] = get(newState, notifiedStateNameLink);
+            });
             resolvedStates.forEach(function (name) {
-                var notifiedStateNameLink = getStateNameLink(name);
-                _this.broadcast("$state-" + name + "-change", get(newState, notifiedStateNameLink), get(oldState, notifiedStateNameLink));
+                _this.broadcast("$state-" + name + "-change", resolvedStatesNewValues[name], resolvedStatesOldValues[name]);
             });
         };
         /**

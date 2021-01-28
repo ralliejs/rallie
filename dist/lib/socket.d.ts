@@ -80,5 +80,5 @@ export declare class Socket {
      * @param dependencies the states to be waited for
      * @param timeout the time to wait
      */
-    waitState(dependencies: string[], timeout?: number): Promise<any>;
+    waitState(dependencies: string[], timeout?: number): Promise<{}>;
 }
