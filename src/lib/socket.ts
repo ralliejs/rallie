@@ -119,8 +119,17 @@ export class Socket {
             const msg = Errors.modifyPrivateState(rootStateName);
             throw new Error(msg);
         }
-
+        const events = Object.keys(this.eventEmitter.getBroadcastEvents());
+        const resolvedStates = getResolvedStates(stateName, events);
+        const resolvedStateNameLinks = resolvedStates.map((name) => getStateNameLink(name));
+        // record all the old value of the resolved states
         const oldState = getMappedState(this._state);
+        const resolvedStatesOldValues = {};
+        resolvedStates.forEach((name, index) => {
+            const notifiedStateNameLink = resolvedStateNameLinks[index];
+            resolvedStatesOldValues[name] = get(oldState, notifiedStateNameLink);
+        });
+        // change the value of the state
         const isFunctionArg = typeof arg === 'function';
         const oldValue = this.getState(stateName);
         const newValue = isFunctionArg ? arg(oldValue) : arg;
@@ -133,13 +142,15 @@ export class Socket {
                 return;
             }
         }
+        // record all the new value of the resolved states
         const newState = getMappedState(this._state);
-
-        const events = Object.keys(this.eventEmitter.getBroadcastEvents());
-        const resolvedStates = getResolvedStates(stateName, events);
+        const resolvedStatesNewValues = {};
+        resolvedStates.forEach((name, index) => {
+            const notifiedStateNameLink = resolvedStateNameLinks[index];
+            resolvedStatesNewValues[name] = get(newState, notifiedStateNameLink);
+        });
         resolvedStates.forEach((name) => {
-            const notifiedStateNameLink = getStateNameLink(name);
-            this.broadcast(`$state-${name}-change`, get(newState, notifiedStateNameLink), get(oldState, notifiedStateNameLink));
+            this.broadcast(`$state-${name}-change`, resolvedStatesNewValues[name], resolvedStatesOldValues[name]);
         });
     }
 
