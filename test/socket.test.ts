@@ -148,6 +148,7 @@ describe('Test deep state', () => {
     const socketG = bus.createSocket();
     const socketH = bus.createSocket();
     const socketI = bus.createSocket();
+    const socketJ = bus.createSocket();
     const message = 'hello obvious';
     socketG.initState('foo', {
         bar: {
@@ -183,11 +184,11 @@ describe('Test deep state', () => {
         socketH.setState('foo.bar.array[3]', 'd');
         expect(socketI.getState('foo.bar.array')).toHaveLength(4);
         expect(bus.state.foo.bar.array[3]).toEqual('d');
-        socketH.setState('foo.multiDimensionalArray[0][0][0]', 1)
-        expect(Array.isArray(socketH.getState('foo.multiDimensionalArray'))).toBeTruthy()
-        expect(Array.isArray(socketH.getState('foo.multiDimensionalArray[0]'))).toBeTruthy()
-        expect(Array.isArray(socketH.getState('foo.multiDimensionalArray[0][0]'))).toBeTruthy()
-        expect(socketH.getState('foo.multiDimensionalArray[0][0][0]')).toEqual(1)
+        socketH.setState('foo.multiDimensionalArray[0][0][0]', 1);
+        expect(Array.isArray(socketH.getState('foo.multiDimensionalArray'))).toBeTruthy();
+        expect(Array.isArray(socketH.getState('foo.multiDimensionalArray[0]'))).toBeTruthy();
+        expect(Array.isArray(socketH.getState('foo.multiDimensionalArray[0][0]'))).toBeTruthy();
+        expect(socketH.getState('foo.multiDimensionalArray[0][0][0]')).toEqual(1);
         socketH.setState('foo.bar.array.f.g', 'h');
         socketH.setState('foo.bar.array[1].a', 'test');
         expect(console.error).toHaveBeenCalledTimes(3);
@@ -265,5 +266,17 @@ describe('Test deep state', () => {
         expect(foo_bar_can_be_accessed_changed).toBeFalsy();
         expect(foo_bar_changed).toBeFalsy();
         expect(foo_bar_new_can_be_accessed).toBeFalsy();
+    });
+
+    test('# case 6: init a state to null, and it should be set and get deeply', () => {
+        socketJ.initState('nullState', null);
+        expect(socketJ.getState('nullState.a.b.c')).toEqual(undefined);
+        socketJ.setState('nullState.a.b.c', 'someValue');
+        expect(socketJ.getState('nullState.a.b.c')).toEqual('someValue');
+        socketJ.initState('nullState2', null);
+        expect(socketJ.getState('nullState2[0]')).toEqual(undefined);
+        socketJ.setState('nullState2[0]', 'someOtherValue');
+        expect(Array.isArray(socketJ.getState('nullState2'))).toBeTruthy();
+        expect(socketJ.getState('nullState2[0]')).toEqual('someOtherValue');
     });
 });
