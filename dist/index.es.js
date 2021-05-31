@@ -487,6 +487,17 @@ var Socket = /** @class */ (function () {
         }
         else {
             var subStateNameLink = stateNameLink.slice(1);
+            if (this._state[rootStateName].value === null || this._state[rootStateName].value === undefined) {
+                switch (typeof subStateNameLink[0]) {
+                    case 'number':
+                        this._state[rootStateName].value = [];
+                        break;
+                    case 'string':
+                        this._state[rootStateName].value = {};
+                        break;
+                    // do nothing
+                }
+            }
             var isSuccess = set(rootStateName, this._state[rootStateName].value, subStateNameLink, newValue);
             if (!isSuccess) {
                 return;

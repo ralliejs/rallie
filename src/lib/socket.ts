@@ -137,6 +137,18 @@ export class Socket {
             this._state[rootStateName].value = newValue;
         } else {
             const subStateNameLink = stateNameLink.slice(1);
+            if (this._state[rootStateName].value === null || this._state[rootStateName].value === undefined) {
+                switch (typeof subStateNameLink[0]) {
+                case 'number':
+                    this._state[rootStateName].value = [];
+                    break;
+                case 'string':
+                    this._state[rootStateName].value = {};
+                    break;
+                default:
+                    // do nothing
+                }
+            }
             const isSuccess = set(rootStateName, this._state[rootStateName].value, subStateNameLink, newValue);
             if (!isSuccess) {
                 return;
