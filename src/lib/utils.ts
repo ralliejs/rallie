@@ -1,6 +1,5 @@
-const isObject = (object: any) => {
-    return Object.prototype.toString.call(object) === '[object Object]';
-};
+
+import { MiddlewareFnType, NextFnType, ContextType } from './types'; // eslint-disable-line
 
 export const Errors = {
     // ================= EventEmitter.broadcast  =================
@@ -56,17 +55,26 @@ export const Errors = {
     invalidResource: (asset: string) => {
         return `[obvious] ${asset} is not a valid asset`;
     },
-    bootstrapNumberOverflow: () => {
-        return '[obvious] the number of apps bootstraped at a time is greater than the maximum value of 100, ' + 
-               'it means that there may be circular dependencies, please check the app dependencies declaration ' +
-               'or reset the bus\'s maxDependencyDepth';
+    bootstrapNumberOverflow: (num = 100) => {
+        return `[obvious] the number of apps bootstraped at a time is greater than the maximum value of ${num}, ` + 
+                'it means that there may be circular dependencies, please check the app dependencies declaration ' +
+                'or reset the bus\'s maxDependencyDepth';
+    },
+    multipleCalledNextFn: () => {
+        return '[obvious] next() called multiple times in the middleware';
+    },
+    wrongMiddlewareType: () => {
+        return '[obvious] the middleware must be a function';
+    },
+    wrongContextType: () => {
+        return '[obvious] the app\'s name is not indicated when load or activate';
     },
     // ================= State ==================
     regardArrayAsObject: (subStateName: string, subscript: string) => {
         return `[obvious] state.${subStateName} is an Array, but the subscript you set("${subscript}") is not a number, therefore, the state will not be changed`;
     },
     regardBasicTypeAsObject: (subStateName: string, type: string) => {
-        return `[obvious] state.${subStateName} is a ${type}, buy you regard it as a object and try to traverse it while setting state, therefore, the state will not be changed`;
+        return `[obvious] state.${subStateName} is a ${type}, buy you regard it as a object and try to traverse it while setting state`;
     }
 };
 
@@ -74,6 +82,10 @@ export const Warnings = {
     emptyBroadcastEvents: (eventName: string) => {
         return `[obvious] you have emitted ${eventName} event, but there is no listener of this event`;
     }
+};
+
+export const isObject = (object: any) => {
+    return Object.prototype.toString.call(object) === '[object Object]';
 };
 
 export const getMappedState = (state: object) => {
@@ -195,4 +207,33 @@ export const getResolvedStates = (stateName: string, events: Array<string>) => {
         }
     });
     return result;
+};
+
+/**
+ * the compose function from koa-compose
+ * @param middlewares 
+ * @returns 
+ */
+export const compose = (middlewares: MiddlewareFnType[]) => (context: ContextType, next: NextFnType) => {
+    // last called middleware #
+    let index = -1;
+    const dispatch = (i: number) => {
+        if (i <= index) {
+            return Promise.reject(new Error(Errors.multipleCalledNextFn()));
+        }
+        index = i;
+        let fn = middlewares[i];
+        if (i === middlewares.length) {
+            fn = next;
+        }
+        if (!fn) {
+            return Promise.resolve();
+        }
+        try {
+            return Promise.resolve(fn(context, dispatch.bind(null, i + 1)));
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    return dispatch(0);
 };

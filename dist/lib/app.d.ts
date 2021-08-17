@@ -1,5 +1,9 @@
+import { CustomCtxType } from './types';
 declare type CallbackType = (config?: any) => Promise<void>;
-declare type DependenciesType = Array<Record<string, any> | string>;
+declare type DependenciesType = Array<{
+    ctx: CustomCtxType;
+    config: any;
+} | string>;
 export declare class App {
     name: string;
     dependenciesReady: boolean;
@@ -29,6 +33,6 @@ export declare class App {
      * @param callback
      */
     destroy(callback: CallbackType): this;
-    activateDependenciesApp(activateApp: (name: string, config?: any) => Promise<void>): Promise<void>;
+    activateDependenciesApp(activateApp: (ctx: CustomCtxType, config?: any) => Promise<void>): Promise<void>;
 }
 export {};

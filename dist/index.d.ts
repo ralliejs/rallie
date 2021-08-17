@@ -5,11 +5,7 @@ declare global {
     }
 }
 declare const Obvious: {
-    createBus: (name: string, assets?: Record<string, {
-        js?: string[];
-        css?: string[];
-        isLib?: boolean;
-    }>, middleware?: import("./lib/bus").MiddlewareType) => Bus;
+    createBus: (name: string) => Bus;
     getBus: (name: string) => Bus;
 };
 export { Bus } from './lib/bus';

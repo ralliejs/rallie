@@ -1,5 +1,11 @@
+import { CustomCtxType } from './types'; // eslint-disable-line
+import { isObject } from './utils';
+
 type CallbackType = (config?: any) => Promise<void>;
-type DependenciesType = Array<Record<string, any> | string>;
+type DependenciesType = Array<{ 
+    ctx: CustomCtxType,
+    config: any
+} | string>;
 
 export class App {
     public dependenciesReady: boolean = false;
@@ -50,17 +56,15 @@ export class App {
     }
 
     public async activateDependenciesApp(
-        activateApp: (name: string, config?: any) => Promise<void>
+        activateApp: (ctx: CustomCtxType, config?: any) => Promise<void>
     ) {
         if (!this.dependenciesReady && this.dependencies.length !== 0) {
             for (const dependence of this.dependencies) {
                 if (typeof dependence === 'string') {
                     await activateApp(dependence);
-                } else if (typeof dependence === 'object') {
-                    for (const dependenceName of Object.keys(dependence)) {
-                        const config = dependence[dependenceName];
-                        await activateApp(dependenceName, config);
-                    }
+                } else if (isObject(dependence)) {
+                    const { ctx, config } = dependence;
+                    await activateApp(ctx, config);
                 }
             }
             this.dependenciesReady = true;
