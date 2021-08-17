@@ -922,7 +922,7 @@
                         case 0:
                             context = this.createContext(ctx);
                             // apply the middlewares
-                            return [4 /*yield*/, this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig)];
+                            return [4 /*yield*/, this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))];
                         case 1:
                             // apply the middlewares
                             _a.sent();

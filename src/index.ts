@@ -3,14 +3,14 @@ import { createBus } from './lib/createBus';
 import { getBus } from './lib/createBus';
 
 declare global {
-    interface Window {
-        __Bus__: Record<string, Bus>;
-    }
+  interface Window {
+      __Bus__: Record<string, Bus>;
+  }
 }
 
 const Obvious = {
-    createBus,
-    getBus
+  createBus,
+  getBus
 };
 
 export { Bus } from './lib/bus'; // eslint-disable-line

@@ -7,7 +7,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "rollup -c rollup.config.js",
-    "lint": "eslint --fix --ext .ts,.js src",
+    "lint": "eslint --fix --ext .ts,.js test",
     "docs": "docsify serve docs",
     "test": "jest --coverage",
     "commit": "git cz",

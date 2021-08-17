@@ -9,25 +9,25 @@ import {Bus} from './bus'; // eslint-disable-line
  */
 const busProxy = {};
 export const createBus = (name: string) => {
-    if(self.__Bus__ === undefined) {
-        Object.defineProperty(self, '__Bus__', {
-            value: busProxy,
-            writable: false
-        });
-    }
+  if(self.__Bus__ === undefined) {
+    Object.defineProperty(self, '__Bus__', {
+      value: busProxy,
+      writable: false
+    });
+  }
 
-    if (self.__Bus__[name]) {
-        throw new Error(`[obvious] the bus named ${name} has been defined before, please rename your bus`);
-    } else {
-        const bus = new Bus(name);
-        Object.defineProperty(self.__Bus__, name, {
-            value: bus,
-            writable: false
-        });
-        return bus;
-    }
+  if (self.__Bus__[name]) {
+    throw new Error(`[obvious] the bus named ${name} has been defined before, please rename your bus`);
+  } else {
+    const bus = new Bus(name);
+    Object.defineProperty(self.__Bus__, name, {
+      value: bus,
+      writable: false
+    });
+    return bus;
+  }
 };
 
 export const getBus = (name: string) => {
-    return self.__Bus__ && self.__Bus__[name];
+  return self.__Bus__ && self.__Bus__[name];
 };
