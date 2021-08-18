@@ -56,9 +56,9 @@ export const Errors = {
     return `[obvious] ${asset} is not a valid asset`;
   },
   bootstrapNumberOverflow: (num = 100) => {
-    return `[obvious] the number of apps bootstraped at a time is greater than the maximum value of ${num}, ` + 
-                'it means that there may be circular dependencies, please check the app dependencies declaration ' +
-                'or reset the bus\'s maxDependencyDepth';
+    return `[obvious] the number of apps bootstraped at a time is greater than the maximum value of ${num},` + 
+          ' it means that there may be circular dependencies, please check the app dependencies declaration' +
+          ' or reset the bus\'s maxDependencyDepth';
   },
   multipleCalledNextFn: () => {
     return '[obvious] next() called multiple times in the middleware';
@@ -74,7 +74,7 @@ export const Errors = {
     return `[obvious] state.${subStateName} is an Array, but the subscript you set("${subscript}") is not a number, therefore, the state will not be changed`;
   },
   regardBasicTypeAsObject: (subStateName: string, type: string) => {
-    return `[obvious] state.${subStateName} is a ${type}, buy you regard it as a object and try to traverse it while setting state`;
+    return `[obvious] state.${subStateName} is a ${type}, but you regard it as a object and try to traverse it while setting state`;
   }
 };
 

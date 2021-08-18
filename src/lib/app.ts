@@ -1,19 +1,13 @@
-import { CustomCtxType } from './types'; // eslint-disable-line
+import { CustomCtxType, LifecyleCallbackType, DependenciesType } from './types'; // eslint-disable-line
 import { isObject } from './utils';
-
-type CallbackType = (config?: any) => Promise<void>;
-type DependenciesType = Array<{ 
-    ctx: CustomCtxType,
-    config: any
-} | string>;
 
 export class App {
   public dependenciesReady: boolean = false;
   public bootstrapped: boolean = false;
   public dependencies: DependenciesType = [];
-  public doBootstrap?: CallbackType;
-  public doActivate?: CallbackType;
-  public doDestroy?: CallbackType;
+  public doBootstrap?: LifecyleCallbackType;
+  public doActivate?: LifecyleCallbackType;
+  public doDestroy?: LifecyleCallbackType;
 
   constructor(public name: string) {
     this.name = name;
@@ -32,7 +26,7 @@ export class App {
    * indicate the callback your app will run when it's activated the first time
    * @param {function} callback
    */
-  public bootstrap(callback: CallbackType) {
+  public bootstrap(callback: LifecyleCallbackType) {
     this.doBootstrap = callback;
     return this;
   }
@@ -41,7 +35,7 @@ export class App {
    * indicate the callback your app will run when it's activated after the first time
    * @param callback
    */
-  public activate(callback: CallbackType) {
+  public activate(callback: LifecyleCallbackType) {
     this.doActivate = callback;
     return this;
   }
@@ -50,7 +44,7 @@ export class App {
    * indicate the callback when your app is destroyed
    * @param callback
    */
-  public destroy(callback: CallbackType) {
+  public destroy(callback: LifecyleCallbackType) {
     this.doDestroy = callback;
     return this;
   }

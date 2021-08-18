@@ -127,9 +127,9 @@ var Errors = {
     },
     bootstrapNumberOverflow: function (num) {
         if (num === void 0) { num = 100; }
-        return "[obvious] the number of apps bootstraped at a time is greater than the maximum value of " + num + ", " +
-            'it means that there may be circular dependencies, please check the app dependencies declaration ' +
-            'or reset the bus\'s maxDependencyDepth';
+        return "[obvious] the number of apps bootstraped at a time is greater than the maximum value of " + num + "," +
+            ' it means that there may be circular dependencies, please check the app dependencies declaration' +
+            ' or reset the bus\'s maxDependencyDepth';
     },
     multipleCalledNextFn: function () {
         return '[obvious] next() called multiple times in the middleware';
@@ -145,7 +145,7 @@ var Errors = {
         return "[obvious] state." + subStateName + " is an Array, but the subscript you set(\"" + subscript + "\") is not a number, therefore, the state will not be changed";
     },
     regardBasicTypeAsObject: function (subStateName, type) {
-        return "[obvious] state." + subStateName + " is a " + type + ", buy you regard it as a object and try to traverse it while setting state";
+        return "[obvious] state." + subStateName + " is a " + type + ", but you regard it as a object and try to traverse it while setting state";
     }
 };
 var Warnings = {
@@ -785,7 +785,8 @@ var Bus = /** @class */ (function () {
      * @param conf the new configuration object
      */
     Bus.prototype.config = function (conf) {
-        this.conf = __assign(__assign(__assign({}, this.conf), conf), { assets: __assign(__assign({}, this.conf.assets), (conf.assets || {})) });
+        var _a;
+        this.conf = __assign(__assign(__assign({}, this.conf), conf), { assets: __assign(__assign({}, this.conf.assets), (((_a = conf) === null || _a === void 0 ? void 0 : _a.assets) || {})) });
         return this;
     };
     /**

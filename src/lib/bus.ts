@@ -43,7 +43,7 @@ export class Bus {
       ...conf,
       assets: {
         ...this.conf.assets,
-        ...(conf.assets || {})
+        ...(conf?.assets || {})
       }
     };
     return this;

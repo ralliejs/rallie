@@ -1,7 +1,6 @@
 import { EventEmitter } from './event-emitter'; // eslint-disable-line
 import { CallbackType } from './types'; // eslint-disable-line
 import { get, set, getMappedState, getResolvedStates,Errors, getStateNameLink } from './utils';
-
 export class Socket {
 
   constructor(private eventEmitter: EventEmitter, private _state: Object) {
