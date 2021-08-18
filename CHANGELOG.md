@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.3.0] - 2021-08-18
+### Changed
+- remove the Bus's property `maxDependencyDepth` and `loadScriptByFetch`, use the new API `bus.config` instead
+- change the way to declare assets, remove the second parametor of Bus's constructor, use the new API `bus.config` instead
+- change the way to apply middleware, remove the third parametor of Bus's constructor, use the new API `bus.use` instead
+
 ## [0.2.4] - 2021-05-31
 ### Fixed
 - fix some bugs

@@ -1,6 +1,6 @@
 {
   "name": "obvious-core",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
@@ -10,6 +10,7 @@
     "lint": "eslint --fix --ext .ts,.js src",
     "docs": "docsify serve docs",
     "test": "jest --coverage",
+    "commit": "git cz",
     "demo:install": "cd ./examples/react-app && npm install && cd ../vue-app && npm install && cd ../host-enviroment && npm install",
     "demo:react": "cd ./examples/react-app && npm run start",
     "demo:vue": "cd ./examples/vue-app && npm run serve",
@@ -28,6 +29,8 @@
     "@types/jest": "^24.0.23",
     "@typescript-eslint/eslint-plugin": "^2.9.0",
     "@typescript-eslint/parser": "^2.9.0",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
     "docsify-cli": "^4.4.2",
     "eslint": "^6.7.2",
     "eslint-config-standard": "^14.1.0",
@@ -45,8 +48,13 @@
     "ts-jest": "^24.2.0",
     "typescript": "^3.7.2"
   },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
   "dependencies": {
-    "tslib": "^2.0.3"
+    "tslib": "^2.3.1"
   },
   "repository": {
     "type": "git",

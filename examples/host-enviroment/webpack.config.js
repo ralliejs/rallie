@@ -19,14 +19,14 @@ module.exports = () => {
         resolve: {
             extensions: ['.tsx', '.ts', '.jsx', '.js'],
             alias: {
-                'obvious-core': path.join(__dirname, '../../dist/index.umd.js')
+                'obvious-core': path.join(__dirname, '../../src/index.ts')
             }
         },
         module: {
             rules: [
                 {
                     test: /.tsx?$/,
-                    use: ['awesome-typescript-loader']
+                    use: ['ts-loader']
                 }
             ]
         }

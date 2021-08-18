@@ -7,18 +7,18 @@ const bus = window.__Bus__.testBus;
  * when it's activate after the first time, it should run the activate callback
  */
 bus.createApp('app-a')
-    .relyOn([
-        'react'
-    ])
-    .bootstrap(async () => {
-        console.log('bootstraped');
-    })
-    .activate(async () => {
-        console.log('reactivated');
-    })
-    .destroy(async () => {
-        console.log('destroy');
-    });
+  .relyOn([
+    'react'
+  ])
+  .bootstrap(async () => {
+    console.log('bootstraped');
+  })
+  .activate(async () => {
+    console.log('reactivated');
+  })
+  .destroy(async () => {
+    console.log('destroy');
+  });
 `;
 
 export default code;

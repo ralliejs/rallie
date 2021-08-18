@@ -10,12 +10,16 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "@babel/parser": "^7.15.3",
+    "@babel/types": "^7.15.0",
+    "jest-diff": "^27.0.6"
+  },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
     "express": "^4.17.1",
     "html-webpack-plugin": "^4.3.0",
-    "ts-loader": "^8.0.1",
+    "ts-loader": "^8.3.0",
     "webpack": "^4.44.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"

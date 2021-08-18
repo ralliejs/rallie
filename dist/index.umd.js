@@ -19,6 +19,17 @@
     PERFORMANCE OF THIS SOFTWARE.
     ***************************************************************************** */
 
+    var __assign = function() {
+        __assign = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign.apply(this, arguments);
+    };
+
     function __awaiter(thisArg, _arguments, P, generator) {
         function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
         return new (P || (P = Promise))(function (resolve, reject) {
@@ -57,6 +68,7 @@
         }
     }
 
+    /** @deprecated */
     function __spreadArrays() {
         for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
         for (var r = Array(s), k = 0, i = 0; i < il; i++)
@@ -65,9 +77,6 @@
         return r;
     }
 
-    var isObject = function (object) {
-        return Object.prototype.toString.call(object) === '[object Object]';
-    };
     var Errors = {
         // ================= EventEmitter.broadcast  =================
         removeNonExistedBroadcast: function (eventName) {
@@ -122,23 +131,36 @@
         invalidResource: function (asset) {
             return "[obvious] " + asset + " is not a valid asset";
         },
-        bootstrapNumberOverflow: function () {
-            return '[obvious] the number of apps bootstraped at a time is greater than the maximum value of 100, ' +
-                'it means that there may be circular dependencies, please check the app dependencies declaration ' +
-                'or reset the bus\'s maxDependencyDepth';
+        bootstrapNumberOverflow: function (num) {
+            if (num === void 0) { num = 100; }
+            return "[obvious] the number of apps bootstraped at a time is greater than the maximum value of " + num + "," +
+                ' it means that there may be circular dependencies, please check the app dependencies declaration' +
+                ' or reset the bus\'s maxDependencyDepth';
+        },
+        multipleCalledNextFn: function () {
+            return '[obvious] next() called multiple times in the middleware';
+        },
+        wrongMiddlewareType: function () {
+            return '[obvious] the middleware must be a function';
+        },
+        wrongContextType: function () {
+            return '[obvious] the app\'s name is not indicated when load or activate';
         },
         // ================= State ==================
         regardArrayAsObject: function (subStateName, subscript) {
             return "[obvious] state." + subStateName + " is an Array, but the subscript you set(\"" + subscript + "\") is not a number, therefore, the state will not be changed";
         },
         regardBasicTypeAsObject: function (subStateName, type) {
-            return "[obvious] state." + subStateName + " is a " + type + ", buy you regard it as a object and try to traverse it while setting state, therefore, the state will not be changed";
+            return "[obvious] state." + subStateName + " is a " + type + ", but you regard it as a object and try to traverse it while setting state";
         }
     };
     var Warnings = {
         emptyBroadcastEvents: function (eventName) {
             return "[obvious] you have emitted " + eventName + " event, but there is no listener of this event";
         }
+    };
+    var isObject = function (object) {
+        return Object.prototype.toString.call(object) === '[object Object]';
     };
     var getMappedState = function (state) {
         var mappedState = {};
@@ -266,6 +288,35 @@
         });
         return result;
     };
+    /**
+     * the compose function from koa-compose
+     * @param middlewares
+     * @returns
+     */
+    var compose = function (middlewares) { return function (context, next) {
+        // last called middleware #
+        var index = -1;
+        var dispatch = function (i) {
+            if (i <= index) {
+                return Promise.reject(new Error(Errors.multipleCalledNextFn()));
+            }
+            index = i;
+            var fn = middlewares[i];
+            if (i === middlewares.length) {
+                fn = next;
+            }
+            if (!fn) {
+                return Promise.resolve();
+            }
+            try {
+                return Promise.resolve(fn(context, dispatch.bind(null, i + 1)));
+            }
+            catch (err) {
+                return Promise.reject(err);
+            }
+        };
+        return dispatch(0);
+    }; };
 
     var EventEmitter = /** @class */ (function () {
         function EventEmitter() {
@@ -630,43 +681,35 @@
         };
         App.prototype.activateDependenciesApp = function (activateApp) {
             return __awaiter(this, void 0, void 0, function () {
-                var _i, _a, dependence, _b, _c, dependenceName, config;
-                return __generator(this, function (_d) {
-                    switch (_d.label) {
+                var _i, _a, dependence, ctx, config;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
                         case 0:
-                            if (!(!this.dependenciesReady && this.dependencies.length !== 0)) return [3 /*break*/, 9];
+                            if (!(!this.dependenciesReady && this.dependencies.length !== 0)) return [3 /*break*/, 7];
                             _i = 0, _a = this.dependencies;
-                            _d.label = 1;
+                            _b.label = 1;
                         case 1:
-                            if (!(_i < _a.length)) return [3 /*break*/, 8];
+                            if (!(_i < _a.length)) return [3 /*break*/, 6];
                             dependence = _a[_i];
                             if (!(typeof dependence === 'string')) return [3 /*break*/, 3];
                             return [4 /*yield*/, activateApp(dependence)];
                         case 2:
-                            _d.sent();
-                            return [3 /*break*/, 7];
+                            _b.sent();
+                            return [3 /*break*/, 5];
                         case 3:
-                            if (!(typeof dependence === 'object')) return [3 /*break*/, 7];
-                            _b = 0, _c = Object.keys(dependence);
-                            _d.label = 4;
+                            if (!isObject(dependence)) return [3 /*break*/, 5];
+                            ctx = dependence.ctx, config = dependence.config;
+                            return [4 /*yield*/, activateApp(ctx, config)];
                         case 4:
-                            if (!(_b < _c.length)) return [3 /*break*/, 7];
-                            dependenceName = _c[_b];
-                            config = dependence[dependenceName];
-                            return [4 /*yield*/, activateApp(dependenceName, config)];
+                            _b.sent();
+                            _b.label = 5;
                         case 5:
-                            _d.sent();
-                            _d.label = 6;
-                        case 6:
-                            _b++;
-                            return [3 /*break*/, 4];
-                        case 7:
                             _i++;
                             return [3 /*break*/, 1];
-                        case 8:
+                        case 6:
                             this.dependenciesReady = true;
-                            _d.label = 9;
-                        case 9: return [2 /*return*/];
+                            _b.label = 7;
+                        case 7: return [2 /*return*/];
                     }
                 });
             });
@@ -674,72 +717,68 @@
         return App;
     }());
 
+    var loadJs = function (src) { return __awaiter(void 0, void 0, void 0, function () {
+        var promise;
+        return __generator(this, function (_a) {
+            promise = new Promise(function (resolve) {
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = src;
+                script.onload = function () {
+                    resolve();
+                };
+                document.body.appendChild(script);
+            });
+            return [2 /*return*/, promise];
+        });
+    }); };
+    var loadCss = function (href) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = href;
+        document.head.appendChild(link);
+    };
+    var fetchJs = function (src) { return __awaiter(void 0, void 0, void 0, function () {
+        var res, code, err_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    return [4 /*yield*/, fetch(src)];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.text()];
+                case 2:
+                    code = _a.sent();
+                    return [2 /*return*/, code];
+                case 3:
+                    err_1 = _a.sent();
+                    return [2 /*return*/, ''];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); };
+    var excuteCode = function (code) {
+        var fn = new Function(code);
+        fn();
+    };
+
     var Bus = /** @class */ (function () {
-        function Bus(name, assets, middleware) {
+        function Bus(name) {
             var _this = this;
-            if (name === void 0) { name = ''; }
-            if (assets === void 0) { assets = {}; }
-            if (middleware === void 0) { middleware = {}; }
-            this.name = name;
-            this.assets = assets;
-            this.middleware = middleware;
             this.eventEmitter = new EventEmitter();
             this._state = {};
             this.apps = {};
             this.dependencyDepth = 0;
-            this.loadScriptByFetch = false;
-            this.maxDependencyDepth = 100;
-            /**
-             * define fetchJs、loadJs and loadCss as arrow function because
-             * they will be the arguments of the handleLoad middleware
-             * */
-            this.fetchJs = function (src) { return __awaiter(_this, void 0, void 0, function () {
-                var res, code, fn;
-                var _a;
-                return __generator(this, function (_b) {
-                    switch (_b.label) {
-                        case 0: return [4 /*yield*/, fetch(src)];
-                        case 1:
-                            res = _b.sent();
-                            return [4 /*yield*/, res.text()];
-                        case 2:
-                            code = _b.sent();
-                            fn = new Function(code);
-                            ((_a = this.middleware) === null || _a === void 0 ? void 0 : _a.handleExecute) ? this.middleware.handleExecute(code, src)
-                                : fn();
-                            return [2 /*return*/];
-                    }
-                });
-            }); };
-            this.loadJs = function (src) { return __awaiter(_this, void 0, void 0, function () {
-                var promise;
-                return __generator(this, function (_a) {
-                    promise = new Promise(function (resolve) {
-                        var script = document.createElement('script');
-                        script.type = 'text/javascript';
-                        script.src = src;
-                        script.onload = function () {
-                            resolve();
-                        };
-                        document.body.appendChild(script);
-                    });
-                    return [2 /*return*/, promise];
-                });
-            }); };
-            this.loadCss = function (href) { return __awaiter(_this, void 0, void 0, function () {
-                var link;
-                return __generator(this, function (_a) {
-                    link = document.createElement('link');
-                    link.rel = 'stylesheet';
-                    link.type = 'text/css';
-                    link.href = href;
-                    document.head.appendChild(link);
-                    return [2 /*return*/];
-                });
-            }); };
-            this.assets = assets;
+            this.conf = {
+                maxDependencyDepth: 100,
+                loadScriptByFetch: false,
+                assets: {}
+            };
+            this.middlewares = [];
             this.name = name;
-            this.middleware = middleware;
+            this.composedMiddlewareFn = compose(this.middlewares);
             Object.defineProperty(this, 'state', {
                 get: function () { return getMappedState(_this._state); },
                 set: function () {
@@ -747,44 +786,96 @@
                 }
             });
         }
-        Bus.prototype.loadResourcesFromAssetsConfig = function (name) {
+        /**
+         * config the bus
+         * @param conf the new configuration object
+         */
+        Bus.prototype.config = function (conf) {
+            var _a;
+            this.conf = __assign(__assign(__assign({}, this.conf), conf), { assets: __assign(__assign({}, this.conf.assets), (((_a = conf) === null || _a === void 0 ? void 0 : _a.assets) || {})) });
+            return this;
+        };
+        /**
+         * register the middleware
+         * @param middleware
+         */
+        Bus.prototype.use = function (middleware) {
+            if (typeof middleware !== 'function') {
+                throw new Error(Errors.wrongMiddlewareType());
+            }
+            this.middlewares.push(middleware);
+            this.composedMiddlewareFn = compose(this.middlewares);
+            return this;
+        };
+        /**
+         * create the context to pass to the middleware
+         * @param ctx
+         * @returns
+         */
+        Bus.prototype.createContext = function (ctx) {
+            var context = {
+                name: '',
+                loadJs: loadJs,
+                loadCss: loadCss,
+                fetchJs: fetchJs,
+                excuteCode: excuteCode,
+                conf: this.conf
+            };
+            if (typeof ctx === 'string') {
+                context.name = ctx;
+            }
+            else if (ctx.name) {
+                context = __assign(__assign({}, context), ctx);
+            }
+            else {
+                throw new Error(Errors.wrongContextType());
+            }
+            return context;
+        };
+        /**
+         * the core middleware
+         * @param ctx the context
+         */
+        Bus.prototype.loadResourcesFromAssetsConfig = function (ctx) {
             return __awaiter(this, void 0, void 0, function () {
-                var assets, _i, _a, asset;
-                var _this = this;
-                return __generator(this, function (_b) {
-                    switch (_b.label) {
+                var name, _a, loadJs$1, _b, loadCss$1, _c, fetchJs$1, _d, excuteCode$1, _e, conf, assets, loadScriptByFetch, _i, _f, asset, code;
+                return __generator(this, function (_g) {
+                    switch (_g.label) {
                         case 0:
-                            assets = this.assets;
+                            name = ctx.name, _a = ctx.loadJs, loadJs$1 = _a === void 0 ? loadJs : _a, _b = ctx.loadCss, loadCss$1 = _b === void 0 ? loadCss : _b, _c = ctx.fetchJs, fetchJs$1 = _c === void 0 ? fetchJs : _c, _d = ctx.excuteCode, excuteCode$1 = _d === void 0 ? excuteCode : _d, _e = ctx.conf, conf = _e === void 0 ? this.conf : _e;
+                            assets = conf.assets, loadScriptByFetch = conf.loadScriptByFetch;
+                            if (!assets[name]) return [3 /*break*/, 9];
                             // insert link tag first
                             assets[name].css &&
                                 assets[name].css.forEach(function (asset) {
                                     if (/^.+\.css$/.test(asset)) {
-                                        _this.loadCss(asset);
+                                        loadCss$1(asset);
                                     }
                                     else {
                                         console.error(Errors.invalidResource(asset));
                                     }
                                 });
                             if (!assets[name].js) return [3 /*break*/, 8];
-                            _i = 0, _a = assets[name].js;
-                            _b.label = 1;
+                            _i = 0, _f = assets[name].js;
+                            _g.label = 1;
                         case 1:
-                            if (!(_i < _a.length)) return [3 /*break*/, 8];
-                            asset = _a[_i];
+                            if (!(_i < _f.length)) return [3 /*break*/, 8];
+                            asset = _f[_i];
                             if (!/^.+\.js$/.test(asset)) return [3 /*break*/, 6];
-                            if (!!this.loadScriptByFetch) return [3 /*break*/, 3];
-                            return [4 /*yield*/, this.loadJs(asset)];
+                            if (!!loadScriptByFetch) return [3 /*break*/, 3];
+                            return [4 /*yield*/, loadJs$1(asset)];
                         case 2:
-                            _b.sent();
+                            _g.sent();
                             return [3 /*break*/, 5];
-                        case 3: return [4 /*yield*/, this.fetchJs(asset)];
+                        case 3: return [4 /*yield*/, fetchJs$1(asset)];
                         case 4:
-                            _b.sent();
-                            _b.label = 5;
+                            code = _g.sent();
+                            code && excuteCode$1(code);
+                            _g.label = 5;
                         case 5: return [3 /*break*/, 7];
                         case 6:
                             console.error(Errors.invalidResource(asset));
-                            _b.label = 7;
+                            _g.label = 7;
                         case 7:
                             _i++;
                             return [3 /*break*/, 1];
@@ -793,7 +884,9 @@
                             if (assets[name].isLib) {
                                 this.apps[name] = true;
                             }
-                            return [2 /*return*/];
+                            return [3 /*break*/, 10];
+                        case 9: throw new Error(Errors.resourceNotDeclared(name, this.name));
+                        case 10: return [2 /*return*/];
                     }
                 });
             });
@@ -820,45 +913,40 @@
         };
         /**
          * load the resources of an app
-         * @param name
+         * @param ctx
          */
-        Bus.prototype.loadApp = function (name) {
-            var _a, _b;
+        Bus.prototype.loadApp = function (ctx) {
             return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_c) {
-                    switch (_c.label) {
+                var context;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
                         case 0:
-                            if (!(this.assets && this.assets[name])) return [3 /*break*/, 2];
-                            return [4 /*yield*/, this.loadResourcesFromAssetsConfig(name)];
+                            context = this.createContext(ctx);
+                            // apply the middlewares
+                            return [4 /*yield*/, this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))];
                         case 1:
-                            _c.sent();
-                            return [3 /*break*/, 5];
-                        case 2:
-                            if (!((_a = this.middleware) === null || _a === void 0 ? void 0 : _a.handleLoad)) return [3 /*break*/, 4];
-                            return [4 /*yield*/, ((_b = this.middleware) === null || _b === void 0 ? void 0 : _b.handleLoad(name, this.loadScriptByFetch ? this.fetchJs : this.loadJs, this.loadCss))];
-                        case 3:
-                            _c.sent();
-                            return [3 /*break*/, 5];
-                        case 4: throw new Error(Errors.resourceNotDeclared(name, this.name));
-                        case 5: return [2 /*return*/];
+                            // apply the middlewares
+                            _a.sent();
+                            return [2 /*return*/];
                     }
                 });
             });
         };
         /**
          * activate an app
-         * @todo: how to handle circular dependency dead lock
          * @param name
          * @param config
          */
-        Bus.prototype.activateApp = function (name, config) {
+        Bus.prototype.activateApp = function (ctx, config) {
             return __awaiter(this, void 0, void 0, function () {
-                var isApp, app, _a;
+                var context, name, isApp, app, _a;
                 return __generator(this, function (_b) {
                     switch (_b.label) {
                         case 0:
+                            context = this.createContext(ctx);
+                            name = context.name;
                             if (!!this.apps[name]) return [3 /*break*/, 2];
-                            return [4 /*yield*/, this.loadApp(name)];
+                            return [4 /*yield*/, this.loadApp(context)];
                         case 1:
                             _b.sent();
                             _b.label = 2;
@@ -870,9 +958,9 @@
                             if (!isApp) return [3 /*break*/, 11];
                             app = this.apps[name];
                             if (!!app.bootstrapped) return [3 /*break*/, 8];
-                            if (this.dependencyDepth > this.maxDependencyDepth) {
+                            if (this.dependencyDepth > this.conf.maxDependencyDepth) {
                                 this.dependencyDepth = 0;
-                                throw new Error(Errors.bootstrapNumberOverflow());
+                                throw new Error(Errors.bootstrapNumberOverflow(this.conf.maxDependencyDepth));
                             }
                             this.dependencyDepth++;
                             return [4 /*yield*/, app.activateDependenciesApp(this.activateApp.bind(this))];
@@ -945,7 +1033,7 @@
      * @param middleware the middleware to load resources
      */
     var busProxy = {};
-    var createBus = function (name, assets, middleware) {
+    var createBus = function (name) {
         if (self.__Bus__ === undefined) {
             Object.defineProperty(self, '__Bus__', {
                 value: busProxy,
@@ -956,7 +1044,7 @@
             throw new Error("[obvious] the bus named " + name + " has been defined before, please rename your bus");
         }
         else {
-            var bus = new Bus(name, assets, middleware);
+            var bus = new Bus(name);
             Object.defineProperty(self.__Bus__, name, {
                 value: bus,
                 writable: false

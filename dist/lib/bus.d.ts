@@ -1,33 +1,37 @@
 import { Socket } from './socket';
 import { App } from './app';
-export declare type AssetsConfigType = Record<string, {
-    js?: string[];
-    css?: string[];
-    isLib?: boolean;
-}>;
-export declare type MiddlewareType = {
-    handleLoad?: (name: string, loadJs?: (src: string) => Promise<void>, loadCss?: (src: string) => void) => Promise<void>;
-    handleExecute?: (code: any, src: string) => Promise<void>;
-};
+import { MiddlewareFnType, ConfType, CustomCtxType } from './types';
 export declare class Bus {
     private name;
-    private assets;
-    private middleware;
     private eventEmitter;
     private _state;
     private apps;
     private dependencyDepth;
+    private conf;
+    private middlewares;
+    private composedMiddlewareFn;
     state: Record<string, any>;
-    loadScriptByFetch: boolean;
-    maxDependencyDepth: number;
-    constructor(name?: string, assets?: AssetsConfigType, middleware?: MiddlewareType);
+    constructor(name: string);
     /**
-     * define fetchJs、loadJs and loadCss as arrow function because
-     * they will be the arguments of the handleLoad middleware
-     * */
-    private fetchJs;
-    private loadJs;
-    private loadCss;
+     * config the bus
+     * @param conf the new configuration object
+     */
+    config(conf: Partial<ConfType>): this;
+    /**
+     * register the middleware
+     * @param middleware
+     */
+    use(middleware: MiddlewareFnType): this;
+    /**
+     * create the context to pass to the middleware
+     * @param ctx
+     * @returns
+     */
+    private createContext;
+    /**
+     * the core middleware
+     * @param ctx the context
+     */
     private loadResourcesFromAssetsConfig;
     /**
      * create a socket
@@ -42,16 +46,15 @@ export declare class Bus {
     createApp(name: string): App;
     /**
      * load the resources of an app
-     * @param name
+     * @param ctx
      */
-    loadApp(name: string): Promise<void>;
+    loadApp(ctx: CustomCtxType): Promise<void>;
     /**
      * activate an app
-     * @todo: how to handle circular dependency dead lock
      * @param name
      * @param config
      */
-    activateApp(name: string, config?: any): Promise<void>;
+    activateApp(ctx: CustomCtxType, config?: any): Promise<void>;
     /**
      * destroy an app
      * @param name
