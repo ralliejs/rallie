@@ -1,13 +1,13 @@
 {
   "name": "obvious-core",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "rollup -c rollup.config.js",
-    "lint": "eslint --fix --ext .ts,.js test",
+    "lint": "eslint --fix --ext .ts,.js src",
     "docs": "docsify serve docs",
     "test": "jest --coverage",
     "commit": "git cz",

@@ -1,4 +1,4 @@
-# <b>obvious.js</b> <small>0.2.2</small>
+# <b>obvious.js</b> <small>0.3.0</small>
 
 > 渐进式微前端库
 

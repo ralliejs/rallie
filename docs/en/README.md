@@ -1,4 +1,4 @@
-# Basic
+# Introduction
 ## About micro front end
 ## Industry practice
 ## About obvious

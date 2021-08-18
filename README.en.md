@@ -6,7 +6,7 @@ Obvious is a progressive micro-front-end library. In the micro-front-end archite
 ## Features
 - Provide flexible and convenient communication capabilities based on global state, event broadcast, and event unicast
 - Support declaring dependencies when defining micro applications, and automatically activate dependencies when activating micro applications, allowing micro applications to be freely split and combine
-- Provide a flexible middleware mechanism: users can flexibly control the resource loading and execution process of micro-applications by writing middleware, thereby elegantly expanding functions such as automatic registration of micro-application resources, logs and js sandboxes
+- Provide a flexible middleware mechanism: users can flexibly control the resource loading and execution process of micro-applications by writing middleware, thereby elegantly expanding functions such as automatic registration of micro-application resources, logs, html-entry and js sandboxes
 - Naturally supports loading multiple micro-applications in a single-screen page, based on which a high-end spa micro-front-end framework can be encapsulated, and the activation conditions of the micro-applications are completely freely set by the developer, no longer limited to routing hijacking.
 - The concept is simple, the functional API is clear and easy to understand, and it can be developed without documentation
 
