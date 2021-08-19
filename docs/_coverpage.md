@@ -1,5 +1,4 @@
-# <img style="width: 600px;height:600px" src="_media/logo_transparent.svg" />
-# <b>obvious.js</b> <small>v0.3.0</small>
+## <img width="20%" height="20%" src="_media/logo_transparent.svg" />
 
 > 渐进式微前端库
 
