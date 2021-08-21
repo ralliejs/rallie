@@ -1,6 +1,6 @@
 ## <img width="20%" height="20%" src="_media/logo_transparent.svg" />
 
-> The progressive micro front end framework
+> The progressive micro front end library
 
 - Simple and lightweight
 - Friendly to beginners

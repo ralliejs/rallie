@@ -6,7 +6,7 @@
 </div>
 
 ## Introduction
-Obvious is a progressive micro-front-end library. In the micro-front-end architecture, Obvious focuses on solving the  problem of orchestration and communication between micro frontend applications. It aims to help users quickly build a basic micro-front-end system and support deeper customization to achieve a complete and reliable micro-front-end architecture by providing easy-to-understand APIs and flexible middleware mechanisms.
+Obvious is a progressive micro-front-end library. In the micro-front-end architecture, Obvious focuses on solving the  problem of orchestration and communication between micro frontend applications. It aims to help users quickly build a basic micro-front-end system and support deeper customization to achieve a complete and reliable micro-front-end architecture by providing easy-to-understand APIs and flexible middlewares.
 
 ## Features
 - Provide flexible and convenient communication capabilities based on global state, event broadcast, and event unicast

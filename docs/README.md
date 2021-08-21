@@ -554,6 +554,9 @@ export default {
 </script>
 ```
 事实上，到目前为止，我们已经成功实现了目标中的三个功能，用obvious实现微应用通信就是这么简单！
+
+> 你可能感觉手动创建socket并监听事件和状态略显繁琐，为了更方便地在React和Vue应用中使用Obvious的状态管理和事件管理功能，你可以使用[obvious-react](https://github.com/ObviousJs/obvious-react)和[obvious-vue](https://github.com/ObviousJs/obvious-vue)
+
 ![](_media/tutorial-target.gif)
 
 ## 应用编排
