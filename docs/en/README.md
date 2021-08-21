@@ -6,8 +6,7 @@ Obvious is a progressive micro front-end library. In the micro front-end archite
 ## About micro front end
 In software engineering, the front end is a field with fast speed of iterative and update. Objectively speaking, technology evolution is the result of the increase of problem's complexity and qualitative change caused by quantitative change. After the emergence of new technologies, more complex problems can be solved, and on the contrary, it drives the increase of problem's complexity. Therefore, the rapid update of the front-end shows that the front-end can do more and more things in the business, and its status is becoming more and more important.
 
-A few years ago, the front-end developers only made some static pages and handled simple interactions. At that time, operating the native DOM or using the the sharp jQuery is enough to complete the work. Later, the popularity of Ajax technology brought a wave of front-end and back-end separation，much back-end developers's work was handled over to the front-end developers，they need to map a large amount of data to the UI, which means that it becomes extremely painful for developers to manually operate the DOM. At this time, The emergence of three epic projects, Angular, React and Vue, saved front-end developers in dire straits
-. The function of these three frameworks is to automatically map the data to the DOM in real time, so that developers can only focus on the data without operating the DOM。And then, the emergence of single page applications makes it possible to exchange data between pages without going through the backend, which makes the front end applications become more and more huge and complex. For some to-B applications, sometimes there are dozens or even hundreds of pages to manage, which can easily become fragile and difficult to maintain applications. At this time, the qualitative change caused by complex measurement change is the emergence of micro front-end architecture.
+A few years ago, the front-end developers only made some static pages and handled simple interactions. At that time, operating the native DOM or using the the sharp jQuery is enough to complete the work. Later, the popularity of Ajax brought a wave of front-end and back-end separation，much back-end developers's work was handled over to the front-end developers，they need to map a large amount of data to the UI, which means that it becomes extremely painful for developers to manually operate the DOM. At this time, The emergence of three epic projects, Angular, React and Vue, saved front-end developers in dire straits. The function of these three frameworks is to automatically map the data to the DOM in real time, so that developers can only focus on the data without operating the DOM。And then, the emergence of single page applications makes it possible to transfer data between pages without going through the backend, which makes the front end applications become more and more huge and complex. For some to-B applications, sometimes there are dozens or even hundreds of pages to manage, which can easily become fragile and difficult to maintain applications. At this time, the qualitative change caused by quantitative change is the emergence of micro front-end architecture.
 
 We hope to introduce an architecture like back-end microservices, so that a huge front-end application can be separate to several micro applications which have the features below:
 1. The technology stack between micro applications is decoupled, not aware of each other, and can be upgraded independently.
@@ -18,32 +17,32 @@ We hope to introduce an architecture like back-end microservices, so that a huge
 > [micro frontend](https://martinfowler.com/articles/micro-frontends.html)
 
 ## Industry practice
-Micro front end is not a new concept，but also not old either. At present, the well-known open source micro front-end framework include [single-spa](https://single-spa.js.org/)， Alibaba's [qiankun](https://qiankun.umijs.org/zh/guide) based on single-spa. and the relatively independent micro front-end framework[icestark](https://ice.work/docs/icestark/about) which is also from Alibaba. At the same time, in various front-end conferences, many companies also shared their own micro front-end solutions. By integrating various materials on the network, we can roughly summarize several problems to be solved in the process of micro front-end landing:
+Micro front end is not a new concept，but also not old either. At present, the well-known open source micro front-end frameworks include [single-spa](https://single-spa.js.org/), Alibaba's [qiankun](https://qiankun.umijs.org/zh/guide) based on single-spa. and the relatively independent micro front-end framework [icestark](https://ice.work/docs/icestark/about) which is also from Alibaba. At the same time, in various front-end conferences, many companies also shared their own micro front-end solutions. By integrating various materials on the network, we can roughly summarize several problems to be solved in the process of micro front-end landing:
 
 1. How to register and load the resources of micro application（Arrangement）
 2. How to communicate between micro applications（Communication）
 3. How to ensure that global variables and styles do not affect each other between micro applications（Container）
 
 ## About Obvious
-我在实际业务中体验过几种开源的以及公司内部的微前端方案，在进行业务开发过程中，我发现针对上面所说的三个问题，解决前两个才是架构的刚需，是否有灵活优雅的注册和加载机制以及方便的通信机制是衡量一个微前端框架使用体验的重要指标，可惜我个人觉得我试用过的几个方案并没有给我很好的使用体验。微前端这一议题的热度似乎过分集中于容器功能的实现，js沙箱之类的东西听起来蛮酷但是在我看来似乎是一个锦上添花，有些场景下甚至会给我带来麻烦的功能。正是上面的这些原因让我萌生了写一个自己的基础微前端框架的想法，于是就有了obvious.js
+I have experienced several open source or internal micro front-end solutions in the actual business. In the process of development, I found that for the three problems mentioned above, solving the first two is more urgent. Whether there is a flexible and elegant registration and loading mechanism and convenient communication mechanism is an important indicator to measure the experience to users for a micro front-end framework. Unfortunately, I personally feel that the liraries or frameworks I tried did not give me a good experience。In China, the topic of micro front end seems to focus too much on the realization of "container"，the things like JS sandbox sound cool, but in my opinion, it seems to be a icing on the cake, in some cases, it even brings me trouble。It is for the above reasons that I came up with the idea of writing my own micro front-end framework, so I had Obvious.js
 
-obvious.js是一个轻量级，渐进式的微前端框架，它专注于解决微应用的编排和通信问题，它的特点是：
-- 提供基于全局状态、事件广播，事件单播的通信能力，通信机制灵活方便
-- 支持在定义微应用时声明依赖关系，激活微应用时自动激活依赖, 让微应用可以自由拆分与合设
-- 提供灵活的中间件机制：用户可以通过编写中间件的方式灵活控制微应用的资源加载和执行过程，从而优雅地拓展出自动注册微应用资源，日志，html-entry和js沙箱等功能
-- 天然支持单屏页面中加载多个微应用，可以基于它封装出高阶的spa微前端框架，同时微应用激活条件完全由开发者自由制定，不再局限于路由劫持
-- 概念简单，函数式API清晰易理解，可以做到脱离文档开发
+Obvious.js is a lightweight and progressive micro front-end library. It focuses on solving the arrangement and communication problems for micro applications. Its characteristics are:
+- It provides the communication capability based on global state, event broadcast and event unicast, and the communication mechanism is flexible and convenient
+- It supports declaring dependencies when defining micro applications. when activating micro applications it will automatically activating its dependencies, so that micro applications can be split and combined freely
+- Provide flexible middleware mechanism. Users can flexibly control the loading and execution process of micro applications's resources by writing middlewares, so as to gracefully expand the functions of automatic registration of micro application resources, logs, HTML entry and JS sandbox
+- It naturally supports loading multiple micro applications in a single screen page, and can encapsulate a high-level spa micro front-end framework based on it. At the same time, the micro application activation conditions are completely set by the developer, which is no longer limited to route hijacking
+- The concept is simple, the API is clear and easy to understand. After learning it, users can develop with it without documentation.
 
-这是我在一个又一个996之后挤出时间开发的项目，如果能帮助你解决业务中的问题或者让你有所启发，希望您能给我的[Github仓库](https://github.com/ObviousJs/obvious-core)点一个小小的star以示鼓励，如果愿意提issue或者pull request帮助我改进它就更好了。
+This is a project I developed in my spare time. If it can help you solve business problems or inspire you. I hope you can give my repository[repository](https://github.com/ObviousJs/obvious-core)a star. It would be better if you would like to mention issue or PR to help me improve it。
 
-接下来，我将带你完整实现一个用obvious搭建微前端环境，并在该环境上把react官方脚手架create-react-app和vue官方脚手架vue-cli开发并部署的两个微应用集成在一起的小示例，带你走进obvious.js
+Next, I will take you to develop a demo to go into the world of Obvious.js
 
 
-# 教程
+# Tutorial
 ---------
-> 本教程假设你掌握react和vue框架的基础知识，能理解react hook的使用和vue2的模板语法。如果你还不了解这方面的相关知识，不要急，先快速跟着两大框架的官方文档学习一下吧！
+> This tutorial assumes that you master the basic knowledge of React and Vue, if you don't，we recommand that you should learn them first.
 
-## 目标
+## Target
 ![](../_media/tutorial-target.gif)
 经过本教程的学习，你将开发出一个效果如上图的简单微前端应用：
 - 用create-react-app创建的一个react工程，被部署在 http://localhost:3000
