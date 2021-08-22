@@ -17,7 +17,7 @@ We hope to introduce an architecture like back-end microservices, so that a huge
 > [micro frontend](https://martinfowler.com/articles/micro-frontends.html)
 
 ## Industry practice
-Micro front end is not a new concept，but also not old either. At present, the well-known open source micro front-end frameworks include [single-spa](https://single-spa.js.org/), Alibaba's [qiankun](https://qiankun.umijs.org/zh/guide) based on single-spa. and the relatively independent micro front-end framework [icestark](https://ice.work/docs/icestark/about) which is also from Alibaba. At the same time, in various front-end conferences, many companies also shared their own micro front-end solutions. By integrating various materials on the network, we can roughly summarize several problems to be solved in the process of micro front-end landing:
+Micro front end is not a new concept，but also not old either. At present, the well-known open source micro front-end frameworks include [single-spa](https://single-spa.js.org/), Alibaba's [qiankun](https://qiankun.umijs.org/zh/guide) based on single-spa. and the relatively independent micro front-end framework  [icestark](https://ice.work/docs/icestark/about) which is also from Alibaba. At the same time, in various front-end conferences, many companies also shared their own micro front-end solutions. By integrating various materials on the network, we can roughly summarize several problems to be solved in the process of micro front-end landing:
 
 1. How to register and load the resources of micro application（Arrangement）
 2. How to communicate between micro applications（Communication）
@@ -33,10 +33,9 @@ Obvious.js is a lightweight and progressive micro front-end library. It focuses 
 - It naturally supports loading multiple micro applications in a single screen page, and can encapsulate a high-level spa micro front-end framework based on it. At the same time, the micro application activation conditions are completely set by the developer, which is no longer limited to route hijacking
 - The concept is simple, the API is clear and easy to understand. After learning it, users can develop with it without documentation.
 
-This is a project I developed in my spare time. If it can help you solve business problems or inspire you. I hope you can give my repository[repository](https://github.com/ObviousJs/obvious-core)a star. It would be better if you would like to mention issue or PR to help me improve it。
+This is a project I developed in my spare time. If it can help you solve business problems or inspire you. I hope you can give my [repository](https://github.com/ObviousJs/obvious-core) a star. It would be better if you would like to mention issues or PR to help me improve it。
 
 Next, I will take you to develop a demo to go into the world of Obvious.js
-
 
 # Tutorial
 ---------
@@ -44,42 +43,43 @@ Next, I will take you to develop a demo to go into the world of Obvious.js
 
 ## Target
 ![](../_media/tutorial-target.gif)
-经过本教程的学习，你将开发出一个效果如上图的简单微前端应用：
-- 用create-react-app创建的一个react工程，被部署在 http://localhost:3000
-- 用vue-cli创建的一个vue工程，被部署在 http://localhost:8081
-- 上面的两个工程在 http://localhost:9999 上聚合，且在页面交互上能做到：
-  - 在react区域的输入框中输入的文字，能在vue区域作为标题实时显示
-  - 在vue区域可以通过点击绿色按钮控制react图标是否旋转
-  - 点击vue区域的标题，react区域的输入框获得焦点
+After learning this tutorial, you will develop a simple micro front-end application like the above：
+- A react project created with create-react-app is deployed in http://localhost:3000
+- A vue project created with vue-cli is deployed in http://localhost:3000
+- The above two projects are combined into one in http://localhost:9999:
+  - The text input in the input box in the react area can be displayed in real time as a title in the vue area
+  - In the Vue area, you can click the green button to control whether the react icon rotates
+  - Click the title in the Vue area, and the input box in the react area gets the focus
 
-你可以在[这里](https://github.com/ObviousJs/obvious-core/tree/master/examples)查看教程示例的源码
+You can view the source code of the tutorial example [here](https://github.com/ObviousJs/obvious-core/tree/master/examples)
 
-## 准备工作
-首先，我们参照[create-react-app](https://github.com/facebook/create-react-app#creating-an-app)和[vue-cli](https://cli.vuejs.org/)官方教程的说明，分别创建一个叫做react-app的react工程和一个叫做vue-app的vue工程，在本地开启dev-server伺服后，react-app被部署在 http://localhost:3000 上
+## Prepare
+First, we create an app named react-app with [create-react-app](https://github.com/facebook/create-react-app#creating-an-app) and an app named vue-app with [vue-cli](https://cli.vuejs.org/)
+
 ![init-react](../_media/init-react.png)
-vue-app被部署在 http://localhost:8081 上
+
 ![init-vue](../_media/init-vue.png)
 
-为了配合之后的聚合，我们分别修改一下应用挂载点，微调一下样式，并修改publicPath
+And then, we modify the mount point, the style and the public path of the two projects so that we can combine them into one later.
 
-react-app做如下修改：
+The react-app is modified as follows:
 
 ![](../_media/react-change-1.png)
 ![](../_media/react-change-2.png)
 ![](../_media/react-change-3.png)
 
-vue-app做如下修改：
+The vue-app is modified as follows:
 
 ![](../_media/vue-change-0.png)
 ![](../_media/vue-change-1.png)
 ![](../_media/vue-change-2.png)
 ![](../_media/vue-change-3.png)
 
+We're finally going to put these two apps in http://localhost:9999, so we need to build a host environment.
 
-我们最终要将这两个应用在 http://localhost:9999 上聚合，因此需要搭建一个宿主环境
-> 如果不了解前端构建和Node.js的一些基础知识，下面的部分内容可能会让你感觉有些难以理解，你可以选择直接复制教程中的代码，而不必理解为什么要这么做
+> If you don't know some basic knowledge about webpack and node.js, the following parts may make you feel a little difficult to understand, you can copy the code in the tutorial directly without understanding why.
 
-由于react-app和vue-app都是用webpack-dev-server伺服的，因此它们的源码中都会带上实现热更新功能的代码，如果宿主环境也是用webpack-dev-server伺服的话，错误的热更新请求会让宿主环境dev-server挂掉。因此，我们选择用webpack以watch模式打包宿主代码，并用Node.js起http服务端伺服。由于这个示例只在现代浏览器上演示，所以我们的webpack配置一切从简，只使用一个html-webpack-plugin，将打包好的代码注入到html模板中。
+Because react-app and vue-app are served by webpack-dev-server, their source code will carry the code to realize the function of HMR. If the host environment is also served by webpack-dev-server, the wrong hot-update request will cause the host environment dev server to hang up. Therefore，we choose to use webpack to package the host code in watch mode, and use node.js to start the HTTP server. Since this example is only demonstrated on modern browsers, our webpack configuration is as simple as posibble. We only use an html-webpack-plugin to inject the packaged code into the HTML template.
 ```js
 // ./host-enviroment/main.js
 alert("I'm ready to learn obvious.js");
@@ -107,7 +107,7 @@ module.exports = () => {
     }
 };
 ```
-在我们的宿主html中，需要为react-app和vue-app预留好挂载点, 并布置好一个应用各占屏幕一半的样式
+In our hosted html, we need to reserve mount points for react-app and vue-app and have a style where each app accounts for half of the screen.
 ```html
 <!--  ./host-enviroment/index.template.html   -->
 <!DOCTYPE html>
@@ -140,7 +140,7 @@ module.exports = () => {
   </body>
 </html>
 ```
-打包后，所有host-enviroment的静态资源会被打包到`./dist`目录，我们在开始打包后，用express把它伺服在 http://localhost:9999 
+After packaging, all the static resources of the host-enviroment will be packaged into the '. /dist' directory, then we use express to serve it in http://localhost:9999
 ```js
 // ./host-enviroment/server.js
 const express = require('express');
@@ -166,7 +166,7 @@ app.listen('9999', () => {
     }, 3000);
 });
 ```
-配置一下npm script
+At last, we configure the NPM script
 ```json
 // ./host-enviroment/package.json
 {
@@ -189,7 +189,7 @@ app.listen('9999', () => {
   }
 }
 ```
-这样我们就完成了构建你的第一个obvious应用的第一步
+This completes the first step in building your first obvious application
 ```
 |--- react-app
 |--- vue-app
@@ -200,25 +200,25 @@ app.listen('9999', () => {
     |--- webpack.config.js
     |--- package.json
 ```
-在host-enviroment执行一下npm start，http://localhost:9999 被打开
+Execute 'npm start' on host-enviroment. http://localhost:9999 Opens
 ![init-host](../_media/init-host.png)
 
-最后，让我们在三个工程中都安装依赖 `npm install obvious-core`
+Finally, let's install the dependency in all three projects: `npm install obvious-core`
 
 ?> <strong>You are ready to learn obvious.js</strong>
 
-## 资源注册和加载
-并不难理解，react-app和vue-app上能呈现页面是因为加载了包含渲染逻辑的javaScript代码
+## Resource registration and loading
+It is not difficult to understand that pages can be rendered on react-app and vue-app because js code containing rendering logic is loaded
 
 ![](../_media/react-network-panel.png)
 
 ![](../_media/vue-network-panel.png)
 
-现在我们要把这两个应用在 http://localhost:9999 上聚合，其实也只需要做同样的事情
+Now, we just need to do the same thing if we want to aggregate the two applications in http://localhost:9999.
 
-?> 类比后端的概念，一个后端微服务本质上是一个或几个被编译为二进制的程序启动为进程后调度操作系统资源，一个前端微应用的本质是一个或几个被编译为原生js的script被加载到html中后调度DOM资源
+?> By analogy to the concept of back-end, a back-end micro service is essentially one or more processes that schedule the resources of the OS，The essence of a front-end micro application is one or more scripts that schedule the DOM resources.
 
-在obvious中，专门做这件事情的是一个叫做Bus的对象，它是整个obvious微前端体系的内核，是调度不同微应用的枢纽。创建一个Bus后，你只需要把要聚合的微应用的资源信息告诉它，之后就可以用Bus提供的API调度前端资源和编排前端应用。
+In Obvious, this job is done by an object called 'Bus'. It is the kernel of the whole micro front-end system and the center to arrange different micro applications.
 
 ```js
 // ./host-enviroment/main.js
@@ -249,15 +249,15 @@ bus.config({
 bus.activateApp('react-app');
 bus.activateApp('vue-app');
 ```
-我们在host-enviroment中创建了一个叫做host的Bus，声明了管理的微应用的资源，紧接着我们用创建出的Bus实例分别激活react-app和vue-app，“激活”这个操作会去加载app声明的资源，加载完成后，带着页面渲染逻辑的代码就会被执行，react和vue应用分别将各自的顶层组件挂载到我们预留好的挂载点上，页面就变成了这个样子
+We create a bus called host in the host environment, which declares the resources of the managed micro applications. Then we use the created bus instance to activate react-app and vue-app respectively. The "activate" operation will load the resources declared by the micro application. After loading, the code with page rendering logic will be executed. React and Vue applications will respectively mount their top-level components to our reserved mount points, and the page will look like this
 ![](../_media/unit.png)
 
-看起来还不错！
+It seems not bad
 
-?> 你可能发现在声明资源时，我们添加了一个isLib属性，这告诉Bus现在加载的资源并不是一个app，而是一个library，后续的学习中你将会了解到二者的区别
+?> You may find that when declaring resources, we added an "isLib" attribute, which tells bus that the current loaded resource is not an "app", but a "library". You will learn the difference between the two in subsequent studies
 
-## 应用通信
-接下来让我们做点有趣的事情，我们尝试让两个app能靠通信机制实现UI交互，首先我们改造一下react-app，让它有一个input输入框，并微调一下它的样式：
+## Communication
+Next, let's do something interesting. Let's try to make the two apps realize UI interaction through Obvious' communication mechanism. First, let's add a input box in react-app, and modify its style.
 ```js
 import React from 'react';
 import logo from './logo.svg';
@@ -293,7 +293,7 @@ function App() {
 
 export default App;
 ```
-对于vue-app，为了方便后续改造，我们把标题变成App组件的data，然后将其作为props传递给HelloWorld组件
+For vue-app, we change the title into the data of the app component, and then pass it to the HelloWorld component as props.
 ```js
 // part of ./vue-app/src/App.vue
 <template>
@@ -319,14 +319,14 @@ export default {
 }
 </script>
 ```
-很好，现在我们有了两个准备就绪的微应用，在宿主环境上还有一个名为host的Bus。Bus可以让消息在两个应用之间传递。我们只需要在微应用代码中获取这个Bus，并用它创建出通信接口——Socket
+Well, now we have two ready micro applications and a bus named host on the host environment. Bus allows messages to be passed between two applications. We only need to get the bus in the micro application code and use it to create a communication interface, the socket.
 ```js
 import {getBus} from 'obvious-core';
 
 const bus = getBus('host');
 const socket = bus.createSocket();
 ```
-obvious提供了一套状态管理机制，让不同的微应用可以通过读、写、监听同一个状态实现通信。在我们当前这个项目中，我们需要做的是把react-app的input框输入的内容传递给vue-app。react-app可以用刚刚创建的socket实例初始化一个名为text的状态，当输入内容变化时，通过socket.setState及时更新状态值
+Obvious provides a set of state management mechanism, so that different micro applications can communicate by reading, writing and listening to the same state. In our current project, what we need to do is to pass the content entered in the input box of react-app to vue-app. React-app can initialize a state named text with the socket instance just created. When the input content changes, the state value is updated in time with "socket.setstate"
 ```js
 // part of ./react-app/src/App.js
 import React from 'react';
@@ -353,9 +353,9 @@ function App() {
 }
 ```
 
-!> 重要规则：一个状态必须通过socket.initState初始化后才能被修改和监听，否则将抛出异常
+!> Important rule: a state must be initialized by socket.initstate before it can be set and watched, otherwise an exception will be thrown
 
-在vue-app中，我们同样用名为host的Bus创建一个socket，并用这个socket监听状态text，当状态变化时，更新组件的data。由于我们只有在状态初始化后才能监听和修改它，因此socket还提供了waitState方法，让你可以等待一个或几个状态被初始化后再执行后续操作
+In vue-app, we also create a socket with the bus named host, and use this socket to listen for the state named text. When the state changes, we update the data of the component. Since we can only listen to and modify a state after it is initialized, sockets also provide a method called waitState  that allows you to wait for one or more states to be initialized before performing subsequent operations.
 ```js
 // part of ./vue-app/src/App.vue
 import HelloWorld from './components/HelloWorld.vue';
@@ -387,16 +387,16 @@ export default {
   }
 }
 ```
-现在我们的微前端应用效果是这样的
+Now our micro-front application works like this
 ![](../_media/state-communicate.gif)
 
-由于React和Vue本质上都是状态驱动的框架，因此在微前端中使用状态通信非常方便和优雅，大多数场景都建议你使用这种通信方式。
+Since React and Vue are essentially state-driven frameworks, using state communication in a micro-front end is convenient and elegant, and is recommended for most cases.
 
-?> 忍不住再次表达我对React和Vue两大框架的敬意，它们通过复杂的机制把数据变更映射为UI变更，暴露给开发人员的API却如此简洁优美，让人深深地感受到软件工程魅力。obvious需要做的只是把状态变更在它们之间传递而已。
+?> React and Vue map data changes to UI changes through complex mechanisms, but the APIs exposed to developers are so concise and elegant that people can deeply feel the magic of software engineering. All Obvious needs to do is pass state changes between them.
 
-除了状态通信，obvious还提供了包含广播和单播在内的事件通信机制供你使用。我们尝试用这两种方式分别实现[目标](#目标)中的另外两个功能。
+In addition to state communication, Obvious also provides event communication mechanisms including broadcast and unicast. We're trying to implement the other two functions in [target](#Target) in both ways.
 
-首先我们为vue-app添加一个绿色按钮，当点击这个按钮的时候，我们同样使用刚刚创建好的socket实例发送一个change-rotate广播事件。
+First we add a green button for vue-app. When we click this button, we send a broadcast event named change-rotate using the socket instance we just created。
 ```js
 <template>
   <div class="hello">
@@ -448,7 +448,7 @@ button:hover {
 }
 </style>
 ```
-而在react-app中，我们在Effect Hook中用socket监听change-rotate事件，并根据事件参数，更改图标类名，从而达到控制图标旋转的效果
+In react-app, we use the socket to listen for the change-rotate event in the effect hook and change the icon's class name according to event parameters to control the rotation.
 ```js
 // part of ./react-app/src/
 import React from 'react';
@@ -489,9 +489,9 @@ function App() {
 export default App;
 ```
 
-接下来我们用事件单播机制实现点击vue-app的标题，react-app的输入框获得焦点的功能。单播和广播的用法非常相似，唯一的区别是，广播事件可以有多个订阅者，且订阅的回调函数没有返回值，在触发广播事件时，事件触发者并不清楚事件订阅者的订阅回调是否执行成功。而单播事件只允许有一个订阅者，且订阅的回调函数有返回值，使得单播事件触发者能拿到订阅者回调的返回值，通信双方之间的消息传递像RPC调用一样有来有回，或者说，事件单播就是前端的RSC调用（Remote Script Call）
+Next, we use the event unicast mechanism to realize the function that when we click the title of vue-app, react-app's input box will get focus。The usage of unicast and broadcast is very similar. The only difference is that a broadcast event can have multiple subscribers, and the callback functions of the subscription do not return a value. When a broadcast event is triggered, the event triggerer does not know if the callbacks of the event have been successfully executed. The unicast event allows only one subscriber, and the callback function of the subscription can have a return value, so that the unicast event triggerer can get the return value of the subscriber's callback, and the message transfered between the two communication parties is like an RPC call. We can say that event unicast is front-end RSC（Remote Script Call）
 
-在本例中，我们让react-app订阅一个名为get-input-dom的单播事件，当事件被触发时，react-app把input框的ref作为返回值返回
+In this example, we have react-app subscribe to a unicast event named get-input-dom, and when the event is triggered, react-app returns the ref of the input box as a return value
 
 ```js
 // part of ./react-app/src/App.js, omit some code
@@ -528,7 +528,7 @@ function App() {
 
 export default App;
 ```
-在vue-app中，我们在标题的点击事件回调中，用socket触发get-input-dom单播事件，拿到react-app传来的dom节点，并让它获得焦点
+In vue-app, we use the socket to trigger get-input-dom unicast event in the click event callback of the title, and then get the DOM node of react-app's input boxx from the return value, and give it focus.
 ```js
 // part of ./vue-app/src/HelloWorld.vue, omit some code
 <template>
@@ -554,16 +554,18 @@ export default {
 }
 </script>
 ```
-事实上，到目前为止，我们已经成功实现了目标中的三个功能，用obvious实现微应用通信就是这么简单！
+So far, we've successfully achieved our three targets, and that's how easy it is to communicate with micro applications using Obvious!
+
 ![](../_media/tutorial-target.gif)
 
-## 应用编排
-现在我们还遗留着一个小问题，还记得在资源注册声明的时候，我们给react-app和vue-app都加了一个isLib属性吗，试试把这个属性去掉，你会发现页面不再正常显示，而且在控制台出现了这样的报错
+## Application Arrangement
+Now there's a small problem left over. Do you remember when we made the resource registration statement, we add an isLib attribute to both react-app and vue-app? Try removing this attribute, and you'll see that the page no longer displays properly, and there will be an error in the console panel like this: 
 
 ![](../_media/app-not-created.png)
 
-这是因为，obvious把注册的微应用分为了app和library两种，library一般是多个微应用公用的一些第三方库，比如react、vue的源码，它们被bus加载并执行一次之后就完成了自己的使命，然后作为整个环境的runtime使用。而app则需要按照obvious的规则，用bus实例去创建。将你的微应用定义为app可以让你的微应用拥有生命周期，从而可以被bus启动、激活、销毁，且在启动、激活和销毁时可以接收一些定制参数。
-把react-app声明为app的方法非常简单，在入口函数中使用bus.createApp，你就获得了一个app实例
+This is because Obvious divides registered micro applications into apps and librarys. Libraries are generally some third-party libraries common to many micro applications, such as React and Vue's source code, which are loaded and executed by bus once, and then used as the runtime for the whole environment. Apps, on the other hand, need to be created with a bus instance according to the rules of Obvious. Defining your micro application as an app gives your micro application a lifecycle that can be started, activated, destroyed by the bus and can receive customized parameters when it is started, activated, and destroyed.
+
+It's easy to declare react-app as an app. Using bus.createApp in the entry function, you get an app instance
 ```js
 // ./react-app/src/index.js
 import React from 'react';
@@ -583,7 +585,7 @@ bus.createApp('react-app')
     );
   });
 ```
-创建完app实例后，我们在它的bootstrap生命周期中渲染根组件，而且现在，我们的挂载点不需要再去跟host-enviroment约定，然后硬编码在我们的应用代码中了，而是从生命周期方法参数中获取。接着我们对vue-app做同样的改造
+Once an app instance is created, we render the root component in its bootstrap lifecycle, and now the mount point can be obtained from the parameters the lifecycle method directly. We'll do the same for vue-app
 ```js
 // ./vue-app/src/main.js
 import Vue from 'vue';
@@ -601,7 +603,7 @@ bus.createApp('vue-app')
     }).$mount(config.mountPoint);
   });
 ```
-再把host-enviroment中的激活逻辑修改为
+then we modify the activation logic in host-enviroment
 ```js
 bus.activateApp('react-app', {
   mountPoint: '#react-app'
@@ -610,7 +612,7 @@ bus.activateApp('vue-app', {
   mountPoint: '#vue-app'
 });
 ```
-你的微应用又可以正常显示了，一切看起来已经非常完美。最后加一个小彩蛋，现在你已经拥有了两个微应用，你还想基于它们做一些新的开发，从而变成一个新的微应用，App的依赖功能让你的这个需求变得无比简单
+Your micro applications work fine again, and everything looks perfect. Now you have two micro applications. You also want to do some new development based on them, so as to become a new micro application. You can use the api called app.relyOn to realize it
 ```js
 import { createBus } from 'obvious-core';
 
@@ -649,21 +651,22 @@ bus.createApp('unit-app')
 
 bus.activateApp('unit-app');
 ```
-我们声明一个unit-app，让它依赖vue-app和react-app，在host-environment中激活的时候，我们不再分别激活vue-app和react-app这两个原子app，而是直接激活合设的unit-app，bus会自动激活它的依赖，事实上，如果vue-app和react-app又依赖别的微应用的话，这个过程也会递归地传递下去。
+We declare a unit app which dependends on vue-app and react-app. When activated in the host environment, we will no longer activate vue-app and react-app respectively, but directly activate the combined unit-app. Bus will automatically activate its dependencies. In fact, if vue-app and react-app depend on other micro applications, this process will also be passed recursively.
 ![](../_media/unit-app.png)
 
-恭喜你已经通过这个小demo成功入门obvious，正如你所看到的，学会obvious只需要搞懂三个概念：
-- Bus: 它是消息的传递者和应用的管理者
-- App: 它被Bus创建出来，让你的微应用可以声明依赖关系和生命周期
-- Socket：它同样被Bus所创建，是微应用的通信接口，支持状态和事件通信
+Congratulations on your successful introduction to Obvious through this small demo. As you can see, learning Obvious only needs to understand three concepts：
+- Bus: It is the messenger and the manager of micro applications
+- App: It was created by bus so that your micro application can declare dependencies and lifecycle
+- Socket：It is also created by bus. It is the communication interface of micro applications and supports state and event communication
 
-<strong>用obvious构建一个微前端体系就是这么简单！</strong>
+<strong>It's so simple to build a micro front-end system with obvious!</strong>
 
-# 进阶
+# Advance
 ------
-相信你已经大概弄懂了obvious中的Bus、App和Socket是什么，本章节将带你深入它们的一些高级用法和优秀实践
-## App的生命周期
-在[教程](#教程)中，我们已经知道，如果你要开发的是一个应用，而不是一个lib的话，你需要在入口文件中创建App，并且可以给你的app指定生命周期。obvious为app设计了bootstrap、activate、destroy三个生命周期，它们都是通过函数式API指定的。
+I'm sure you've probably understood what bus, app and socket are in Obvious. This chapter will take you deeper into some of their advanced usage and excellent practices
+
+## App lifecycle
+In [tutorial](#tutorial), we already know that if you want to develop an application instead of a lib, you need to create an app in the entry file and specify the life cycle for your app. Obvious has designed three life cycles for app: bootstrap, activate and destroy, which are all specified through functional APIs。
 ```js
 const bus = getBus('host');
 
@@ -678,7 +681,7 @@ bus.createApp('demo-app')
     // do something to destroy your app, e.g unmount your UI, unbind event callback
   })
 ```
-然后你可以同样用bus来激活、销毁app。bootstrap生命周期会在app被第一次激活时调用，你应该在该生命周期中做一些初始化操作；app被激活过一次之后，再激活app会执行activate生命周期的回调，你应该在这个生命周期中执行更新你的微应用的操作；最后，当你的app被bus销毁时，会执行destroy生命周期回调，你应该在这个生命周期中做一些清理工作
+Then you can also use bus to activate and destroy the app. The bootstrap life cycle will be called when the app is activated for the first time. You should do some initialization operations in this life cycle. After the app is activated once, activating the app again will execute the callback of the activate life cycle. You should update your micro application in this life cycle. Finally, when your app is destroyed by the bus, the destroy life cycle callback will be executed. You should do some cleaning work in this life cycle
 ```js
 // bootstrap activate
 bus.activateApp('demo-app', config1);
@@ -687,25 +690,24 @@ bus.activateApp('demo-app', config2);
 // destroy
 bus.destroyApp('demo-app', config3);
 ```
-你不必为每个生命周期都指定回调函数，事实上，对生命周期的取舍能让你的应用有不同的响应效果。
-- 如果只指定了bootstrap生命周期，应用将只在第一次被激活执行bootstrap回调，而不会理会后续的激活
-- 如果只指定了activate生命周期，应用将在每次被激活时都执行activate回调
-- 如果同时指定了bootstrap和activate生命周期，应用将在第一次被激活时执行bootstrap回调，在后续被激活时执行activate回调
-
-最后，用下面这个图展示一下App的生命周期图谱
+You don't have to specify callback functions for each life cycle. In fact, the choice of life cycle can make your application have different response effects.
+- If only the bootstrap life cycle is specified, the application will execute the bootstrap callback only after the first activation, regardless of subsequent activation.
+- If only the activate lifecycle is specified, the application will execute the activate callback each time it is activated
+- If both bootstrap and activate lifecycles are specified, the application will execute the bootstrap callback when it is activated for the first time and the activate callback when it is activated later.
 
 ![](../_media/app-lifecycles.drawio.svg)
 
-## 资源预加载
-正如生命周期图谱中所示，当第一次激活应用时，如果应用的资源还没有被加载过，bus会先加载应用的资源，然后再进入生命周期回调，这可能会让应用的第一次激活响应迟缓。为了解决这个问题，bus提供了loadApp方法，对于一些不需要立刻激活的app，我们可以在浏览器空闲时执行该方法，去加载app对应的资源，但是不启动app。而当app需要被激活时，执行`bus.activateApp`就会直接进入生命周期回调，而跳过了加载资源的步骤
+## Resource preload
+As shown in the life cycle diagram, when an application is activated for the first time, if the application resources have not been loaded, the bus will first load the application resources and then excute the life cycle callback, which may slow the response of the first activation of the application. To solve this problem, bus provides the loadApp method. For some apps that do not need to be activated immediately, we can use `bus.loadApp` to load the resources corresponding to the app  when the browser is idle, but do not start the app. When the app needs to be activated, executing 'bus. Activateapp' will directly enter the life cycle callback and skip the step of loading resources
 ```js
 bus.loadApp('demo-app').then(() => {
   bus.activateApp('demo-app');
 });
 ```
-## 共享运行时
-微前端架构是将一个大型前端系统解耦为多个微应用的聚合。因此还应该考虑避免多个微应用的公共资源重复加载。比如，现在你的微前端环境上有三个React开发的微应用，两个Vue开发的微应用，如果不把React和Vue的源码单独抽离为公共runtime，会导致你的整个前端应用需要加载三次React的源码和两次Vue的源码，这对应用加载性能有一定影响。
-针对此问题，obvious也为你提供了解决方案。你可以在向bus注册资源时，把公共的第三方依赖定义为lib
+## Shared runtime
+Micro front-end architecture is an aggregation that decouples a large front-end system into multiple micro applications. Therefore, it should also be considered to avoid repeated loading of common resources of multiple micro applications. For example, there are three micro applications developed by React and two micro applications developed by Vue in your micro front-end environment. If you do not provide the source code of React and Vue as common runtime, your whole front-end system will need to load the source code of React three times and the source code of Vue twice, which has a certain impact on the application loading performance.
+
+For this problem, Obvious also provides you with a solution. You can define the public third-party dependencies as lib when registering resources with bus
 ```js
 const bus = createBus('host').config({
   assets:{
@@ -727,9 +729,9 @@ const bus = createBus('host').config({
   }
 });
 ```
-而在创建app时，通过relyOn方法将第三方依赖lib加入到app的依赖中
+When creating an app, add the third-party dependency libs of the app through the relyOn method
 
-?> 由于app依赖的lib在app被激活时才会被加载，所以请在bootstrap生命周期中以commonJS模块的形式同步引入对应的库
+?> Since the Lib that app depends on will not be loaded until the app is activated, please synchronously import the corresponding library in the form of commonJs module in the bootstrap life cycle
 
 ```js
 bus.createApp('react-app')
@@ -742,19 +744,19 @@ bus.createApp('react-app')
         ReactDOM.render(<App />, config.mountPoint);
     });
 ```
-最后，在webpack中配置一下[externals](https://webpack.docschina.org/configuration/externals/)即可。
-通过这种方式引入第三方依赖可以做到按需加载，且不会重复加载
+At last, configure the [externals](https://webpack.docschina.org/configuration/externals/) in the webpack.
+By importing third-party dependencies in this way, you can load on demand without repeated loading.
 
-## 中间件
-接下来向你介绍的是obvious中一个非常实用的功能——中间件。通过注入中间件，obvious可以变得更强大，更能适应一些超大规模的前端架构建设
+## Middleware
+Next, I'll introduce you to a very practical function in obvious - Middleware. By injecting middleware, obvious can become more powerful and adapt to some large-scale front-end architecture construction.
 
-在[生命周期](#App的生命周期)中，我们已经知道，激活一个app时，如果app的资源未被加载，会先去加载app对应的资源。而中间件就是用来帮助开发者在加载app的资源前后注入自定义逻辑，或者让开发者直接接管查找，加载，执行资源的全过程。
+In [App Lifecycle](#app lifecycle), we already know that when an app is activated, if the resources of the app are not loaded, the resources corresponding to the app will be loaded first. Middleware is used to help developers inject custom logic before and after loading app resources, or let developers directly take over the whole process of finding, loading and executing resources.
 
-obvious的中间件参考了[koa](https://koajs.com/)的设计和实现，是一个典型的洋葱圈模型
+The middleware of obvious refers to the design and implementation of [koa](https://koajs.com/). It is a typical onion ring model.
 
 ![中间件](../_media/middleware.drawio.svg)
 
-使用方法也与koa的中间件完全一样，例如下面这个中间件，就实现了在加载app资源时打印耗时的功能
+The usage is exactly the same as that of the middleware of KOA. For example, the following middleware realizes the time-consuming function of printing when loading app resources
 ```js
 bus.use(async (ctx, next) => {
   console.log(`start loading ${ctx.name}`);
@@ -765,11 +767,11 @@ bus.use(async (ctx, next) => {
 });
 ```
 
-中间件中的上下文类型定义详见[ContextType](#类型声明)。洋葱圈中的核心中间件是内置的，它会在`ctx.conf.assets`中查找app的资源，如果`ctx.conf.loadScriptByFetch`为true，则通过`ctx.fetchJs和ctx.excuteCode`加载并执行js代码，否则通过`ctx.loadJs`插入script。
+For the type definition of context in middleware, see [ContextType](#Type). The core middleware in the onion ring is built-in. It will find app resources in `ctx.conf.assets`. If `ctx.conf.loadscriptbyfetch` is true, JS code will be loaded and executed through `ctx.fetchjs` and `ctx.excutecode`. Otherwise, script will be inserted through `ctx.loadJs`.
 
-通过在中间件上做文章，你可以实现很多强大的功能。
+By writing middlewares, you can achieve many powerful functions
 
-比如，我们希望通过免费cdn服务[jsdelivr](https://www.jsdelivr.com/)加载任意一个托管在github上的微应用的资源，就可以实现这样一个中间件：
+For example, if we want to use the free CDN service [jsdelivr](https://www.jsdelivr.com/) to load the resources of any micro application hosted on GitHub, we can write such a middleware
 
 ```js
 bus.use(async(ctx, next) => {
@@ -781,27 +783,26 @@ bus.use(async(ctx, next) => {
   }
 });
 ```
-在启动微应用时，则只需要指定一下github仓库名：
+When starting the micro application, you only need to specify the GitHub repository name:
 ```js
 bus.activateApp({ name: 'demo-app', repo: 'user/demo' }, { mountPoint: '#demo-app'})
 ```
-这样一来，只要你的微应用最终打包出/dist/main.js和/dist/main.css并托管在github上，就可以被应用了该中间件的bus直接加载了
+In this way, as long as your micro application is finally packaged with /dist/main.js and /dist/main.css and hosted on GitHub, it can be directly loaded by the bus using the middleware.
 
-再比如，你希望在执行微应用的js代码时能隔离其对全局作用域的污染，因此实现了一个沙箱函数`excuteScriptInSandbox`，那你只需要插入这样一个中间件
+For another example, you want to isolate the pollution of the global scope when executing the JS code of the micro application, so you implement a sandbox function named 'excuteScriptInSandbox'. You only need to insert such a middleware.
 ```js
 bus.use(async(ctx, next) => {
   ctx.excuteCode = excuteScriptInSandbox;
   await next()
 })
 ```
-后续的核心中间件调用的`ctx.excuteCode`方法就会是你实现的沙箱函数了。
+The 'ctx.excutecode' method called by the subsequent core middleware will be the sandbox function you implement.
 
-## 最佳实践
-在这一小节，你将会了解到使用obvious的一些实用技巧和一些有用的建议
-### 优雅地本地调试
-你一定已经发现，在[教程](#教程)中，如果我们直接打开 http://localhost:3000 和 http://localhost:8081 ，页面一片空白，且控制台出现了这样的报错
-![](../_media/error-no-bus.png)
-这是因为Bus是连接不同微应用的枢纽，而Bus是由宿主环境提供的。一个很重要的问题是我们如何在本地能完全模拟宿主环境，并且mock与我们交互的微应用。得益于中间件，这个需求非常简单
+## Best practice
+In this section, you will learn some practical tips and useful suggestions for using Obvious
+### Local debugging
+You must have found that in the [tutorial](#Tutorial), if we open http://localhost:3000 and http://localhost:8081 directly, the page is blank, and such an error is reported on the console.
+This is because the bus is provided by the host environment. A very important problem is how we can fully simulate the host environment locally and mock the micro applications that interact with us. Thanks to middleware, this requirement is very simple
 ```js
 import {createBus, getBus} from 'obvious-core';
 
@@ -815,8 +816,8 @@ if (process.env.NODE_ENV === 'development') {
   bus = getBus('host');
 }
 ```
-### 轻量级引入
-我们可以看一下createBus和getBus的实现
+### As light weight as possible
+We say that Obvious is a lightweight library. We can take a look at the implementation of `createBus` and `getBus`
 ```js
 const busProxy = {};
 export const createBus = (name: string) => {
@@ -843,33 +844,33 @@ export const getBus = (name: string) => {
     return window.__Bus__ && window.__Bus__[name];
 };
 ```
-你可以看到，createBus就是new一个Bus实例并把它挂载到`window.__Bus__`上，而getBus就是从`window.__Bus__`上拿到对应的Bus实例。得益于工厂模式的使用，微应用中需要的App实例和Socket实例都是通过Bus实例调用工厂方法创建的。因此，如果我们不通过`getBus`api获取bus，而是直接这样写：
+As you can see, `createBus` is to create a bus instance and mount it to `window__ Bus__`. And `getBus` is to get the corresponding bus instance from `window__ Bus__`. Thanks to the use of factory pattern, the app instances and socket instances in micro applications are created by calling the corresponding factory methods of bus instances, Therefore, if we don't get the bus through the `getBus` API, we write like this instead:
 ```js
 const bus = window.__Bus__.host
 ```
-那么其实微应用中完全没有必要引入obvious，obvious的代码只需要在宿主应用中引用一次即可
+Then we can find that there is no need to import obvious-core into micro applications. The code of Obvious only needs to be imported once in the host application
 
-### 局部Bus通信
-接下来我们聊聊微应用通信中的一点建议。obvious提供了广播、单播、全局状态三种通信方式，虽然框架层面已经帮你避免了同名单播事件和同名state的出现，但是广播事件可以有多个订阅者，对于一些超大型的前端应用来说，这可能会带来不必要的麻烦，很有可能你与一个微应用开发团队约定好一个广播事件通信，但是这个事件名其实已经被另外两个团队约定过了，而你们对这一无所知，在环境上联调的时候可能会摸不着头脑地发现你们的事件回调被莫名其妙地调用了。
+### Communicate with local bus
+Next, let's talk about some suggestions in micro application communication. Obvious provides three communication modes: broadcast, unicast and global state. Although Obvious has helped you avoid the emergence of unicast events and states with the same name, broadcast events can have multiple subscribers, which may cause unnecessary trouble for some super large front-end applications. It is likely that you have agreed the name of the broadcast event with the developer of a micro application, but the event name has been used by the another app. It will lead to some unpredictable problems.
 
-在obvious中，所有的事件和状态都是由Bus管理的，如果两个微应用之间的通信不使用全局Bus，而是双方自己约定一个局部Bus，就可以避免这个问题。我们建议，全局Bus的主要任务是App调度和处理一些全局状态和事件，单独的两个微应用之间的通信应该约定局部Bus。理想情况下，你的微前端架构应该是这样的
+In Obvious, all the events and states are managed by the bus. If the communication between two micro applications does not use the global bus, but both parties agree on a local bus, this problem can be avoided. We suggest that the main task of the global bus is to arrange apps and manage some global states and events. The communication between two separate micro applications should use a local bus. Ideally, your micro front-end architecture should be like this:
 
 ![](../_media/architecture.drawio.svg)
 
-### 合理划分微应用和控制依赖关系
-最后我们来聊一聊微应用划分的问题。虽然微前端架构让你可以把大型前端系统拆分为许多个微应用。但是请注意这样的划分不应该是矫枉过正的，微应用的业务功能应该是相对独立的，微应用之间的通信应该是少量的，有限的。如果你发现两个微应用之间需要大量依靠框架通信能力，你应该考虑把这两个微应用合并为一个微应用来开发。
+### Control the dependencies
+Although the micro front-end architecture allows you to split a large front-end system into many micro applications, please note that this division should not be abused. The business functions of micro applications should be relatively independent, and the communication between micro applications should be few and limited.
 
-另外，在obvious中，一个App可以定义依赖，这助力了微应用的合设和二次开发。但是如果没有控制好依赖关系可能会带来意想不到的麻烦，比如这种情况
+In addition, in Obvious, an app can define dependencies, which helps the integration and secondary development of micro applications. But if you don't control the dependencies well, it may bring unexpected trouble, such as this situation
 
 ![](../_media/app-deadlocak.drawio.svg)
 
-当你的微应用树中存在循环依赖的时候，会造成应用一直无法被激活，这是一个典型的死锁场景。这种情况试图激活A，你会在控制台看到这样的信息
+When there are circular dependencies in your micro application tree, the application will not be activated. This is a typical deadlock case. In this case, try to activate the app named a, you will see such a message on the console
 ![](../_media/dead-lock-error.png)
-obvious为了避免这种场景，给Bus设定了一个依赖深度上限，默认值是100，当出现循环依赖场景时，依赖深度会无限递增，直到达到这个阈值的时候抛出异常，当你碰到这个异常的时候，就要好好排查一下你的微应用有没有循环依赖的情况
+This is because in order to avoid deadlock, Obvious sets an upper limit of dependency depth for bus. The default value is 100. When a circular dependency scenario occurs, the dependency depth will increase infinitely until this threshold is reached, and an exception will be thrown，When you see this exception, you should check whether your micro application has circular dependency.
 
 # API
 ------
-## 类型声明
+## Type
 ```js
 type CustomCtxType = {
   name: string;
@@ -877,13 +878,13 @@ type CustomCtxType = {
 } | string;
 
 type ContextType = {
-  name: string;  // 要加载的app的名字
-  loadJs: (src: string) => Promise<void>; // 插入script加载并执行js资源
-  loadCss: (src: string) => void; // 插入css样式资源
-  fetchJs: (src: string) => Promise<string>; // 通过fetch的方式加载代码文本
-  excuteCode: (code: string) => void; // 执行代码文本
-  conf:  ConfType; // 通过bus.config配置的对象
-  [key: string]: any // 自定义context
+  name: string;  // the name of the app to load
+  loadJs: (src: string) => Promise<void>; // Insert script to load and execute JS code
+  loadCss: (src: string) => void; // Insert CSS style resource
+  fetchJs: (src: string) => Promise<string>; // Load code text by fetch
+  excuteCode: (code: string) => void; // Execute code text
+  conf:  ConfType; // Objects configured through bus.config
+  [key: string]: any // custom context
 };
 
 type AssetsConfigType = Record<string, {
@@ -893,9 +894,9 @@ type AssetsConfigType = Record<string, {
 }>;
 
 type ConfType = {
-  maxDependencyDepth?: number; // 最大依赖深度
-  loadScriptByFetch?: boolean; // 是否通过fetch加载js资源
-  assets?: AssetsConfigType; // 静态资源配置
+  maxDependencyDepth?: number; // Maximum dependence depth
+  loadScriptByFetch?: boolean; // Whether to load JS resources through fetch
+  assets?: AssetsConfigType; // Static resource allocation
 };
 
 type DependenciesType = Array<{ 
@@ -903,183 +904,183 @@ type DependenciesType = Array<{
   config: any
 } | string>;
 ```
-## 创建和获取Bus
-- 创建Bus: **createBus**: (name) => Bus
-|参数名|是否必选|类型|描述|
+## Create and get the bus
+- create the bus: **createBus**: (name) => Bus
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|name|是|string|Bus名|
+|name|yes|string|the name of the bus|
 
-- 获取Bus: **getBus**:  (name) => Bus
-|参数名|是否必选|类型|描述|
+- get the Bus: **getBus**:  (name) => Bus
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|name|是|string|Bus名|
+|name|yes|string|the name of the bus|
 
 ## Bus
-- 属性：**state**(readonly)
-|类型|默认值|描述|
+- property：**state**(readonly)
+|type|default|description|
 |:---:|:---:|:---:|
-|object|null|Bus管理的所有状态|
+|object|null|the state managed by bus|
 
-- 配置Bus: **config**：(conf) => Bus
-|参数名|是否必选|类型|描述|
+- configure the Bus: **config**：(conf) => Bus
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|conf|是|[ConfType](#类型声明)|要更新的配置属性|
+|conf|yes|[ConfType](#Type)|properties to update|
 
-- 应用中间件：**use**：(middlreware) => Bus
-|参数名|是否必选|类型|描述|
+- apply the middleware：**use**：(middlreware) => Bus
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|middlreware|是|(ctx: [ContextType](#类型声明), next: () => Promise<void>) => Promise<void>|使用方式同koa的中间件|
+|middlreware|yes|(ctx: [ContextType](#Type), next: () => Promise<void>) => Promise<void>|The usage is the same as KOA's middleware|
 
-- 创建App：**createApp**：(name) => App
-|参数名|是否必选|类型|描述|
+- create the Socket：**createSocket**：() => Socket
+
+- create the app：**createApp**：(name) => App
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|name|是|string|App名|
+|name|yes|string|the name of the app|
 
-- 创建Socket：**createSocket**：() => Socket
-
-- 加载App资源：**loadApp**：(ctx) => Promise<void>
-|参数名|是否必选|类型|描述|
+- load the resources of the app：**loadApp**：(ctx) => Promise<void>
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|ctx|是|[CustomCtxType](#类型声明)|传递给中间件的自定义上下文，如果是string类型，则会被转化为`{ name }`, 如果是object类型，则必须包含name属性，表示app的名字|
+|ctx|yes|[CustomCtxType](#Type)|If the custom context passed to the middleware is of string type, it will be converted to `{name}`. If it is of object type, it must contain the name attribute to represent the name of the app|
 
-- 激活App：**activateApp**：(ctx, config) => Promise<void>
-|参数名|是否必选|类型|描述|
+- activate the App：**activateApp**：(ctx, config) => Promise<void>
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|ctx|是|[CustomCtxType](#类型声明)|同loadApp|
-|config|否|any|激活参数|
+|ctx|yes|[CustomCtxType](#Type)|the same as loadApp|
+|config|no|any|activation parameters|
 
-- 销毁App：**destroyApp**：(name, config) => Promise<void>
-|参数名|是否必选|类型|描述|
+- destroy the app：**destroyApp**：(name, config) => Promise<void>
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|name|是|string|App名|
-|config|否|any|销毁参数|
+|name|yes|string|the name of the app|
+|config|no|any|destroy parameters|
 
 ## Socket
-- 初始化状态：**initState**：(stateName, value) => void
-|参数名|是否必选|类型|描述|
+- initialize the state：**initState**：(stateName, value) => void
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|stateName|是|string|状态名|
-|value|是|any|状态值|
+|stateName|yes|string|the name of the state|
+|value|yes|any|the value of the state|
 
-- 判断状态是否已经被初始化：**existsState**：(stateName) => boolean
-|参数名|是否必选|类型|描述|
+- determine whether the status has been initialized：**existsState**：(keyPath) => boolean
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|stateName|是|string|状态名|
+|keyPath|yes|string|the key path of the state|
 
-- 获取状态：**getState**: (stateName) => any
-|参数名|是否必选|类型|描述|
+- get the state：**getState**: (keyPath) => any
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|stateName|是|string|状态名|
+|keyPath|yes|string|the key path of the state|
 
-- 修改状态：**setState**：(stateName, value) => void
-|参数名|是否必选|类型|描述|
+- modify the state：**setState**：(keyPath, value) => void
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|stateName|是|string|状态名|
-|value|是|any|状态值|
+|keyPath|yes|string|the key path of the state|
+|value|yes|any|the value of the state|
 
-    value可以传一个函数，函数入参是旧的状态值，返回新的状态值
+    Value can be passed to a function. The function's input parameter is the old state value and returns the new state value
 
-- 监听状态：**watchState**：(stateName, callback) => void
-|参数名|是否必选|类型|描述|
+- Listening state：**watchState**：(keyPath, callback) => void
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|stateName|是|string|状态名|
-|callback|是|Function|监听回调|
+|keyPath|yes|string|the key path of the state|
+|callback|yes|Function|listening callback|
 
-- 等待状态：**waitState**： (stateNames, timeout) => Promise
-|参数名|是否必选|类型|描述|
+- wait for states to be initialized：**waitState**： (keyPaths, timeout) => Promise
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|stateNames|是|string[]|等待的状态名列表|
-|timeout|否|number|超时时间, 默认为10 * 1000|
+|keyPaths|yes|string[]|list of waiting states' key paths|
+|timeout|no|number|10 * 1000 ms by default|
 
-    返回的Promise的参数是Bus.state
+    The promise returned is bus.state
 
-> setState, getState，watchState，waitState支持深度设置，读取，监听和等待状态值。例如调用`socket.setState('foo.bar', value)`, `socket.getState('foo.bar')`, `socket.watchState('foo.bar', callback)`是对bus.state.foo.bar进行设值，读取和监听，`socket.waitState(['foo.bar']， callback)`则会等待状态foo被init之后执行回调。如果要处理状态中的数组，则只需要把数组下标包裹在`[]`运算符中即可，例如`socket.setState('foo.bar.array[0]', value)`。initState仅允许初始化根状态，不支持深度状态。
-当设置一个深度状态时，其父子关联状态的watcher监听函数都会被触发，例如，有一个状态`{ a: { b: { c: { d: { e: 'someValue' } } } } }`, 当调用`socket.setState('a.b.c', anotherValue)`时，对状态a, a.b, a.b.c, a.b.c.d, a.b.c.d.e的监听函数都会被触发
+> setState, getState, watchState and waitState support setting, reading, listening and waiting state values deeply. If you want to process an array in state, you only need to wrap the array subscript in the `[]` operator, such as `socket.setState('foo.bar.array[0]', value)`. initState only allows initialization of root state and does not support depth state.
+When a depth state is set, the watcher function of its parent-child correlation state will be triggered. For example, there is a state `{ a: { b: { c: { d: { e: 'someValue' } } } } }`, when we call `socket.setState('a.b.c', anotherValue)`, the watcher function for a, a.b, a.b.c, a.b.c.d and a.b.c.d.e will all be triggered
 
-- 监听广播：**onBroadcast**：(eventName, callback) => void
-|参数名|是否必选|类型|描述|
+- listen for broadcast：**onBroadcast**：(eventName, callback) => void
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|eventName|是|string|事件名|
-|callback|是|Function|事件回调|
+|eventName|yes|string|the event name|
+|callback|yes|Function|watcher callback|
 
-- 触发广播：**broadcast**：(eventName， ...args) => void
-|参数名|是否必选|类型|描述|
+- emit the broadcast：**broadcast**：(eventName， ...args) => void
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|eventName|是|string|事件名|
-|...args|否|any|事件回调参数|
+|eventName|yes|string|the event name|
+|...args|no|any|event callback parameters|
 
-- 取消监听广播：**offBroadcast**：(eventName， callback) => void
-|参数名|是否必选|类型|描述|
+- cancel listening broadcast：**offBroadcast**：(eventName， callback) => void
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|eventName|是|string|事件名|
-|callback|是|Function|事件回调|
+|eventName|yes|string|the event name|
+|callback|yes|Function|watcher callback|
 
-    监听和取消监听的回调必须是同一个
+    The callback for listening and canceling listening must be the same
 
-- 监听单播：**onUnicast**：(eventName, callback) => void
-|参数名|是否必选|类型|描述|
+- listen for unicast：**onUnicast**：(eventName, callback) => void
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|eventName|是|string|事件名|
-|callback|是|Function|事件回调|
+|eventName|yes|string|the event name|
+|callback|yes|Function|watcher callback|
 
-- 触发单播：**unicast**：(eventName， ...args) => any
-|参数名|是否必选|类型|描述|
+- emit the unicast：**unicast**：(eventName， ...args) => any
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|eventName|是|string|事件名|
-|...args|否|any|事件回调参数|
+|eventName|yes|string|the event name|
+|...args|no|any|event callback parameters|
 
-- 取消监听单播：**offUnicast**：(eventName， callback) => void
-|参数名|是否必选|类型|描述|
+- cancel listening unicast：**offUnicast**：(eventName， callback) => void
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|eventName|是|string|事件名|
-|callback|是|Function|事件回调|
+|eventName|yes|string|the event name|
+|callback|yes|Function|watcher callback|
 
-    监听和取消监听的回调必须是同一个
+    The callback for listening and canceling listening must be the same
 
 ## App
-- 指定依赖：**relyOn**：(dependencies) => App
-|参数名|是否必选|类型|描述|
+- specify dependency：**relyOn**：(dependencies) => App
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|dependencies|是|[DependenciesType](#类型声明)|依赖的app列表，可以指定依赖激活时传递的激活参数|
+|dependencies|yes|[DependenciesType](#Type)|The list of dependent apps. You can specify the activation parameters passed when the dependency is activated|
 
-- 指定bootstrap生命周期：**bootstrap**: (lifecycleCallback) => App
-|参数名|是否必选|类型|描述|
+- specify the bootstrap lifecycle：**bootstrap**: (lifecycleCallback) => App
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|lifecycleCallback|是|(config?: any) => Promise\<void\>|指定的生命周期函数|
+|lifecycleCallback|yes|(config?: any) => Promise\<void\>|callback|
 
-- 指定activate生命周期：**activate**：(lifecycleCallback) => App
-|参数名|是否必选|类型|描述|
+- specify the activate lifecycle：**activate**：(lifecycleCallback) => App
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|lifecycleCallback|是|(config?: any) => Promise\<void\>|指定的生命周期函数|
+|lifecycleCallback|yes|(config?: any) => Promise\<void\>|callback|
 
-- 指定destroy生命周期：**destroy**：(lifecycleCallback) => App
-|参数名|是否必选|类型|描述|
+- specify the destroy lifecycle：**destroy**：(lifecycleCallback) => App
+|Parameter|required|type|description|
 |:---:|:---:|:---:|:---:|
-|lifecycleCallback|是|(config?: any) => Promise\<void\>|指定的生命周期函数|
+|lifecycleCallback|yes|(config?: any) => Promise\<void\>|callback|
 
 # Q&A
 ------
-## 为什么不内置应用隔离功能
-一般应用隔离需要解决js隔离和样式隔离。其实js沙箱的实现方案已经相对收敛，目前相对缺点最少的实现方案是proxy劫持+借用iframe的contentWindow（参考[如何“取巧”实现一个微前端沙箱](https://developer.aliyun.com/article/761449)），而样式隔离则一般通过shadowDOM实现。然而，就我个人在实际业务中的体验来说，应用隔离给我带来的收益很小，甚至时不时还得想办法规避沙箱，同时，技术上实现一个没有坑的可靠的应用隔离方案又是一项成本不低的工作，因此在设计obvious时，我最终选择不跟风去研究应用隔离。如果你确实有这方面的需求，可以结合一些已有的开源库，例如[import-html-entry](https://github.com/kuitos/import-html-entry)，封装出适合你业务场景的中间件。
+## Why not build in application isolation
+Application isolation needs to solve JS isolation and style isolation. In fact, the implementation scheme of JS sandbox has been almost fallen into a pattern，At present, the implementation scheme with the least disadvantages is proxy hijacking + borrowing iframe's contentwindow (refer to [How to implement a micro front-end sandbox](https://developer.aliyun.com/article/761449)), and style isolation is generally implemented through shadow DOM. However, in terms of my personal experience in the actual business, the benefits of application isolation are very small, and I even have to find a way to avoid the sandbox sometimes. At the same time, technically realizing a reliable application isolation solution is a high-cost work. Therefore, I finally chose not to follow the trend to realize application isolation when designing Obvious. If you do have this requirement, you can use some existing open source libraries such as [import-html-entry](https://github.com/kuitos/import-html-entry) to implement the middleware that fits in your business scenario.
 
-而我个人更推荐在项目架构时增加一点规划和沟通成本，制定一定的规范。比如
-- 宿主环境应该定义好normalize全局样式；
-- 集成的微应用应该尽可能不使用全局变量；
-- 对于会引入全局变量的第三方库，应该由宿主环境通过lib形式引入
-- 构建时微应用都配置好css module；
+And I personally recommend formulating certain standard, for example:
+- The host environment should define the normalize global style.
+- Integrated micro applications should not use global variables as much as possible.
+- Third party libraries that pollute the global enviroment should be imported by the host environment in the form of lib
+- all micro applications should use CSS modules.
 
-## 为什么叫obvious
-我写这个框架的初衷是觉得目前网上微前端相关的文章大多停留在理论，让大家觉得这个概念有些神秘，我希望能以简洁优雅的API帮助大家揭开微前端这个本来不神秘，也不高级的技术的面纱。正好我之前有一个用了很久的网名叫obvious，obvious有明显的意思，感觉跟我的初衷很契合，因此取了这个名字。
+## Why is it called obvious
+The original intention of writing this library is that most of the articles related to the micro front-end stay in theory, which makes people feel that this concept is somewhat mysterious. I hope to help you uncover the veil of the technology with a concise and elegant API. And I happened to have a long-time-used nickname called obvious which is very consistent with my original intention, so I chose this name.
 
-# 扩展生态
+# Ecology
 -------
 ## obvious-react
-[obvious-react](https://github.com/ObviousJs/obvious-react)将obvious与React深度结合，帮助你在React应用中更方便地操作obvious的状态，事件和应用
+[obvious-react](https://github.com/ObviousJs/obvious-react) is the combination of Obvious and React, which helps you easily operate Obvious' state, events and apps in React applications.
 ## obvious-vue
-[obvious-vue](https://github.com/ObviousJs/obvious-vue)将obvious与Vue深度结合，帮助你在Vue应用中轻松操作obvious的状态，事件和应用
+[obvious-vue](https://github.com/ObviousJs/obvious-vue) is the combination of Obvious and Vue, which helps you easily operate Obvious' state, events and apps in Vue applications.
 
-# 加入我们
+# Join us
 -------
-非常感谢您能看到这里，目前obvious只有我一个人维护，非常欢迎在issue中与我交流，提出改进意见，更欢迎pull request参与其中
+Thank you very much for seeing here. At present, I am the only one who maintains Obvious. Welcome to communicate with me in the Github's issue. And I'm also looking forward to find partners to participte in.
 
-希望大家都能取得技术进步 : )
+I hope everyone can make technological progress : )
