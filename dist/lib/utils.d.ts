@@ -34,7 +34,7 @@ export declare const get: (rootState: object | any[], stateLink: (string | numbe
 export declare const set: (rootStateName: string, rootState: object, subStateLink: (string | number)[], value: any) => boolean;
 export declare const getResolvedStates: (stateName: string, events: string[]) => any[];
 /**
- * the koa-compose function
+ * the compose function from koa-compose
  * @param middlewares
  * @returns
  */
