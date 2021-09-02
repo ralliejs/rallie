@@ -1,4 +1,4 @@
-import { createBus } from '../src/lib/createBus';
+import { createBus } from '../src/index';
 import { Errors } from '../src/lib/utils';
 
 describe('Test event communication capabilities between sockets', () => {

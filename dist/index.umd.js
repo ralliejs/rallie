@@ -717,13 +717,25 @@
         return App;
     }());
 
-    var loadJs = function (src) { return __awaiter(void 0, void 0, void 0, function () {
+    var loadJs = function (scriptDeclare) { return __awaiter(void 0, void 0, void 0, function () {
         var promise;
         return __generator(this, function (_a) {
             promise = new Promise(function (resolve) {
+                var scriptAttrs = {
+                    type: 'text/javascript',
+                    src: ''
+                };
+                if (typeof scriptDeclare === 'string') {
+                    scriptAttrs = __assign(__assign({}, scriptAttrs), { src: scriptDeclare });
+                }
+                else {
+                    scriptAttrs = __assign(__assign({}, scriptAttrs), scriptDeclare);
+                }
                 var script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = src;
+                Object.entries(scriptAttrs).forEach(function (_a) {
+                    var attr = _a[0], value = _a[1];
+                    script[attr] = value;
+                });
                 script.onload = function () {
                     resolve();
                 };
@@ -732,11 +744,23 @@
             return [2 /*return*/, promise];
         });
     }); };
-    var loadCss = function (href) {
+    var loadCss = function (linkDeclare) {
+        var linkAttrs = {
+            rel: 'stylesheet',
+            type: 'text/css',
+            href: ''
+        };
+        if (typeof linkDeclare === 'string') {
+            linkAttrs = __assign(__assign({}, linkAttrs), { href: linkDeclare });
+        }
+        else {
+            linkAttrs = __assign(__assign({}, linkAttrs), linkDeclare);
+        }
         var link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.type = 'text/css';
-        link.href = href;
+        Object.entries(linkAttrs).forEach(function (_a) {
+            var attr = _a[0], value = _a[1];
+            link[attr] = value;
+        });
         document.head.appendChild(link);
     };
     var fetchJs = function (src) { return __awaiter(void 0, void 0, void 0, function () {
@@ -762,6 +786,12 @@
     var excuteCode = function (code) {
         var fn = new Function(code);
         fn();
+    };
+    var loader = {
+        loadJs: loadJs,
+        loadCss: loadCss,
+        fetchJs: fetchJs,
+        excuteCode: excuteCode
     };
 
     var Bus = /** @class */ (function () {
@@ -815,10 +845,10 @@
         Bus.prototype.createContext = function (ctx) {
             var context = {
                 name: '',
-                loadJs: loadJs,
-                loadCss: loadCss,
-                fetchJs: fetchJs,
-                excuteCode: excuteCode,
+                loadJs: loader.loadJs,
+                loadCss: loader.loadCss,
+                fetchJs: loader.fetchJs,
+                excuteCode: loader.excuteCode,
                 conf: this.conf
             };
             if (typeof ctx === 'string') {
@@ -838,21 +868,22 @@
          */
         Bus.prototype.loadResourcesFromAssetsConfig = function (ctx) {
             return __awaiter(this, void 0, void 0, function () {
-                var name, _a, loadJs$1, _b, loadCss$1, _c, fetchJs$1, _d, excuteCode$1, _e, conf, assets, loadScriptByFetch, _i, _f, asset, code;
+                var name, _a, loadJs, _b, loadCss, _c, fetchJs, _d, excuteCode, _e, conf, assets, loadScriptByFetch, _i, _f, asset, src, code;
                 return __generator(this, function (_g) {
                     switch (_g.label) {
                         case 0:
-                            name = ctx.name, _a = ctx.loadJs, loadJs$1 = _a === void 0 ? loadJs : _a, _b = ctx.loadCss, loadCss$1 = _b === void 0 ? loadCss : _b, _c = ctx.fetchJs, fetchJs$1 = _c === void 0 ? fetchJs : _c, _d = ctx.excuteCode, excuteCode$1 = _d === void 0 ? excuteCode : _d, _e = ctx.conf, conf = _e === void 0 ? this.conf : _e;
+                            name = ctx.name, _a = ctx.loadJs, loadJs = _a === void 0 ? loader.loadJs : _a, _b = ctx.loadCss, loadCss = _b === void 0 ? loader.loadCss : _b, _c = ctx.fetchJs, fetchJs = _c === void 0 ? loader.fetchJs : _c, _d = ctx.excuteCode, excuteCode = _d === void 0 ? loader.excuteCode : _d, _e = ctx.conf, conf = _e === void 0 ? this.conf : _e;
                             assets = conf.assets, loadScriptByFetch = conf.loadScriptByFetch;
                             if (!assets[name]) return [3 /*break*/, 9];
                             // insert link tag first
                             assets[name].css &&
                                 assets[name].css.forEach(function (asset) {
-                                    if (/^.+\.css$/.test(asset)) {
-                                        loadCss$1(asset);
+                                    var href = typeof asset === 'string' ? asset : asset.href;
+                                    if (/^.+\.css$/.test(href)) {
+                                        loadCss(asset);
                                     }
                                     else {
-                                        console.error(Errors.invalidResource(asset));
+                                        console.error(Errors.invalidResource(href));
                                     }
                                 });
                             if (!assets[name].js) return [3 /*break*/, 8];
@@ -861,20 +892,21 @@
                         case 1:
                             if (!(_i < _f.length)) return [3 /*break*/, 8];
                             asset = _f[_i];
-                            if (!/^.+\.js$/.test(asset)) return [3 /*break*/, 6];
+                            src = typeof asset === 'string' ? asset : asset.src;
+                            if (!/^.+\.js$/.test(src)) return [3 /*break*/, 6];
                             if (!!loadScriptByFetch) return [3 /*break*/, 3];
-                            return [4 /*yield*/, loadJs$1(asset)];
+                            return [4 /*yield*/, loadJs(asset)];
                         case 2:
                             _g.sent();
                             return [3 /*break*/, 5];
-                        case 3: return [4 /*yield*/, fetchJs$1(asset)];
+                        case 3: return [4 /*yield*/, fetchJs(src)];
                         case 4:
                             code = _g.sent();
-                            code && excuteCode$1(code);
+                            code && excuteCode(code);
                             _g.label = 5;
                         case 5: return [3 /*break*/, 7];
                         case 6:
-                            console.error(Errors.invalidResource(asset));
+                            console.error(Errors.invalidResource(src));
                             _g.label = 7;
                         case 7:
                             _i++;
@@ -1025,15 +1057,14 @@
         };
         return Bus;
     }());
-
+    var busProxy = {};
+    var DEFAULT_BUS_NAME = '__DEFAULT_BUS__';
     /**
      * create a bus and record it on window.__Bus__
-     * @param name the name of bus
-     * @param assets the assets config
-     * @param middleware the middleware to load resources
+     * @param name the name of the bus
      */
-    var busProxy = {};
     var createBus = function (name) {
+        if (name === void 0) { name = DEFAULT_BUS_NAME; }
         if (self.__Bus__ === undefined) {
             Object.defineProperty(self, '__Bus__', {
                 value: busProxy,
@@ -1052,13 +1083,40 @@
             return bus;
         }
     };
+    /**
+     * get the bus from window.__Bus__
+     * @param name the name of the bus
+     * @returns
+     */
     var getBus = function (name) {
+        if (name === void 0) { name = DEFAULT_BUS_NAME; }
         return self.__Bus__ && self.__Bus__[name];
+    };
+    /**
+     * get the bus from window.__Bus__, if the bus is not created, then create it
+     * @param name the name of the bus
+     * @returns
+     */
+    var touchBus = function (name) {
+        if (name === void 0) { name = DEFAULT_BUS_NAME; }
+        var bus = null;
+        var isBusAlreadyExists = false;
+        var existedBus = getBus(name);
+        if (existedBus) {
+            bus = existedBus;
+            isBusAlreadyExists = true;
+        }
+        else {
+            bus = createBus(name);
+            isBusAlreadyExists = false;
+        }
+        return [bus, isBusAlreadyExists];
     };
 
     var Obvious = {
         createBus: createBus,
-        getBus: getBus
+        getBus: getBus,
+        touchBus: touchBus
     };
 
     exports.App = App;
@@ -1067,6 +1125,7 @@
     exports.createBus = createBus;
     exports.default = Obvious;
     exports.getBus = getBus;
+    exports.touchBus = touchBus;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

@@ -1,8 +1,26 @@
-export const loadJs = async (src: string) => {
+import { ScriptType, LinkType } from './types'; // eslint-disable-line
+
+export const loadJs = async (scriptDeclare: ScriptType) => {
   const promise: Promise<void> = new Promise(resolve => {
+    let scriptAttrs: ScriptType = {
+      type: 'text/javascript',
+      src: ''
+    };
+    if (typeof scriptDeclare === 'string') {
+      scriptAttrs = {
+        ...scriptAttrs,
+        src: scriptDeclare
+      };
+    } else {
+      scriptAttrs = { 
+        ...scriptAttrs,
+        ...scriptDeclare
+      };
+    }
     const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = src;
+    Object.entries(scriptAttrs).forEach(([attr, value]) => {
+      script[attr] = value;
+    });
     script.onload = () => {
       resolve();
     };
@@ -11,11 +29,27 @@ export const loadJs = async (src: string) => {
   return promise;
 };
 
-export const loadCss = (href: string) => {
+export const loadCss = (linkDeclare: LinkType) => {
+  let linkAttrs: LinkType = {
+    rel: 'stylesheet',
+    type: 'text/css',
+    href: ''
+  };
+  if (typeof linkDeclare === 'string') {
+    linkAttrs = {
+      ...linkAttrs,
+      href: linkDeclare
+    };
+  } else {
+    linkAttrs = {
+      ...linkAttrs,
+      ...linkDeclare
+    };
+  }
   const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
-  link.href = href;
+  Object.entries(linkAttrs).forEach(([attr, value]) => {
+    link[attr] = value;
+  });
   document.head.appendChild(link);
 };
 
@@ -33,4 +67,11 @@ export const fetchJs = async (src: string) => {
 export const excuteCode = (code: string) => {
   const fn = new Function(code);
   fn();
+};
+
+export default {
+  loadJs,
+  loadCss,
+  fetchJs,
+  excuteCode
 };
