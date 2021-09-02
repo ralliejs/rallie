@@ -8,5 +8,5 @@ export declare class EventEmitter {
     removeBroadcastEventListener(event: string, callback: CallbackType): void;
     removeUnicastEventListener(event: string, callback: CallbackType): void;
     emitBroadcast(event: string, ...args: any[]): void;
-    emitUnicast(event: string, ...args: any[]): void;
+    emitUnicast(event: string, ...args: any[]): any;
 }

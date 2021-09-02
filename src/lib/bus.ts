@@ -2,7 +2,7 @@ import { EventEmitter } from './event-emitter';
 import { Socket } from './socket';
 import { App } from './app';
 import { getMappedState, Errors, compose } from './utils';
-import * as loader from './loader';
+import loader from './loader';
 import { MiddlewareFnType, ContextType, NextFnType, ConfType, CustomCtxType } from './types'; // eslint-disable-line
 
 export class Bus {
@@ -107,25 +107,27 @@ export class Bus {
     if (assets[name]) {
       // insert link tag first
       assets[name].css &&
-              assets[name].css.forEach((asset: string) => {
-                if (/^.+\.css$/.test(asset)) {
+              assets[name].css.forEach((asset) => {
+                const href = typeof asset === 'string' ? asset : asset.href;
+                if (/^.+\.css$/.test(href)) {
                   loadCss(asset);
                 } else {
-                  console.error(Errors.invalidResource(asset));
+                  console.error(Errors.invalidResource(href));
                 }
               });
       // load and execute js
       if (assets[name].js) {
         for (let asset of assets[name].js) {
-          if (/^.+\.js$/.test(asset)) {
+          const src = typeof asset === 'string' ? asset : asset.src;
+          if (/^.+\.js$/.test(src)) {
             if (!loadScriptByFetch) {
               await loadJs(asset);
             } else {
-              const code = await fetchJs(asset);
+              const code = await fetchJs(src);
               code && excuteCode(code);
             }
           } else {
-            console.error(Errors.invalidResource(asset));
+            console.error(Errors.invalidResource(src));
           }
         }
       }
@@ -221,3 +223,57 @@ export class Bus {
     }
   }
 }
+
+const busProxy = {};
+export const DEFAULT_BUS_NAME = '__DEFAULT_BUS__';
+/**
+ * create a bus and record it on window.__Bus__
+ * @param name the name of the bus
+ */
+export const createBus = (name: string = DEFAULT_BUS_NAME) => {
+  if(self.__Bus__ === undefined) {
+    Object.defineProperty(self, '__Bus__', {
+      value: busProxy,
+      writable: false
+    });
+  }
+
+  if (self.__Bus__[name]) {
+    throw new Error(`[obvious] the bus named ${name} has been defined before, please rename your bus`);
+  } else {
+    const bus = new Bus(name);
+    Object.defineProperty(self.__Bus__, name, {
+      value: bus,
+      writable: false
+    });
+    return bus;
+  }
+};
+
+/**
+ * get the bus from window.__Bus__
+ * @param name the name of the bus
+ * @returns 
+ */
+export const getBus = (name: string = DEFAULT_BUS_NAME) => {
+  return self.__Bus__ && self.__Bus__[name];
+};
+
+/**
+ * get the bus from window.__Bus__, if the bus is not created, then create it
+ * @param name the name of the bus
+ * @returns 
+ */
+export const touchBus = (name: string = DEFAULT_BUS_NAME): [Bus, boolean] => {
+  let bus: Bus = null;
+  let isBusAlreadyExists: boolean = false;
+  const existedBus = getBus(name);
+  if (existedBus) {
+    bus = existedBus;
+    isBusAlreadyExists = true;
+  } else {
+    bus = createBus(name);
+    isBusAlreadyExists = false;
+  }
+  return [bus, isBusAlreadyExists];
+};

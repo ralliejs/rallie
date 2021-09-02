@@ -1,10 +1,12 @@
-import { createBus, getBus } from '../src/lib/createBus';
+import { createBus, getBus, touchBus } from '../src/index';
+import { DEFAULT_BUS_NAME } from '../src/lib/bus';
 import nock from 'nock';
 import cssCode from './test-apps/css';
-import appACode from './test-apps/app-a';
+import appACode from './test-apps/app-to-test-fetch-script';
 import appInvalidCode from './test-apps/app-invalid';
 import reactCode from './test-apps/react';
 import { Errors } from '../src/lib/utils';
+import loader from '../src/lib/loader';
 
 nock('https://cdn.obvious.com')
   .get('/assets/app-a.js')
@@ -22,17 +24,25 @@ describe('Test the capability to load the resources of an app or lib', () => {
   const staticAssetsConfig = {
     'react': {
       js: [
-        'https://cdn.obvious.com/assets/react.js'
+        { src: 'https://cdn.obvious.com/assets/react.js' }
       ],
       isLib: true
     },
-    'app-a': {
+    'app-to-test-fetch-script': {
       js: [
-        'https://cdn.obvious.com/assets/app-a.js'
+        'https://cdn.obvious.com/assets/app-a.js',
       ],
       css: [
+        { href: 'https://cdn.obvious.com/assets/app-a.css' },
         'https://cdn.obvious.com/assets/app-a.css'
       ]
+    },
+    'app-to-test-load-script': {
+      js: [
+        { src: 'https://cdn.obvious.com/assets/app-a.js' },
+        'https://cdn.obvious.com/assets/react.js'
+      ],
+      isLib: true
     },
     'invalid-resource-app': {
       js: [
@@ -72,7 +82,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
 
   test('# case 2: activate app-a, it should activate its dependencies and the bootstrap callback should be called', (done) => {
     console.log = jest.fn();
-    bus.activateApp('app-a').then(() => {
+    bus.activateApp('app-to-test-fetch-script').then(() => {
       expect(window['React']).toEqual('reactSourceCode');
       expect(window['lastLoadingApp']).toEqual('react');
       expect(console.log).toBeCalledWith('bootstraped');
@@ -116,5 +126,35 @@ describe('Test the capability to load the resources of an app or lib', () => {
       expect(error.message).toEqual(Errors.resourceNotDeclared('non-existence-app', 'testBus2'));
       done();
     });
+  });
+
+  test('# case 6: test touchBus and default bus', () => {
+    const [testBus, isTestBusAlreadyExists] = touchBus('testBus');
+    expect(isTestBusAlreadyExists).toBeTruthy();
+    expect(testBus).toEqual(bus);
+    const [defaultBus1, isDefaultBus1AlreadyExists] = touchBus();
+    expect(isDefaultBus1AlreadyExists).toBeFalsy();
+    expect(defaultBus1).toEqual(window.__Bus__[DEFAULT_BUS_NAME]);
+    const [defaultBus2, isDefaultBus2AlreadyExists] = touchBus();
+    expect(isDefaultBus2AlreadyExists).toBeTruthy();
+    expect(defaultBus2).toEqual(defaultBus1);
+  });
+
+  test('# case 7: test load script tag', () => {
+    bus.config({
+      loadScriptByFetch: false,
+      assets: {
+        'another-app-to-test-load-script': {
+          js: [
+            'thisCanNotBeTested.js'
+          ],
+          isLib: true
+        }
+      }
+    });
+    bus.activateApp('app-to-test-load-script'); // to increase the coverage
+    loader.loadJs = jest.fn();
+    bus.activateApp('another-app-to-test-load-script');
+    expect(loader.loadJs).toBeCalledTimes(1);
   });
 });

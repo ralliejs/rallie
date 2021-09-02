@@ -1,6 +1,4 @@
-import { Bus } from './lib/bus'; // eslint-disable-line
-import { createBus } from './lib/createBus';
-import { getBus } from './lib/createBus';
+import { Bus, createBus, getBus, touchBus } from './lib/bus'; // eslint-disable-line
 
 declare global {
   interface Window {
@@ -10,14 +8,13 @@ declare global {
 
 const Obvious = {
   createBus,
-  getBus
+  getBus,
+  touchBus
 };
 
-export { Bus } from './lib/bus'; // eslint-disable-line
+export { Bus, createBus, getBus, touchBus } from './lib/bus'; // eslint-disable-line
 export { App } from './lib/app';
 export { Socket } from './lib/socket';
-export { createBus } from './lib/createBus';
-export { getBus } from './lib/createBus';
 
 export default Obvious;
 

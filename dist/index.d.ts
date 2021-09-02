@@ -5,12 +5,11 @@ declare global {
     }
 }
 declare const Obvious: {
-    createBus: (name: string) => Bus;
-    getBus: (name: string) => Bus;
+    createBus: (name?: string) => Bus;
+    getBus: (name?: string) => Bus;
+    touchBus: (name?: string) => [Bus, boolean];
 };
-export { Bus } from './lib/bus';
+export { Bus, createBus, getBus, touchBus } from './lib/bus';
 export { App } from './lib/app';
 export { Socket } from './lib/socket';
-export { createBus } from './lib/createBus';
-export { getBus } from './lib/createBus';
 export default Obvious;

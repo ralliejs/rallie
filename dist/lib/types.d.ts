@@ -1,7 +1,15 @@
-export declare type CallbackType = (...args: any[]) => void;
+export declare type CallbackType = (...args: any[]) => any;
+export declare type ScriptType = {
+    src: string;
+    [attr: string]: any;
+} | string;
+export declare type LinkType = {
+    href: string;
+    [attr: string]: any;
+} | string;
 export declare type AssetsConfigType = Record<string, {
-    js?: string[];
-    css?: string[];
+    js?: ScriptType[];
+    css?: LinkType[];
     isLib?: boolean;
 }>;
 export declare type ConfType = {
@@ -11,9 +19,9 @@ export declare type ConfType = {
 };
 export declare type ContextType = {
     name: string;
-    loadJs: (src: string) => Promise<void>;
-    loadCss: (src: string) => void;
-    fetchJs: (src: string) => Promise<string>;
+    loadJs: (script: ScriptType) => Promise<void>;
+    loadCss: (link: LinkType) => void;
+    fetchJs: (script: ScriptType) => Promise<string>;
     excuteCode: (code: string) => void;
     conf: ConfType;
     [key: string]: any;
@@ -24,3 +32,8 @@ export declare type CustomCtxType = {
 } | string;
 export declare type NextFnType = (ctx?: ContextType) => void | Promise<void>;
 export declare type MiddlewareFnType = (ctx?: ContextType, next?: NextFnType) => void | Promise<void>;
+export declare type LifecyleCallbackType = (config?: any) => Promise<void>;
+export declare type DependenciesType = Array<{
+    ctx: CustomCtxType;
+    config: any;
+} | string>;

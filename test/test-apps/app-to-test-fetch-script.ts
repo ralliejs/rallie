@@ -6,7 +6,7 @@ const bus = window.__Bus__.testBus;
  * when it's activate at the first time, it should activate the lib react, and run the bootstrap callback
  * when it's activate after the first time, it should run the activate callback
  */
-bus.createApp('app-a')
+bus.createApp('app-to-test-fetch-script')
   .relyOn([
     'react'
   ])

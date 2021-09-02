@@ -62,3 +62,21 @@ export declare class Bus {
      */
     destroyApp(name: string, config?: any): Promise<void>;
 }
+export declare const DEFAULT_BUS_NAME = "__DEFAULT_BUS__";
+/**
+ * create a bus and record it on window.__Bus__
+ * @param name the name of the bus
+ */
+export declare const createBus: (name?: string) => Bus;
+/**
+ * get the bus from window.__Bus__
+ * @param name the name of the bus
+ * @returns
+ */
+export declare const getBus: (name?: string) => Bus;
+/**
+ * get the bus from window.__Bus__, if the bus is not created, then create it
+ * @param name the name of the bus
+ * @returns
+ */
+export declare const touchBus: (name?: string) => [Bus, boolean];
