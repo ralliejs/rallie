@@ -716,8 +716,7 @@ var loadJs = function (scriptDeclare) { return __awaiter(void 0, void 0, void 0,
     return __generator(this, function (_a) {
         promise = new Promise(function (resolve) {
             var scriptAttrs = {
-                type: 'text/javascript',
-                src: ''
+                type: 'text/javascript'
             };
             if (typeof scriptDeclare === 'string') {
                 scriptAttrs = __assign(__assign({}, scriptAttrs), { src: scriptDeclare });
@@ -730,7 +729,7 @@ var loadJs = function (scriptDeclare) { return __awaiter(void 0, void 0, void 0,
                 var attr = _a[0], value = _a[1];
                 script[attr] = value;
             });
-            script.onload = function () {
+            script.onload = script.onerror = function () {
                 resolve();
             };
             document.body.appendChild(script);
@@ -741,8 +740,7 @@ var loadJs = function (scriptDeclare) { return __awaiter(void 0, void 0, void 0,
 var loadCss = function (linkDeclare) {
     var linkAttrs = {
         rel: 'stylesheet',
-        type: 'text/css',
-        href: ''
+        type: 'text/css'
     };
     if (typeof linkDeclare === 'string') {
         linkAttrs = __assign(__assign({}, linkAttrs), { href: linkDeclare });

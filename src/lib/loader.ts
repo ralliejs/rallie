@@ -3,8 +3,7 @@ import { ScriptType, LinkType } from './types'; // eslint-disable-line
 export const loadJs = async (scriptDeclare: ScriptType) => {
   const promise: Promise<void> = new Promise(resolve => {
     let scriptAttrs: ScriptType = {
-      type: 'text/javascript',
-      src: ''
+      type: 'text/javascript'
     };
     if (typeof scriptDeclare === 'string') {
       scriptAttrs = {
@@ -21,7 +20,7 @@ export const loadJs = async (scriptDeclare: ScriptType) => {
     Object.entries(scriptAttrs).forEach(([attr, value]) => {
       script[attr] = value;
     });
-    script.onload = () => {
+    script.onload = script.onerror = () => {
       resolve();
     };
     document.body.appendChild(script);
@@ -32,8 +31,7 @@ export const loadJs = async (scriptDeclare: ScriptType) => {
 export const loadCss = (linkDeclare: LinkType) => {
   let linkAttrs: LinkType = {
     rel: 'stylesheet',
-    type: 'text/css',
-    href: ''
+    type: 'text/css'
   };
   if (typeof linkDeclare === 'string') {
     linkAttrs = {

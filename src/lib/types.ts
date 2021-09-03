@@ -1,12 +1,12 @@
 export type CallbackType = (...args: any[]) => any;
 
 export type ScriptType = { 
-  src: string;
+  src?: string;
   [attr: string]: any
 } | string;
 
 export type LinkType = {
-  href: string;
+  href?: string;
   [attr: string]: any
 } | string;
 
@@ -39,7 +39,7 @@ export type CustomCtxType = {
 
 export type NextFnType = (ctx?: ContextType) => void | Promise<void>;
 
-export type MiddlewareFnType = (ctx?: ContextType, next?: NextFnType) => void | Promise<void>;
+export type MiddlewareFnType = (ctx: ContextType, next: NextFnType) => void | Promise<void>;
 
 export type LifecyleCallbackType = (config?: any) => Promise<void>;
 
