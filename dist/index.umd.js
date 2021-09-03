@@ -1100,17 +1100,17 @@
     var touchBus = function (name) {
         if (name === void 0) { name = DEFAULT_BUS_NAME; }
         var bus = null;
-        var isBusAlreadyExists = false;
+        var isHost = false;
         var existedBus = getBus(name);
         if (existedBus) {
             bus = existedBus;
-            isBusAlreadyExists = true;
+            isHost = false;
         }
         else {
             bus = createBus(name);
-            isBusAlreadyExists = false;
+            isHost = true;
         }
-        return [bus, isBusAlreadyExists];
+        return [bus, isHost];
     };
 
     var Obvious = {

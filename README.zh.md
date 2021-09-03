@@ -27,7 +27,7 @@ umd:
 ## 快速开始
 在宿主环境中创建bus，并声明微应用资源
 ```js
-import {touchBus} from 'obvious-core';
+import { touchBus } from 'obvious-core';
 
 const [bus] = touchBus();
 
@@ -56,9 +56,9 @@ react-app
 ```js
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {touchBus} from 'obvious-core';
+import { touchBus } from 'obvious-core';
 
-const bus = touchBus('host');
+const bus = touchBus();
 const socket = bus.createSocket();
 bus.createApp('react-app')
   .bootstrap(async (config) => {
@@ -73,11 +73,11 @@ vue-app
 ```js
 import Vue from 'vue';
 import App from './App.vue';
-import {touchBus} from 'obvious-core';
+import { touchBus } from 'obvious-core';
 
 Vue.config.productionTip = false;
 
-const [bus] = touchBus('host');
+const [bus] = touchBus();
 const socket = bus.createSocket();
 bus.createApp('vue-app')
   .bootstrap(async (config) => {

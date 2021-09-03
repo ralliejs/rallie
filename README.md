@@ -30,7 +30,7 @@ umd:
 
 In host enviroment, create a bus and declare the resource info
 ```js
-import {touchBus} from 'obvious-core';
+import { touchBus } from 'obvious-core';
 
 const [bus] = touchBus()
 bus.config({
@@ -58,7 +58,7 @@ react-app
 ```js
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {touchBus} from 'obvious-core';
+import { touchBus } from 'obvious-core';
 
 const [bus] = touchBus();
 const socket = bus.createSocket();
@@ -75,7 +75,7 @@ vue-app
 ```js
 import Vue from 'vue';
 import App from './App.vue';
-import {touchBus} from 'obvious-core';
+import { touchBus } from 'obvious-core';
 
 Vue.config.productionTip = false;
 

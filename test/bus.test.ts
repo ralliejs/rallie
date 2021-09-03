@@ -129,14 +129,14 @@ describe('Test the capability to load the resources of an app or lib', () => {
   });
 
   test('# case 6: test touchBus and default bus', () => {
-    const [testBus, isTestBusAlreadyExists] = touchBus('testBus');
-    expect(isTestBusAlreadyExists).toBeTruthy();
+    const [testBus, isTestBusHost] = touchBus('testBus');
+    expect(isTestBusHost).toBeFalsy();
     expect(testBus).toEqual(bus);
-    const [defaultBus1, isDefaultBus1AlreadyExists] = touchBus();
-    expect(isDefaultBus1AlreadyExists).toBeFalsy();
+    const [defaultBus1, isDefaultBus1Host] = touchBus();
+    expect(isDefaultBus1Host).toBeTruthy();
     expect(defaultBus1).toEqual(window.__Bus__[DEFAULT_BUS_NAME]);
-    const [defaultBus2, isDefaultBus2AlreadyExists] = touchBus();
-    expect(isDefaultBus2AlreadyExists).toBeTruthy();
+    const [defaultBus2, isDefaultBus2Host] = touchBus();
+    expect(isDefaultBus2Host).toBeFalsy();
     expect(defaultBus2).toEqual(defaultBus1);
   });
 

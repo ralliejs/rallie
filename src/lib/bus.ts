@@ -266,14 +266,14 @@ export const getBus = (name: string = DEFAULT_BUS_NAME) => {
  */
 export const touchBus = (name: string = DEFAULT_BUS_NAME): [Bus, boolean] => {
   let bus: Bus = null;
-  let isBusAlreadyExists: boolean = false;
+  let isHost: boolean = false;
   const existedBus = getBus(name);
   if (existedBus) {
     bus = existedBus;
-    isBusAlreadyExists = true;
+    isHost = false;
   } else {
     bus = createBus(name);
-    isBusAlreadyExists = false;
+    isHost = true;
   }
-  return [bus, isBusAlreadyExists];
+  return [bus, isHost];
 };
