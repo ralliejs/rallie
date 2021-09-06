@@ -20,10 +20,15 @@ export const loadJs = async (scriptDeclare: ScriptType) => {
     Object.entries(scriptAttrs).forEach(([attr, value]) => {
       script[attr] = value;
     });
-    script.onload = script.onerror = () => {
-      resolve();
-    };
+    if (script.src) {
+      script.onload = script.onerror = () => {
+        resolve();
+      };
+    }
     document.body.appendChild(script);
+    if (!script.src) {
+      resolve();
+    }
   });
   return promise;
 };

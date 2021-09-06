@@ -735,10 +735,15 @@
                     var attr = _a[0], value = _a[1];
                     script[attr] = value;
                 });
-                script.onload = script.onerror = function () {
-                    resolve();
-                };
+                if (script.src) {
+                    script.onload = script.onerror = function () {
+                        resolve();
+                    };
+                }
                 document.body.appendChild(script);
+                if (!script.src) {
+                    resolve();
+                }
             });
             return [2 /*return*/, promise];
         });
