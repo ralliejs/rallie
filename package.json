@@ -1,6 +1,6 @@
 {
   "name": "obvious-core",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",

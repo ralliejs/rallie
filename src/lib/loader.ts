@@ -1,21 +1,11 @@
 import { ScriptType, LinkType } from './types'; // eslint-disable-line
 
-export const loadJs = async (scriptDeclare: ScriptType) => {
+export const loadScript = async (scriptDeclare: ScriptType) => {
   const promise: Promise<void> = new Promise(resolve => {
-    let scriptAttrs: ScriptType = {
-      type: 'text/javascript'
+    let scriptAttrs: ScriptType = typeof scriptDeclare !== 'string' ? scriptDeclare : {
+      type: 'text/javascript',
+      src: scriptDeclare
     };
-    if (typeof scriptDeclare === 'string') {
-      scriptAttrs = {
-        ...scriptAttrs,
-        src: scriptDeclare
-      };
-    } else {
-      scriptAttrs = { 
-        ...scriptAttrs,
-        ...scriptDeclare
-      };
-    }
     const script = document.createElement('script');
     Object.entries(scriptAttrs).forEach(([attr, value]) => {
       script[attr] = value;
@@ -33,22 +23,12 @@ export const loadJs = async (scriptDeclare: ScriptType) => {
   return promise;
 };
 
-export const loadCss = (linkDeclare: LinkType) => {
-  let linkAttrs: LinkType = {
+export const loadLink = (linkDeclare: LinkType) => {
+  let linkAttrs: LinkType = typeof linkDeclare !== 'string' ? linkDeclare : {
     rel: 'stylesheet',
-    type: 'text/css'
+    type: 'text/css',
+    href: linkDeclare
   };
-  if (typeof linkDeclare === 'string') {
-    linkAttrs = {
-      ...linkAttrs,
-      href: linkDeclare
-    };
-  } else {
-    linkAttrs = {
-      ...linkAttrs,
-      ...linkDeclare
-    };
-  }
   const link = document.createElement('link');
   Object.entries(linkAttrs).forEach(([attr, value]) => {
     link[attr] = value;
@@ -56,7 +36,7 @@ export const loadCss = (linkDeclare: LinkType) => {
   document.head.appendChild(link);
 };
 
-export const fetchJs = async (src: string) => {
+export const fetchScript = async (src: string) => {
   try {
     const res = await fetch(src);
     const code = await res.text();
@@ -73,8 +53,8 @@ export const excuteCode = (code: string) => {
 };
 
 export default {
-  loadJs,
-  loadCss,
-  fetchJs,
+  loadScript,
+  loadLink,
+  fetchScript,
   excuteCode
 };

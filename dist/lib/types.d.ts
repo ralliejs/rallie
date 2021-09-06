@@ -1,12 +1,6 @@
 export declare type CallbackType = (...args: any[]) => any;
-export declare type ScriptType = {
-    src?: string;
-    [attr: string]: any;
-} | string;
-export declare type LinkType = {
-    href?: string;
-    [attr: string]: any;
-} | string;
+export declare type ScriptType = Partial<HTMLScriptElement> | string;
+export declare type LinkType = Partial<HTMLLinkElement> | string;
 export declare type AssetsConfigType = Record<string, {
     js?: ScriptType[];
     css?: LinkType[];
@@ -19,9 +13,9 @@ export declare type ConfType = {
 };
 export declare type ContextType = {
     name: string;
-    loadJs: (script: ScriptType) => Promise<void>;
-    loadCss: (link: LinkType) => void;
-    fetchJs: (script: ScriptType) => Promise<string>;
+    loadScript: (script: ScriptType) => Promise<void>;
+    loadLink: (link: LinkType) => void;
+    fetchScript: (script: ScriptType) => Promise<string>;
     excuteCode: (code: string) => void;
     conf: ConfType;
     [key: string]: any;

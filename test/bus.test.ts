@@ -66,7 +66,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
   }).use(async (ctx, next) => {
     if (ctx.loadedFromLocalhost) {
       window['appsLoadedFromLocalhost'].push(ctx.name);
-      const code = await ctx.fetchJs(`https://localhost/assets/${ctx.name}.js`);
+      const code = await ctx.fetchScript(`https://localhost/assets/${ctx.name}.js`);
       ctx.excuteCode(code);
     } else {
       await next();
@@ -153,8 +153,8 @@ describe('Test the capability to load the resources of an app or lib', () => {
       }
     });
     bus.activateApp('app-to-test-load-script'); // to increase the coverage
-    loader.loadJs = jest.fn();
+    loader.loadScript = jest.fn();
     bus.activateApp('another-app-to-test-load-script');
-    expect(loader.loadJs).toBeCalledTimes(1);
+    expect(loader.loadScript).toBeCalledTimes(1);
   });
 });

@@ -711,19 +711,14 @@ var App = /** @class */ (function () {
     return App;
 }());
 
-var loadJs = function (scriptDeclare) { return __awaiter(void 0, void 0, void 0, function () {
+var loadScript = function (scriptDeclare) { return __awaiter(void 0, void 0, void 0, function () {
     var promise;
     return __generator(this, function (_a) {
         promise = new Promise(function (resolve) {
-            var scriptAttrs = {
-                type: 'text/javascript'
+            var scriptAttrs = typeof scriptDeclare !== 'string' ? scriptDeclare : {
+                type: 'text/javascript',
+                src: scriptDeclare
             };
-            if (typeof scriptDeclare === 'string') {
-                scriptAttrs = __assign(__assign({}, scriptAttrs), { src: scriptDeclare });
-            }
-            else {
-                scriptAttrs = __assign(__assign({}, scriptAttrs), scriptDeclare);
-            }
             var script = document.createElement('script');
             Object.entries(scriptAttrs).forEach(function (_a) {
                 var attr = _a[0], value = _a[1];
@@ -742,17 +737,12 @@ var loadJs = function (scriptDeclare) { return __awaiter(void 0, void 0, void 0,
         return [2 /*return*/, promise];
     });
 }); };
-var loadCss = function (linkDeclare) {
-    var linkAttrs = {
+var loadLink = function (linkDeclare) {
+    var linkAttrs = typeof linkDeclare !== 'string' ? linkDeclare : {
         rel: 'stylesheet',
-        type: 'text/css'
+        type: 'text/css',
+        href: linkDeclare
     };
-    if (typeof linkDeclare === 'string') {
-        linkAttrs = __assign(__assign({}, linkAttrs), { href: linkDeclare });
-    }
-    else {
-        linkAttrs = __assign(__assign({}, linkAttrs), linkDeclare);
-    }
     var link = document.createElement('link');
     Object.entries(linkAttrs).forEach(function (_a) {
         var attr = _a[0], value = _a[1];
@@ -760,7 +750,7 @@ var loadCss = function (linkDeclare) {
     });
     document.head.appendChild(link);
 };
-var fetchJs = function (src) { return __awaiter(void 0, void 0, void 0, function () {
+var fetchScript = function (src) { return __awaiter(void 0, void 0, void 0, function () {
     var res, code, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -785,9 +775,9 @@ var excuteCode = function (code) {
     fn();
 };
 var loader = {
-    loadJs: loadJs,
-    loadCss: loadCss,
-    fetchJs: fetchJs,
+    loadScript: loadScript,
+    loadLink: loadLink,
+    fetchScript: fetchScript,
     excuteCode: excuteCode
 };
 
@@ -842,9 +832,9 @@ var Bus = /** @class */ (function () {
     Bus.prototype.createContext = function (ctx) {
         var context = {
             name: '',
-            loadJs: loader.loadJs,
-            loadCss: loader.loadCss,
-            fetchJs: loader.fetchJs,
+            loadScript: loader.loadScript,
+            loadLink: loader.loadLink,
+            fetchScript: loader.fetchScript,
             excuteCode: loader.excuteCode,
             conf: this.conf
         };
@@ -865,11 +855,11 @@ var Bus = /** @class */ (function () {
      */
     Bus.prototype.loadResourcesFromAssetsConfig = function (ctx) {
         return __awaiter(this, void 0, void 0, function () {
-            var name, _a, loadJs, _b, loadCss, _c, fetchJs, _d, excuteCode, _e, conf, assets, loadScriptByFetch, _i, _f, asset, src, code;
+            var name, _a, loadScript, _b, loadLink, _c, fetchScript, _d, excuteCode, _e, conf, assets, loadScriptByFetch, _i, _f, asset, src, code;
             return __generator(this, function (_g) {
                 switch (_g.label) {
                     case 0:
-                        name = ctx.name, _a = ctx.loadJs, loadJs = _a === void 0 ? loader.loadJs : _a, _b = ctx.loadCss, loadCss = _b === void 0 ? loader.loadCss : _b, _c = ctx.fetchJs, fetchJs = _c === void 0 ? loader.fetchJs : _c, _d = ctx.excuteCode, excuteCode = _d === void 0 ? loader.excuteCode : _d, _e = ctx.conf, conf = _e === void 0 ? this.conf : _e;
+                        name = ctx.name, _a = ctx.loadScript, loadScript = _a === void 0 ? loader.loadScript : _a, _b = ctx.loadLink, loadLink = _b === void 0 ? loader.loadLink : _b, _c = ctx.fetchScript, fetchScript = _c === void 0 ? loader.fetchScript : _c, _d = ctx.excuteCode, excuteCode = _d === void 0 ? loader.excuteCode : _d, _e = ctx.conf, conf = _e === void 0 ? this.conf : _e;
                         assets = conf.assets, loadScriptByFetch = conf.loadScriptByFetch;
                         if (!assets[name]) return [3 /*break*/, 9];
                         // insert link tag first
@@ -877,7 +867,7 @@ var Bus = /** @class */ (function () {
                             assets[name].css.forEach(function (asset) {
                                 var href = typeof asset === 'string' ? asset : asset.href;
                                 if (/^.+\.css$/.test(href)) {
-                                    loadCss(asset);
+                                    loadLink(asset);
                                 }
                                 else {
                                     console.error(Errors.invalidResource(href));
@@ -892,11 +882,11 @@ var Bus = /** @class */ (function () {
                         src = typeof asset === 'string' ? asset : asset.src;
                         if (!/^.+\.js$/.test(src)) return [3 /*break*/, 6];
                         if (!!loadScriptByFetch) return [3 /*break*/, 3];
-                        return [4 /*yield*/, loadJs(asset)];
+                        return [4 /*yield*/, loadScript(asset)];
                     case 2:
                         _g.sent();
                         return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, fetchJs(src)];
+                    case 3: return [4 /*yield*/, fetchScript(src)];
                     case 4:
                         code = _g.sent();
                         code && excuteCode(code);

@@ -767,7 +767,7 @@ bus.use(async (ctx, next) => {
 });
 ```
 
-For the type definition of context in middleware, see [ContextType](#Type). The core middleware in the onion ring is built-in. It will find app resources in `ctx.conf.assets`. If `ctx.conf.loadscriptbyfetch` is true, JS code will be loaded and executed through `ctx.fetchjs` and `ctx.excutecode`. Otherwise, script will be inserted through `ctx.loadJs`.
+For the type definition of context in middleware, see [ContextType](#Type). The core middleware in the onion ring is built-in. It will find app resources in `ctx.conf.assets`. If `ctx.conf.loadscriptbyfetch` is true, JS code will be loaded and executed through `ctx.fetchScript` and `ctx.excutecode`. Otherwise, script will be inserted through `ctx.loadScript`.
 
 By writing middlewares, you can achieve many powerful functions
 
@@ -776,8 +776,8 @@ For example, if we want to use the free CDN service [jsdelivr](https://www.jsdel
 ```js
 bus.use(async(ctx, next) => {
   if (ctx.repo) {
-    await ctx.loadJs(`https://cdn.jsdelivr.net/gh/${ctx.repo}/dist/main.js`);
-    await ctx.loadCss(`https://cdn.jsdelivr.net/gh/${ctx.repo}/dist/main.css`);
+    await ctx.loadScript(`https://cdn.jsdelivr.net/gh/${ctx.repo}/dist/main.js`);
+    await ctx.loadLink(`https://cdn.jsdelivr.net/gh/${ctx.repo}/dist/main.css`);
   } else {
     await next();
   }
@@ -879,9 +879,9 @@ type CustomCtxType = {
 
 type ContextType = {
   name: string;  // the name of the app to load
-  loadJs: (src: string) => Promise<void>; // Insert script to load and execute JS code
-  loadCss: (src: string) => void; // Insert CSS style resource
-  fetchJs: (src: string) => Promise<string>; // Load code text by fetch
+  loadScript: (src: string) => Promise<void>; // Insert script to load and execute JS code
+  loadLink: (src: string) => void; // Insert CSS style resource
+  fetchScript: (src: string) => Promise<string>; // Load code text by fetch
   excuteCode: (code: string) => void; // Execute code text
   conf:  ConfType; // Objects configured through bus.config
   [key: string]: any // custom context

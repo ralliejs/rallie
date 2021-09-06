@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.5] - 2021-09-06
+### Changed
+- change `ctx.loadJs` to `ctx.loadScript`
+- change `ctx.loadCss` to `ctx.loadLink`
+- change `ctx.fetchJs` to `ctx.fetchScript`
+
 ## [0.3.4] - 2021-09-06
 ### Fixed
 - fix the bug that when loading a script without src attribute, the promise will not resolve
@@ -20,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - new Api: touchBus
 ### Changed
 - it's not neccessary any more to specify the bus's name while calling createBus and getBus
-- support to pass a object parameter while calling ctx.loadJs and ctx.loadCss
+- support to pass a object parameter while calling ctx.loadScript and ctx.loadLink
 ## [0.3.0] - 2021-08-18
 ### Changed
 - remove the Bus's property `maxDependencyDepth` and `loadScriptByFetch`, use the new API `bus.config` instead

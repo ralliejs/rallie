@@ -767,7 +767,7 @@ bus.use(async (ctx, next) => {
 });
 ```
 
-中间件中的上下文类型定义详见[ContextType](#类型声明)。洋葱圈中的核心中间件是内置的，它会在`ctx.conf.assets`中查找app的资源，如果`ctx.conf.loadScriptByFetch`为true，则通过`ctx.fetchJs和ctx.excuteCode`加载并执行js代码，否则通过`ctx.loadJs`插入script。
+中间件中的上下文类型定义详见[ContextType](#类型声明)。洋葱圈中的核心中间件是内置的，它会在`ctx.conf.assets`中查找app的资源，如果`ctx.conf.loadScriptByFetch`为true，则通过`ctx.fetchScript和ctx.excuteCode`加载并执行js代码，否则通过`ctx.loadScript`插入script。
 
 通过在中间件上做文章，你可以实现很多强大的功能。
 
@@ -776,8 +776,8 @@ bus.use(async (ctx, next) => {
 ```js
 bus.use(async(ctx, next) => {
   if (ctx.repo) {
-    await ctx.loadJs(`https://cdn.jsdelivr.net/gh/${ctx.repo}/dist/main.js`);
-    await ctx.loadCss(`https://cdn.jsdelivr.net/gh/${ctx.repo}/dist/main.css`);
+    await ctx.loadScript(`https://cdn.jsdelivr.net/gh/${ctx.repo}/dist/main.js`);
+    await ctx.loadLink(`https://cdn.jsdelivr.net/gh/${ctx.repo}/dist/main.css`);
   } else {
     await next();
   }
@@ -880,9 +880,9 @@ type CustomCtxType = {
 
 type ContextType = {
   name: string;  // 要加载的app的名字
-  loadJs: (src: string) => Promise<void>; // 插入script加载并执行js资源
-  loadCss: (src: string) => void; // 插入css样式资源
-  fetchJs: (src: string) => Promise<string>; // 通过fetch的方式加载代码文本
+  loadScript: (src: string) => Promise<void>; // 插入script加载并执行js资源
+  loadLink: (src: string) => void; // 插入css样式资源
+  fetchScript: (src: string) => Promise<string>; // 通过fetch的方式加载代码文本
   excuteCode: (code: string) => void; // 执行代码文本
   conf:  ConfType; // 通过bus.config配置的对象
   [key: string]: any // 自定义context

@@ -70,9 +70,9 @@ export class Bus {
   private createContext(ctx: CustomCtxType) {
     let context: ContextType = {
       name: '',
-      loadJs: loader.loadJs,
-      loadCss: loader.loadCss,
-      fetchJs: loader.fetchJs,
+      loadScript: loader.loadScript,
+      loadLink: loader.loadLink,
+      fetchScript: loader.fetchScript,
       excuteCode: loader.excuteCode,
       conf: this.conf
     };
@@ -97,9 +97,9 @@ export class Bus {
   private async loadResourcesFromAssetsConfig(ctx: ContextType) {
     const { 
       name, 
-      loadJs = loader.loadJs,
-      loadCss = loader.loadCss, 
-      fetchJs = loader.fetchJs, 
+      loadScript = loader.loadScript,
+      loadLink = loader.loadLink, 
+      fetchScript = loader.fetchScript, 
       excuteCode = loader.excuteCode,
       conf = this.conf 
     } = ctx;
@@ -107,23 +107,23 @@ export class Bus {
     if (assets[name]) {
       // insert link tag first
       assets[name].css &&
-              assets[name].css.forEach((asset) => {
-                const href = typeof asset === 'string' ? asset : asset.href;
-                if (/^.+\.css$/.test(href)) {
-                  loadCss(asset);
-                } else {
-                  console.error(Errors.invalidResource(href));
-                }
-              });
+        assets[name].css.forEach((asset) => {
+          const href = typeof asset === 'string' ? asset : asset.href;
+          if (/^.+\.css$/.test(href)) {
+            loadLink(asset);
+          } else {
+            console.error(Errors.invalidResource(href));
+          }
+        });
       // load and execute js
       if (assets[name].js) {
         for (let asset of assets[name].js) {
           const src = typeof asset === 'string' ? asset : asset.src;
           if (/^.+\.js$/.test(src)) {
             if (!loadScriptByFetch) {
-              await loadJs(asset);
+              await loadScript(asset);
             } else {
-              const code = await fetchJs(src);
+              const code = await fetchScript(src);
               code && excuteCode(code);
             }
           } else {
