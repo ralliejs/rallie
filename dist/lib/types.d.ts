@@ -1,3 +1,5 @@
+import { Socket } from './socket';
+import { Watcher } from './watcher';
 export declare type CallbackType = (...args: any[]) => any;
 export declare type ScriptType = Partial<HTMLScriptElement> | string;
 export declare type LinkType = Partial<HTMLLinkElement> | string;
@@ -31,3 +33,9 @@ export declare type DependenciesType = Array<{
     ctx: CustomCtxType;
     config: any;
 } | string>;
+export declare type StoreType<T = any> = {
+    state: T;
+    owner: Socket | null;
+    watchers: Watcher[];
+};
+export declare type StoresType = Record<string, StoreType>;

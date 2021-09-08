@@ -1,9 +1,10 @@
 import { EventEmitter } from './event-emitter';
-import { CallbackType } from './types';
+import { CallbackType, StoresType } from './types';
+import { Watcher } from './watcher';
 export declare class Socket {
     private eventEmitter;
-    private _state;
-    constructor(eventEmitter: EventEmitter, _state: Object);
+    private stores;
+    constructor(eventEmitter: EventEmitter, stores: StoresType);
     /**
      * add a broadcast event listener
      * @param eventName
@@ -42,43 +43,37 @@ export declare class Socket {
     unicast(eventName: string, ...args: any[]): any;
     /**
      * judge if state has been initialized
-     * @param stateName
+     * @param namespace
      */
-    existState(stateName: string): boolean;
+    existState(namespace: string): boolean;
     /**
      * init a state
-     * @param stateName
+     * @param namespace
      * @param value
      * @param isPrivate is state can only be modified by the socket which initialized it
      */
-    initState(stateName: string, value: any, isPrivate?: boolean): void;
+    initState<T extends object>(namespace: string, initialState: T, isPrivate?: boolean): void;
     /**
      * get a state
-     * @param {string} stateName
+     * @param {string} namespace
      */
-    getState(stateName: string): object;
+    getState<T = any, P = T>(namespace: string, getter?: (state: T) => P): any;
     /**
      * set the value of the state
-     * @param stateName
+     * @param namespace
      * @param arg
      */
-    setState(stateName: string, arg: any): void;
+    setState<T>(namespace: string, setter: (state: T) => void): void;
     /**
      * watch the change of state
-     * @param stateName
-     * @param callback
+     * @param namespace
+     * @param getter
      */
-    watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void): void;
-    /**
-     * remove the listener of state watcher
-     * @param stateName
-     * @param callback
-     */
-    unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void): void;
+    watchState<T>(namespace: string, getter?: (state: T) => any): Watcher;
     /**
      * waiting for some states to be initialized
-     * @param dependencies the states to be waited for
+     * @param namespaces the namespaces to be waited for
      * @param timeout the time to wait
      */
-    waitState(dependencies: string[], timeout?: number): Promise<{}>;
+    waitState(namespaces: string[], timeout?: number): Promise<void>;
 }

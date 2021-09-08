@@ -4,7 +4,7 @@ import { MiddlewareFnType, ConfType, CustomCtxType } from './types';
 export declare class Bus {
     private name;
     private eventEmitter;
-    private _state;
+    private stores;
     private apps;
     private dependencyDepth;
     private conf;

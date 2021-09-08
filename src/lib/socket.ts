@@ -1,11 +1,13 @@
+import { effect, reactive, readonly } from '@vue/reactivity';
 import { EventEmitter } from './event-emitter'; // eslint-disable-line
-import { CallbackType } from './types'; // eslint-disable-line
-import { get, set, getMappedState, getResolvedStates,Errors, getStateNameLink } from './utils';
+import { CallbackType, StoresType } from './types'; // eslint-disable-line
+import { Errors, isPrimitive } from './utils';
+import { Watcher } from './watcher';
 export class Socket {
 
-  constructor(private eventEmitter: EventEmitter, private _state: Object) {
+  constructor(private eventEmitter: EventEmitter, private stores: StoresType) {
     this.eventEmitter = eventEmitter;
-    this._state = _state;
+    this.stores = stores;
   }
 
   /**
@@ -64,166 +66,114 @@ export class Socket {
 
   /**
    * judge if state has been initialized
-   * @param stateName
+   * @param namespace
    */
-  public existState(stateName: string) {
-    const stateNameLink = getStateNameLink(stateName);
-    const rootStateName = stateNameLink[0] as string;
-    return this._state[rootStateName] !== undefined;
+  public existState(namespace: string) {
+    return !!this.stores[namespace];
   }
 
   /**
    * init a state
-   * @param stateName
+   * @param namespace
    * @param value
    * @param isPrivate is state can only be modified by the socket which initialized it
    */
-  public initState(stateName: string, value: any, isPrivate: boolean = false) {
-    if(this._state[stateName] !== undefined) {
-      throw(new Error(Errors.duplicatedInitial(stateName)));
-    } else if(value === undefined) {
-      throw(new Error(Errors.initialStateAsUndefined(stateName)));
-    }else {
-      this._state[stateName] = {
-        value,
-        owner: isPrivate ? this : null
+  public initState<T extends object>(namespace: string, initialState: T, isPrivate: boolean = false) {
+    if(this.existState(namespace)) {
+      throw(new Error(Errors.duplicatedInitial(namespace)));
+    } else {
+      if (isPrimitive(initialState)) {
+        throw new Error();
+      }
+      this.stores[namespace] = {
+        state: reactive(initialState),
+        owner: isPrivate ? this : null,
+        watchers: []
       };
-      this.broadcast('$state-initial', stateName);
+      this.broadcast('$state-initial', namespace);
     }
   }
 
   /**
    * get a state
-   * @param {string} stateName
+   * @param {string} namespace
    */
-  public getState(stateName: string) {
-    const mappedState = getMappedState(this._state);
-    return get(mappedState, getStateNameLink(stateName));
+  public getState<T = any, P = T>(namespace: string, getter?: (state: T) => P) {
+    if (this.existState(namespace)) {
+      const state = readonly(this.stores[namespace].state);
+      return getter ? getter(state) : state;
+    } else {
+      return null;
+    }
   }
 
   /**
    * set the value of the state
-   * @param stateName
+   * @param namespace
    * @param arg
    */
-  public setState(stateName: string, arg: any) {
-    const stateNameLink = getStateNameLink(stateName);
-    const rootStateName = stateNameLink[0] as string;
-    if(this._state[rootStateName] === undefined) {
-      const msg = Errors.accessUninitializedState(rootStateName);
+  public setState<T>(namespace: string, setter: (state: T) => void) {
+    if(!this.existState(namespace)) {
+      const msg = Errors.accessUninitializedState(namespace);
       throw new Error(msg);
     }
-    const stateOwner = this._state[rootStateName].owner;
+    const stateOwner = this.stores[namespace].owner;
     if( stateOwner !== this && stateOwner !== null ) {
-      const msg = Errors.modifyPrivateState(rootStateName);
+      const msg = Errors.modifyPrivateState(namespace);
       throw new Error(msg);
     }
-    const events = Object.keys(this.eventEmitter.getBroadcastEvents());
-    const resolvedStates = getResolvedStates(stateName, events);
-    const resolvedStateNameLinks = resolvedStates.map((name) => getStateNameLink(name));
-    // record all the old value of the resolved states
-    const oldState = getMappedState(this._state);
-    const resolvedStatesOldValues = {};
-    resolvedStates.forEach((name, index) => {
-      const notifiedStateNameLink = resolvedStateNameLinks[index];
-      resolvedStatesOldValues[name] = get(oldState, notifiedStateNameLink);
-    });
-    // change the value of the state
-    const isFunctionArg = typeof arg === 'function';
-    const oldValue = this.getState(stateName);
-    const newValue = isFunctionArg ? arg(oldValue) : arg;
-    if (stateNameLink.length === 1) {
-      this._state[rootStateName].value = newValue;
-    } else {
-      const subStateNameLink = stateNameLink.slice(1);
-      if (this._state[rootStateName].value === null || this._state[rootStateName].value === undefined) {
-        switch (typeof subStateNameLink[0]) {
-        case 'number':
-          this._state[rootStateName].value = [];
-          break;
-        case 'string':
-          this._state[rootStateName].value = {};
-          break;
-        default:
-                    // do nothing
-        }
-      }
-      const isSuccess = set(rootStateName, this._state[rootStateName].value, subStateNameLink, newValue);
-      if (!isSuccess) {
-        return;
-      }
-    }
-    // record all the new value of the resolved states
-    const newState = getMappedState(this._state);
-    const resolvedStatesNewValues = {};
-    resolvedStates.forEach((name, index) => {
-      const notifiedStateNameLink = resolvedStateNameLinks[index];
-      resolvedStatesNewValues[name] = get(newState, notifiedStateNameLink);
-    });
-    resolvedStates.forEach((name) => {
-      this.broadcast(`$state-${name}-change`, resolvedStatesNewValues[name], resolvedStatesOldValues[name]);
-    });
+    const state: T = this.stores[namespace].state;
+    setter(state);
   }
 
   /**
    * watch the change of state
-   * @param stateName
-   * @param callback
+   * @param namespace
+   * @param getter
    */
-  public watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void) {
-    const stateNameLink = getStateNameLink(stateName);
-    const rootStateName = stateNameLink[0] as string;
-    if(this._state[rootStateName] === undefined) {
-      const msg = Errors.accessUninitializedState(rootStateName);
+  public watchState<T>(namespace: string, getter?: (state: T) => any) {
+    if(this.existState(namespace)) {
+      const msg = Errors.accessUninitializedState(namespace);
       throw new Error(msg);
     }
-    this.eventEmitter.addBroadcastEventListener(`$state-${stateName}-change`, callback);
-  }
-
-  /**
-   * remove the listener of state watcher
-   * @param stateName
-   * @param callback
-   */
-  public unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void) {
-    if (!this.existState(stateName)) {
-      throw new Error(Errors.accessUninitializedState(stateName));
-    }
-    this.eventEmitter.removeBroadcastEventListener(`$state-${stateName}-change`, callback);
+    const state: T = readonly(this.stores[namespace].state);
+    const watcher = new Watcher(namespace, this.stores);
+    const runner = effect(() => {
+      getter?.(state);
+      watcher.handler?.(state);
+    });
+    watcher.stopEffect = () => runner.effect.stop();
+    return watcher;
   }
 
   /**
    * waiting for some states to be initialized
-   * @param dependencies the states to be waited for
+   * @param namespaces the namespaces to be waited for
    * @param timeout the time to wait
    */
-  public waitState(dependencies: string[], timeout = 10 * 1000) {
-    dependencies = dependencies.map((stateName: string) => { // get root state array
-      const stateNameLink = getStateNameLink(stateName);
-      const rootStateName = stateNameLink[0] as string;
-      return rootStateName;
-    }).filter((rootStateName: string) => { // remove all ready states first
-      return this._state[rootStateName] === undefined;
+  public waitState(namespaces: string[], timeout = 10 * 1000) {
+    namespaces = namespaces.filter((namespace: string) => { // remove all ready states first
+      return !this.existState(namespace);
     });
 
-    if (dependencies.length === 0) {
-      return Promise.resolve(getMappedState(this._state));
+    if (namespaces.length === 0) {
+      return Promise.resolve();
     } else {
-      return new Promise((resolve, reject) => {
+      return new Promise<void>((resolve, reject) => {
         const timeId = setTimeout(() => {
           clearTimeout(timeId);
-          const msg = Errors.waitStateTimeout(dependencies);
+          const msg = Errors.waitStateTimeout(namespaces);
           reject(new Error(msg));
         }, timeout);
         const stateInitialCallback = (rootStateName: string) => {
-          const index = dependencies.indexOf(rootStateName);
+          const index = namespaces.indexOf(rootStateName);
           if (index !== -1) {
-            dependencies.splice(index, 1);
+            namespaces.splice(index, 1);
           }
-          if (dependencies.length === 0) {
+          if (namespaces.length === 0) {
             clearTimeout(timeId);
             this.offBroadcast('$state-initial', stateInitialCallback);
-            resolve(getMappedState(this._state));
+            resolve();
           }
         };
         this.onBroadcast('$state-initial', stateInitialCallback);

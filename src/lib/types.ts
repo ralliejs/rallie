@@ -1,3 +1,6 @@
+import { Socket } from './socket'; // eslint-disable-line
+import { Watcher } from './watcher'; // eslint-disable-line
+
 export type CallbackType = (...args: any[]) => any;
 
 export type ScriptType = Partial<HTMLScriptElement> | string;
@@ -41,3 +44,11 @@ export type DependenciesType = Array<{
   ctx: CustomCtxType,
   config: any
 } | string>;
+
+export type StoreType<T = any> = {
+  state: T,
+  owner: Socket | null,
+  watchers: Watcher[]
+}
+
+export type StoresType = Record<string, StoreType>

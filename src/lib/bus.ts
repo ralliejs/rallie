@@ -1,14 +1,14 @@
 import { EventEmitter } from './event-emitter';
 import { Socket } from './socket';
 import { App } from './app';
-import { getMappedState, Errors, compose } from './utils';
+import { Errors, compose } from './utils';
 import loader from './loader';
-import { MiddlewareFnType, ContextType, NextFnType, ConfType, CustomCtxType } from './types'; // eslint-disable-line
+import { MiddlewareFnType, ContextType, NextFnType, ConfType, CustomCtxType, StoresType } from './types'; // eslint-disable-line
 
 export class Bus {
   private name: string;
   private eventEmitter: EventEmitter = new EventEmitter();
-  private _state: object = {};
+  private stores: StoresType = {};
   private apps: Record<string, App | boolean> = {};
   private dependencyDepth = 0;
 
@@ -25,12 +25,6 @@ export class Bus {
   constructor(name: string) {
     this.name = name;
     this.composedMiddlewareFn = compose(this.middlewares);
-    Object.defineProperty(this, 'state', {
-      get: () => getMappedState(this._state),
-      set: () => {
-        throw new Error(Errors.stateIsReadOnly());
-      }
-    });
   }
 
   /**
@@ -145,7 +139,7 @@ export class Bus {
    * @return the socket instance
    */
   public createSocket() {
-    return new Socket(this.eventEmitter, this._state);
+    return new Socket(this.eventEmitter, this.stores);
   }
 
   /**
