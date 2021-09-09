@@ -83,7 +83,7 @@ export class Socket {
       throw(new Error(Errors.duplicatedInitial(namespace)));
     } else {
       if (isPrimitive(initialState)) {
-        throw new Error();
+        throw new Error(Errors.initializePrimitiveState(namespace));
       }
       this.stores[namespace] = {
         state: reactive(initialState),
@@ -92,6 +92,7 @@ export class Socket {
       };
       this.broadcast('$state-initial', namespace);
     }
+    return this.getState(namespace);
   }
 
   /**
@@ -112,7 +113,7 @@ export class Socket {
    * @param namespace
    * @param arg
    */
-  public setState<T>(namespace: string, setter: (state: T) => void) {
+  public setState<T = any>(namespace: string, setter: (state: T) => void) {
     if(!this.existState(namespace)) {
       const msg = Errors.accessUninitializedState(namespace);
       throw new Error(msg);
@@ -131,7 +132,7 @@ export class Socket {
    * @param namespace
    * @param getter
    */
-  public watchState<T>(namespace: string, getter?: (state: T) => any) {
+  public watchState<T>(namespace: string, getter: (state: T) => any) {
     if(this.existState(namespace)) {
       const msg = Errors.accessUninitializedState(namespace);
       throw new Error(msg);
@@ -139,7 +140,7 @@ export class Socket {
     const state: T = readonly(this.stores[namespace].state);
     const watcher = new Watcher(namespace, this.stores);
     const runner = effect(() => {
-      getter?.(state);
+      getter(state);
       watcher.handler?.(state);
     });
     watcher.stopEffect = () => runner.effect.stop();
@@ -148,32 +149,34 @@ export class Socket {
 
   /**
    * waiting for some states to be initialized
-   * @param namespaces the namespaces to be waited for
+   * @param dependencies the dependencies to be waited for
    * @param timeout the time to wait
    */
-  public waitState(namespaces: string[], timeout = 10 * 1000) {
-    namespaces = namespaces.filter((namespace: string) => { // remove all ready states first
+  public waitState(dependencies: string[], timeout = 10 * 1000): Promise<any[]> {
+    dependencies = dependencies.filter((namespace: string) => { // remove all ready states first
       return !this.existState(namespace);
     });
 
-    if (namespaces.length === 0) {
-      return Promise.resolve();
+    if (dependencies.length === 0) {
+      const states = dependencies.map((namespace: string) => this.getState(namespace));
+      return Promise.resolve(states);
     } else {
-      return new Promise<void>((resolve, reject) => {
+      return new Promise<any[]>((resolve, reject) => {
         const timeId = setTimeout(() => {
           clearTimeout(timeId);
-          const msg = Errors.waitStateTimeout(namespaces);
+          const msg = Errors.waitStateTimeout(dependencies);
           reject(new Error(msg));
         }, timeout);
-        const stateInitialCallback = (rootStateName: string) => {
-          const index = namespaces.indexOf(rootStateName);
+        const stateInitialCallback = (namespace: string) => {
+          const index = dependencies.indexOf(namespace);
           if (index !== -1) {
-            namespaces.splice(index, 1);
+            dependencies.splice(index, 1);
           }
-          if (namespaces.length === 0) {
+          if (dependencies.length === 0) {
             clearTimeout(timeId);
             this.offBroadcast('$state-initial', stateInitialCallback);
-            resolve();
+            const states = dependencies.map((namespace: string) => this.getState(namespace));
+            resolve(states);
           }
         };
         this.onBroadcast('$state-initial', stateInitialCallback);

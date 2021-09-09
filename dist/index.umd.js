@@ -1222,7 +1222,7 @@
             }
             else {
                 if (isPrimitive(initialState)) {
-                    throw new Error();
+                    throw new Error(Errors.initializePrimitiveState(namespace));
                 }
                 this.stores[namespace] = {
                     state: reactive(initialState),
@@ -1231,6 +1231,7 @@
                 };
                 this.broadcast('$state-initial', namespace);
             }
+            return this.getState(namespace);
         };
         /**
          * get a state
@@ -1277,7 +1278,7 @@
             var watcher = new Watcher(namespace, this.stores);
             var runner = effect(function () {
                 var _a;
-                getter === null || getter === void 0 ? void 0 : getter(state);
+                getter(state);
                 (_a = watcher.handler) === null || _a === void 0 ? void 0 : _a.call(watcher, state);
             });
             watcher.stopEffect = function () { return runner.effect.stop(); };
@@ -1285,34 +1286,36 @@
         };
         /**
          * waiting for some states to be initialized
-         * @param namespaces the namespaces to be waited for
+         * @param dependencies the dependencies to be waited for
          * @param timeout the time to wait
          */
-        Socket.prototype.waitState = function (namespaces, timeout) {
+        Socket.prototype.waitState = function (dependencies, timeout) {
             var _this = this;
             if (timeout === void 0) { timeout = 10 * 1000; }
-            namespaces = namespaces.filter(function (namespace) {
+            dependencies = dependencies.filter(function (namespace) {
                 return !_this.existState(namespace);
             });
-            if (namespaces.length === 0) {
-                return Promise.resolve();
+            if (dependencies.length === 0) {
+                var states = dependencies.map(function (namespace) { return _this.getState(namespace); });
+                return Promise.resolve(states);
             }
             else {
                 return new Promise(function (resolve, reject) {
                     var timeId = setTimeout(function () {
                         clearTimeout(timeId);
-                        var msg = Errors.waitStateTimeout(namespaces);
+                        var msg = Errors.waitStateTimeout(dependencies);
                         reject(new Error(msg));
                     }, timeout);
-                    var stateInitialCallback = function (rootStateName) {
-                        var index = namespaces.indexOf(rootStateName);
+                    var stateInitialCallback = function (namespace) {
+                        var index = dependencies.indexOf(namespace);
                         if (index !== -1) {
-                            namespaces.splice(index, 1);
+                            dependencies.splice(index, 1);
                         }
-                        if (namespaces.length === 0) {
+                        if (dependencies.length === 0) {
                             clearTimeout(timeId);
                             _this.offBroadcast('$state-initial', stateInitialCallback);
-                            resolve();
+                            var states = dependencies.map(function (namespace) { return _this.getState(namespace); });
+                            resolve(states);
                         }
                     };
                     _this.onBroadcast('$state-initial', stateInitialCallback);

@@ -52,7 +52,7 @@ export declare class Socket {
      * @param value
      * @param isPrivate is state can only be modified by the socket which initialized it
      */
-    initState<T extends object>(namespace: string, initialState: T, isPrivate?: boolean): void;
+    initState<T extends object>(namespace: string, initialState: T, isPrivate?: boolean): any;
     /**
      * get a state
      * @param {string} namespace
@@ -63,17 +63,17 @@ export declare class Socket {
      * @param namespace
      * @param arg
      */
-    setState<T>(namespace: string, setter: (state: T) => void): void;
+    setState<T = any>(namespace: string, setter: (state: T) => void): void;
     /**
      * watch the change of state
      * @param namespace
      * @param getter
      */
-    watchState<T>(namespace: string, getter?: (state: T) => any): Watcher;
+    watchState<T>(namespace: string, getter: (state: T) => any): Watcher;
     /**
      * waiting for some states to be initialized
-     * @param namespaces the namespaces to be waited for
+     * @param dependencies the dependencies to be waited for
      * @param timeout the time to wait
      */
-    waitState(namespaces: string[], timeout?: number): Promise<void>;
+    waitState(dependencies: string[], timeout?: number): Promise<any[]>;
 }
