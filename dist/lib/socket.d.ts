@@ -6,41 +6,25 @@ export declare class Socket {
     private stores;
     constructor(eventEmitter: EventEmitter, stores: StoresType);
     /**
-     * add a broadcast event listener
-     * @param eventName
-     * @param callback
+     * add broadcast event listeners
+     * @param events
      */
-    onBroadcast(eventName: string, callback: CallbackType): void;
+    onBroadcast<T extends Record<string, CallbackType>>(events: T): () => void;
     /**
-     * remove a broadcast event listener
-     * @param eventName
-     * @param callback
+     * add unicast event listeners
+     * @param events
      */
-    offBroadcast(eventName: string, callback: CallbackType): void;
+    onUnicast<T extends Record<string, CallbackType>>(events: T): () => void;
     /**
-     * emit a broadcast event
-     * @param eventName
-     * @param args
+     * create a proxy to emit a broadcast event
+     * @param logger
      */
-    broadcast(eventName: string, ...args: any[]): void;
+    createBroadcaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void): T;
     /**
-     * add a unicast event listener
-     * @param {string} eventName
-     * @param {Function} callback
+     * create a proxy to emit unicast event
+     * @param logger
      */
-    onUnicast(eventName: string, callback: CallbackType): void;
-    /**
-     * remove a unicast event listener
-     * @param eventName
-     * @param callback
-     */
-    offUnicast(eventName: string, callback: CallbackType): void;
-    /**
-     * emit a unicast event
-     * @param eventName
-     * @param args
-     */
-    unicast(eventName: string, ...args: any[]): any;
+    createUnicaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void): T;
     /**
      * judge if state has been initialized
      * @param namespace

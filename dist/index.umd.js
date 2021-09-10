@@ -1137,6 +1137,7 @@
         return Watcher;
     }());
 
+    var STATE_INITIALIZED = '$state-initialized';
     var Socket = /** @class */ (function () {
         function Socket(eventEmitter, stores) {
             this.eventEmitter = eventEmitter;
@@ -1145,62 +1146,89 @@
             this.stores = stores;
         }
         /**
-         * add a broadcast event listener
-         * @param eventName
-         * @param callback
+         * add broadcast event listeners
+         * @param events
          */
-        Socket.prototype.onBroadcast = function (eventName, callback) {
-            this.eventEmitter.addBroadcastEventListener(eventName, callback);
+        Socket.prototype.onBroadcast = function (events) {
+            var _this = this;
+            Object.entries(events).forEach(function (_a) {
+                var eventName = _a[0], handler = _a[1];
+                _this.eventEmitter.addBroadcastEventListener(eventName, handler);
+            });
+            return function () {
+                Object.entries(events).forEach(function (_a) {
+                    var eventName = _a[0], handler = _a[1];
+                    _this.eventEmitter.removeBroadcastEventListener(eventName, handler);
+                });
+            };
         };
         /**
-         * remove a broadcast event listener
-         * @param eventName
-         * @param callback
+         * add unicast event listeners
+         * @param events
          */
-        Socket.prototype.offBroadcast = function (eventName, callback) {
-            this.eventEmitter.removeBroadcastEventListener(eventName, callback);
+        Socket.prototype.onUnicast = function (events) {
+            var _this = this;
+            Object.entries(events).forEach(function (_a) {
+                var eventName = _a[0], handler = _a[1];
+                try {
+                    _this.eventEmitter.addUnicastEventListener(eventName, handler);
+                }
+                catch (err) {
+                    console.error(err);
+                }
+            });
+            return function () {
+                Object.entries(events).forEach(function (_a) {
+                    var eventName = _a[0], handler = _a[1];
+                    _this.eventEmitter.removeUnicastEventListener(eventName, handler);
+                });
+            };
         };
         /**
-         * emit a broadcast event
-         * @param eventName
-         * @param args
+         * create a proxy to emit a broadcast event
+         * @param logger
          */
-        Socket.prototype.broadcast = function (eventName) {
-            var _a;
-            var args = [];
-            for (var _i = 1; _i < arguments.length; _i++) {
-                args[_i - 1] = arguments[_i];
-            }
-            (_a = this.eventEmitter).emitBroadcast.apply(_a, __spreadArrays([eventName], args));
+        Socket.prototype.createBroadcaster = function (logger) {
+            var _this = this;
+            return new Proxy({}, {
+                get: function (target, eventName) {
+                    logger === null || logger === void 0 ? void 0 : logger(eventName);
+                    return function () {
+                        var _a;
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        return (_a = _this.eventEmitter).emitBroadcast.apply(_a, __spreadArrays([eventName], args));
+                    };
+                },
+                set: function () {
+                    return false;
+                }
+            });
         };
         /**
-         * add a unicast event listener
-         * @param {string} eventName
-         * @param {Function} callback
+         * create a proxy to emit unicast event
+         * @param logger
          */
-        Socket.prototype.onUnicast = function (eventName, callback) {
-            this.eventEmitter.addUnicastEventListener(eventName, callback);
-        };
-        /**
-         * remove a unicast event listener
-         * @param eventName
-         * @param callback
-         */
-        Socket.prototype.offUnicast = function (eventName, callback) {
-            this.eventEmitter.removeUnicastEventListener(eventName, callback);
-        };
-        /**
-         * emit a unicast event
-         * @param eventName
-         * @param args
-         */
-        Socket.prototype.unicast = function (eventName) {
-            var _a;
-            var args = [];
-            for (var _i = 1; _i < arguments.length; _i++) {
-                args[_i - 1] = arguments[_i];
-            }
-            return (_a = this.eventEmitter).emitUnicast.apply(_a, __spreadArrays([eventName], args));
+        Socket.prototype.createUnicaster = function (logger) {
+            var _this = this;
+            return new Proxy({}, {
+                get: function (target, eventName) {
+                    logger === null || logger === void 0 ? void 0 : logger(eventName);
+                    return function () {
+                        var _a;
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        return (_a = _this.eventEmitter).emitUnicast.apply(_a, __spreadArrays([eventName], args));
+                    };
+                },
+                set: function () {
+                    return false;
+                }
+            });
         };
         /**
          * judge if state has been initialized
@@ -1229,7 +1257,7 @@
                     owner: isPrivate ? this : null,
                     watchers: []
                 };
-                this.broadcast('$state-initial', namespace);
+                this.eventEmitter.emitBroadcast(STATE_INITIALIZED, namespace);
             }
             return this.getState(namespace);
         };
@@ -1313,12 +1341,12 @@
                         }
                         if (dependencies.length === 0) {
                             clearTimeout(timeId);
-                            _this.offBroadcast('$state-initial', stateInitialCallback);
+                            _this.eventEmitter.removeBroadcastEventListener(STATE_INITIALIZED, stateInitialCallback);
                             var states = dependencies.map(function (namespace) { return _this.getState(namespace); });
                             resolve(states);
                         }
                     };
-                    _this.onBroadcast('$state-initial', stateInitialCallback);
+                    _this.eventEmitter.addBroadcastEventListener(STATE_INITIALIZED, stateInitialCallback);
                 });
             }
         };

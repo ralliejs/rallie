@@ -3,6 +3,8 @@ import { EventEmitter } from './event-emitter'; // eslint-disable-line
 import { CallbackType, StoresType } from './types'; // eslint-disable-line
 import { Errors, isPrimitive } from './utils';
 import { Watcher } from './watcher';
+
+const STATE_INITIALIZED = '$state-initialized';
 export class Socket {
 
   constructor(private eventEmitter: EventEmitter, private stores: StoresType) {
@@ -11,57 +13,69 @@ export class Socket {
   }
 
   /**
-   * add a broadcast event listener
-   * @param eventName
-   * @param callback
+   * add broadcast event listeners
+   * @param events
    */
-  public onBroadcast(eventName: string, callback: CallbackType) {
-    this.eventEmitter.addBroadcastEventListener(eventName, callback);
+  public onBroadcast<T extends Record<string, CallbackType>>(events: T) {
+    Object.entries(events).forEach(([eventName, handler]) => {
+      this.eventEmitter.addBroadcastEventListener(eventName, handler);
+    });
+    return () => {
+      Object.entries(events).forEach(([eventName, handler]) => {
+        this.eventEmitter.removeBroadcastEventListener(eventName, handler);
+      });
+    };
   }
 
   /**
-   * remove a broadcast event listener
-   * @param eventName
-   * @param callback
+   * add unicast event listeners
+   * @param events
    */
-  public offBroadcast(eventName: string, callback: CallbackType) {
-    this.eventEmitter.removeBroadcastEventListener(eventName, callback);
+  public onUnicast<T extends Record<string, CallbackType>>(events: T) {
+    Object.entries(events).forEach(([eventName, handler]) => {
+      try {
+        this.eventEmitter.addUnicastEventListener(eventName, handler);
+      } catch (err) {
+        console.error(err);
+      }
+    });
+    return () => {
+      Object.entries(events).forEach(([eventName, handler]) => {
+        this.eventEmitter.removeUnicastEventListener(eventName, handler);
+      });
+    };
   }
 
   /**
-   * emit a broadcast event
-   * @param eventName
-   * @param args
+   * create a proxy to emit a broadcast event
+   * @param logger
    */
-  public broadcast(eventName: string, ...args: any[]) {
-    this.eventEmitter.emitBroadcast(eventName, ...args);
+  public createBroadcaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void) {
+    return new Proxy<T>(({} as any), {
+      get: (target, eventName) => {
+        logger?.(eventName as string);
+        return (...args: any[]) => this.eventEmitter.emitBroadcast(eventName as string, ...args);
+      },
+      set: () => {
+        return false;
+      }
+    });
   }
 
   /**
-   * add a unicast event listener
-   * @param {string} eventName
-   * @param {Function} callback
+   * create a proxy to emit unicast event
+   * @param logger
    */
-  public onUnicast(eventName: string, callback: CallbackType) {
-    this.eventEmitter.addUnicastEventListener(eventName, callback);
-  }
-
-  /**
-   * remove a unicast event listener
-   * @param eventName
-   * @param callback
-   */
-  public offUnicast(eventName: string, callback: CallbackType) {
-    this.eventEmitter.removeUnicastEventListener(eventName, callback);
-  }
-
-  /**
-   * emit a unicast event
-   * @param eventName
-   * @param args
-   */
-  public unicast(eventName: string, ...args: any[]) {
-    return this.eventEmitter.emitUnicast(eventName, ...args);
+  public createUnicaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void) {
+    return new Proxy<T>(({} as any), {
+      get: (target, eventName) => {
+        logger?.(eventName as string);
+        return (...args: any[]) => this.eventEmitter.emitUnicast(eventName as string, ...args);
+      },
+      set: () => {
+        return false;
+      }
+    });
   }
 
   /**
@@ -90,7 +104,7 @@ export class Socket {
         owner: isPrivate ? this : null,
         watchers: []
       };
-      this.broadcast('$state-initial', namespace);
+      this.eventEmitter.emitBroadcast(STATE_INITIALIZED, namespace);
     }
     return this.getState(namespace);
   }
@@ -174,12 +188,12 @@ export class Socket {
           }
           if (dependencies.length === 0) {
             clearTimeout(timeId);
-            this.offBroadcast('$state-initial', stateInitialCallback);
+            this.eventEmitter.removeBroadcastEventListener(STATE_INITIALIZED, stateInitialCallback);
             const states = dependencies.map((namespace: string) => this.getState(namespace));
             resolve(states);
           }
         };
-        this.onBroadcast('$state-initial', stateInitialCallback);
+        this.eventEmitter.addBroadcastEventListener(STATE_INITIALIZED, stateInitialCallback);
       });
     }
   }
