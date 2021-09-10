@@ -1,51 +1,8 @@
-import { Bus, createBus } from '../src/index';
+import { Bus } from '../src/index';
 import { Errors } from '../src/lib/utils';
 
 describe('Test event communication capabilities between sockets', () => {
-  const bus = createBus('event-tester');
-  const socketA = bus.createSocket();
-  const socketB = bus.createSocket();
-  const hello = 'hello';
-  const world = 'world';
 
-  test('# case 1: two sockets listen a broadcast event, emit it, callback should be called twice', () => {
-    socketA['onMessage'] = (value) => {
-      socketA['message'] = value;
-    };
-    socketB['onMessage'] = (value) => {
-      socketB['message'] = value;
-    };
-    socketA.onBroadcast('message', socketA['onMessage']);
-    socketB.onBroadcast('message', socketB['onMessage']);
-    const hello = 'hello';
-    socketA.broadcast('message', hello);
-    expect(socketA['message']).toBe(hello);
-    expect(socketB['message']).toBe(hello);
-  });
-
-  test('# case 2: socketA stop to listen the broadcast event, emit it, callback should be called once', () => {
-    socketA.offBroadcast('message', socketA['onMessage']);
-    socketA.broadcast('message', world);
-    expect(socketA['message']).toBe(hello);
-    expect(socketB['message']).toBe(world);
-  });
-
-  test('# case 4: socketA listen a unicast event, socketB emit it, callback should be called', () => {
-    socketA['getMessage'] = () => {
-      return socketA['message'];
-    };
-    socketA.onUnicast('getSocketAMessage', socketA['getMessage']);
-    const socketAMessage = socketB.unicast('getSocketAMessage');
-    expect(socketAMessage).toBe(hello);
-  });
-
-  test('# case 5: socket A stop to listen the unicast event, socketB emit it, an error should be throwed', () => {
-    expect(() => {
-      socketA.offUnicast('getSocketAMessage', socketA['getMessage']);
-      const socketAMessage = socketB.unicast('getSocketAMessage');
-      expect(socketAMessage).toBeUndefined();
-    }).toThrowError();
-  });
 });
 
 describe('Test socket.initState, socket.existState and socket.getState', () => {
