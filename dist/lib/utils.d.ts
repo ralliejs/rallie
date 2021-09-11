@@ -6,6 +6,7 @@ export declare const Errors: {
     removeNonExistedUnicast: (eventName: string) => string;
     wrongUnicastCallback: (eventName: string) => string;
     registedExistedUnicast: (eventName: string) => string;
+    emittedNonExistedUnicast: (eventName: string) => string;
     createExistingApp: (appName: string) => string;
     resourceNotDeclared: (appName: string, busName: string) => string;
     appNotCreated: (appName: string) => string;
@@ -22,6 +23,7 @@ export declare const Errors: {
 };
 export declare const Warnings: {
     emptyBroadcastEvents: (eventName: string) => string;
+    handlerIsNotInTheEventsPool: (eventName: string, isUnicast: boolean) => string;
 };
 export declare const isObject: (object: unknown) => boolean;
 export declare const isPrimitive: (object: unknown) => boolean;

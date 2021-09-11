@@ -98,6 +98,9 @@
         registedExistedUnicast: function (eventName) {
             return "[obvious] you are trying to regist a unicast event " + eventName + ", but it has been registed before";
         },
+        emittedNonExistedUnicast: function (eventName) {
+            return "[obvious] you have emitted " + eventName + " unicast, but there is no listener of this event";
+        },
         // ================= App ===================
         createExistingApp: function (appName) {
             return "[obvious] " + appName + " is existing, you are not allowed to create it again";
@@ -146,8 +149,11 @@
     };
     var Warnings = {
         emptyBroadcastEvents: function (eventName) {
-            return "[obvious] you have emitted " + eventName + " event, but there is no listener of this event";
-        }
+            return "[obvious] you have emitted " + eventName + " broadcast, but there is no listener of this event";
+        },
+        handlerIsNotInTheEventsPool: function (eventName, isUnicast) {
+            return "[obvious] the event " + eventName + " is not in the events pool that you specified when calling on" + (isUnicast ? 'Unicast' : 'Broadcast');
+        },
     };
     var isObject = function (object) {
         return Object.prototype.toString.call(object) === '[object Object]';
@@ -190,9 +196,6 @@
             this.broadcastEvents = {};
             this.unicastEvents = {};
         }
-        EventEmitter.prototype.getBroadcastEvents = function () {
-            return this.broadcastEvents;
-        };
         EventEmitter.prototype.addBroadcastEventListener = function (event, callback) {
             this.broadcastEvents[event] = this.broadcastEvents[event] || [];
             this.broadcastEvents[event].push(callback);
@@ -250,7 +253,7 @@
                         callback.apply(void 0, args);
                     }
                     catch (error) {
-                        console.error(Errors.broadcastCallbackError);
+                        console.error(Errors.broadcastCallbackError(event));
                         console.error(error);
                     }
                 });
@@ -265,7 +268,12 @@
                 args[_i - 1] = arguments[_i];
             }
             var callback = this.unicastEvents[event];
-            return callback.apply(void 0, args);
+            if (callback) {
+                return callback.apply(void 0, args);
+            }
+            else {
+                throw new Error(Errors.emittedNonExistedUnicast(event));
+            }
         };
         return EventEmitter;
     }());
@@ -1130,9 +1138,7 @@
             this === null || this === void 0 ? void 0 : this.stopEffect();
             this.handler = null;
             var index = this.stores[this.namespace].watchers.indexOf(this);
-            if (index !== -1) {
-                this.stores[this.namespace].watchers.splice(index, 1);
-            }
+            index !== -1 && this.stores[this.namespace].watchers.splice(index, 1);
         };
         return Watcher;
     }());
@@ -1145,6 +1151,25 @@
             this.eventEmitter = eventEmitter;
             this.stores = stores;
         }
+        Socket.prototype.offEvents = function (events, isUnicast, eventName) {
+            var cancelListening = isUnicast ? this.eventEmitter.removeUnicastEventListener : this.eventEmitter.removeBroadcastEventListener;
+            cancelListening = cancelListening.bind(this.eventEmitter);
+            if (eventName) {
+                if (events[eventName]) {
+                    cancelListening(eventName, events[eventName]);
+                    delete events[eventName];
+                }
+                else {
+                    console.warn(Warnings.handlerIsNotInTheEventsPool(eventName, isUnicast));
+                }
+            }
+            else {
+                Object.entries(events).forEach(function (_a) {
+                    var eventName = _a[0], handler = _a[1];
+                    cancelListening(eventName, handler);
+                });
+            }
+        };
         /**
          * add broadcast event listeners
          * @param events
@@ -1155,11 +1180,8 @@
                 var eventName = _a[0], handler = _a[1];
                 _this.eventEmitter.addBroadcastEventListener(eventName, handler);
             });
-            return function () {
-                Object.entries(events).forEach(function (_a) {
-                    var eventName = _a[0], handler = _a[1];
-                    _this.eventEmitter.removeBroadcastEventListener(eventName, handler);
-                });
+            return function (eventName) {
+                _this.offEvents(events, false, eventName);
             };
         };
         /**
@@ -1177,11 +1199,8 @@
                     console.error(err);
                 }
             });
-            return function () {
-                Object.entries(events).forEach(function (_a) {
-                    var eventName = _a[0], handler = _a[1];
-                    _this.eventEmitter.removeUnicastEventListener(eventName, handler);
-                });
+            return function (eventName) {
+                _this.offEvents(events, true, eventName);
             };
         };
         /**
@@ -1274,12 +1293,7 @@
                 return null;
             }
         };
-        /**
-         * set the value of the state
-         * @param namespace
-         * @param arg
-         */
-        Socket.prototype.setState = function (namespace, setter) {
+        Socket.prototype.getStateToSet = function (namespace) {
             if (!this.existState(namespace)) {
                 var msg = Errors.accessUninitializedState(namespace);
                 throw new Error(msg);
@@ -1289,7 +1303,15 @@
                 var msg = Errors.modifyPrivateState(namespace);
                 throw new Error(msg);
             }
-            var state = this.stores[namespace].state;
+            return this.stores[namespace].state;
+        };
+        /**
+         * set the value of the state
+         * @param namespace
+         * @param arg
+         */
+        Socket.prototype.setState = function (namespace, setter) {
+            var state = this.getStateToSet(namespace);
             setter(state);
         };
         /**
@@ -1298,16 +1320,23 @@
          * @param getter
          */
         Socket.prototype.watchState = function (namespace, getter) {
-            if (this.existState(namespace)) {
+            if (!this.existState(namespace)) {
                 var msg = Errors.accessUninitializedState(namespace);
                 throw new Error(msg);
             }
             var state = readonly(this.stores[namespace].state);
             var watcher = new Watcher(namespace, this.stores);
+            watcher.oldWatchingStates = getter(JSON.parse(JSON.stringify(state)), false);
             var runner = effect(function () {
                 var _a;
-                getter(state);
-                (_a = watcher.handler) === null || _a === void 0 ? void 0 : _a.call(watcher, state);
+                var watchingStates = getter(state, true);
+                var clonedWatchingStates = isPrimitive(watchingStates) ? watchingStates : JSON.parse(JSON.stringify(watchingStates));
+                try {
+                    (_a = watcher.handler) === null || _a === void 0 ? void 0 : _a.call(watcher, watchingStates, watcher.oldWatchingStates);
+                }
+                finally {
+                    watcher.oldWatchingStates = clonedWatchingStates;
+                }
             });
             watcher.stopEffect = function () { return runner.effect.stop(); };
             return watcher;
@@ -1320,29 +1349,30 @@
         Socket.prototype.waitState = function (dependencies, timeout) {
             var _this = this;
             if (timeout === void 0) { timeout = 10 * 1000; }
-            dependencies = dependencies.filter(function (namespace) {
+            var allDependencies = __spreadArrays(dependencies);
+            var unreadyDependencies = dependencies.filter(function (namespace) {
                 return !_this.existState(namespace);
             });
-            if (dependencies.length === 0) {
-                var states = dependencies.map(function (namespace) { return _this.getState(namespace); });
+            if (unreadyDependencies.length === 0) {
+                var states = allDependencies.map(function (namespace) { return _this.getState(namespace); });
                 return Promise.resolve(states);
             }
             else {
                 return new Promise(function (resolve, reject) {
                     var timeId = setTimeout(function () {
                         clearTimeout(timeId);
-                        var msg = Errors.waitStateTimeout(dependencies);
+                        var msg = Errors.waitStateTimeout(unreadyDependencies);
                         reject(new Error(msg));
                     }, timeout);
                     var stateInitialCallback = function (namespace) {
-                        var index = dependencies.indexOf(namespace);
+                        var index = unreadyDependencies.indexOf(namespace);
                         if (index !== -1) {
-                            dependencies.splice(index, 1);
+                            unreadyDependencies.splice(index, 1);
                         }
-                        if (dependencies.length === 0) {
+                        if (unreadyDependencies.length === 0) {
                             clearTimeout(timeId);
                             _this.eventEmitter.removeBroadcastEventListener(STATE_INITIALIZED, stateInitialCallback);
-                            var states = dependencies.map(function (namespace) { return _this.getState(namespace); });
+                            var states = allDependencies.map(function (namespace) { return _this.getState(namespace); });
                             resolve(states);
                         }
                     };

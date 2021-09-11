@@ -1,7 +1,7 @@
 import { effect, reactive, readonly } from '@vue/reactivity';
 import { EventEmitter } from './event-emitter'; // eslint-disable-line
 import { CallbackType, StoresType } from './types'; // eslint-disable-line
-import { Errors, isPrimitive } from './utils';
+import { Errors, isPrimitive, Warnings } from './utils';
 import { Watcher } from './watcher';
 
 const STATE_INITIALIZED = '$state-initialized';
@@ -12,6 +12,23 @@ export class Socket {
     this.stores = stores;
   }
 
+  private offEvents(events: Record<string, CallbackType>, isUnicast: boolean, eventName?: string) {
+    let cancelListening = isUnicast ? this.eventEmitter.removeUnicastEventListener : this.eventEmitter.removeBroadcastEventListener;
+    cancelListening = cancelListening.bind(this.eventEmitter);
+    if (eventName) {
+      if (events[eventName]) {
+        cancelListening(eventName, events[eventName]);
+        delete events[eventName];
+      } else {
+        console.warn(Warnings.handlerIsNotInTheEventsPool(eventName, isUnicast));
+      }
+    } else {
+      Object.entries(events).forEach(([eventName, handler]) => {
+        cancelListening(eventName, handler);
+      });
+    }
+  }
+
   /**
    * add broadcast event listeners
    * @param events
@@ -20,10 +37,8 @@ export class Socket {
     Object.entries(events).forEach(([eventName, handler]) => {
       this.eventEmitter.addBroadcastEventListener(eventName, handler);
     });
-    return () => {
-      Object.entries(events).forEach(([eventName, handler]) => {
-        this.eventEmitter.removeBroadcastEventListener(eventName, handler);
-      });
+    return (eventName?: string) => {
+      this.offEvents(events, false, eventName);
     };
   }
 
@@ -39,10 +54,8 @@ export class Socket {
         console.error(err);
       }
     });
-    return () => {
-      Object.entries(events).forEach(([eventName, handler]) => {
-        this.eventEmitter.removeUnicastEventListener(eventName, handler);
-      });
+    return (eventName?: string) => {
+      this.offEvents(events, true, eventName);
     };
   }
 
@@ -92,7 +105,7 @@ export class Socket {
    * @param value
    * @param isPrivate is state can only be modified by the socket which initialized it
    */
-  public initState<T extends object>(namespace: string, initialState: T, isPrivate: boolean = false) {
+  public initState<T extends object = any>(namespace: string, initialState: T, isPrivate: boolean = false) {
     if(this.existState(namespace)) {
       throw(new Error(Errors.duplicatedInitial(namespace)));
     } else {
@@ -122,12 +135,7 @@ export class Socket {
     }
   }
 
-  /**
-   * set the value of the state
-   * @param namespace
-   * @param arg
-   */
-  public setState<T = any>(namespace: string, setter: (state: T) => void) {
+  private getStateToSet(namespace: string) {
     if(!this.existState(namespace)) {
       const msg = Errors.accessUninitializedState(namespace);
       throw new Error(msg);
@@ -137,7 +145,16 @@ export class Socket {
       const msg = Errors.modifyPrivateState(namespace);
       throw new Error(msg);
     }
-    const state: T = this.stores[namespace].state;
+    return this.stores[namespace].state;
+  }
+
+  /**
+   * set the value of the state
+   * @param namespace
+   * @param arg
+   */
+  public setState<T = any>(namespace: string, setter: (state: T) => void) {
+    const state: T = this.getStateToSet(namespace);
     setter(state);
   }
 
@@ -146,16 +163,22 @@ export class Socket {
    * @param namespace
    * @param getter
    */
-  public watchState<T>(namespace: string, getter: (state: T) => any) {
-    if(this.existState(namespace)) {
+  public watchState<T = any, P = any>(namespace: string, getter: (state: T, isWatchingEffect?: boolean) => P) {
+    if(!this.existState(namespace)) {
       const msg = Errors.accessUninitializedState(namespace);
       throw new Error(msg);
     }
     const state: T = readonly(this.stores[namespace].state);
     const watcher = new Watcher(namespace, this.stores);
+    watcher.oldWatchingStates = getter(JSON.parse(JSON.stringify(state)), false);
     const runner = effect(() => {
-      getter(state);
-      watcher.handler?.(state);
+      const watchingStates = getter(state, true);
+      const clonedWatchingStates = isPrimitive(watchingStates) ? watchingStates : JSON.parse(JSON.stringify(watchingStates));
+      try {
+        watcher.handler?.(watchingStates, watcher.oldWatchingStates);
+      } finally {
+        watcher.oldWatchingStates = clonedWatchingStates;
+      }
     });
     watcher.stopEffect = () => runner.effect.stop();
     return watcher;
@@ -167,29 +190,30 @@ export class Socket {
    * @param timeout the time to wait
    */
   public waitState(dependencies: string[], timeout = 10 * 1000): Promise<any[]> {
-    dependencies = dependencies.filter((namespace: string) => { // remove all ready states first
+    const allDependencies = [...dependencies];
+    const unreadyDependencies =  dependencies.filter((namespace: string) => { // remove all ready states first
       return !this.existState(namespace);
     });
 
-    if (dependencies.length === 0) {
-      const states = dependencies.map((namespace: string) => this.getState(namespace));
+    if (unreadyDependencies.length === 0) {
+      const states = allDependencies.map((namespace: string) => this.getState(namespace));
       return Promise.resolve(states);
     } else {
       return new Promise<any[]>((resolve, reject) => {
         const timeId = setTimeout(() => {
           clearTimeout(timeId);
-          const msg = Errors.waitStateTimeout(dependencies);
+          const msg = Errors.waitStateTimeout(unreadyDependencies);
           reject(new Error(msg));
         }, timeout);
         const stateInitialCallback = (namespace: string) => {
-          const index = dependencies.indexOf(namespace);
+          const index = unreadyDependencies.indexOf(namespace);
           if (index !== -1) {
-            dependencies.splice(index, 1);
+            unreadyDependencies.splice(index, 1);
           }
-          if (dependencies.length === 0) {
+          if (unreadyDependencies.length === 0) {
             clearTimeout(timeId);
             this.eventEmitter.removeBroadcastEventListener(STATE_INITIALIZED, stateInitialCallback);
-            const states = dependencies.map((namespace: string) => this.getState(namespace));
+            const states = allDependencies.map((namespace: string) => this.getState(namespace));
             resolve(states);
           }
         };

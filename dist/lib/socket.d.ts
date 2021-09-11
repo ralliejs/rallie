@@ -5,16 +5,17 @@ export declare class Socket {
     private eventEmitter;
     private stores;
     constructor(eventEmitter: EventEmitter, stores: StoresType);
+    private offEvents;
     /**
      * add broadcast event listeners
      * @param events
      */
-    onBroadcast<T extends Record<string, CallbackType>>(events: T): () => void;
+    onBroadcast<T extends Record<string, CallbackType>>(events: T): (eventName?: string) => void;
     /**
      * add unicast event listeners
      * @param events
      */
-    onUnicast<T extends Record<string, CallbackType>>(events: T): () => void;
+    onUnicast<T extends Record<string, CallbackType>>(events: T): (eventName?: string) => void;
     /**
      * create a proxy to emit a broadcast event
      * @param logger
@@ -36,12 +37,13 @@ export declare class Socket {
      * @param value
      * @param isPrivate is state can only be modified by the socket which initialized it
      */
-    initState<T extends object>(namespace: string, initialState: T, isPrivate?: boolean): any;
+    initState<T extends object = any>(namespace: string, initialState: T, isPrivate?: boolean): any;
     /**
      * get a state
      * @param {string} namespace
      */
     getState<T = any, P = T>(namespace: string, getter?: (state: T) => P): any;
+    private getStateToSet;
     /**
      * set the value of the state
      * @param namespace
@@ -53,7 +55,7 @@ export declare class Socket {
      * @param namespace
      * @param getter
      */
-    watchState<T>(namespace: string, getter: (state: T) => any): Watcher;
+    watchState<T = any, P = any>(namespace: string, getter: (state: T, isWatchingEffect?: boolean) => P): Watcher;
     /**
      * waiting for some states to be initialized
      * @param dependencies the dependencies to be waited for

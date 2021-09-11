@@ -2,9 +2,10 @@ import { StoresType } from './types';
 export declare class Watcher {
     private namespace;
     private stores;
-    handler: (state: any) => void;
+    oldWatchingStates: any;
+    handler: (watchingStates: any, oldWatchingStates: any) => any;
     stopEffect: () => void;
     constructor(namespace: string, stores: StoresType);
-    do<T>(handler: (state: T) => void): () => void;
+    do<T = any>(handler: (watchingStates: T, oldWatchingStates?: T) => any): () => void;
     unwatch(): void;
 }

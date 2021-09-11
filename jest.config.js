@@ -4,7 +4,7 @@ module.exports = {
   },
   rootDir: '.',
   setupFiles: [
-    '<rootDir>/setup-fetch.js'
+    '<rootDir>/jest-setup.js'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']
 };

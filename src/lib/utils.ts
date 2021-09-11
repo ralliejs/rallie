@@ -22,6 +22,9 @@ export const Errors = {
   registedExistedUnicast: (eventName: string) => {
     return `[obvious] you are trying to regist a unicast event ${eventName}, but it has been registed before`;
   },
+  emittedNonExistedUnicast: (eventName: string) => {
+    return `[obvious] you have emitted ${eventName} unicast, but there is no listener of this event`;
+  },
   // ================= App ===================
   createExistingApp: (appName: string) => {
     return `[obvious] ${appName} is existing, you are not allowed to create it again`;
@@ -70,8 +73,11 @@ export const Errors = {
 
 export const Warnings = {
   emptyBroadcastEvents: (eventName: string) => {
-    return `[obvious] you have emitted ${eventName} event, but there is no listener of this event`;
-  }
+    return `[obvious] you have emitted ${eventName} broadcast, but there is no listener of this event`;
+  },
+  handlerIsNotInTheEventsPool: (eventName: string, isUnicast: boolean) => {
+    return `[obvious] the event ${eventName} is not in the events pool that you specified when calling on${isUnicast ? 'Unicast' : 'Broadcast'}`;
+  },
 };
 
 export const isObject = (object: unknown): boolean => {

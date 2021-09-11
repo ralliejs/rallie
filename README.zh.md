@@ -5,6 +5,10 @@
   [![Coverage Status](https://coveralls.io/repos/github/ObviousJs/obvious-core/badge.svg?branch=master)](https://coveralls.io/github/ObviousJs/obvious-core?branch=master) [![release](https://img.shields.io/github/release/ObviousJs/obvious-core.svg)](https://github.com/ObviousJs/obvious-core/releases) [![lastCommit](https://img.shields.io/github/last-commit/ObviousJs/obvious-core)](https://github.com/ObviousJs/obvious-core/commits/master) [![](https://img.shields.io/badge/document-english-brightgreen)](https://github.com/ObviousJs/obvious-core/blob/master/README.md)
 </div>
 
+[English](https://github.com/ObviousJs/obvious-core/blob/master/README.md) ｜ 简体中文
+
+> 该库还在实验阶段，API尚不稳定，请勿用于生产环境
+
 ## 介绍
 obvious是一个渐进式微前端库，在微前端架构中，obvious专注于解决前端微应用的依赖编排和应用间的通信问题，旨在通过简洁易懂，符合编程直觉的API以及灵活的中间件机制，帮助用户快速搭建好基础微前端体系，并支持进行更深层次地定制，从而实现完整可靠的微前端架构
 
@@ -52,25 +56,8 @@ bus.config({
 
 在微应用中可以获取到bus，并通过bus创建app和socket，通过app指定生命周期，通过socket与其他微应用通信
 
-react-app
-```js
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { touchBus } from 'obvious-core';
-
-const bus = touchBus();
-const socket = bus.createSocket();
-bus.createApp('react-app')
-  .bootstrap(async (config) => {
-    socket.unicast('unicast-event');
-    socket.broadcast('broadcast-event');
-    socket.initState('someState', true);
-    ReactDOM.render(<App />, document.querySelector(config.mountPoint));
-  });
-```
-
 vue-app
-```js
+```ts
 import Vue from 'vue';
 import App from './App.vue';
 import { touchBus } from 'obvious-core';
@@ -79,21 +66,77 @@ Vue.config.productionTip = false;
 
 const [bus] = touchBus();
 const socket = bus.createSocket();
+
+type BroadcastType = {
+  broadcastEvent: () => void
+};
+
+type UnicastType = {
+  unicastEvent: () => void
+}
+
+const off = {};
+let vm = null
+
 bus.createApp('vue-app')
+  .relyOn(['vue'])
   .bootstrap(async (config) => {
-    socket.onUnicast('unicast-event', () => {
+    off.unicast = socket.onUnicast<UnicastType>({
+      unicastEvent() {
+        // do something
+      }
+    });
+    off.broadcast = socket.onBroadcast<BroadcastType>({
+      broadcastEvent() {
+        // do something
+      }
+    });
+    const [user, theme] = await socket.waitState(['user', 'theme']);
+    socket.setState('theme', theme => {
+      theme.value = 'dark';
+    });
+    socket.watchState('user', user => user.name).do((userName) => {
       // do something
     });
-    socket.onBroadcast('broadcast-event', () => {
-      // do something
-    });
-    socket.setState('someState.sub.prop.array', [])
-    socket.watchState('someState.sub.prop.array[0]', (val) => {
-      // do something
-    });
-    new Vue({
+    vm = new Vue({
       render: h => h(App),
     }).$mount(config.mountPoint);
+  })
+  .destroy(() => {
+    vm.$destroy();
+    off.broadcast();
+    off.unicast();
+  });
+```
+
+react-app
+```ts
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { touchBus } from 'obvious-core';
+
+type BroadcastType = {
+  broadcastEvent: () => void
+};
+
+type UnicastType = {
+  unicastEvent: () => void
+}
+
+const [bus] = touchBus();
+const socket = bus.createSocket();
+const broadcaster = socket.createBroadcaster();
+const unicaster = socket.createUnicaster();
+
+bus.createApp('react-app')
+  .relyOn(['react'])
+  .bootstrap(async (config) => {
+    broadcaster.broadcastEvent();
+    unicaster.unicastEvent();
+    socket.initState('user', { name: 'Philip' });
+    socket.initState('theme', { value: 'light' });
+    console.log(socket.getState('theme', theme => theme.value));
+    ReactDOM.render(<App />, document.querySelector(config.mountPoint));
   });
 ```
 
@@ -114,7 +157,7 @@ npm run demo:host
 ```
 
 ## 文档
-[obvious.js: 渐进式微前端库](https://obviousjs.github.io/obvious-core/#/)
+[obvious.js: 渐进式微前端库](https://obviousjs.github.io/obvious-core/#/) (非最新版本)
 
 ## License
 obvious is [MIT Licensed](https://github.com/ObviousJs/obvious-core/blob/master/LICENSE)

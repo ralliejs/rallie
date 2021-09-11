@@ -3,7 +3,8 @@ import { StoresType } from './types'; // eslint-disable-line
 export class Watcher {
   private namespace: string;
   private stores: StoresType;
-  public handler: (state: any) => void;
+  public oldWatchingStates: any;
+  public handler: (watchingStates: any, oldWatchingStates: any) => any;
   public stopEffect: () => void;
 
   constructor(namespace: string, stores: StoresType) {
@@ -12,7 +13,7 @@ export class Watcher {
     this.stores[namespace].watchers.push(this);
   }
 
-  public do<T>(handler: (state: T) => void) {
+  public do<T = any>(handler: (watchingStates: T, oldWatchingStates?: T) => any) {
     this.handler = handler;
     return () => this.unwatch();
   }
@@ -21,8 +22,6 @@ export class Watcher {
     this?.stopEffect();
     this.handler = null;
     const index = this.stores[this.namespace].watchers.indexOf(this);
-    if (index !== -1) {
-      this.stores[this.namespace].watchers.splice(index, 1);
-    }
+    index !== -1 && this.stores[this.namespace].watchers.splice(index, 1);
   }
 }
