@@ -1,6 +1,6 @@
 {
   "name": "obvious-core",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
@@ -46,7 +46,7 @@
     "rollup": "^2.35.1",
     "rollup-plugin-typescript2": "^0.29.0",
     "ts-jest": "^24.2.0",
-    "typescript": "^3.7.2"
+    "typescript": "^3.9.10"
   },
   "config": {
     "commitizen": {
@@ -54,6 +54,7 @@
     }
   },
   "dependencies": {
+    "@vue/reactivity": "^3.2.10",
     "tslib": "^2.3.1"
   },
   "repository": {

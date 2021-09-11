@@ -7,6 +7,8 @@
 
 > it's an experimental libarary now, do not use in production enviroment
 
+[简体中文](https://github.com/ObviousJs/obvious-core/blob/master/README.zh.md) ｜ English
+
 ## Introduction
 Obvious is a progressive micro-front-end library. In the micro-front-end architecture, Obvious focuses on solving the  problem of scheduling and communication between micro frontend applications. It aims to help users quickly build a basic micro-front-end system and support deeper customization to achieve a complete and reliable micro-front-end architecture by providing easy-to-understand APIs and flexible middlewares.
 
@@ -54,25 +56,8 @@ bus.config({
 
 micro frontend application can get the bus, and create an App with it, at the same time, a socket can be created to communicate with other App
 
-react-app
-```js
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { touchBus } from 'obvious-core';
-
-const [bus] = touchBus();
-const socket = bus.createSocket();
-bus.createApp('react-app')
-  .bootstrap(async (config) => {
-    socket.unicast('unicast-event');
-    socket.broadcast('broadcast-event');
-    socket.initState('someState', true);
-    ReactDOM.render(<App />, document.querySelector(config.mountPoint));
-  });
-```  
-
 vue-app
-```js
+```ts
 import Vue from 'vue';
 import App from './App.vue';
 import { touchBus } from 'obvious-core';
@@ -81,21 +66,77 @@ Vue.config.productionTip = false;
 
 const [bus] = touchBus();
 const socket = bus.createSocket();
+
+type BroadcastType = {
+  broadcastEvent: () => void
+};
+
+type UnicastType = {
+  unicastEvent: () => void
+}
+
+const off = {};
+let vm = null
+
 bus.createApp('vue-app')
+  .relyOn(['vue'])
   .bootstrap(async (config) => {
-    socket.onUnicast('unicast-event', () => {
+    off.unicast = socket.onUnicast<UnicastType>({
+      unicastEvent() {
+        // do something
+      }
+    });
+    off.broadcast = socket.onBroadcast<BroadcastType>({
+      broadcastEvent() {
+        // do something
+      }
+    });
+    const [user, theme] = await socket.waitState(['user', 'theme']);
+    socket.setState('theme', theme => {
+      theme.value = 'dark';
+    });
+    socket.watchState('user', user => user.name).do((userName) => {
       // do something
     });
-    socket.onBroadcast('broadcast-event', () => {
-      // do something
-    });
-    socket.setState('someState.sub.prop.array', [])
-    socket.watchState('someState.sub.prop.array[0]', (val) => {
-      // do something
-    });
-    new Vue({
+    vm = new Vue({
       render: h => h(App),
     }).$mount(config.mountPoint);
+  })
+  .destroy(() => {
+    vm.$destroy();
+    off.broadcast();
+    off.unicast();
+  });
+```
+
+react-app
+```ts
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { touchBus } from 'obvious-core';
+
+type BroadcastType = {
+  broadcastEvent: () => void
+};
+
+type UnicastType = {
+  unicastEvent: () => void
+}
+
+const [bus] = touchBus();
+const socket = bus.createSocket();
+const broadcaster = socket.createBroadcaster();
+const unicaster = socket.createUnicaster();
+
+bus.createApp('react-app')
+  .relyOn(['react'])
+  .bootstrap(async (config) => {
+    broadcaster.broadcastEvent();
+    unicaster.unicastEvent();
+    socket.initState('user', { name: 'Philip' });
+    socket.initState('theme', { value: 'light' });
+    console.log(socket.getState('theme', theme => theme.value));
+    ReactDOM.render(<App />, document.querySelector(config.mountPoint));
   });
 ```
 
@@ -117,7 +158,7 @@ npm run demo:host
 
 ## Document
 
-[obvious.js: the progressive micro frontend library](https://obviousjs.github.io/obvious-core/#/en/)
+[obvious.js: the progressive micro frontend library](https://obviousjs.github.io/obvious-core/#/en/) (Not the latest)
 
 ## License
 obvious is [MIT Licensed](https://github.com/ObviousJs/obvious-core/blob/master/LICENSE)

@@ -11,10 +11,6 @@ export class EventEmitter {
 
   private unicastEvents: unicastEventsType = {}
 
-  public getBroadcastEvents() {
-    return this.broadcastEvents;
-  }
-
   public addBroadcastEventListener(event: string, callback: CallbackType) {
     this.broadcastEvents[event] = this.broadcastEvents[event] || [];
     this.broadcastEvents[event].push(callback);
@@ -70,7 +66,7 @@ export class EventEmitter {
         try {
           callback(...args);
         } catch (error) {
-          console.error(Errors.broadcastCallbackError);
+          console.error(Errors.broadcastCallbackError(event));
           console.error(error);
         }
       });
@@ -81,6 +77,10 @@ export class EventEmitter {
 
   public emitUnicast(event: string, ...args: any[]) {
     const callback = this.unicastEvents[event];
-    return callback(...args);
+    if (callback) {
+      return callback(...args);
+    } else {
+      throw new Error(Errors.emittedNonExistedUnicast(event));
+    }
   }
 }

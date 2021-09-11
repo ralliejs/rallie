@@ -1,84 +1,65 @@
 import { EventEmitter } from './event-emitter';
-import { CallbackType } from './types';
+import { CallbackType, StoresType } from './types';
+import { Watcher } from './watcher';
 export declare class Socket {
     private eventEmitter;
-    private _state;
-    constructor(eventEmitter: EventEmitter, _state: Object);
+    private stores;
+    constructor(eventEmitter: EventEmitter, stores: StoresType);
+    private offEvents;
     /**
-     * add a broadcast event listener
-     * @param eventName
-     * @param callback
+     * add broadcast event listeners
+     * @param events
      */
-    onBroadcast(eventName: string, callback: CallbackType): void;
+    onBroadcast<T extends Record<string, CallbackType>>(events: T): (eventName?: string) => void;
     /**
-     * remove a broadcast event listener
-     * @param eventName
-     * @param callback
+     * add unicast event listeners
+     * @param events
      */
-    offBroadcast(eventName: string, callback: CallbackType): void;
+    onUnicast<T extends Record<string, CallbackType>>(events: T): (eventName?: string) => void;
     /**
-     * emit a broadcast event
-     * @param eventName
-     * @param args
+     * create a proxy to emit a broadcast event
+     * @param logger
      */
-    broadcast(eventName: string, ...args: any[]): void;
+    createBroadcaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void): T;
     /**
-     * add a unicast event listener
-     * @param {string} eventName
-     * @param {Function} callback
+     * create a proxy to emit unicast event
+     * @param logger
      */
-    onUnicast(eventName: string, callback: CallbackType): void;
-    /**
-     * remove a unicast event listener
-     * @param eventName
-     * @param callback
-     */
-    offUnicast(eventName: string, callback: CallbackType): void;
-    /**
-     * emit a unicast event
-     * @param eventName
-     * @param args
-     */
-    unicast(eventName: string, ...args: any[]): any;
+    createUnicaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void): T;
     /**
      * judge if state has been initialized
-     * @param stateName
+     * @param namespace
      */
-    existState(stateName: string): boolean;
+    existState(namespace: string): boolean;
     /**
      * init a state
-     * @param stateName
+     * @param namespace
      * @param value
      * @param isPrivate is state can only be modified by the socket which initialized it
      */
-    initState(stateName: string, value: any, isPrivate?: boolean): void;
+    initState<T extends object = any>(namespace: string, initialState: T, isPrivate?: boolean): any;
     /**
      * get a state
-     * @param {string} stateName
+     * @param {string} namespace
      */
-    getState(stateName: string): object;
+    getState<T = any, P = T>(namespace: string, getter?: (state: T) => P): any;
+    private getStateToSet;
     /**
      * set the value of the state
-     * @param stateName
+     * @param namespace
      * @param arg
      */
-    setState(stateName: string, arg: any): void;
+    setState<T = any>(namespace: string, setter: (state: T) => void): void;
     /**
      * watch the change of state
-     * @param stateName
-     * @param callback
+     * @param namespace
+     * @param getter
      */
-    watchState(stateName: string, callback: (newValue: any, oldValue?: any) => void): void;
-    /**
-     * remove the listener of state watcher
-     * @param stateName
-     * @param callback
-     */
-    unwatchState(stateName: string, callback: (newValue: any, oldValue: any) => void): void;
+    watchState<T = any, P = any>(namespace: string, getter: (state: T, isWatchingEffect?: boolean) => P): Watcher;
     /**
      * waiting for some states to be initialized
-     * @param dependencies the states to be waited for
+     * @param dependencies the dependencies to be waited for
      * @param timeout the time to wait
      */
-    waitState(dependencies: string[], timeout?: number): Promise<{}>;
+    waitState(dependencies: string[], timeout?: number): Promise<any[]>;
 }
