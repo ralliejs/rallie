@@ -17,6 +17,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          npm-version: 7
 
     - name: Cache node modules
       uses: actions/cache@v2
@@ -32,7 +36,7 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install Dependencies
-      run: npm -v && npm install -g npm@7 && npm install
+      run: npm -v && npm install
 
     - name: Run Unit Test
       run: npm run test
