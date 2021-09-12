@@ -8,6 +8,14 @@ import reactCode from './test-apps/react'
 import { Errors } from '../src/lib/utils'
 import loader from '../src/lib/loader'
 
+declare global {
+  interface Window { // eslint-disable-line
+    appsLoadedFromLocalhost: any;
+    lastLoadingApp: any;
+    React: any;
+  }
+}
+
 nock('https://cdn.obvious.com')
   .get('/assets/app-a.js')
   .reply(200, appACode)

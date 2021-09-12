@@ -225,18 +225,18 @@ export const DEFAULT_BUS_NAME = '__DEFAULT_BUS__'
  * @param name the name of the bus
  */
 export const createBus = (name: string = DEFAULT_BUS_NAME) => {
-  if (self.__Bus__ === undefined) {
-    Object.defineProperty(self, '__Bus__', {
+  if (window.__Bus__ === undefined) {
+    Object.defineProperty(window, '__Bus__', {
       value: busProxy,
       writable: false
     })
   }
 
-  if (self.__Bus__[name]) {
+  if (window.__Bus__[name]) {
     throw new Error(`[obvious] the bus named ${name} has been defined before, please rename your bus`)
   } else {
     const bus = new Bus(name)
-    Object.defineProperty(self.__Bus__, name, {
+    Object.defineProperty(window.__Bus__, name, {
       value: bus,
       writable: false
     })
@@ -250,7 +250,7 @@ export const createBus = (name: string = DEFAULT_BUS_NAME) => {
  * @returns
  */
 export const getBus = (name: string = DEFAULT_BUS_NAME) => {
-  return self.__Bus__ && self.__Bus__[name]
+  return window.__Bus__ && window.__Bus__[name]
 }
 
 /**

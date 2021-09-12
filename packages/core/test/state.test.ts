@@ -146,6 +146,7 @@ describe('Test socket.watchState', () => {
     expect(console.warn).toBeCalledTimes(2)
     expect(console.warn).toBeCalledWith('Mary', 11)
     expect(console.warn).toBeCalledWith('Mike', 11)
+    // @ts-ignore
     expect(socket.stores.user.watchers.length).toEqual(1)
   })
 
@@ -162,6 +163,7 @@ describe('Test socket.watchState', () => {
     expect(user.name).toEqual('Lily')
     expect(user.age).toEqual(13)
     expect(user.gender).toEqual('female')
+    // @ts-ignore
     expect(socket.stores.user.watchers.length).toEqual(0)
   })
 
@@ -183,6 +185,7 @@ describe('Test socket.watchState', () => {
     expect(console.log).toBeCalledTimes(2)
     expect(console.log).toBeCalledWith('Lily')
     expect(console.log).toBeCalledWith('Tom')
+    // @ts-ignore
     expect(socket.stores.user.watchers.length).toEqual(0)
   })
 })
