@@ -1,9 +1,10 @@
 .github
-examples
 test
 .editorconfig
 .eslintignore
 .eslintrc.js
 jest.config.js
 setup-fetch.js
+rollup.config.js
+tsconfig.json
 coverage

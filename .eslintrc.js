@@ -1,25 +1,28 @@
 module.exports = {
-  "env": {
-    "browser": true,
-    "commonjs": true,
-    "es6": true,
-    "jest": true,
-    "node": true
+  env: {
+    browser: true,
+    es6: true,
+    commonjs: true,
+    jest: true
   },
-  "extends": ["eslint:recommended"],
-  "globals": {
-    "__Bus__": true
+  extends: [
+    'standard'
+  ],
+  globals: {
+    __Bus__: true
   },
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 2015,
-    "sourceType": "module"
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module'
   },
-  "plugins": ["@typescript-eslint"],
-  "rules": {
-    "indent": ["error", 2],
-    "linebreak-style": ["error", "unix"],
-    "quotes": ["error", "single"],
-    "semi": ["error", "always"]
+  plugins: [
+    '@typescript-eslint'
+  ],
+  rules: {
+    indent: ['error', 2],
+    'linebreak-style': ['error', 'unix'],
+    quotes: ['error', 'single'],
+    semi: ['error', 'never']
   }
-};
+}
