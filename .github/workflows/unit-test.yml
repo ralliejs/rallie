@@ -35,7 +35,7 @@ jobs:
 #           ${{ runner.os }}-
 
     - name: Install Dependencies
-      run: npm -v && npm install
+      run: npm -v && npm install && npm run bootstrap
 
     - name: Run Unit Test
       run: npm run test
