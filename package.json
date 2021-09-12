@@ -5,8 +5,8 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "lerna bootstrap --hoist",
-    "bootstrap": "lerna bootstrap --hoist",
+    "postinstall": "lerna bootstrap",
+    "bootstrap": "lerna bootstrap",
     "clean": "lerna clean",
     "test": "lerna run test --stream",
     "build": "lerna run build --stream",
