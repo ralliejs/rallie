@@ -35,10 +35,10 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install Dependencies
-      run: npm -v && npm install
+      run: yarn install
 
     - name: Run Unit Test
-      run: npm run test
+      run: yarn run test
     
     - name: Coveralls
       uses: coverallsapp/github-action@master
