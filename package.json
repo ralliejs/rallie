@@ -1,68 +1,60 @@
 {
-  "name": "obvious-core",
-  "version": "0.3.6",
-  "description": "a  progressive micro front framework",
-  "main": "./dist/index.umd.js",
-  "module": "./dist/index.es.js",
-  "types": "./dist/index.d.ts",
+  "private": true,
+  "description": "a progressive micro frontend library",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "rollup -c rollup.config.js",
-    "lint": "eslint --fix --ext .ts,.js src",
-    "docs": "docsify serve docs",
-    "test": "jest --coverage",
+    "post-install": "lerna bootstrap --hoist",
+    "bootstrap": "lerna bootstrap --hoist",
+    "clean": "lerna clean",
+    "test": "lerna run test --stream",
+    "build": "lerna run build --stream",
     "commit": "git cz",
-    "demo:install": "cd ./examples/react-app && npm install && cd ../vue-app && npm install && cd ../host-enviroment && npm install",
-    "demo:react": "cd ./examples/react-app && npm run start",
-    "demo:vue": "cd ./examples/vue-app && npm run serve",
-    "demo:host": "cd ./examples/host-enviroment && npm start"
+    "lint": "lerna run lint --stream",
+    "publish": "lerna publish",
+    "docs": "docsify serve docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ObviousJs/obvious.git"
   },
   "author": "Philip Lau",
-  "license": "ISC",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint && npm run build && git add ./dist"
-    }
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ObviousJs/obvious/issues"
   },
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^17.0.0",
-    "@rollup/plugin-node-resolve": "^11.0.1",
-    "@types/jest": "^24.0.23",
-    "@typescript-eslint/eslint-plugin": "^2.9.0",
-    "@typescript-eslint/parser": "^2.9.0",
-    "commitizen": "^4.2.4",
-    "cz-conventional-changelog": "^3.3.0",
-    "docsify-cli": "^4.4.2",
-    "eslint": "^6.7.2",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-react": "^7.17.0",
-    "eslint-plugin-standard": "^4.0.1",
-    "husky": "^4.3.6",
-    "jest": "^24.9.0",
-    "nock": "^11.7.2",
-    "node-fetch": "^2.6.1",
-    "rollup": "^2.35.1",
-    "rollup-plugin-typescript2": "^0.29.0",
-    "ts-jest": "^24.2.0",
-    "typescript": "^3.9.10"
+  "homepage": "https://github.com/ObviousJs/obvious#readme",
+  "publishConfig": {
+    "access": "public"
   },
   "config": {
     "commitizen": {
       "path": "node_modules/cz-conventional-changelog"
     }
   },
-  "dependencies": {
-    "@vue/reactivity": "^3.2.10",
-    "tslib": "^2.3.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ObviousJs/obvious-core.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ObviousJs/obvious-core/issues"
-  },
-  "homepage": "https://github.com/ObviousJs/obvious-core#readme"
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "20.0.0",
+    "@rollup/plugin-node-resolve": "13.0.4",
+    "@types/jest": "27.0.1",
+    "@typescript-eslint/eslint-plugin": "4.31.0",
+    "@typescript-eslint/parser": "4.31.0",
+    "commitizen": "4.2.4",
+    "cz-conventional-changelog": "3.3.0",
+    "docsify-cli": "4.4.3",
+    "eslint": "7.32.0",
+    "eslint-config-standard": "16.0.3",
+    "eslint-plugin-import": "2.24.2",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "5.1.0",
+    "husky": "7.0.2",
+    "jest": "27.1.1",
+    "lerna": "4.0.0",
+    "nock": "13.1.3",
+    "node-fetch": "3.0.0",
+    "rollup": "2.56.3",
+    "rollup-plugin-typescript2": "0.30.0",
+    "ts-jest": "27.0.5",
+    "typescript": "4.4.3"
+  }
 }

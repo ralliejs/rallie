@@ -1,0 +1,32 @@
+{
+  "name": "@obvious/core",
+  "version": "0.4.0",
+  "description": "a  progressive micro front framework",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "lint": "eslint --fix --ext .ts,.js test",
+    "test": "jest --coverage"
+  },
+  "author": "Philip Lau",
+  "license": "MIT",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run build && git add ./"
+    }
+  },
+  "dependencies": {
+    "@vue/reactivity": "3.2.10",
+    "tslib": "2.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ObviousJs/obvious-core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ObviousJs/obvious-core/issues"
+  },
+  "homepage": "https://github.com/ObviousJs/obvious-core#readme"
+}
