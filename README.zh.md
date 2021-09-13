@@ -2,10 +2,10 @@
   <img style="margin: 16px" width=300 height=300 src="docs/_media/logo_transparent.svg" />
   <br><br>
 
-  [![Coverage Status](https://coveralls.io/repos/github/ObviousJs/obvious-core/badge.svg?branch=master)](https://coveralls.io/github/ObviousJs/obvious-core?branch=master) [![release](https://img.shields.io/github/release/ObviousJs/obvious-core.svg)](https://github.com/ObviousJs/obvious-core/releases) [![lastCommit](https://img.shields.io/github/last-commit/ObviousJs/obvious-core)](https://github.com/ObviousJs/obvious-core/commits/master) [![](https://img.shields.io/badge/document-english-brightgreen)](https://github.com/ObviousJs/obvious-core/blob/master/README.md)
+  [![Coverage Status](https://coveralls.io/repos/github/obvious-js/obvious/badge.svg?branch=master)](https://coveralls.io/github/obvious-js/obvious?branch=master) [![release](https://img.shields.io/github/release/obvious-js/obvious.svg)](https://github.com/obvious-js/obvious/releases) [![lastCommit](https://img.shields.io/github/last-commit/obvious-js/obvious)](https://github.com/obvious-js/obvious/commits/master) [![](https://img.shields.io/badge/document-english-brightgreen)](https://github.com/obvious-js/obvious/blob/master/README.md)
 </div>
 
-[English](https://github.com/ObviousJs/obvious-core/blob/master/README.md) ｜ 简体中文
+[English](https://github.com/obvious-js/obvious/blob/master/README.md) ｜ 简体中文
 
 > 该库还在实验阶段，API尚不稳定，请勿用于生产环境
 
@@ -22,16 +22,16 @@ obvious是一个渐进式微前端库，在微前端架构中，obvious专注于
 ## 安装
 npm: 
 
-`npm install obvious-core`
+`npm install @obvious-js/core`
 
 umd:
 
-`<script src="https://unpkg.com/obvious-core@{version}/dist/index.umd.js"></script>`
+`<script src="https://unpkg.com/@obvious-js/core@{version}/dist/index.umd.js"></script>`
 
 ## 快速开始
 在宿主环境中创建bus，并声明微应用资源
 ```js
-import { touchBus } from 'obvious-core';
+import { touchBus } from '@obvious-js/core';
 
 const [bus] = touchBus();
 
@@ -60,7 +60,7 @@ vue-app
 ```ts
 import Vue from 'vue';
 import App from './App.vue';
-import { touchBus } from 'obvious-core';
+import { touchBus } from '@obvious-js/core';
 
 Vue.config.productionTip = false;
 
@@ -113,7 +113,7 @@ react-app
 ```ts
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { touchBus } from 'obvious-core';
+import { touchBus } from '@obvious-js/core';
 
 type BroadcastType = {
   broadcastEvent: () => void
@@ -157,7 +157,7 @@ npm run demo:host
 ```
 
 ## 文档
-[obvious.js: 渐进式微前端库](https://obviousjs.github.io/obvious-core/#/) (非最新版本)
+[obvious.js: 渐进式微前端库](https://obviousjs.github.io/obvious/#/) (非最新版本)
 
 ## License
-obvious is [MIT Licensed](https://github.com/ObviousJs/obvious-core/blob/master/LICENSE)
+obvious is [MIT Licensed](https://github.com/obvious-js/obvious/blob/master/LICENSE)

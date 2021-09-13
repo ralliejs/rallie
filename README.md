@@ -2,12 +2,12 @@
   <img width=300 height=300 src="docs/_media/logo_transparent.svg" />
   <br><br>
 
-  [![Coverage Status](https://coveralls.io/repos/github/ObviousJs/obvious-core/badge.svg?branch=master)](https://coveralls.io/github/ObviousJs/obvious-core?branch=master) [![release](https://img.shields.io/github/release/ObviousJs/obvious-core.svg)](https://github.com/ObviousJs/obvious-core/releases) [![lastCommit](https://img.shields.io/github/last-commit/ObviousJs/obvious-core)](https://github.com/ObviousJs/obvious-core/commits/master) [![](https://img.shields.io/badge/document-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-brightgreen)](https://github.com/ObviousJs/obvious-core/blob/master/README.zh.md)
+  [![Coverage Status](https://coveralls.io/repos/github/obvious-js/obvious/badge.svg?branch=master)](https://coveralls.io/github/obvious-js/obvious?branch=master) [![release](https://img.shields.io/github/release/obvious-js/obvious.svg)](https://github.com/obvious-js/obvious/releases) [![lastCommit](https://img.shields.io/github/last-commit/obvious-js/obvious)](https://github.com/obvious-js/obvious/commits/master) [![](https://img.shields.io/badge/document-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-brightgreen)](https://github.com/obvious-js/obvious/blob/master/README.zh.md)
 </div>
 
 > it's an experimental libarary now, do not use in production enviroment
 
-[简体中文](https://github.com/ObviousJs/obvious-core/blob/master/README.zh.md) ｜ English
+[简体中文](https://github.com/obvious-js/obvious/blob/master/README.zh.md) ｜ English
 
 ## Introduction
 Obvious is a progressive micro-front-end library. In the micro-front-end architecture, Obvious focuses on solving the  problem of scheduling and communication between micro frontend applications. It aims to help users quickly build a basic micro-front-end system and support deeper customization to achieve a complete and reliable micro-front-end architecture by providing easy-to-understand APIs and flexible middlewares.
@@ -22,17 +22,17 @@ Obvious is a progressive micro-front-end library. In the micro-front-end archite
 ## Installation
 npm: 
 
-`npm install obvious-core`
+`npm install @obvious-js/core`
 
 umd:
 
-`<script src="https://unpkg.com/obvious-core@{version}/dist/index.umd.js"></script>`
+`<script src="https://unpkg.com/@obvious-js/core@{version}/dist/index.umd.js"></script>`
 
 ## Quick Start
 
 In host enviroment, create a bus and declare the resource info
 ```js
-import { touchBus } from 'obvious-core';
+import { touchBus } from '@obvious-js/core';
 
 const [bus] = touchBus()
 bus.config({
@@ -60,7 +60,7 @@ vue-app
 ```ts
 import Vue from 'vue';
 import App from './App.vue';
-import { touchBus } from 'obvious-core';
+import { touchBus } from '@obvious-js/core';
 
 Vue.config.productionTip = false;
 
@@ -113,7 +113,7 @@ react-app
 ```ts
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { touchBus } from 'obvious-core';
+import { touchBus } from '@obvious-js/core';
 
 type BroadcastType = {
   broadcastEvent: () => void
@@ -158,7 +158,7 @@ npm run demo:host
 
 ## Document
 
-[obvious.js: the progressive micro frontend library](https://obviousjs.github.io/obvious-core/#/en/) (Not the latest)
+[obvious.js: the progressive micro frontend library](https://obviousjs.github.io/obvious/#/en/) (Not the latest)
 
 ## License
-obvious is [MIT Licensed](https://github.com/ObviousJs/obvious-core/blob/master/LICENSE)
+obvious is [MIT Licensed](https://github.com/obvious-js/obvious/blob/master/LICENSE)
