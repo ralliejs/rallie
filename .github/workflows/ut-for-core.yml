@@ -1,4 +1,4 @@
-name: Run Unit Test
+name: Run Unit Test For @obvious/core
 
 on:
   push:
@@ -32,12 +32,13 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install Dependencies
-      run: npm -v && npm install
+      run: npm install && cd ./packages/core && npm install
 
     - name: Run Unit Test
-      run: npm run test
+      run: cd ./packages/core && npm run test
     
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./packages/core/coverage/lcov.info

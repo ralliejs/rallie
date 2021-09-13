@@ -5,7 +5,6 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "lerna bootstrap",
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean",
     "test": "lerna run test --stream",
