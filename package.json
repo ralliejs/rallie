@@ -5,14 +5,15 @@
     "packages/*"
   ],
   "scripts": {
-    "bootstrap": "lerna bootstrap",
+    "bootstrap": "lerna bootstrap --hoist",
     "clean": "lerna clean",
     "test": "lerna run test --stream",
     "build": "lerna run build --stream",
     "commit": "git cz",
     "lint": "lerna run lint --stream",
     "publish": "lerna publish",
-    "docs": "docsify serve docs"
+    "docs": "docsify serve docs",
+    "playground": "lerna run dev --stream"
   },
   "repository": {
     "type": "git",
