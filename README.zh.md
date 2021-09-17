@@ -7,7 +7,7 @@
 
 [English](https://github.com/obvious-js/obvious/blob/master/README.md) ｜ 简体中文
 
-> 该库还在实验阶段，API尚不稳定，请勿用于生产环境
+> WIP: 该库还在实验阶段，API尚不稳定，请勿用于生产环境
 
 ## 介绍
 obvious是一个渐进式微前端库，在微前端架构中，obvious专注于解决前端微应用的依赖编排和应用间的通信问题，旨在通过简洁易懂，符合编程直觉的API以及灵活的中间件机制，帮助用户快速搭建好基础微前端体系，并支持进行更深层次地定制，从而实现完整可靠的微前端架构
@@ -158,6 +158,8 @@ npm run demo:host
 
 ## 文档
 [obvious.js: 渐进式微前端库](https://obviousjs.github.io/obvious/#/) (非最新版本)
+
+该文档是obvious-core@0.4.3的文档，后续版本有了较大变化，目前还在开发与设计中
 
 ## License
 obvious is [MIT Licensed](https://github.com/obvious-js/obvious/blob/master/LICENSE)

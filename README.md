@@ -5,7 +5,7 @@
   [![Coverage Status](https://coveralls.io/repos/github/obvious-js/obvious/badge.svg?branch=master)](https://coveralls.io/github/obvious-js/obvious?branch=master) [![release](https://img.shields.io/github/release/obvious-js/obvious.svg)](https://github.com/obvious-js/obvious/releases) [![lastCommit](https://img.shields.io/github/last-commit/obvious-js/obvious)](https://github.com/obvious-js/obvious/commits/master) [![](https://img.shields.io/badge/document-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-brightgreen)](https://github.com/obvious-js/obvious/blob/master/README.zh.md)
 </div>
 
-> it's an experimental libarary now, do not use in production enviroment
+> WIP: the library is under heavy development, do not use it in production enviroment.
 
 [简体中文](https://github.com/obvious-js/obvious/blob/master/README.zh.md) ｜ English
 
@@ -159,6 +159,8 @@ npm run demo:host
 ## Document
 
 [obvious.js: the progressive micro frontend library](https://obviousjs.github.io/obvious/#/en/) (Not the latest)
+
+ps: the document is for obvious-core@0.3.4, there are breaking changes in the later versions
 
 ## License
 obvious is [MIT Licensed](https://github.com/obvious-js/obvious/blob/master/LICENSE)
