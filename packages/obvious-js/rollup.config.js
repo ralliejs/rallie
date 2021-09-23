@@ -8,7 +8,7 @@ export default {
   output: [{
     file: pkg.main,
     format: 'umd',
-    name: 'ObviousCore',
+    name: 'Obvious',
     exports: 'named'
   }, {
     file: pkg.module,

@@ -166,9 +166,9 @@ describe('Test dependencies of App', () => {
   })
 
   test('# case 3: test params of lifecycles', (done) => {
-    apps.a.relyOn([{ ctx: 'c', config: 'app named a activate me' }])
-    apps.c.relyOn([]).bootstrap(async (config) => {
-      console.log(config)
+    apps.a.relyOn([{ ctx: 'c', data: 'app named a activate me' }])
+    apps.c.relyOn([]).bootstrap(async (data) => {
+      console.log(data)
     })
     console.log = jest.fn()
     bus.activateApp('a').then(() => {

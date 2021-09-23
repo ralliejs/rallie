@@ -30,11 +30,10 @@ nock('https://localhost')
 
 describe('Test the capability to load the resources of an app or lib', () => {
   const staticAssetsConfig = {
-    react: {
+    'lib:react': {
       js: [
         { src: 'https://cdn.obvious.com/assets/react.js' }
-      ],
-      isLib: true
+      ]
     },
     'app-to-test-fetch-script': {
       js: [
@@ -45,12 +44,11 @@ describe('Test the capability to load the resources of an app or lib', () => {
         'https://cdn.obvious.com/assets/app-a.css'
       ]
     },
-    'app-to-test-load-script': {
+    'lib:app-to-test-load-script': {
       js: [
         { src: 'https://cdn.obvious.com/assets/app-a.js' },
         'https://cdn.obvious.com/assets/react.js'
-      ],
-      isLib: true
+      ]
     },
     'invalid-resource-app': {
       js: [
@@ -92,7 +90,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
     console.log = jest.fn()
     bus.activateApp('app-to-test-fetch-script').then(() => {
       expect(window.React).toEqual('reactSourceCode')
-      expect(window.lastLoadingApp).toEqual('react')
+      expect(window.lastLoadingApp).toEqual('lib:react')
       expect(console.log).toBeCalledWith('bootstraped')
       expect(window.appsLoadedFromLocalhost.length).toEqual(0)
       done()
@@ -152,17 +150,16 @@ describe('Test the capability to load the resources of an app or lib', () => {
     bus.config({
       loadScriptByFetch: false,
       assets: {
-        'another-app-to-test-load-script': {
+        'lib:another-app-to-test-load-script': {
           js: [
             'thisCanNotBeTested.js'
-          ],
-          isLib: true
+          ]
         }
       }
     })
-    bus.activateApp('app-to-test-load-script') // to increase the coverage
+    bus.activateApp('lib:app-to-test-load-script') // to increase the coverage
     loader.loadScript = jest.fn()
-    bus.activateApp('another-app-to-test-load-script')
+    bus.activateApp('lib:another-app-to-test-load-script')
     expect(loader.loadScript).toBeCalledTimes(1)
   })
 })

@@ -1,10 +1,4 @@
-import { Bus, createBus, getBus, touchBus } from './lib/bus'; // eslint-disable-line
-
-declare global {
-  interface Window { // eslint-disable-line
-    __Bus__: Record<string, Bus>;
-  }
-}
+import { createBus, getBus, touchBus } from './lib/bus'; // eslint-disable-line
 
 const Obvious = {
   createBus,

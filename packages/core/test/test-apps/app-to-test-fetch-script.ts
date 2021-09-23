@@ -8,7 +8,7 @@ const bus = window.__Bus__.testBus;
  */
 bus.createApp('app-to-test-fetch-script')
   .relyOn([
-    'react'
+    'lib:react'
   ])
   .bootstrap(async () => {
     console.log('bootstraped');
