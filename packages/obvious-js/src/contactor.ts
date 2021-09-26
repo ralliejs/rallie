@@ -38,11 +38,11 @@ export class Contactor<
   public privateState: State<PublicState>
 
   public onBroadcast (broadcastEvents: Partial<BroadcastEvents>) {
-    return this.configurator.privateSocket.onBroadcast(broadcastEvents)
+    return this.configurator.privateSocket.onBroadcast<Partial<BroadcastEvents>>(broadcastEvents)
   }
 
   public onUnicast (unicastEvents: Partial<UnicastEvents>) {
-    return this.configurator.privateSocket.onUnicast(unicastEvents)
+    return this.configurator.privateSocket.onUnicast<Partial<UnicastEvents>>(unicastEvents)
   }
 
   public connect<

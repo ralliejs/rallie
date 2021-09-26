@@ -26,10 +26,10 @@ export class Connector<
   public unicaster: UnicastEvents
 
   public onBroadcast (broadcastEvents: Partial<BroadcastEvents>) {
-    this.socket.onBroadcast(broadcastEvents)
+    return this.socket.onBroadcast<Partial<BroadcastEvents>>(broadcastEvents)
   }
 
   public onUnicast (unicastEvents: Partial<UnicastEvents>) {
-    this.socket.onUnicast(unicastEvents)
+    return this.socket.onUnicast<Partial<UnicastEvents>>(unicastEvents)
   }
 }

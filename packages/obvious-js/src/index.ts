@@ -4,10 +4,10 @@ import { Configurator } from './configurator'
 import { Contactor } from './contactor'
 
 export function registerApp<
-  PublicState extends object = any,
-  PrivateState extends object = any,
-  BroadcastEvents extends Record<string, CallbackType> = any,
-  UnicastEvents extends Record<string, CallbackType> = any
+  PublicState extends object = {},
+  PrivateState extends object = {},
+  BroadcastEvents extends Record<string, CallbackType> = {},
+  UnicastEvents extends Record<string, CallbackType> = {}
 > (
   name: string,
   config: (
