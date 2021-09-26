@@ -1,6 +1,6 @@
 import { State } from './state'
 import { Configurator } from './configurator'
-import { CallbackType, MiddlewareFnType, ConfType } from '@obvious-js/core/dist/lib/types'
+import { CallbackType, MiddlewareFnType, ConfType } from '@rallie/core/dist/lib/types'
 import { constant, warnings } from './utils'
 import { Connector } from './connector'
 
@@ -11,23 +11,13 @@ export class Contactor<
   UnicastEvents extends Record<string, CallbackType>
 > {
   constructor (
-    configurator: Configurator<PublicState, PrivateState>,
-    runInHostMode: (callback: (use: (middleware: MiddlewareFnType) => void, config: (conf: ConfType) => void) => void) => void,
-    runInRemoteMode: (callback: () => any) => void
+    configurator: Configurator<PublicState, PrivateState>
   ) {
     this.configurator = configurator
     this.broadcaster = this.configurator.privateSocket.createBroadcaster()
     this.unicaster = this.configurator.privateSocket.createUnicaster()
     this.publicState = new State<PublicState>(this.configurator.privateSocket, this.configurator.name, constant.publicStateNamespace)
-    this.privateState = new State<PublicState>(this.configurator.privateSocket, this.configurator.name, constant.privateStateNamespace)
-    this.runInHostMode = (callback) => {
-      runInHostMode(callback)
-      return this
-    }
-    this.runInRemoteMode = (callback) => {
-      runInRemoteMode(callback)
-      return this
-    }
+    this.privateState = new State<PrivateState>(this.configurator.privateSocket, this.configurator.name, constant.privateStateNamespace)
   }
 
   private configurator: Configurator<PublicState, PrivateState>
@@ -35,7 +25,7 @@ export class Contactor<
   public broadcaster: BroadcastEvents
   public unicaster: UnicastEvents
   public publicState: State<PublicState>
-  public privateState: State<PublicState>
+  public privateState: State<PrivateState>
 
   public onBroadcast (broadcastEvents: Partial<BroadcastEvents>) {
     return this.configurator.privateSocket.onBroadcast<Partial<BroadcastEvents>>(broadcastEvents)
@@ -46,10 +36,10 @@ export class Contactor<
   }
 
   public connect<
-    ExternalPublicState extends object,
-    ExternalPrivateState extends object,
-    ExternalBroadcastEvents extends Record<string, CallbackType>,
-    ExternalUnicastEvents extends Record<string, CallbackType>
+    ExternalPublicState extends object = any,
+    ExternalPrivateState extends object = any,
+    ExternalBroadcastEvents extends Record<string, CallbackType> = any,
+    ExternalUnicastEvents extends Record<string, CallbackType> = any
   > (appName: string) {
     if (!this.configurator.relatedApps.includes(appName)) {
       console.warn(warnings.connectUnrelatedApp(this.configurator.name, appName))
@@ -57,6 +47,11 @@ export class Contactor<
     return new Connector<ExternalPublicState, ExternalPrivateState, ExternalBroadcastEvents, ExternalUnicastEvents>(appName)
   }
 
-  public runInHostMode: (callback: (use: (middleware: MiddlewareFnType) => void, config: (conf: ConfType) => void) => void) => this
-  public runInRemoteMode: (callback: () => any) => this
+  public runInHostMode (callback: (use: (middleware: MiddlewareFnType) => void, config: (conf: ConfType) => void) => void) {
+    this.configurator.runInHostMode(callback)
+  }
+
+  public runInRemoteMode (callback: () => any) {
+    this.configurator.runInRemoteMode(callback)
+  }
 }

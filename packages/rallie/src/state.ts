@@ -1,4 +1,4 @@
-import { Socket } from '@obvious-js/core'
+import { Socket } from '@rallie/core'
 import { errors, constant } from './utils'
 
 export class ReadOnlyState<T extends object> {

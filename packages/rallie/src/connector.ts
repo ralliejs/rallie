@@ -1,6 +1,6 @@
-import { Socket, touchBus } from '@obvious-js/core'
-import { CallbackType } from '@obvious-js/core/dist/lib/types'
-import { State } from './state'
+import { Socket, touchBus } from '@rallie/core'
+import { CallbackType } from '@rallie/core/dist/lib/types'
+import { ReadOnlyState, State } from './state'
 import { constant } from './utils'
 
 export class Connector<
@@ -20,7 +20,7 @@ export class Connector<
 
   private socket: Socket
 
-  public privateState: State<PrivateState>
+  public privateState: ReadOnlyState<PrivateState>
   public publicState: State<PublicState>
   public broadcaster: BroadcastEvents
   public unicaster: UnicastEvents

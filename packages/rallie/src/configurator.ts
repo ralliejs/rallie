@@ -1,17 +1,19 @@
-import { Bus, Socket, App, touchBus } from '@obvious-js/core'
-import { DependenciesType, LifecyleCallbackType } from '@obvious-js/core/dist/lib/types'
+import { Bus, Socket, App, touchBus } from '@rallie/core'
+import { DependenciesType, LifecyleCallbackType, MiddlewareFnType, ConfType } from '@rallie/core/dist/lib/types'
 import { constant } from './utils'
 
 export class Configurator <PublicState extends object, PrivateState extends object> {
-  public globalBus: Bus
-  public privateBus: Bus
-  public globalSocket: Socket
-  public privateSocket: Socket
-  public app: App
-  public name: string
-  public relatedApps: string[]
+  public readonly globalBus: Bus
+  public readonly privateBus: Bus
+  public readonly globalSocket: Socket
+  public readonly privateSocket: Socket
+  public readonly app: App
+  public readonly name: string
+  public readonly relatedApps: string[]
 
-  constructor (name: string, globalBus: Bus) {
+  private readonly isHost: boolean
+
+  constructor (name: string, globalBus: Bus, isHost: boolean) {
     this.globalBus = globalBus
     this.privateBus = touchBus(constant.privateBus(name))[0]
     this.globalSocket = this.globalBus.createSocket()
@@ -19,6 +21,7 @@ export class Configurator <PublicState extends object, PrivateState extends obje
     this.app = this.globalBus.createApp(name)
     this.name = name
     this.relatedApps = []
+    this.isHost = isHost
   }
 
   public bootstrap (callback: LifecyleCallbackType) {
@@ -76,9 +79,31 @@ export class Configurator <PublicState extends object, PrivateState extends obje
 
   public initPublicState (state: PublicState) {
     this.privateSocket.initState<PublicState>(constant.publicStateNamespace, state)
+    return this
   }
 
   public initPrivateState (state: PrivateState) {
     this.privateSocket.initState<PrivateState>(constant.privateStateNamespace, state, true)
+    return this
+  }
+
+  public runInHostMode (callback: (use?: (middleware: MiddlewareFnType) => void, config?: (conf: ConfType) => void) => void) {
+    if (this.isHost) {
+      const use = (middleware: MiddlewareFnType) => {
+        this.globalBus.use(middleware)
+      }
+      const config = (conf: ConfType) => {
+        this.globalBus.config(conf)
+      }
+      callback(use, config)
+    }
+    return this
+  }
+
+  public runInRemoteMode (callback: () => any) {
+    if (this.isHost) {
+      callback()
+    }
+    return this
   }
 }

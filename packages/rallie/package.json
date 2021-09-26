@@ -1,5 +1,5 @@
 {
-  "name": "obvious-js",
+  "name": "rallie",
   "version": "0.4.0",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
@@ -13,7 +13,7 @@
   "author": "Philip Lau",
   "license": "MIT",
   "dependencies": {
-    "@obvious-js/core": "^0.4.0",
+    "@rallie/core": "^0.4.0",
     "tslib": "^2.3.1"
   },
   "repository": {

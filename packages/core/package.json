@@ -1,5 +1,5 @@
 {
-  "name": "@obvious-js/core",
+  "name": "@rallie/core",
   "version": "0.4.0",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
