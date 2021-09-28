@@ -125,10 +125,6 @@ export class Bus {
           }
         }
       }
-      // create app for raw resource
-      if (assets[name].isLib) {
-        this.apps[name] = true
-      }
     } else {
       throw new Error(Errors.resourceNotDeclared(name, this.name))
     }
@@ -163,7 +159,7 @@ export class Bus {
   public async loadApp (ctx: CustomCtxType) {
     const context = this.createContext(ctx)
     // apply the middlewares
-    await this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))
+    !this.apps[context.name] && await this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))
   }
 
   /**
@@ -171,11 +167,14 @@ export class Bus {
    * @param name
    * @param config
    */
-  public async activateApp (ctx: CustomCtxType, config?: any) {
+  public async activateApp<T = any> (ctx: CustomCtxType, config?: T) {
     const context = this.createContext(ctx)
     const { name } = context
     if (!this.apps[name]) {
       await this.loadApp(context)
+      if (name.startsWith('lib:')) {
+        this.apps[name] = true
+      }
     }
     if (!this.apps[name]) {
       throw new Error(Errors.appNotCreated(name))
@@ -208,10 +207,10 @@ export class Bus {
    * @param name
    * @param config
    */
-  public async destroyApp (name: string, config?: any) {
+  public async destroyApp<T = any> (name: string, data?: T) {
     const app = this.apps[name]
     if (app && typeof app !== 'boolean') {
-      app.doDestroy && (await app.doDestroy(config))
+      app.doDestroy && (await app.doDestroy(data))
       app.bootstrapped = false
       app.dependenciesReady = false
     }

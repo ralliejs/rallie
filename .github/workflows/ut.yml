@@ -1,10 +1,11 @@
-name: Run Unit Test For @obvious-js/core
+name: Run Unit Test
 
 on:
   push:
     branches:
       - master
       - dev
+      - feature/pro-obvious
   pull_request:
     branches:
       - master
@@ -32,14 +33,15 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install Dependencies
-      run: npm install && cd ./packages/core && npm install
+      run: npm install
+    
+    - name: bootstrape
+      run: npm run bootstrap
 
     - name: Run Unit Test
-      run: cd ./packages/core && npm run test
+      run: npm run test
     
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        base-path: packages/core
-        path-to-lcov: ./packages/core/coverage/lcov.info

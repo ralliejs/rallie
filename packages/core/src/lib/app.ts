@@ -50,15 +50,15 @@ export class App {
   }
 
   public async activateDependenciesApp (
-    activateApp: (ctx: CustomCtxType, config?: any) => Promise<void>
+    activateApp: (ctx: CustomCtxType, data?: any) => Promise<void>
   ) {
     if (!this.dependenciesReady && this.dependencies.length !== 0) {
       for (const dependence of this.dependencies) {
         if (typeof dependence === 'string') {
           await activateApp(dependence)
         } else if (isObject(dependence)) {
-          const { ctx, config } = dependence
-          await activateApp(ctx, config)
+          const { ctx, data } = dependence
+          await activateApp(ctx, data)
         }
       }
       this.dependenciesReady = true

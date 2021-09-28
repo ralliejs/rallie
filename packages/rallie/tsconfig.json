@@ -8,9 +8,5 @@
   "exclude": [
     "test",
     "dist"
-  ],
-  "include": [
-    "./global.d.ts",
-    "src"
   ]
 }

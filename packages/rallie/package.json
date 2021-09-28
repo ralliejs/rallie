@@ -1,17 +1,19 @@
 {
-  "name": "@rallie/core",
+  "name": "rallie",
   "version": "0.4.0",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.js",
+    "lint": "eslint --fix --ext .ts,.js src",
+    "test": "jest --coverage --config ../../jest.config.js"
   },
   "author": "Philip Lau",
   "license": "MIT",
   "dependencies": {
-    "@vue/reactivity": "^3.2.14",
+    "@rallie/core": "^0.4.0",
     "tslib": "^2.3.1"
   },
   "repository": {

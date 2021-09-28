@@ -1,12 +1,6 @@
-import { Bus, createBus, getBus, touchBus } from './lib/bus'; // eslint-disable-line
+import { createBus, getBus, touchBus } from './lib/bus'; // eslint-disable-line
 
-declare global {
-  interface Window { // eslint-disable-line
-    __Bus__: Record<string, Bus>;
-  }
-}
-
-const Obvious = {
+const RallieCore = {
   createBus,
   getBus,
   touchBus
@@ -16,4 +10,4 @@ export { Bus, createBus, getBus, touchBus } from './lib/bus'; // eslint-disable-
 export { App } from './lib/app'
 export { Socket } from './lib/socket'
 
-export default Obvious
+export default RallieCore

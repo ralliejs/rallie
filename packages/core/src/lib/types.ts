@@ -10,7 +10,6 @@ export type LinkType = Partial<HTMLLinkElement> | string;
 export type AssetsConfigType = Record<string, {
   js?: ScriptType[];
   css?: LinkType[];
-  isLib?: boolean
 }>;
 
 export type ConfType = {
@@ -38,11 +37,11 @@ export type NextFnType = (ctx?: ContextType) => void | Promise<void>;
 
 export type MiddlewareFnType = (ctx: ContextType, next: NextFnType) => void | Promise<void>;
 
-export type LifecyleCallbackType = (config?: any) => Promise<void>;
+export type LifecyleCallbackType = (data?: any) => Promise<void>;
 
 export type DependenciesType = Array<{
   ctx: CustomCtxType,
-  config: any
+  data: any
 } | string>;
 
 export type StoreType<T = any> = {

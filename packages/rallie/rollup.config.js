@@ -8,7 +8,7 @@ export default {
   output: [{
     file: pkg.main,
     format: 'umd',
-    name: 'RallieCore',
+    name: 'Rallie',
     exports: 'named'
   }, {
     file: pkg.module,
