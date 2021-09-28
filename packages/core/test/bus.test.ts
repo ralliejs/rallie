@@ -1,5 +1,5 @@
 import { createBus, getBus, touchBus } from '../src/index'
-import { DEFAULT_BUS_NAME } from '../src/lib/bus'
+import { Bus, DEFAULT_BUS_NAME } from '../src/lib/bus'
 import nock from 'nock'
 import cssCode from './test-apps/css'
 import appACode from './test-apps/app-to-test-fetch-script'
@@ -13,6 +13,7 @@ declare global {
     appsLoadedFromLocalhost: any;
     lastLoadingApp: any;
     React: any;
+    __Bus__: Record<string, Bus>;
   }
 }
 
