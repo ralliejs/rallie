@@ -1,5 +1,6 @@
+import { CustomCtxType } from '@rallie/core/dist/lib/types'
+
 export const constant = {
-  appCreatedFlag: (appName: string) => `$${appName}:created`,
   privateBus: (appName: string) => `$${appName}:bus`,
   publicStateNamespace: '$public',
   privateStateNamespace: '$private'
@@ -11,4 +12,8 @@ export const warnings = {
 
 export const errors = {
   stateNotInitialized: (appName: string, isPrivate: boolean) => `[obvious] the app ${appName} hasn't initialized ${isPrivate ? 'private' : 'public'} state`
+}
+
+export const getAppNameFromCtx = (ctx: CustomCtxType) => {
+  return typeof ctx === 'string' ? ctx : ctx.name
 }

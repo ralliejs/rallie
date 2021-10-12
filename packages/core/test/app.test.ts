@@ -11,9 +11,9 @@ describe('Test lifecycles of App', () => {
          */
     let activateCount = 0
     bus.createApp('a')
-      .bootstrap(async () => {
+      .bootstrap(() => {
         activateCount = 1
-      }).activate(async () => {
+      }).activate(() => {
         activateCount++
       })
     bus.activateApp('a').then(() => {
@@ -138,7 +138,7 @@ describe('Test dependencies of App', () => {
          *        |--f
          *     |--g
          */
-    apps.a.relyOn(['b', 'd', 'g'])
+    apps.a.relyOn(['b', 'd', 'g']).preload(['b', 'c', 'd', 'e', 'f', 'g'])
     apps.b.relyOn(['c'])
     apps.c.relyOn([])
     apps.d.relyOn(['e', 'f'])
@@ -155,8 +155,8 @@ describe('Test dependencies of App', () => {
   })
 
   test('# case 2: test circular dependency', (done) => {
-    apps.a.relyOn(['b'])
-    apps.b.relyOn(['a'])
+    apps.a.relyOn(['b']).preload(['a'])
+    apps.b.relyOn(['a']).preload(['b'])
     bus.activateApp('a').then(() => {
       throw new Error('you should never reach here')
     }).catch((error) => {

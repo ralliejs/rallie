@@ -8,3 +8,4 @@ setup-fetch.js
 rollup.config.js
 tsconfig.json
 coverage
+global.d.ts

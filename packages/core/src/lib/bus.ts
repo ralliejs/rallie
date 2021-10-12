@@ -182,6 +182,7 @@ export class Bus {
     const isApp = typeof this.apps[name] !== 'boolean'
     if (isApp) {
       const app = this.apps[name] as App
+      await Promise.all(app.preloadApps.map((ctx) => this.loadApp(ctx)))
       if (!app.bootstrapped) {
         if (this.dependencyDepth > this.conf.maxDependencyDepth) {
           this.dependencyDepth = 0
@@ -190,14 +191,14 @@ export class Bus {
         this.dependencyDepth++
         await app.activateDependenciesApp(this.activateApp.bind(this))
         if (app.doBootstrap) {
-          await app.doBootstrap(config)
+          await Promise.resolve(app.doBootstrap(config))
         } else if (app.doActivate) {
-          await app.doActivate(config)
+          await Promise.resolve(app.doActivate(config))
         }
         app.bootstrapped = true
         this.dependencyDepth--
       } else {
-        app.doActivate && (await app.doActivate(config))
+        app.doActivate && (await Promise.resolve(app.doActivate(config)))
       }
     }
   }
@@ -210,7 +211,7 @@ export class Bus {
   public async destroyApp<T = any> (name: string, data?: T) {
     const app = this.apps[name]
     if (app && typeof app !== 'boolean') {
-      app.doDestroy && (await app.doDestroy(data))
+      app.doDestroy && (await Promise.resolve(app.doDestroy(data)))
       app.bootstrapped = false
       app.dependenciesReady = false
     }

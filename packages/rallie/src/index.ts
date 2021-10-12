@@ -1,7 +1,7 @@
 import { touchBus } from '@rallie/core'
 import { CustomCtxType, CallbackType } from '@rallie/core/dist/lib/types'
 import { Configurator } from './configurator'
-import { Contactor } from './contactor'
+import { App } from './app'
 
 export function createApp<
   PublicState extends object = {},
@@ -10,15 +10,15 @@ export function createApp<
   UnicastEvents extends Record<string, CallbackType> = {}
 > (
   name: string,
-  config: (
-    app: Configurator<PublicState, PrivateState>
+  config?: (
+    configurator: Configurator<PublicState, PrivateState>
   ) => void
 ) {
   const [globalBus, isHost] = touchBus()
-  const configurator = new Configurator<PublicState, PrivateState>(name, globalBus, isHost)
-  config(configurator)
-  const contactor = new Contactor<PublicState, PrivateState, BroadcastEvents, UnicastEvents>(configurator)
-  return contactor
+  const configurator = new Configurator<PublicState, PrivateState>(name, globalBus)
+  config?.(configurator)
+  const app = new App<PublicState, PrivateState, BroadcastEvents, UnicastEvents>(configurator, isHost)
+  return app
 }
 
 export function activateApp<T = any> (ctx: CustomCtxType, data?: T) {

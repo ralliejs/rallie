@@ -5,12 +5,23 @@ export class App {
   public dependenciesReady: boolean = false;
   public bootstrapped: boolean = false;
   public dependencies: DependenciesType = [];
+  public preloadApps: CustomCtxType[] = [];
   public doBootstrap?: LifecyleCallbackType;
   public doActivate?: LifecyleCallbackType;
   public doDestroy?: LifecyleCallbackType;
 
   constructor (public name: string) {
     this.name = name
+  }
+
+  /**
+   * indicate the apps to be loaded once your app is loaded
+   * @param preloadedApps
+   * @returns
+   */
+  public preload (preloadedApps: CustomCtxType[]) {
+    this.preloadApps = preloadedApps
+    return this
   }
 
   /**

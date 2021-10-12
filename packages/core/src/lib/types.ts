@@ -37,7 +37,7 @@ export type NextFnType = (ctx?: ContextType) => void | Promise<void>;
 
 export type MiddlewareFnType = (ctx: ContextType, next: NextFnType) => void | Promise<void>;
 
-export type LifecyleCallbackType = (data?: any) => Promise<void>;
+export type LifecyleCallbackType = (data?: any) => Promise<void> | void;
 
 export type DependenciesType = Array<{
   ctx: CustomCtxType,
