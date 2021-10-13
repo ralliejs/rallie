@@ -32,8 +32,11 @@ jobs:
     - name: Install Dependencies
       run: npm install
     
-    - name: bootstrape
+    - name: bootstrap
       run: npm run bootstrap
+
+    - name: build
+      run: npm run build
 
     - name: Run Unit Test
       run: npm run test
