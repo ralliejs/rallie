@@ -11,7 +11,8 @@ export const warnings = {
 }
 
 export const errors = {
-  stateNotInitialized: (appName: string, isPrivate: boolean) => `[obvious] the app ${appName} hasn't initialized ${isPrivate ? 'private' : 'public'} state`
+  stateNotInitialized: (appName: string, isPrivate: boolean) => `[obvious] the app ${appName} hasn't initialized ${isPrivate ? 'private' : 'public'} state`,
+  appIsNotCreated: (appName: string) => `[obvious] the app ${appName} is not created, it's not allowed to connect it`
 }
 
 export const getAppNameFromCtx = (ctx: CustomCtxType) => {

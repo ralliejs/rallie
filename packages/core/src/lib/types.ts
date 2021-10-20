@@ -51,3 +51,9 @@ export type StoreType<T = any> = {
 }
 
 export type StoresType = Record<string, StoreType>
+
+export { Socket } from './socket'
+
+export { Bus } from './bus'
+
+export { App } from './app'

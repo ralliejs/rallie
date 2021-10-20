@@ -10,7 +10,7 @@ describe('Test the dependencies', () => {
     use(nativeLoader)
   })
 
-  test('# case 1: the main app relate to a, b and c, activate the main app, a, b and c should be activated', async () => {
+  test('# case 1: the main app relate to a, b and c, activate the main app, a, b and c should be loaded', async () => {
     console.log = jest.fn()
     console.warn = jest.fn()
     console.error = jest.fn()

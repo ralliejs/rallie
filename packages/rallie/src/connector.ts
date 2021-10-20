@@ -1,5 +1,5 @@
-import { Socket, touchBus } from '@rallie/core'
-import { CallbackType } from '@rallie/core/dist/lib/types'
+import { touchBus } from '@rallie/core'
+import { CallbackType, Socket } from '@rallie/core/dist/lib/types'
 import { ReadOnlyState, State } from './state'
 import { constant } from './utils'
 

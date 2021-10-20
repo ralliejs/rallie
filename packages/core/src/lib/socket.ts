@@ -152,9 +152,9 @@ export class Socket {
    * @param namespace
    * @param arg
    */
-  public setState<T = any> (namespace: string, setter: (state: T) => void) {
+  public async setState<T = any> (namespace: string, setter: (state: T) => void | Promise<void>) {
     const state: T = this.getStateToSet(namespace)
-    setter(state)
+    await Promise.resolve(setter(state))
   }
 
   /**

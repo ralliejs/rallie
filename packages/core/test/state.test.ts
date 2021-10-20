@@ -44,33 +44,46 @@ describe('Test socket.setState', () => {
     value: 0
   }, true)
 
-  test('# case 1: state can be modified by socket.setState', () => {
+  test('# case 1: state can be modified by socket.setState', async () => {
+    const delay = (seconds: number) => {
+      return new Promise<void>((resolve, reject) => {
+        setTimeout(() => {
+          resolve()
+        }, seconds * 1000)
+      })
+    }
     console.warn = jest.fn()
     const counter = socket.getState('counter')
     expect(counter.value).toEqual(0)
+    await socket.setState('counter', async (state) => {
+      await delay(1)
+      state.value++
+    })
     socket.setState('counter', (state) => {
       state.value++
     })
     counter.value++
-    expect(counter.value).toEqual(1)
+    expect(counter.value).toEqual(2)
     expect(console.warn).toBeCalledWith('Set operation on key "value" failed: target is readonly.', counter)
   })
 
-  test('# case 2: private state can not be modified by other socket', () => {
+  test('# case 2: private state can not be modified by other socket', (done) => {
     const anotherSocket = bus.createSocket()
-    expect(() => {
-      anotherSocket.setState('counter', (state) => {
-        state.value++
-      })
-    }).toThrowError(Errors.modifyPrivateState('counter'))
+    anotherSocket.setState('counter', (state) => {
+      state.value++
+    }).catch((err) => {
+      expect(err.message).toEqual(Errors.modifyPrivateState('counter'))
+      done()
+    })
   })
 
-  test('# case 3: an uninitialized state can not be set', () => {
-    expect(() => {
-      socket.setState('uninitialized', (state) => {
-        state.value = 'whatever'
-      })
-    }).toThrowError(Errors.accessUninitializedState('uninitialized'))
+  test('# case 3: an uninitialized state can not be set', (done) => {
+    socket.setState('uninitialized', (state) => {
+      state.value = 'whatever'
+    }).catch((err) => {
+      expect(err.message).toEqual(Errors.accessUninitializedState('uninitialized'))
+      done()
+    })
   })
 })
 

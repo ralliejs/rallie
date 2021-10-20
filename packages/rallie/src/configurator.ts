@@ -1,5 +1,5 @@
-import { Bus, Socket, App, touchBus } from '@rallie/core'
-import { DependenciesType, LifecyleCallbackType, CustomCtxType } from '@rallie/core/dist/lib/types'
+import { touchBus } from '@rallie/core'
+import { DependenciesType, LifecyleCallbackType, CustomCtxType, App, Bus, Socket } from '@rallie/core/dist/lib/types'
 import { constant, getAppNameFromCtx } from './utils'
 
 export class Configurator <PublicState extends object, PrivateState extends object> {
@@ -18,18 +18,18 @@ export class Configurator <PublicState extends object, PrivateState extends obje
     this.name = name
   }
 
-  public bootstrap (callback: LifecyleCallbackType) {
-    this.app.bootstrap(callback)
+  public onBootstrap (callback: LifecyleCallbackType) {
+    this.app.onBootstrap(callback)
     return this
   }
 
-  public activate (callback: LifecyleCallbackType) {
-    this.app.activate(callback)
+  public onActivate (callback: LifecyleCallbackType) {
+    this.app.onActivate(callback)
     return this
   }
 
-  public destroy (callback: LifecyleCallbackType) {
-    this.app.destroy(callback)
+  public onDestroy (callback: LifecyleCallbackType) {
+    this.app.onDestroy(callback)
     return this
   }
 

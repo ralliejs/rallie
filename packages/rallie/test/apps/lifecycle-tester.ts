@@ -2,13 +2,13 @@ import { createApp } from '../../src/index'
 
 createApp('lifecycle-tester', (configurator) => {
   configurator
-    .bootstrap(() => {
+    .onBootstrap(() => {
       console.log('bootstraped')
     })
-    .activate(() => {
+    .onActivate(() => {
       console.warn('activated')
     })
-    .destroy(() => {
+    .onDestroy(() => {
       console.error('destroyed')
     })
 })

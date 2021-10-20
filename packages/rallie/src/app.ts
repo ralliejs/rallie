@@ -1,7 +1,7 @@
 import { State } from './state'
 import { Configurator } from './configurator'
 import { CallbackType, MiddlewareFnType, ConfType } from '@rallie/core/dist/lib/types'
-import { constant, warnings } from './utils'
+import { constant, errors, warnings } from './utils'
 import { Connector } from './connector'
 
 export class App<
@@ -44,7 +44,9 @@ export class App<
     ExternalBroadcastEvents extends Record<string, CallbackType> = any,
     ExternalUnicastEvents extends Record<string, CallbackType> = any
   > (appName: string) {
-    if (!this.configurator.relatedApps.includes(appName)) {
+    if (!this.configurator.globalBus.existApp(appName)) {
+      throw new Error(errors.appIsNotCreated(appName))
+    } else if (!this.configurator.relatedApps.includes(appName)) {
       console.warn(warnings.connectUnrelatedApp(this.configurator.name, appName))
     }
     return new Connector<ExternalPublicState, ExternalPrivateState, ExternalBroadcastEvents, ExternalUnicastEvents>(appName)

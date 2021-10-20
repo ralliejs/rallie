@@ -139,12 +139,19 @@ export class Bus {
   }
 
   /**
+   * return true if an app is created
+   */
+  public existApp (name: string) {
+    return !!this.apps[name]
+  }
+
+  /**
    * create an app
    * @param name the name of the app
    * @return the app instance
    */
   public createApp (name: string) {
-    if (this.apps[name]) {
+    if (this.existApp(name)) {
       throw new Error(Errors.createExistingApp(name))
     }
     const app = new App(name)

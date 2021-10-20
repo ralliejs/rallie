@@ -37,7 +37,7 @@ export class App {
    * indicate the callback your app will run when it's activated the first time
    * @param {function} callback
    */
-  public bootstrap (callback: LifecyleCallbackType) {
+  public onBootstrap (callback: LifecyleCallbackType) {
     this.doBootstrap = callback
     return this
   }
@@ -46,7 +46,7 @@ export class App {
    * indicate the callback your app will run when it's activated after the first time
    * @param callback
    */
-  public activate (callback: LifecyleCallbackType) {
+  public onActivate (callback: LifecyleCallbackType) {
     this.doActivate = callback
     return this
   }
@@ -55,7 +55,7 @@ export class App {
    * indicate the callback when your app is destroyed
    * @param callback
    */
-  public destroy (callback: LifecyleCallbackType) {
+  public onDestroy (callback: LifecyleCallbackType) {
     this.doDestroy = callback
     return this
   }

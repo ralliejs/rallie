@@ -11,9 +11,9 @@ describe('Test lifecycles of App', () => {
          */
     let activateCount = 0
     bus.createApp('a')
-      .bootstrap(() => {
+      .onBootstrap(() => {
         activateCount = 1
-      }).activate(() => {
+      }).onActivate(() => {
         activateCount++
       })
     bus.activateApp('a').then(() => {
@@ -33,7 +33,7 @@ describe('Test lifecycles of App', () => {
          */
     let activateCount = 0
     bus.createApp('b')
-      .bootstrap(async () => {
+      .onBootstrap(async () => {
         activateCount++
       })
     bus.activateApp('b').then(() => {
@@ -52,7 +52,7 @@ describe('Test lifecycles of App', () => {
          */
     let activateCount = 0
     bus.createApp('c')
-      .activate(async () => {
+      .onActivate(async () => {
         activateCount++
       })
     bus.activateApp('c').then(() => {
@@ -73,13 +73,13 @@ describe('Test lifecycles of App', () => {
     let bootstraped = false
     let activated = false
     bus.createApp('d')
-      .bootstrap(async () => {
+      .onBootstrap(async () => {
         bootstraped = true
       })
-      .activate(async () => {
+      .onActivate(async () => {
         activated = true
       })
-      .destroy(async () => {
+      .onDestroy(async () => {
         bootstraped = false
         activated = false
       })
@@ -110,11 +110,11 @@ describe('Test dependencies of App', () => {
   appNames.forEach((appName) => {
     const app = bus.createApp(appName)
     apps[appName] = app
-    app.bootstrap(async () => {
+    app.onBootstrap(async () => {
       bootstrapedApps.push(appName)
-    }).activate(async () => {
+    }).onActivate(async () => {
       reactivateApps.push(appName)
-    }).destroy(async () => {
+    }).onDestroy(async () => {
       bootstrapedApps.splice(bootstrapedApps.indexOf(appName), 1)
     })
   })
@@ -167,7 +167,7 @@ describe('Test dependencies of App', () => {
 
   test('# case 3: test params of lifecycles', (done) => {
     apps.a.relyOn([{ ctx: 'c', data: 'app named a activate me' }])
-    apps.c.relyOn([]).bootstrap(async (data) => {
+    apps.c.relyOn([]).onBootstrap(async (data) => {
       console.log(data)
     })
     console.log = jest.fn()

@@ -10,13 +10,13 @@ bus.createApp('app-to-test-fetch-script')
   .relyOn([
     'lib:react'
   ])
-  .bootstrap(async () => {
+  .onBootstrap(async () => {
     console.log('bootstraped');
   })
-  .activate(async () => {
+  .onActivate(async () => {
     console.log('reactivated');
   })
-  .destroy(async () => {
+  .onDestroy(async () => {
     console.log('destroy');
   });
 `
