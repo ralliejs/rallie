@@ -1,4 +1,4 @@
-import { CustomCtxType, LifecyleCallbackType, DependenciesType } from './types'; // eslint-disable-line
+import { CustomCtxType, LifecyleCallbackType, DependenciesType } from '../types'; // eslint-disable-line
 import { isObject } from './utils'
 
 export class App {

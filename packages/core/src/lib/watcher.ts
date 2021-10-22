@@ -1,4 +1,4 @@
-import { StoresType } from './types'; // eslint-disable-line
+import { StoresType } from '../types'; // eslint-disable-line
 
 export class Watcher {
   private namespace: string;

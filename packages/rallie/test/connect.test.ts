@@ -26,9 +26,25 @@ createApp('host-app').runInHostMode((use) => {
   use(nativeLoader)
 })
 
+describe('Test basic function of connect', () => {
+  test('# case 1: connect app not existed', () => {
+    const app = createApp('connect-case1')
+    expect(() => {
+      app.connect('not-existed-app')
+    }).toThrowError(errors.appIsNotCreated('not-existed-app'))
+  })
+
+  test('# case 2: connect app not related to', () => {
+    const app = createApp('connect-case2')
+    console.warn = jest.fn()
+    app.connect('connect-case1')
+    expect(console.warn).toBeCalledWith(warnings.connectUnrelatedApp('connect-case2', 'connect-case1'))
+  })
+})
+
 describe('Test state', () => {
   test('# case 1: test set, get and watch of state', async () => {
-    const app = createApp('case1', configurator => {
+    const app = createApp('state-case1', configurator => {
       configurator
         .relatedTo(['connect-testers/state'])
         .onBootstrap(async () => {
@@ -59,35 +75,43 @@ describe('Test state', () => {
           expect(targetApp.privateState.get(state => state.value)).toEqual(2)
         })
     })
-    await activateApp('case1')
+    await activateApp('state-case1')
   })
 
-  test('# case 2: set uninitialized state', () => {
-    createApp('case2-1', configurator => {
-      configurator.initPrivateState({
-        value: 0
+  test('# case 2: set and watch uninitialized state', () => {
+    createApp('state-case2-1')
+    const app = createApp('state-case2-2', configurator => {
+      configurator.relatedTo(['state-case2-1'])
+    })
+    expect(() => {
+      app.connect('state-case2-1').publicState.set(state => { state.value = 1 })
+    }).toThrowError(errors.stateNotInitialized('state-case2-1', false))
+
+    expect(() => {
+      app.connect('state-case2-1').privateState.watch(state => state.value).do((value) => {
+        console.log(value)
       })
-    })
-    const app = createApp('case2-2', configurator => {
-      configurator.relatedTo(['case2-1'])
-    })
-    expect(() => {
-      app.connect('case2-1').publicState.set(state => { state.value = 1 })
-    }).toThrowError(errors.stateNotInitialized('case2-1', false))
+    }).toThrowError(errors.stateNotInitialized('state-case2-1', true))
   })
 
-  test('# case 3: connect app not existed', () => {
-    const app = createApp('case3')
-    expect(() => {
-      app.connect('not-existed-app')
-    }).toThrowError(errors.appIsNotCreated('not-existed-app'))
-  })
-
-  test('# case 4: connect app not related to', () => {
-    const app = createApp('case4')
-    console.warn = jest.fn()
-    app.connect('case3')
-    expect(console.warn).toBeCalledWith(warnings.connectUnrelatedApp('case4', 'case3'))
+  test('# case 3: wait for state to be initialized', async () => {
+    const delay = (seconds: number) => {
+      return new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve()
+        }, seconds * 1000)
+      })
+    }
+    createApp('state-case3-1', async (configurator) => {
+      await delay(2)
+      configurator.initPublicState({ value: 0 })
+    })
+    const app = createApp('state-case3-2', configurator => {
+      configurator.relatedTo(['state-case3-1'])
+    })
+    expect(app.connect('state-case3-1').publicState.get()).toBeNull()
+    await app.connect('state-case3-1').publicState.ready()
+    expect(app.connect('state-case3-1').publicState.get(state => state.value)).toEqual(0)
   })
 })
 

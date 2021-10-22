@@ -3,7 +3,7 @@ import { Socket } from './socket'
 import { App } from './app'
 import { Errors, compose } from './utils'
 import loader from './loader'
-import { MiddlewareFnType, ContextType, NextFnType, ConfType, CustomCtxType, StoresType } from './types'; // eslint-disable-line
+import { MiddlewareFnType, ContextType, NextFnType, ConfType, CustomCtxType, StoresType } from '../types'; // eslint-disable-line
 
 export class Bus {
   private name: string;

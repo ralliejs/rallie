@@ -163,4 +163,37 @@ describe('Test the capability to load the resources of an app or lib', () => {
     bus.activateApp('lib:another-app-to-test-load-script')
     expect(loader.loadScript).toBeCalledTimes(1)
   })
+
+  test('# case 8: test errors', (done) => {
+    const bus = new Bus('case8Bus')
+    bus.createApp('case8')
+    expect(() => {
+      bus.createApp('case8')
+    }).toThrowError(Errors.createExistingApp('case8'))
+
+    bus.use(async (ctx, next) => {
+      await next()
+      await next()
+    }).use(() => {
+      // an empty middleware to prevent to go to the core middleware
+    })
+    bus.activateApp('case9-1').then(() => {
+      throw new Error('this should not be reached')
+    }).catch((err) => {
+      expect(err.message).toEqual(Errors.multipleCalledNextFn())
+    })
+
+    expect(() => {
+      // @ts-ignore
+      bus.use('')
+    }).toThrowError(Errors.wrongMiddlewareType())
+
+    // @ts-ignore
+    bus.activateApp({}).then(() => {
+      throw new Error('this should not be reached')
+    }).catch((err) => {
+      expect(err.message).toEqual(Errors.wrongContextType())
+      done()
+    })
+  })
 })

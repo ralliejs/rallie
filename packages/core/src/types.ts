@@ -1,5 +1,5 @@
-import { Socket } from './socket'; // eslint-disable-line
-import { Watcher } from './watcher'; // eslint-disable-line
+import { Socket } from './lib/socket'; // eslint-disable-line
+import { Watcher } from './lib/watcher'; // eslint-disable-line
 
 export type CallbackType = (...args: any[]) => any;
 
@@ -52,8 +52,8 @@ export type StoreType<T = any> = {
 
 export type StoresType = Record<string, StoreType>
 
-export { Socket } from './socket'
+export { Socket } from './lib/socket'
 
-export { Bus } from './bus'
+export { Bus } from './lib/bus'
 
-export { App } from './app'
+export { App } from './lib/app'

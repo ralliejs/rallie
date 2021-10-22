@@ -1,4 +1,4 @@
-import { Socket } from '@rallie/core/dist/lib/types'
+import { Socket } from '@rallie/core/dist/types'
 import { errors, constant } from './utils'
 
 export class ReadOnlyState<T extends object> {
@@ -22,6 +22,10 @@ export class ReadOnlyState<T extends object> {
     } else {
       throw new Error(errors.stateNotInitialized(this.appName, this.namespace === constant.privateStateNamespace))
     }
+  }
+
+  public async ready () {
+    await this.socket.waitState([this.namespace])
   }
 }
 

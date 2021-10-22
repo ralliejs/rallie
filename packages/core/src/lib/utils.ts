@@ -1,5 +1,5 @@
 
-import { MiddlewareFnType, NextFnType, ContextType } from './types'; // eslint-disable-line
+import { MiddlewareFnType, NextFnType, ContextType } from '../types'; // eslint-disable-line
 
 export const Errors = {
   // ================= EventEmitter.broadcast  =================

@@ -1,4 +1,4 @@
-import { CustomCtxType } from '@rallie/core/dist/lib/types'
+import { CustomCtxType } from '@rallie/core/dist/types'
 
 export const constant = {
   privateBus: (appName: string) => `$${appName}:bus`,

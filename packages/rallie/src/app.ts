@@ -1,6 +1,6 @@
 import { State } from './state'
 import { Configurator } from './configurator'
-import { CallbackType, MiddlewareFnType, ConfType } from '@rallie/core/dist/lib/types'
+import { CallbackType, MiddlewareFnType, ConfType } from '@rallie/core/dist/types'
 import { constant, errors, warnings } from './utils'
 import { Connector } from './connector'
 
@@ -52,12 +52,12 @@ export class App<
     return new Connector<ExternalPublicState, ExternalPrivateState, ExternalBroadcastEvents, ExternalUnicastEvents>(appName)
   }
 
-  public async runInHostMode (callback: (use?: (middleware: MiddlewareFnType) => void, config?: (conf: ConfType) => void) => void | Promise<void>) {
+  public async runInHostMode (callback: (use?: (middleware: MiddlewareFnType) => void, config?: (conf: Partial<ConfType>) => void) => void | Promise<void>) {
     if (this.isHost) {
       const use = (middleware: MiddlewareFnType) => {
         this.configurator.globalBus.use(middleware)
       }
-      const config = (conf: ConfType) => {
+      const config = (conf: Partial<ConfType>) => {
         this.configurator.globalBus.config(conf)
       }
       await Promise.resolve(callback(use, config))

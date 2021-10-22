@@ -10,7 +10,7 @@
     "test": "jest --coverage",
     "build": "lerna run build --stream",
     "commit": "git cz",
-    "lint": "eslint --fix --ext .ts,.js packages",
+    "lint": "eslint --fix --ext .ts,tsx,.js packages",
     "publish": "lerna publish",
     "docs": "docsify serve docs",
     "playground": "lerna run dev --stream"

@@ -1,4 +1,4 @@
-import { CallbackType } from './types'; // eslint-disable-line
+import { CallbackType } from '../types'; // eslint-disable-line
 import { Errors, Warnings } from './utils'
 
 type BroadcastEventsType = Record<string, Array<CallbackType>>

@@ -1,5 +1,5 @@
 import { touchBus } from '@rallie/core'
-import { CustomCtxType, CallbackType } from '@rallie/core/dist/lib/types'
+import { CustomCtxType, CallbackType } from '@rallie/core/dist/types'
 import { Configurator } from './configurator'
 import { App } from './app'
 
@@ -12,7 +12,7 @@ export function createApp<
   name: string,
   config?: (
     configurator: Configurator<PublicState, PrivateState>
-  ) => void
+  ) => void | Promise<void>
 ) {
   const [globalBus, isHost] = touchBus()
   const configurator = new Configurator<PublicState, PrivateState>(name, globalBus)

@@ -1,5 +1,5 @@
 import { touchBus } from '@rallie/core'
-import { DependenciesType, LifecyleCallbackType, CustomCtxType, App, Bus, Socket } from '@rallie/core/dist/lib/types'
+import { DependenciesType, LifecyleCallbackType, CustomCtxType, App, Bus, Socket } from '@rallie/core/dist/types'
 import { constant, getAppNameFromCtx } from './utils'
 
 export class Configurator <PublicState extends object, PrivateState extends object> {

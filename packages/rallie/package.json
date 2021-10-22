@@ -6,9 +6,7 @@
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c rollup.config.js",
-    "lint": "eslint --fix --ext .ts,.js src",
-    "test": "jest --coverage --config ../../jest.config.js"
+    "build": "rollup -c rollup.config.js"
   },
   "author": "Philip Lau",
   "license": "MIT",
