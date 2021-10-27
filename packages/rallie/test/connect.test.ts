@@ -1,4 +1,4 @@
-import { createApp, activateApp, destroyApp, loadApp } from '../src/index'
+import { createApp, activateApp, destroyApp, loadApp, existApp } from '../src/index'
 import { errors, warnings } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
 
@@ -28,7 +28,9 @@ createApp('host-app').runInHostMode((use) => {
 
 describe('Test basic function of connect', () => {
   test('# case 1: connect app not existed', () => {
+    expect(existApp('connect-case1')).toBeFalsy()
     const app = createApp('connect-case1')
+    expect(existApp('connect-case1')).toBeTruthy()
     expect(() => {
       app.connect('not-existed-app')
     }).toThrowError(errors.appIsNotCreated('not-existed-app'))

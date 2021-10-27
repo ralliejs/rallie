@@ -1,11 +1,17 @@
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import app from '../main'
 
 defineProps({
   msg: String
 })
 
-const count = ref(0)
+const count = computed(() => app.publicState.get(state => state.count))
+const addCount = () => {
+  app.publicState.set(state => {
+    state.count++
+  })
+}
 </script>
 
 <template>
@@ -26,7 +32,7 @@ const count = ref(0)
     <a href="https://v3.vuejs.org/" target="_blank">Vue 3 Documentation</a>
   </p>
 
-  <button type="button" @click="count++">count is: {{ count }}</button>
+  <button type="button" @click="addCount">count is: {{ count }}</button>
   <p>
     Edit
     <code>components/HelloWorld.vue</code> to test hot module replacement.

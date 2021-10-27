@@ -1,5 +1,5 @@
 
-import { MiddlewareFnType, NextFnType, ContextType } from '../types'; // eslint-disable-line
+import { MiddlewareFnType, NextFnType, ContextType, CustomCtxType, DependencyType, CallbackType } from '../types'; // eslint-disable-line
 
 export const Errors = {
   // ================= EventEmitter.broadcast  =================
@@ -57,8 +57,8 @@ export const Errors = {
   },
   bootstrapNumberOverflow: (num = 100) => {
     return `[obvious] the number of apps bootstraped at a time is greater than the maximum value of ${num},` +
-          ' it means that there may be circular dependencies, please check the app dependencies declaration' +
-          ' or reset the bus\'s maxDependencyDepth'
+      ' it means that there may be circular dependencies, please check the app dependencies declaration' +
+      ' or reset the bus\'s maxDependencyDepth'
   },
   multipleCalledNextFn: () => {
     return '[obvious] next() called multiple times in the middleware'
@@ -80,12 +80,45 @@ export const Warnings = {
   }
 }
 
-export const isObject = (object: unknown): boolean => {
+export function isObject (object: unknown): boolean {
   return Object.prototype.toString.call(object) === '[object Object]'
 }
 
-export const isPrimitive = (object: unknown): boolean => {
+export function isPrimitive (object: unknown): boolean {
   return ['string', 'number', 'boolean', 'undefined'].includes(typeof object)
+}
+
+export function getNameFromCtx (ctx: CustomCtxType): string {
+  return typeof ctx === 'string' ? ctx : ctx.name
+}
+
+export function getNameFromDependency (dependency: DependencyType): string {
+  if (typeof dependency === 'string') {
+    return dependency
+  } else {
+    return typeof dependency.ctx === 'string' ? dependency.ctx : dependency.ctx.name
+  }
+}
+
+function deduplicate<T> (items: T[], getName: (item: T) => string) {
+  const flags: Record<string, boolean> = {}
+  const result: T[] = []
+  items.forEach(item => {
+    const name = getName(item)
+    if (!flags[name]) {
+      result.push(item)
+      flags[name] = true
+    }
+  })
+  return result
+}
+
+export function getDeduplicatedRelatedApps (relatedApps: CustomCtxType[]): CustomCtxType[] {
+  return deduplicate<CustomCtxType>(relatedApps, getNameFromCtx)
+}
+
+export function getDeduplicatedDependencies (dependencies: DependencyType[]): DependencyType[] {
+  return deduplicate<DependencyType>(dependencies, getNameFromDependency)
 }
 
 /**

@@ -189,7 +189,7 @@ export class Bus {
     const isApp = typeof this.apps[name] !== 'boolean'
     if (isApp) {
       const app = this.apps[name] as App
-      await Promise.all(app.preloadApps.map((ctx) => this.loadApp(ctx)))
+      await app.loadRelatedApps(this.loadApp.bind(this))
       if (!app.bootstrapped) {
         if (this.dependencyDepth > this.conf.maxDependencyDepth) {
           this.dependencyDepth = 0

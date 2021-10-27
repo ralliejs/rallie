@@ -1,5 +1,5 @@
 {
-  "name": "@rallie/playground",
+  "name": "playground",
   "private": true,
   "version": "0.4.1-alpha.0",
   "scripts": {
@@ -7,6 +7,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "rallie": "^0.4.1-alpha.0",
     "vue": "3.2.6"
   },
   "devDependencies": {

@@ -1,3 +1,3 @@
-import { createApp } from '../../../src'
+import { registerApp, App } from '../../../src'
 
-createApp('dependency-testers/a')
+registerApp(new App({ name: 'dependency-testers/a' }))

@@ -39,10 +39,10 @@ export type MiddlewareFnType = (ctx: ContextType, next: NextFnType) => void | Pr
 
 export type LifecyleCallbackType = (data?: any) => Promise<void> | void;
 
-export type DependenciesType = Array<{
+export type DependencyType = {
   ctx: CustomCtxType,
   data: any
-} | string>;
+} | string;
 
 export type StoreType<T = any> = {
   state: T,
