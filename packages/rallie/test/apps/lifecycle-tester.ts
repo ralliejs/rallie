@@ -1,14 +1,12 @@
-import { createApp } from '../../src/index'
+import { registerApp, App } from '../../src/index'
 
-createApp('lifecycle-tester', (configurator) => {
-  configurator
-    .onBootstrap(() => {
-      console.log('bootstraped')
-    })
-    .onActivate(() => {
-      console.warn('activated')
-    })
-    .onDestroy(() => {
-      console.error('destroyed')
-    })
-})
+registerApp(new App({ name: 'lifecycle-tester' }))
+  .onBootstrap(() => {
+    console.log('bootstraped')
+  })
+  .onActivate(() => {
+    console.warn('activated')
+  })
+  .onDestroy(() => {
+    console.error('destroyed')
+  })

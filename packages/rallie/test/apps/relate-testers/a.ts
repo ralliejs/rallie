@@ -1,7 +1,10 @@
-import { createApp } from '../../../src'
+import { registerApp, App } from '../../../src'
 
-createApp('relate-testers/a', (configurator) => {
-  configurator.relatedTo(['relate-testers/b'])
-}).runInRemoteMode(() => {
+const app = new App({ name: 'relate-testers/a' })
+
+registerApp(app)
+  .relateTo(['relate-testers/b'])
+
+app.runInRemoteMode(() => {
   console.log('relate-testers/a is loaded')
 })

@@ -1,18 +1,16 @@
-import { createApp } from '../../../src/index'
+import { registerApp, App } from '../../../src/index'
 
-createApp('dependency-testers/main', (configurator) => {
-  configurator
-    .relyOn([
-      'dependency-testers/a',
-      {
-        ctx: 'dependency-testers/b',
-        data: null
+registerApp(new App({ name: 'dependency-testers/main' }))
+  .relyOn([
+    'dependency-testers/a',
+    {
+      ctx: 'dependency-testers/b',
+      data: null
+    },
+    {
+      ctx: {
+        name: 'dependency-testers/c'
       },
-      {
-        ctx: {
-          name: 'dependency-testers/c'
-        },
-        data: null
-      }
-    ])
-})
+      data: null
+    }
+  ])

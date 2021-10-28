@@ -1,41 +1,51 @@
 import { State } from './state'
-import { Configurator } from './configurator'
-import { CallbackType, MiddlewareFnType, ConfType } from '@rallie/core/dist/types'
-import { constant, errors, warnings } from './utils'
+import { touchBus, createBus, CallbackType, MiddlewareFnType, ConfType, Bus, Socket, CustomCtxType } from '@rallie/core'
+import { constant, errors } from './utils'
 import { Connector } from './connector'
 
+interface AppConfig<PublicState, PrivateState> {
+  name: string
+  state?: {
+    public?: PublicState
+    private?: PrivateState
+  }
+}
+
 export class App<
-  PublicState extends object,
-  PrivateState extends object,
-  BroadcastEvents extends Record<string, CallbackType>,
-  UnicastEvents extends Record<string, CallbackType>
+  PublicState extends object = {},
+  PrivateState extends object = {},
+  BroadcastEvents extends Record<string, CallbackType> = {},
+  UnicastEvents extends Record<string, CallbackType> = {}
 > {
-  constructor (
-    configurator: Configurator<PublicState, PrivateState>,
-    isHost: boolean
-  ) {
-    this.configurator = configurator
-    this.broadcaster = this.configurator.privateSocket.createBroadcaster()
-    this.unicaster = this.configurator.privateSocket.createUnicaster()
-    this.publicState = new State<PublicState>(this.configurator.privateSocket, this.configurator.name, constant.publicStateNamespace)
-    this.privateState = new State<PrivateState>(this.configurator.privateSocket, this.configurator.name, constant.privateStateNamespace)
+  private globalBus: Bus
+  private isHost: boolean
+  private socket: Socket
+
+  constructor (config: AppConfig<PublicState, PrivateState>) {
+    this.name = config.name
+    const [globalBus, isHost] = touchBus()
+    this.globalBus = globalBus
     this.isHost = isHost
+    const privateBus = createBus(constant.privateBus(config.name))
+    this.socket = privateBus.createSocket()
+    this.broadcaster = this.socket.createBroadcaster()
+    this.unicaster = this.socket.createUnicaster()
+    this.publicState = new State<PublicState>(this.socket, this.name, constant.publicStateNamespace, config?.state?.public)
+    this.privateState = new State<PrivateState>(this.socket, this.name, constant.privateStateNamespace, config?.state?.private)
   }
 
-  private configurator: Configurator<PublicState, PrivateState>
-  private isHost: boolean
-
+  public name: string
   public broadcaster: BroadcastEvents
   public unicaster: UnicastEvents
   public publicState: State<PublicState>
   public privateState: State<PrivateState>
 
   public onBroadcast (broadcastEvents: Partial<BroadcastEvents>) {
-    return this.configurator.privateSocket.onBroadcast<Partial<BroadcastEvents>>(broadcastEvents)
+    return this.socket.onBroadcast<Partial<BroadcastEvents>>(broadcastEvents)
   }
 
   public onUnicast (unicastEvents: Partial<UnicastEvents>) {
-    return this.configurator.privateSocket.onUnicast<Partial<UnicastEvents>>(unicastEvents)
+    return this.socket.onUnicast<Partial<UnicastEvents>>(unicastEvents)
   }
 
   public connect<
@@ -44,21 +54,31 @@ export class App<
     ExternalBroadcastEvents extends Record<string, CallbackType> = any,
     ExternalUnicastEvents extends Record<string, CallbackType> = any
   > (appName: string) {
-    if (!this.configurator.globalBus.existApp(appName)) {
-      throw new Error(errors.appIsNotCreated(appName))
-    } else if (!this.configurator.relatedApps.includes(appName)) {
-      console.warn(warnings.connectUnrelatedApp(this.configurator.name, appName))
+    if (!this.globalBus.existApp(appName)) {
+      throw new Error(errors.appIsNotRegisteredd(appName))
     }
     return new Connector<ExternalPublicState, ExternalPrivateState, ExternalBroadcastEvents, ExternalUnicastEvents>(appName)
+  }
+
+  public load (ctx: CustomCtxType) {
+    return this.globalBus.loadApp(ctx)
+  }
+
+  public activate<T> (ctx: CustomCtxType, data?: T) {
+    return this.globalBus.activateApp(ctx, data)
+  }
+
+  public destroy<T> (name: string, data?: T) {
+    return this.globalBus.destroyApp(name, data)
   }
 
   public async runInHostMode (callback: (use?: (middleware: MiddlewareFnType) => void, config?: (conf: Partial<ConfType>) => void) => void | Promise<void>) {
     if (this.isHost) {
       const use = (middleware: MiddlewareFnType) => {
-        this.configurator.globalBus.use(middleware)
+        this.globalBus.use(middleware)
       }
       const config = (conf: Partial<ConfType>) => {
-        this.configurator.globalBus.config(conf)
+        this.globalBus.config(conf)
       }
       await Promise.resolve(callback(use, config))
     }

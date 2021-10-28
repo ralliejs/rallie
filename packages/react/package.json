@@ -1,0 +1,30 @@
+{
+  "name": "@rallie/react",
+  "version": "0.4.1-alpha.0",
+  "description": "react binding for rallie",
+  "author": "Philip Lau",
+  "homepage": "https://github.com/ralliejs/rallie#readme",
+  "license": "MIT",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ralliejs/rallie.git"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.js"
+  },
+  "bugs": {
+    "url": "https://github.com/ralliejs/rallie/issues"
+  },
+  "dependencies": {
+    "rallie": "^0.4.1-alpha.0"
+  },
+  "devDependencies": {
+  },
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}

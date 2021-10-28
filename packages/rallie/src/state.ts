@@ -1,4 +1,4 @@
-import { Socket } from '@rallie/core/dist/types'
+import { Socket } from '@rallie/core'
 import { errors, constant } from './utils'
 
 export class ReadOnlyState<T extends object> {
@@ -6,10 +6,13 @@ export class ReadOnlyState<T extends object> {
   protected namespace: string
   protected appName: string
 
-  constructor (socket: Socket, appName: string, namespace: string) {
+  constructor (socket: Socket, appName: string, namespace: string, initialValue?: T) {
     this.socket = socket
     this.namespace = namespace
     this.appName = appName
+    if (initialValue) {
+      this.socket.initState<T>(namespace, initialValue)
+    }
   }
 
   public get<P = any> (getter?: (state: T) => P) {
@@ -22,10 +25,6 @@ export class ReadOnlyState<T extends object> {
     } else {
       throw new Error(errors.stateNotInitialized(this.appName, this.namespace === constant.privateStateNamespace))
     }
-  }
-
-  public async ready () {
-    await this.socket.waitState([this.namespace])
   }
 }
 

@@ -1,11 +1,11 @@
-import { CustomCtxType, LifecyleCallbackType, DependenciesType } from '../types'; // eslint-disable-line
-import { isObject } from './utils'
+import { CustomCtxType, LifecyleCallbackType, DependencyType } from '../types'; // eslint-disable-line
+import { getDeduplicatedDependencies, getDeduplicatedRelatedApps, getNameFromCtx, getNameFromDependency, isObject } from './utils'
 
 export class App {
   public dependenciesReady: boolean = false;
   public bootstrapped: boolean = false;
-  public dependencies: DependenciesType = [];
-  public preloadApps: CustomCtxType[] = [];
+  public dependencies: DependencyType[] = [];
+  public relatedApps: CustomCtxType[] = [];
   public doBootstrap?: LifecyleCallbackType;
   public doActivate?: LifecyleCallbackType;
   public doDestroy?: LifecyleCallbackType;
@@ -16,11 +16,17 @@ export class App {
 
   /**
    * indicate the apps to be loaded once your app is loaded
-   * @param preloadedApps
+   * @param relatedApps
    * @returns
    */
-  public preload (preloadedApps: CustomCtxType[]) {
-    this.preloadApps = preloadedApps
+  public relateTo (relatedApps: CustomCtxType[]) {
+    const deduplicatedRelatedApps: CustomCtxType[] = getDeduplicatedRelatedApps(relatedApps)
+    const currentRelatedApps: string[] = this.relatedApps.map((item) => getNameFromCtx(item))
+    deduplicatedRelatedApps.forEach((ctx) => {
+      if (!currentRelatedApps.includes(getNameFromCtx(ctx))) {
+        this.relatedApps.push(ctx)
+      }
+    })
     return this
   }
 
@@ -28,8 +34,20 @@ export class App {
    * indicate the apps to be started before your app is bootstrapped
    * @param dependencies
    */
-  public relyOn (dependencies: DependenciesType) {
-    this.dependencies = dependencies
+  public relyOn (dependencies: DependencyType[]) {
+    const deduplicatedDependencies: DependencyType[] = getDeduplicatedDependencies(dependencies)
+    const currentDependencies = this.dependencies.map((item) => getNameFromDependency(item))
+    const currentRelatedApps = this.relatedApps.map((item) => getNameFromCtx(item))
+    deduplicatedDependencies.forEach((dependency) => {
+      const name = getNameFromDependency(dependency)
+      if (!currentDependencies.includes(name)) {
+        this.dependencies.push(dependency)
+      }
+      if (!currentRelatedApps.includes(name)) {
+        const ctx = typeof dependency === 'string' ? dependency : dependency.ctx
+        this.relatedApps.push(ctx)
+      }
+    })
     return this
   }
 
@@ -74,5 +92,11 @@ export class App {
       }
       this.dependenciesReady = true
     }
+  }
+
+  public async loadRelatedApps (
+    loadApp: (ctx: CustomCtxType) => Promise<void>
+  ) {
+    await Promise.all(this.relatedApps.map((ctx) => loadApp(ctx)))
   }
 }

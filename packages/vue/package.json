@@ -1,0 +1,30 @@
+{
+  "name": "@rallie/vue",
+  "version": "0.4.1-alpha.0",
+  "description": "vue binding for rallie",
+  "author": "runnan <1608272694@qq.com>",
+  "homepage": "https://github.com/ralliejs/rallie#readme",
+  "license": "MIT",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ralliejs/rallie.git"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.js"
+  },
+  "bugs": {
+    "url": "https://github.com/ralliejs/rallie/issues"
+  },
+  "dependencies": {
+    "rallie": "^0.4.1-alpha.0"
+  },
+  "devDependencies": {
+  },
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}

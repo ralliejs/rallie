@@ -1,5 +1,9 @@
-import { createApp } from '../../../src'
+import { registerApp, App } from '../../../src'
 
-createApp('relate-testers/c').runInRemoteMode(() => {
+const app = new App({ name: 'relate-testers/c' })
+
+registerApp(app)
+
+app.runInRemoteMode(() => {
   console.error('relate-testers/c is loaded')
 })

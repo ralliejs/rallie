@@ -1,11 +1,11 @@
-import { createApp } from '../../../src/index'
+import { registerApp, App } from '../../../src/index'
 
-createApp('relate-testers/main', (configurator) => {
-  configurator
-    .relyOn(['relate-testers/c'])
-    .relatedTo([
-      'relate-testers/a',
-      'relate-testers/b',
-      { name: 'relate-testers/c' }
-    ])
-})
+const app = new App({ name: 'relate-testers/main' })
+
+registerApp(app)
+  .relyOn(['relate-testers/c'])
+  .relateTo([
+    'relate-testers/a',
+    'relate-testers/b',
+    { name: 'relate-testers/c' }
+  ])
