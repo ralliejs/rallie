@@ -1,6 +1,5 @@
 import { State } from './state'
-import { touchBus, createBus } from '@rallie/core'
-import { CallbackType, MiddlewareFnType, ConfType, Bus, Socket, CustomCtxType } from '@rallie/core/dist/types'
+import { touchBus, createBus, CallbackType, MiddlewareFnType, ConfType, Bus, Socket, CustomCtxType } from '@rallie/core'
 import { constant, errors } from './utils'
 import { Connector } from './connector'
 
@@ -56,21 +55,21 @@ export class App<
     ExternalUnicastEvents extends Record<string, CallbackType> = any
   > (appName: string) {
     if (!this.globalBus.existApp(appName)) {
-      throw new Error(errors.appIsNotCreated(appName))
+      throw new Error(errors.appIsNotRegisteredd(appName))
     }
     return new Connector<ExternalPublicState, ExternalPrivateState, ExternalBroadcastEvents, ExternalUnicastEvents>(appName)
   }
 
   public load (ctx: CustomCtxType) {
-    this.globalBus.loadApp(ctx)
+    return this.globalBus.loadApp(ctx)
   }
 
   public activate<T> (ctx: CustomCtxType, data?: T) {
-    this.globalBus.activateApp(ctx, data)
+    return this.globalBus.activateApp(ctx, data)
   }
 
   public destroy<T> (name: string, data?: T) {
-    this.globalBus.destroyApp(name, data)
+    return this.globalBus.destroyApp(name, data)
   }
 
   public async runInHostMode (callback: (use?: (middleware: MiddlewareFnType) => void, config?: (conf: Partial<ConfType>) => void) => void | Promise<void>) {

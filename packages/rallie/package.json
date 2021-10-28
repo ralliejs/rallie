@@ -16,10 +16,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ObviousJs/obvious-core.git"
+    "url": "git+https://github.com/ralliejs/rallie.git"
   },
   "bugs": {
-    "url": "https://github.com/ObviousJs/obvious-core/issues"
+    "url": "https://github.com/ralliejs/rallie/issues"
   },
-  "homepage": "https://github.com/ObviousJs/obvious-core#readme"
+  "homepage": "https://github.com/ralliejs/rallie#readme"
 }

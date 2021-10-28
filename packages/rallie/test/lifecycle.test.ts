@@ -1,7 +1,7 @@
-import { createApp, activateApp, destroyApp } from '../src/index'
+import { App, registerApp } from '../src/index'
 import nativeLoader from './middlewares/native-loader'
 
-const hostApp = createApp('host-app')
+const hostApp = new App({ name: 'host-app' })
 hostApp.runInHostMode((use, config) => {
   config({
     maxDependencyDepth: 1
@@ -10,7 +10,8 @@ hostApp.runInHostMode((use, config) => {
 })
 describe('Test runInHostMode and runInRemoteMode', () => {
   test('# case 1: the host-app should run in host mode, and other apps should run in remote mode', async () => {
-    const remoteApp = createApp('remote-app')
+    const remoteApp = new App({ name: 'remote-app' })
+    registerApp(remoteApp)
     console.log = jest.fn()
     hostApp.runInHostMode(() => {
       console.log('host-app is running in host mode')
@@ -43,17 +44,13 @@ describe('Test runInHostMode and runInRemoteMode', () => {
   })
 
   test('# case 2: config in host mode should take effect', (done) => {
-    createApp('case2-1', configurator => {
-      configurator.relyOn(['case2-2'])
-    })
-    createApp('case2-2', configurator => {
-      configurator.relyOn(['case2-3'])
-    })
-    createApp('case2-3')
-    activateApp('case2-1').then(() => {
+    registerApp(new App({ name: 'case2-1' })).relyOn(['case2-2'])
+    registerApp(new App({ name: 'case2-2' })).relyOn(['case2-3'])
+    registerApp(new App({ name: 'case2-3' }))
+    hostApp.activate('case2-1').then(() => {
       throw new Error('this should never be reached')
     }).catch((err) => {
-      const expectedError = "[obvious] the number of apps bootstraped at a time is greater than the maximum value of 1, it means that there may be circular dependencies, please check the app dependencies declaration or reset the bus's maxDependencyDepth" // eslint-disable-line
+      const expectedError = "[rallie] the number of apps bootstraped at a time is greater than the maximum value of 1, it means that there may be circular dependencies, please check the app dependencies declaration or reset the bus's maxDependencyDepth" // eslint-disable-line
       expect(err.message).toEqual(expectedError)
       done()
     })
@@ -66,11 +63,11 @@ describe('Test App\'s lifecycles', () => {
     console.log = jest.fn()
     console.warn = jest.fn()
     console.error = jest.fn()
-    await activateApp(tester) // bootstrap
-    await activateApp(tester) // reactivate
-    await activateApp(tester) // reactivate
-    await destroyApp(tester) // destroy
-    await activateApp(tester) // bootstrap
+    await hostApp.activate(tester) // bootstrap
+    await hostApp.activate(tester) // reactivate
+    await hostApp.activate(tester) // reactivate
+    await hostApp.destroy(tester) // destroy
+    await hostApp.activate(tester) // bootstrap
     expect(console.log).toBeCalledTimes(2)
     expect(console.warn).toBeCalledTimes(2)
     expect(console.error).toBeCalledTimes(1)

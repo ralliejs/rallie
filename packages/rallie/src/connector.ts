@@ -1,13 +1,12 @@
-import { touchBus } from '@rallie/core'
-import { CallbackType, Socket } from '@rallie/core/dist/types'
+import { touchBus, CallbackType, Socket } from '@rallie/core'
 import { ReadOnlyState, State } from './state'
 import { constant } from './utils'
 
 export class Connector<
-  PublicState extends object,
-  PrivateState extends object,
-  BroadcastEvents extends Record<string, CallbackType>,
-  UnicastEvents extends Record<string, CallbackType>
+  PublicState extends object = {},
+  PrivateState extends object = {},
+  BroadcastEvents extends Record<string, CallbackType> = {},
+  UnicastEvents extends Record<string, CallbackType> = {}
 > {
   constructor (appName: string) {
     const bus = touchBus(constant.privateBus(appName))[0]

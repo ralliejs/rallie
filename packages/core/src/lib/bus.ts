@@ -240,7 +240,7 @@ export const createBus = (name: string = DEFAULT_BUS_NAME) => {
   }
 
   if (window.__Bus__[name]) {
-    throw new Error(`[obvious] the bus named ${name} has been defined before, please rename your bus`)
+    throw new Error(`[rallie] the bus named ${name} has been defined before, please rename your bus`)
   } else {
     const bus = new Bus(name)
     Object.defineProperty(window.__Bus__, name, {

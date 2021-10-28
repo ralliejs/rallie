@@ -1,4 +1,4 @@
-import { Socket } from '@rallie/core/dist/types'
+import { Socket } from '@rallie/core'
 import { errors, constant } from './utils'
 
 export class ReadOnlyState<T extends object> {

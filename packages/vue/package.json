@@ -1,8 +1,8 @@
 {
-  "name": "@rallie/react",
+  "name": "@rallie/vue",
   "version": "0.4.1-alpha.0",
-  "description": "react binding for rallie",
-  "author": "Philip Lau",
+  "description": "vue binding for rallie",
+  "author": "runnan <1608272694@qq.com>",
   "homepage": "https://github.com/ralliejs/rallie#readme",
   "license": "MIT",
   "main": "./dist/index.umd.js",

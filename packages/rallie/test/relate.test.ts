@@ -1,10 +1,10 @@
-import { createApp, activateApp } from '../src/index'
+import { App } from '../src/index'
 import nativeLoader from './middlewares/native-loader'
 import logger from './middlewares/logger'
 
 describe('Test the dependencies', () => {
   const appsLoaded = []
-  const hostApp = createApp('host-app')
+  const hostApp = new App({ name: 'host-app' })
   hostApp.runInHostMode((use) => {
     use(logger(appsLoaded))
     use(nativeLoader)
@@ -14,7 +14,8 @@ describe('Test the dependencies', () => {
     console.log = jest.fn()
     console.warn = jest.fn()
     console.error = jest.fn()
-    await activateApp('relate-testers/main')
+    await hostApp.load('relate-testers/main') // only to increase the covarage
+    await hostApp.activate('relate-testers/main')
     expect(appsLoaded.includes('relate-testers/a')).toBeTruthy()
     expect(appsLoaded.includes('relate-testers/b')).toBeTruthy()
     expect(appsLoaded.includes('relate-testers/c')).toBeTruthy()

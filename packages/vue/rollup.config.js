@@ -8,10 +8,10 @@ export default {
   output: [{
     file: pkg.main,
     format: 'umd',
-    name: 'RallieReact',
+    name: 'RallieVue',
     exports: 'named',
     globals: {
-      react: 'React'
+      vue: 'Vue'
     }
   }, {
     file: pkg.module,
@@ -23,5 +23,5 @@ export default {
     commonJs(),
     typescript()
   ],
-  external: ['react']
+  external: ['vue']
 }

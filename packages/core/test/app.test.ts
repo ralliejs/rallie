@@ -1,5 +1,4 @@
-import { createBus } from '../src/index'
-import { App } from '../src/types'
+import { createBus, App } from '../src'
 import { Errors } from '../src/lib/utils'
 
 describe('Test lifecycles of App', () => {
@@ -161,7 +160,7 @@ describe('Test dependencies of App', () => {
      *    |    |
      *    |----i
      * */
-    apps.h.relyOn(['i'])
+    apps.h.relyOn([{ ctx: { name: 'i' } }])
     apps.i.relyOn(['h'])
     bus.activateApp('i').then(() => {
       throw new Error('you should never reach here')

@@ -41,7 +41,7 @@ export type LifecyleCallbackType = (data?: any) => Promise<void> | void;
 
 export type DependencyType = {
   ctx: CustomCtxType,
-  data: any
+  data?: any
 } | string;
 
 export type StoreType<T = any> = {

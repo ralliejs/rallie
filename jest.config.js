@@ -8,5 +8,5 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   testEnvironment: 'jsdom',
-  coveragePathIgnorePatterns: ['/test/', '/node_modules/', '/dist/']
+  coveragePathIgnorePatterns: ['/test/', '/node_modules/', '/dist/', 'index.ts', 'types.ts']
 }
