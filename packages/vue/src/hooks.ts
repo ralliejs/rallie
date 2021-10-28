@@ -14,7 +14,7 @@ export function getStateHook<T extends object> (state: State<T> | ReadOnlyState<
   }
 }
 
-export function getBroadcastHooks<BroadcastEvents> (app: App) {
+export function getBroadcastHook<BroadcastEvents> (app: App) {
   return function (events: Partial<BroadcastEvents>) {
     let offBroadcast = null
     onBeforeMount(() => {
@@ -26,7 +26,7 @@ export function getBroadcastHooks<BroadcastEvents> (app: App) {
   }
 }
 
-export function getUnicastHooks<UnicastEvents> (app: App | Connector) {
+export function getUnicastHook<UnicastEvents> (app: App | Connector) {
   return function (events: Partial<UnicastEvents>) {
     let offUnicast = null
     onBeforeMount(() => {
