@@ -1,6 +1,6 @@
 {
   "name": "rallie",
-  "version": "0.4.1-alpha.0",
+  "version": "0.5.0-alpha.0",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
@@ -11,7 +11,7 @@
   "author": "Philip Lau",
   "license": "MIT",
   "dependencies": {
-    "@rallie/core": "^0.4.1-alpha.0",
+    "@rallie/core": "^0.5.0-alpha.0",
     "tslib": "^2.3.1"
   },
   "repository": {
