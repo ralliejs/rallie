@@ -1,6 +1,6 @@
 import { State } from './state'
 import { touchBus, createBus, CallbackType, MiddlewareFnType, ConfType, Bus, Socket, CustomCtxType } from '@rallie/core'
-import { constant, errors } from './utils'
+import { constant } from './utils'
 import { Connector } from './connector'
 
 interface AppConfig<PublicState, PrivateState> {
@@ -12,10 +12,10 @@ interface AppConfig<PublicState, PrivateState> {
 }
 
 export class App<
+  BroadcastEvents extends Record<string, CallbackType> = {},
+  UnicastEvents extends Record<string, CallbackType> = {},
   PublicState extends object = {},
   PrivateState extends object = {},
-  BroadcastEvents extends Record<string, CallbackType> = {},
-  UnicastEvents extends Record<string, CallbackType> = {}
 > {
   private globalBus: Bus
   private isHost: boolean
@@ -49,15 +49,12 @@ export class App<
   }
 
   public connect<
-    ExternalPublicState extends object = any,
-    ExternalPrivateState extends object = any,
-    ExternalBroadcastEvents extends Record<string, CallbackType> = any,
-    ExternalUnicastEvents extends Record<string, CallbackType> = any
+    ExternalBroadcastEvents extends Record<string, CallbackType> = {},
+    ExternalUnicastEvents extends Record<string, CallbackType> = {},
+    ExternalPublicState extends object = {},
+    ExternalPrivateState extends object = {},
   > (appName: string) {
-    if (!this.globalBus.existApp(appName)) {
-      throw new Error(errors.appIsNotRegisteredd(appName))
-    }
-    return new Connector<ExternalPublicState, ExternalPrivateState, ExternalBroadcastEvents, ExternalUnicastEvents>(appName)
+    return new Connector<ExternalBroadcastEvents, ExternalUnicastEvents, ExternalPublicState, ExternalPrivateState>(appName)
   }
 
   public load (ctx: CustomCtxType) {

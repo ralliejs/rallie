@@ -29,21 +29,6 @@ hostApp.runInHostMode((use) => {
   use(nativeLoader)
 })
 
-describe('Test basic function of connect', () => {
-  test('# case 1: connect app not existed', () => {
-    expect(() => {
-      hostApp.connect('not-existed-app')
-    }).toThrowError(errors.appIsNotRegisteredd('not-existed-app'))
-  })
-
-  // test('# case 2: connect app not related to', () => {
-  //   const app = createApp('connect-case2')
-  //   console.warn = jest.fn()
-  //   app.connect('connect-case1')
-  //   expect(console.warn).toBeCalledWith(warnings.connectUnrelatedApp('connect-case2', 'connect-case1'))
-  // })
-})
-
 describe('Test state', () => {
   test('# case 1: test set, get and watch of state', async () => {
     const app = new App({ name: 'state-case1' })
@@ -52,7 +37,7 @@ describe('Test state', () => {
       .onBootstrap(async () => {
         console.log = jest.fn()
         console.warn = jest.fn()
-        const targetApp = app.connect<StateTesterPublicState, StateTesterPrivateState>('connect-testers/state')
+        const targetApp = app.connect<{}, {}, StateTesterPublicState, StateTesterPrivateState>('connect-testers/state')
         expect(targetApp.publicState.get(state => state.value)).toEqual(0)
         expect(targetApp.privateState.get(state => state.value)).toEqual(0)
         targetApp.publicState.set(state => { state.value = 1 }) // set state before watch
@@ -84,11 +69,11 @@ describe('Test state', () => {
     const app = new App({ name: 'state-case2-2' })
     registerApp(app).relateTo(['state-case2-1'])
     expect(() => {
-      app.connect('state-case2-1').publicState.set(state => { state.value = 1 })
+      app.connect<{}, {}, any>('state-case2-1').publicState.set(state => { state.value = 1 })
     }).toThrowError(errors.stateNotInitialized('state-case2-1', false))
 
     expect(() => {
-      app.connect('state-case2-1').privateState.watch(state => state.value).do((value) => {
+      app.connect<{}, {}, {}, any>('state-case2-1').privateState.watch(state => state.value).do((value) => {
         console.log(value)
       })
     }).toThrowError(errors.stateNotInitialized('state-case2-1', true))
@@ -101,7 +86,7 @@ describe('Test Events', () => {
 
   test('# case 1: test broadcast', async () => {
     await app.activate('event-tester')
-    const targetApp = app.connect<{}, {}, EventTesterBroadcastEvents, EventTesterUnicastEvents>('connect-testers/event')
+    const targetApp = app.connect<EventTesterBroadcastEvents, EventTesterUnicastEvents, {}, {}>('connect-testers/event')
     const recordedTexts = []
     console.log = jest.fn()
     console.warn = jest.fn()
@@ -130,7 +115,7 @@ describe('Test Events', () => {
 
   test('# case 2: test unicast', async () => {
     await app.activate('event-tester')
-    const targetApp = app.connect<{}, {}, EventTesterBroadcastEvents, EventTesterUnicastEvents>('connect-testers/event')
+    const targetApp = app.connect<EventTesterBroadcastEvents, EventTesterUnicastEvents, {}, {}>('connect-testers/event')
     console.log = jest.fn()
     targetApp.onUnicast({
       printCount (count) {

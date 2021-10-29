@@ -16,7 +16,7 @@ type UnicastEvents = {
   printCount: (count: number) => void;
 }
 
-const app = new App<{}, PrivateState, BroadcastEvents, UnicastEvents>({
+const app = new App<BroadcastEvents, UnicastEvents, {}, PrivateState>({
   name: 'connect-testers/event',
   state: {
     private: {

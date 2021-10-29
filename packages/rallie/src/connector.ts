@@ -3,12 +3,13 @@ import { ReadOnlyState, State } from './state'
 import { constant } from './utils'
 
 export class Connector<
-  PublicState extends object = {},
-  PrivateState extends object = {},
   BroadcastEvents extends Record<string, CallbackType> = {},
-  UnicastEvents extends Record<string, CallbackType> = {}
+  UnicastEvents extends Record<string, CallbackType> = {},
+  PublicState extends object = {},
+  PrivateState extends object = {}
 > {
   constructor (appName: string) {
+    this.name = appName
     const bus = touchBus(constant.privateBus(appName))[0]
     this.socket = bus.createSocket()
     this.privateState = new State<PrivateState>(this.socket, appName, constant.privateStateNamespace)
@@ -19,6 +20,7 @@ export class Connector<
 
   private socket: Socket
 
+  public name: string
   public privateState: ReadOnlyState<PrivateState>
   public publicState: State<PublicState>
   public broadcaster: BroadcastEvents

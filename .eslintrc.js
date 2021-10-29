@@ -7,10 +7,16 @@ module.exports = {
   },
   extends: [
     'standard',
-    'plugin:react/recommended'
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime'
   ],
   globals: {
     __Bus__: true
+  },
+  settings: {
+    react: {
+      version: 'detect'
+    }
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {

@@ -3,7 +3,7 @@ import { App, Connector, State, ReadOnlyState } from 'rallie'
 
 export function getStateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
   return function <P = any> (getter: (_state: T) => P) {
-    const [value, setValue] = React.useState(state.get(getter))
+    const [value, setValue] = React.useState<P>(state.get(getter))
     const unwatch = state.watch(getter).do((val) => {
       setValue(val)
     })
