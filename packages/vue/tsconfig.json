@@ -6,7 +6,7 @@
     "composite": true,                     /* Enable project compilation */
   },
   "exclude": [
-    "test",
-    "dist"
+    "dist",
+    "test"
   ]
 }

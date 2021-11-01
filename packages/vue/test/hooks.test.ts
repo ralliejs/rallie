@@ -1,12 +1,12 @@
-import { producer, Producer } from './apps/producer'
-import { consumer, Consumer } from './apps/consumer'
-import { render, fireEvent, screen, cleanup } from '@testing-library/react'
+// @ts-ignore
+import { render, fireEvent, screen, cleanup } from '@testing-library/vue'
+import { Producer, producer } from './apps/producer'
+import { Consumer, consumer } from './apps/consumer'
 import { registerApp } from 'rallie'
 
 registerApp(producer)
   .onActivate(() => {
-    // @ts-ignore
-    render(<Producer />) // TODO: fix the ts error
+    render(Producer)
   })
   .onDestroy(() => {
     cleanup()
@@ -15,15 +15,14 @@ registerApp(producer)
 registerApp(consumer)
   .relyOn(['producer'])
   .onActivate((containerId) => {
-    // @ts-ignore
-    render(<Consumer />, { // TODO: fix the ts error
+    render(Consumer, {
       container: document.getElementById(containerId)
     })
   })
   .onDestroy(() => {
     cleanup()
   })
-describe('Test React hooks', () => {
+describe('Test Vue hooks', () => {
   beforeEach(async () => {
     await consumer.activate(consumer.name, 'consumer')
   })
@@ -37,9 +36,9 @@ describe('Test React hooks', () => {
     const addCountBtn = await screen.findByText('add count')
     const count = await screen.findByTestId('count')
     expect(count.innerHTML).toEqual('0')
-    fireEvent.click(addCountBtn)
-    fireEvent.click(addCountBtn)
-    fireEvent.click(addCountBtn)
+    await fireEvent.click(addCountBtn)
+    await fireEvent.click(addCountBtn)
+    await fireEvent.click(addCountBtn)
     expect(count.innerHTML).toEqual('3')
   })
 
@@ -52,10 +51,10 @@ describe('Test React hooks', () => {
     expect(producerContainer.style.backgroundColor).toEqual('black')
     expect(consumerContainer.style.backgroundColor).toEqual('black')
     const toggleThemeBtn = await screen.findByText('toggle theme')
-    fireEvent.click(toggleThemeBtn)
+    await fireEvent.click(toggleThemeBtn)
     expect(producerContainer.style.backgroundColor).toEqual('white')
     expect(consumerContainer.style.backgroundColor).toEqual('white')
-    fireEvent.click(printThemeBtn) // log light
+    await fireEvent.click(printThemeBtn) // log light
     expect(console.log).toBeCalledTimes(2)
     expect(console.log).toBeCalledWith('dark')
     expect(console.log).toBeCalledWith('light')

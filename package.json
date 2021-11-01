@@ -1,6 +1,7 @@
 {
   "private": true,
   "description": "a progressive micro frontend library",
+  "name": "ralliejs",
   "workspaces": [
     "packages/*"
   ],
@@ -17,14 +18,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ObviousJs/obvious.git"
+    "url": "git+https://github.com/ralliejs/rallie.git"
   },
   "author": "Philip Lau",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ObviousJs/obvious/issues"
+    "url": "https://github.com/ralliejs/rallie/issues"
   },
-  "homepage": "https://github.com/ObviousJs/obvious#readme",
+  "homepage": "https://github.com/ralliejs/rallie#readme",
   "publishConfig": {
     "access": "public"
   },
@@ -37,11 +38,13 @@
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@testing-library/react": "^12.1.2",
+    "@testing-library/vue": "^6.4.2",
     "@types/jest": "^27.0.1",
     "@types/react": "^17.0.31",
     "@types/react-dom": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
     "@typescript-eslint/parser": "^4.31.0",
+    "@vue/vue3-jest": "^27.0.0-alpha.3",
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.3.0",
     "docsify-cli": "^4.4.3",
@@ -52,6 +55,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-plugin-vue": "^8.0.3",
     "husky": "^4.3.8",
     "jest": "^27.1.1",
     "lerna": "^4.0.0",
@@ -63,7 +67,8 @@
     "rollup-plugin-typescript2": "^0.30.0",
     "ts-jest": "^27.0.5",
     "typescript": "^4.4.3",
-    "vue": "^3.2.6"
+    "vue": "^3.2.6",
+    "vue-eslint-parser": "^8.0.1"
   },
   "husky": {
     "hooks": {

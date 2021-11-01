@@ -1,6 +1,7 @@
 module.exports = {
   transform: {
-    '^.+\\.tsx?$': 'ts-jest'
+    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.vue$': '@vue/vue3-jest'
   },
   rootDir: '.',
   setupFiles: [

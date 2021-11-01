@@ -8,7 +8,8 @@ module.exports = {
   extends: [
     'standard',
     'plugin:react/recommended',
-    'plugin:react/jsx-runtime'
+    'plugin:react/jsx-runtime',
+    'plugin:vue/vue3-essential'
   ],
   globals: {
     __Bus__: true
@@ -18,8 +19,9 @@ module.exports = {
       version: 'detect'
     }
   },
-  parser: '@typescript-eslint/parser',
+  parser: 'vue-eslint-parser',
   parserOptions: {
+    parser: '@typescript-eslint/parser',
     ecmaFeatures: {
       jsx: true
     },
@@ -29,6 +31,7 @@ module.exports = {
   plugins: [
     'react',
     'react-hooks',
+    'vue',
     '@typescript-eslint'
   ],
   // 0-ignore; 1-warn; 2-error
