@@ -20,6 +20,7 @@ export type ConfType = {
 
 export type ContextType = {
   name: string;
+  libraryName?: string;
   loadScript: (script: ScriptType) => Promise<void>;
   loadLink: (link: LinkType) => void;
   fetchScript: (script: ScriptType) => Promise<string>;
@@ -30,6 +31,7 @@ export type ContextType = {
 
 export type CustomCtxType = {
   name: string;
+  libraryName?: string;
   [key: string]: any;
 } | string;
 

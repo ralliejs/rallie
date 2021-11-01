@@ -1,16 +1,16 @@
 import { EventEmitter } from './event-emitter'
 import { Socket } from './socket'
 import { App } from './app'
-import { Errors, compose } from './utils'
+import { Errors, compose, getLibraryName, isObject } from './utils'
 import loader from './loader'
 import { MiddlewareFnType, ContextType, NextFnType, ConfType, CustomCtxType, StoresType } from '../types'; // eslint-disable-line
 
 export class Bus {
-  private name: string;
-  private eventEmitter: EventEmitter = new EventEmitter();
-  private stores: StoresType = {};
-  private apps: Record<string, App | boolean> = {};
-  private dependencyDepth = 0;
+  private name: string
+  private eventEmitter: EventEmitter = new EventEmitter()
+  private stores: StoresType = {}
+  private apps: Record<string, App | Record<string, any>> = {}
+  private dependencyDepth = 0
 
   private conf: ConfType = {
     maxDependencyDepth: 100,
@@ -18,10 +18,10 @@ export class Bus {
     assets: {}
   };
 
-  private middlewares: MiddlewareFnType[] = [];
+  private middlewares: MiddlewareFnType[] = []
   private composedMiddlewareFn: (ctx: ContextType, next: NextFnType) => Promise<any>
 
-  public state: Record<string, any>;
+  public state: Record<string, any>
 
   constructor (name: string) {
     this.name = name
@@ -71,13 +71,16 @@ export class Bus {
       excuteCode: loader.excuteCode,
       conf: this.conf
     }
-    if (typeof ctx === 'string') {
-      context.name = ctx
-    } else if (ctx.name) {
-      context = {
-        ...context,
-        ...ctx
+    const appName: string = typeof ctx === 'string' ? ctx : ctx.name
+    if (appName) {
+      if (typeof ctx !== 'string') {
+        context = {
+          ...context,
+          ...ctx
+        }
       }
+      context.name = appName
+      context.libraryName = context.libraryName || getLibraryName(appName)
     } else {
       throw new Error(Errors.wrongContextType())
     }
@@ -165,8 +168,28 @@ export class Bus {
    */
   public async loadApp (ctx: CustomCtxType) {
     const context = this.createContext(ctx)
-    // apply the middlewares
-    !this.apps[context.name] && await this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))
+    const appName = context.name
+    const isLib = appName.startsWith('lib:')
+    const libraryName = context.libraryName
+    if (!this.apps[appName]) {
+      if (isLib) {
+        this.apps[appName] = self[libraryName] || {}
+        Object.defineProperty(self, libraryName, {
+          get: () => {
+            return this.apps[appName]
+          },
+          set: (libExports) => {
+            if (isObject(libExports)) {
+              Object.entries(libExports).forEach(([key, value]) => {
+                this.apps[appName][key] = value
+              })
+            }
+          }
+        })
+      }
+      // apply the middlewares
+      await this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))
+    }
   }
 
   /**
@@ -179,15 +202,11 @@ export class Bus {
     const { name } = context
     if (!this.apps[name]) {
       await this.loadApp(context)
-      if (name.startsWith('lib:')) {
-        this.apps[name] = true
-      }
     }
     if (!this.apps[name]) {
       throw new Error(Errors.appNotCreated(name))
     }
-    const isApp = typeof this.apps[name] !== 'boolean'
-    if (isApp) {
+    if (this.apps[name].isRallieCoreApp) {
       const app = this.apps[name] as App
       await app.loadRelatedApps(this.loadApp.bind(this))
       if (!app.bootstrapped) {

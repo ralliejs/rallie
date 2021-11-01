@@ -2,16 +2,18 @@ import { CustomCtxType, LifecyleCallbackType, DependencyType } from '../types'; 
 import { getDeduplicatedDependencies, getDeduplicatedRelatedApps, getNameFromCtx, getNameFromDependency, isObject } from './utils'
 
 export class App {
-  public dependenciesReady: boolean = false;
-  public bootstrapped: boolean = false;
-  public dependencies: DependencyType[] = [];
-  public relatedApps: CustomCtxType[] = [];
-  public doBootstrap?: LifecyleCallbackType;
-  public doActivate?: LifecyleCallbackType;
-  public doDestroy?: LifecyleCallbackType;
+  public dependenciesReady: boolean = false
+  public bootstrapped: boolean = false
+  public dependencies: DependencyType[] = []
+  public relatedApps: CustomCtxType[] = []
+  public doBootstrap?: LifecyleCallbackType
+  public doActivate?: LifecyleCallbackType
+  public doDestroy?: LifecyleCallbackType
+  public isRallieCoreApp: boolean
 
   constructor (public name: string) {
     this.name = name
+    this.isRallieCoreApp = true
   }
 
   /**

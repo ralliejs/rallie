@@ -90,7 +90,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
   test('# case 2: activate app-a, it should activate its dependencies and the bootstrap callback should be called', (done) => {
     console.log = jest.fn()
     bus.activateApp('app-to-test-fetch-script').then(() => {
-      expect(window.React).toEqual('reactSourceCode')
+      expect(window.React.value).toEqual('reactSourceCode')
       expect(window.lastLoadingApp).toEqual('lib:react')
       expect(console.log).toBeCalledWith('bootstraped')
       expect(window.appsLoadedFromLocalhost.length).toEqual(0)
