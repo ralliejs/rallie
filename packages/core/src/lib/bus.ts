@@ -1,7 +1,7 @@
 import { EventEmitter } from './event-emitter'
 import { Socket } from './socket'
 import { App } from './app'
-import { Errors, compose, getLibraryName, isObject } from './utils'
+import { Errors, compose, getLibraryName, isObject, getNameFromCtx } from './utils'
 import loader from './loader'
 import { MiddlewareFnType, ContextType, NextFnType, ConfType, CustomCtxType, StoresType } from '../types'; // eslint-disable-line
 
@@ -174,18 +174,20 @@ export class Bus {
     if (!this.apps[appName]) {
       if (isLib) {
         this.apps[appName] = self[libraryName] || {}
-        Object.defineProperty(self, libraryName, {
-          get: () => {
-            return this.apps[appName]
-          },
-          set: (libExports) => {
-            if (isObject(libExports)) {
-              Object.entries(libExports).forEach(([key, value]) => {
-                this.apps[appName][key] = value
-              })
+        if (!self[libraryName]) {
+          Reflect.defineProperty(self, libraryName, {
+            get: () => {
+              return this.apps[appName]
+            },
+            set: (libExports) => {
+              if (isObject(libExports)) {
+                Object.entries(libExports).forEach(([key, value]) => {
+                  this.apps[appName][key] = value
+                })
+              }
             }
-          }
-        })
+          })
+        }
       }
       // apply the middlewares
       await this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))
@@ -198,10 +200,9 @@ export class Bus {
    * @param config
    */
   public async activateApp<T = any> (ctx: CustomCtxType, config?: T) {
-    const context = this.createContext(ctx)
-    const { name } = context
+    const name = getNameFromCtx(ctx)
     if (!this.apps[name]) {
-      await this.loadApp(context)
+      await this.loadApp(ctx)
     }
     if (!this.apps[name]) {
       throw new Error(Errors.appNotCreated(name))
@@ -252,7 +253,7 @@ export const DEFAULT_BUS_NAME = '__DEFAULT_BUS__'
  */
 export const createBus = (name: string = DEFAULT_BUS_NAME) => {
   if (window.__Bus__ === undefined) {
-    Object.defineProperty(window, '__Bus__', {
+    Reflect.defineProperty(window, '__Bus__', {
       value: busProxy,
       writable: false
     })
@@ -262,7 +263,7 @@ export const createBus = (name: string = DEFAULT_BUS_NAME) => {
     throw new Error(`[rallie] the bus named ${name} has been defined before, please rename your bus`)
   } else {
     const bus = new Bus(name)
-    Object.defineProperty(window.__Bus__, name, {
+    Reflect.defineProperty(window.__Bus__, name, {
       value: bus,
       writable: false
     })

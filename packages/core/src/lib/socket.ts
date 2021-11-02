@@ -162,13 +162,13 @@ export class Socket {
    * @param namespace
    * @param getter
    */
-  public watchState<T = any, P = any> (namespace: string, getter: (state: T, isWatchingEffect?: boolean) => P) {
+  public watchState<T = any, P = any> (namespace: string, getter: (state: T, isWatchingEffect?: boolean) => undefined | P) {
     if (!this.existState(namespace)) {
       const msg = Errors.accessUninitializedState(namespace)
       throw new Error(msg)
     }
     const state: T = readonly(this.stores[namespace].state)
-    const watcher = new Watcher(namespace, this.stores)
+    const watcher = new Watcher<P>(namespace, this.stores)
     watcher.oldWatchingStates = getter(JSON.parse(JSON.stringify(state)), false)
     const runner = effect(() => {
       const watchingStates = getter(state, true)

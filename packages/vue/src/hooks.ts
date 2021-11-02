@@ -1,11 +1,12 @@
-import { onBeforeUnmount, onBeforeMount, ref } from 'vue'
+import { onBeforeUnmount, onBeforeMount, ref, UnwrapRef } from 'vue'
 import { App, Connector, State, ReadOnlyState } from 'rallie'
+import { effect } from '@rallie/core'
 
 export function getStateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
   return function <P> (getter: (_state: T) => P) {
     const stateRef = ref<P>(state.get(getter))
     const unwatch = state.watch(getter).do((value) => {
-      stateRef.value = value
+      stateRef.value = value as UnwrapRef<P>
     })
     onBeforeUnmount(() => {
       unwatch()
@@ -36,4 +37,15 @@ export function getUnicastHook<UnicastEvents> (app: App | Connector) {
       offUnicast()
     })
   }
+}
+
+export function useRallieState<P> (getter: () => P) {
+  const stateRef = ref(getter())
+  const runner = effect(() => {
+    stateRef.value = getter() as UnwrapRef<P>
+  })
+  onBeforeUnmount(() => {
+    runner.effect.stop()
+  })
+  return stateRef
 }

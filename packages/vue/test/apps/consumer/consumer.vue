@@ -1,5 +1,4 @@
 <script lang="ts">
-// @ts-ignore
 import { producer } from './app'
 import { getStateHook } from '../../../src'
 import { defineComponent } from 'vue'

@@ -141,7 +141,7 @@ describe('Test socket.watchState', () => {
     console.warn = jest.fn()
     unwatch = socket.watchState<User, WatchingType>('user', (state) => {
       return [state.name, state.age]
-    }).do<WatchingType>(([name, age], [oldName, oldAge]) => {
+    }).do(([name, age], [oldName, oldAge]) => {
       console.log(name, age)
       console.warn(oldName, oldAge)
     })

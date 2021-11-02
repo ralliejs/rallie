@@ -49,7 +49,7 @@ export type DependencyType = {
 export type StoreType<T = any> = {
   state: T,
   owner: Socket | null,
-  watchers: Watcher[]
+  watchers: Watcher<any>[]
 }
 
 export type StoresType = Record<string, StoreType>

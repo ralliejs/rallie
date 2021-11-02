@@ -19,9 +19,9 @@ export class ReadOnlyState<T extends object> {
     return this.socket.getState<T, P>(this.namespace, getter)
   }
 
-  public watch (getter: (state: T, isWatchingEffect?: boolean) => void) {
+  public watch<P = any> (getter: (state: T, isWatchingEffect?: boolean) => undefined | P) {
     if (this.socket.existState(this.namespace)) {
-      return this.socket.watchState<T>(this.namespace, getter)
+      return this.socket.watchState<T, P>(this.namespace, getter)
     } else {
       throw new Error(errors.stateNotInitialized(this.appName, this.namespace === constant.privateStateNamespace))
     }

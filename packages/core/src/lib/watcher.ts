@@ -1,10 +1,10 @@
 import { StoresType } from '../types'; // eslint-disable-line
 
-export class Watcher {
+export class Watcher<T> {
   private namespace: string;
   private stores: StoresType;
   public oldWatchingStates: any;
-  public handler: (watchingStates: any, oldWatchingStates: any) => any;
+  public handler: (watchingStates: T, oldWatchingStates: T) => void | Promise<void>;
   public stopEffect: () => void;
 
   constructor (namespace: string, stores: StoresType) {
@@ -13,7 +13,7 @@ export class Watcher {
     this.stores[namespace].watchers.push(this)
   }
 
-  public do<T = any> (handler: (watchingStates: T, oldWatchingStates?: T) => any) {
+  public do (handler: (watchingStates: T, oldWatchingStates: T) => void | Promise<void>) {
     this.handler = handler
     return () => this.unwatch()
   }
