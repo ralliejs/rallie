@@ -1,1 +1,0 @@
-import{A as t,r as o}from"./index.es.3e25a95c.js";import{j as r,d as p}from"./index.8f7d2eaa.js";const e=new t("host");e.runInHostMode(a=>{a(r),a(p)});o(e).onBootstrap(()=>{e.activate("vue-app",document.getElementById("vue-app")),e.activate("react-app",document.getElementById("react-app"))});e.runInHostMode(()=>{e.activate(e.name)});
