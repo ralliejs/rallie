@@ -1,4 +1,4 @@
-name: Deploy playground
+name: Run unit test and deploy playground 
 
 on:
   push:
@@ -29,14 +29,22 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
 
-    - name: Install Dependencies
-      run: npm install
-    
-    - name: bootstrap
-      run: npm run bootstrap
-
-    - name: build
-      run: npm run build
+    - name: Install and build
+      run: |
+        npm install
+        npm run bootstrap
+        npm run build
 
     - name: Run Unit Test
-      run: npm run playground:deploy
+      run: npm run test
+    
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Deploy playground
+      uses: JamesIves/github-pages-deploy-action@4.1.5
+      with:
+        branch: gh-page # The branch the action should deploy to.
+        folder: packages/playground/dist # The folder the action should deploy.
