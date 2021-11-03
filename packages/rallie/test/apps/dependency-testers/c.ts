@@ -1,3 +1,3 @@
 import { registerApp, App } from '../../../src'
 
-registerApp(new App({ name: 'dependency-testers/c' }))
+registerApp(new App('dependency-testers/c'))

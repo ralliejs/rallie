@@ -8,12 +8,12 @@ export class Connector<
   PublicState extends object = {},
   PrivateState extends object = {}
 > {
-  constructor (appName: string) {
-    this.name = appName
-    const bus = touchBus(constant.privateBus(appName))[0]
+  constructor (connectedApp: string, connecter: string) {
+    this.name = connectedApp
+    const [bus] = touchBus(constant.privateBus(connectedApp))
     this.socket = bus.createSocket()
-    this.privateState = new State<PrivateState>(this.socket, appName, constant.privateStateNamespace)
-    this.publicState = new State<PublicState>(this.socket, appName, constant.publicStateNamespace)
+    this.privateState = new State<PrivateState>(this.socket, connectedApp, constant.privateStateNamespace)
+    this.publicState = new State<PublicState>(this.socket, connectedApp, constant.publicStateNamespace)
     this.broadcaster = this.socket.createBroadcaster()
     this.unicaster = this.socket.createUnicaster()
   }

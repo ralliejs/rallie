@@ -17,9 +17,7 @@ type PrivateState = {
   isDarkTheme: boolean
 }
 
-export const consumer = new App({
-  name: 'consumer'
-})
+export const consumer = new App('consumer')
 const producer = consumer.connect<BroadcastEvents, UnicastEvents, PublicState, PrivateState>('producer')
 const useProducerPrivateState = getStateHook(producer.privateState)
 export const Consumer = () => {

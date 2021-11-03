@@ -1,6 +1,6 @@
 import { registerApp, App } from '../../../src'
 
-const app = new App({ name: 'relate-testers/c' })
+const app = new App('relate-testers/c')
 
 registerApp(app)
 

@@ -1,7 +1,7 @@
 import { App, registerApp } from '../src/index'
 import nativeLoader from './middlewares/native-loader'
 
-const hostApp = new App({ name: 'host-app' })
+const hostApp = new App('host-app')
 hostApp.runInHostMode((use, config) => {
   config({
     maxDependencyDepth: 1
@@ -10,7 +10,7 @@ hostApp.runInHostMode((use, config) => {
 })
 describe('Test runInHostMode and runInRemoteMode', () => {
   test('# case 1: the host-app should run in host mode, and other apps should run in remote mode', async () => {
-    const remoteApp = new App({ name: 'remote-app' })
+    const remoteApp = new App('remote-app')
     registerApp(remoteApp)
     console.log = jest.fn()
     hostApp.runInHostMode(() => {
@@ -44,9 +44,9 @@ describe('Test runInHostMode and runInRemoteMode', () => {
   })
 
   test('# case 2: config in host mode should take effect', (done) => {
-    registerApp(new App({ name: 'case2-1' })).relyOn(['case2-2'])
-    registerApp(new App({ name: 'case2-2' })).relyOn(['case2-3'])
-    registerApp(new App({ name: 'case2-3' }))
+    registerApp(new App('case2-1')).relyOn(['case2-2'])
+    registerApp(new App('case2-2')).relyOn(['case2-3'])
+    registerApp(new App('case2-3'))
     hostApp.activate('case2-1').then(() => {
       throw new Error('this should never be reached')
     }).catch((err) => {

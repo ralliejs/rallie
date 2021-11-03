@@ -23,7 +23,7 @@ type EventTesterUnicastEvents = {
   printCount: (count: number) => void;
 }
 
-const hostApp = new App({ name: 'host-app' })
+const hostApp = new App('host-app')
 
 hostApp.runInHostMode((use) => {
   use(nativeLoader)
@@ -31,7 +31,7 @@ hostApp.runInHostMode((use) => {
 
 describe('Test state', () => {
   test('# case 1: test set, get and watch of state', async () => {
-    const app = new App({ name: 'state-case1' })
+    const app = new App('state-case1')
     registerApp(app)
       .relateTo(['connect-testers/state'])
       .onBootstrap(async () => {
@@ -65,8 +65,8 @@ describe('Test state', () => {
   })
 
   test('# case 2: set and watch uninitialized state', () => {
-    registerApp(new App({ name: 'state-case2-1' }))
-    const app = new App({ name: 'state-case2-2' })
+    registerApp(new App('state-case2-1'))
+    const app = new App('state-case2-2')
     registerApp(app).relateTo(['state-case2-1'])
     expect(() => {
       app.connect<{}, {}, any>('state-case2-1').publicState.set(state => { state.value = 1 })
@@ -81,7 +81,7 @@ describe('Test state', () => {
 })
 
 describe('Test Events', () => {
-  const app = new App({ name: 'event-tester' })
+  const app = new App('event-tester')
   registerApp(app).relyOn(['connect-testers/event'])
 
   test('# case 1: test broadcast', async () => {

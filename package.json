@@ -14,7 +14,8 @@
     "lint": "eslint --fix --ext .ts,tsx,.js packages",
     "publish": "lerna publish",
     "docs": "docsify serve docs",
-    "playground": "lerna run dev --stream"
+    "playground:dev": "lerna run dev --stream",
+    "playground:serve": "lerna run serve --stream"
   },
   "repository": {
     "type": "git",

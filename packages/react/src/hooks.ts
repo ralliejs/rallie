@@ -1,6 +1,6 @@
 import React from 'react'
 import { App, Connector, State, ReadOnlyState } from 'rallie'
-import { effect } from '@rallie/core'
+// import { effect } from '@rallie/core'
 
 export function getStateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
   return function <P = any> (getter: (_state: T) => P) {
@@ -39,15 +39,15 @@ export function getUnicastHook<Events> (app: App | Connector) {
   }
 }
 
-export function useRallieState<P> (getter: () => P) {
-  const [value, setValue] = React.useState<P>(getter())
-  React.useEffect(() => {
-    const runner = effect(() => {
-      setValue(getter())
-    })
-    return () => {
-      runner.effect.stop()
-    }
-  })
-  return value
-}
+// export function useRallieState<P> (getter: () => P) {
+//   const [value, setValue] = React.useState<P>(getter())
+//   React.useEffect(() => {
+//     const runner = effect(() => {
+//       setValue(getter())
+//     })
+//     return () => {
+//       runner.effect.stop()
+//     }
+//   })
+//   return value
+// }

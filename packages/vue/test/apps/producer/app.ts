@@ -17,7 +17,4 @@ const state = {
   }
 }
 
-export const producer = new App<BroadcastEvents, UnicastEvents, typeof state.public, typeof state.private>({
-  name: 'producer',
-  state
-})
+export const producer = new App<BroadcastEvents, UnicastEvents, typeof state.public, typeof state.private>('producer', { state })

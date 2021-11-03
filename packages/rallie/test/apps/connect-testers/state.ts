@@ -9,8 +9,7 @@ type PrivateState = {
 }
 
 let unWatchPublicState: () => void = null
-const app = new App<{}, {}, PublicState, PrivateState>({
-  name: 'connect-testers/state',
+const app = new App<{}, {}, PublicState, PrivateState>('connect-testers/state', {
   state: {
     public: {
       value: 0

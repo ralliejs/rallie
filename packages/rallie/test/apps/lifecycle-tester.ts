@@ -1,6 +1,6 @@
 import { registerApp, App } from '../../src/index'
 
-registerApp(new App({ name: 'lifecycle-tester' }))
+registerApp(new App('lifecycle-tester'))
   .onBootstrap(() => {
     console.log('bootstraped')
   })

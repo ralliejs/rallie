@@ -1,6 +1,6 @@
 import { registerApp, App } from '../../../src/index'
 
-const app = new App({ name: 'relate-testers/main' })
+const app = new App('relate-testers/main')
 
 registerApp(app)
   .relyOn(['relate-testers/c'])

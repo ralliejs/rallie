@@ -42,16 +42,13 @@ describe('Test React hooks', () => {
   test('#case1: modify public state directly', async () => {
     const addCountBtn = await screen.findByText('add count')
     const count = await screen.findByTestId('count')
-    const allStateStr = await screen.findByTestId('all-state')
     expect(count.innerHTML).toEqual('0')
-    expect(allStateStr.innerHTML).toEqual('dark-0')
     act(() => {
       fireEvent.click(addCountBtn)
       fireEvent.click(addCountBtn)
       fireEvent.click(addCountBtn)
     })
     expect(count.innerHTML).toEqual('3')
-    expect(allStateStr.innerHTML).toEqual('dark-3')
   })
 
   test('#case2: modify private state by unicaster', async () => {
@@ -62,15 +59,12 @@ describe('Test React hooks', () => {
     })
     const producerContainer = await screen.findByTestId('producer-container')
     const consumerContainer = await screen.findByTestId('consumer-container')
-    const allStateStr = await screen.findByTestId('all-state')
     expect(producerContainer.style.backgroundColor).toEqual('black')
     expect(consumerContainer.style.backgroundColor).toEqual('black')
-    expect(allStateStr.innerHTML).toEqual('dark-0')
     const toggleThemeBtn = await screen.findByText('toggle theme')
     act(() => {
       fireEvent.click(toggleThemeBtn)
     })
-    expect(allStateStr.innerHTML).toEqual('light-0')
     expect(producerContainer.style.backgroundColor).toEqual('white')
     expect(consumerContainer.style.backgroundColor).toEqual('white')
     act(() => {

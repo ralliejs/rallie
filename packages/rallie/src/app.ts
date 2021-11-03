@@ -1,10 +1,9 @@
 import { State } from './state'
-import { touchBus, createBus, CallbackType, MiddlewareFnType, ConfType, Bus, Socket, CustomCtxType } from '@rallie/core'
+import { touchBus, CallbackType, MiddlewareFnType, ConfType, Bus, Socket, CustomCtxType } from '@rallie/core'
 import { constant } from './utils'
 import { Connector } from './connector'
 
 interface AppConfig<PublicState, PrivateState> {
-  name: string
   state?: {
     public?: PublicState
     private?: PrivateState
@@ -21,12 +20,12 @@ export class App<
   private isHost: boolean
   private socket: Socket
 
-  constructor (config: AppConfig<PublicState, PrivateState>) {
-    this.name = config.name
+  constructor (name: string, config?: AppConfig<PublicState, PrivateState>) {
+    this.name = name
     const [globalBus, isHost] = touchBus()
     this.globalBus = globalBus
     this.isHost = isHost
-    const privateBus = createBus(constant.privateBus(config.name))
+    const privateBus = touchBus(constant.privateBus(name))[0]
     this.socket = privateBus.createSocket()
     this.broadcaster = this.socket.createBroadcaster()
     this.unicaster = this.socket.createUnicaster()
@@ -54,7 +53,7 @@ export class App<
     ExternalPublicState extends object = {},
     ExternalPrivateState extends object = {},
   > (appName: string) {
-    return new Connector<ExternalBroadcastEvents, ExternalUnicastEvents, ExternalPublicState, ExternalPrivateState>(appName)
+    return new Connector<ExternalBroadcastEvents, ExternalUnicastEvents, ExternalPublicState, ExternalPrivateState>(appName, this.name)
   }
 
   public load (ctx: CustomCtxType) {

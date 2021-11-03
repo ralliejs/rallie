@@ -1,0 +1,20 @@
+{
+  "name": "playground",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@rallie/vue": "^0.5.0-alpha.0",
+    "rallie": "^0.5.0-alpha.0"
+  },
+  "devDependencies": {
+    "@rallie/react": "^0.5.0-alpha.0",
+    "@vitejs/plugin-react": "^1.0.7",
+    "@vitejs/plugin-vue": "^1.9.3",
+    "vite": "^2.6.4",
+    "vue-tsc": "^0.3.0"
+  }
+}

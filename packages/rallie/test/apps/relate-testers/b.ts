@@ -1,6 +1,6 @@
 import { registerApp, App } from '../../../src'
 
-const app = new App({ name: 'relate-testers/b' })
+const app = new App('relate-testers/b')
 
 registerApp(app)
   .relateTo(['relate-testers/a', { name: 'relate-testers/c' }])

@@ -4,7 +4,7 @@ import logger from './middlewares/logger'
 
 describe('Test the dependencies', () => {
   const appsLoaded = []
-  const hostApp = new App({ name: 'host-app' })
+  const hostApp = new App('host-app')
   hostApp.runInHostMode((use) => {
     use(logger(appsLoaded))
     use(nativeLoader)
