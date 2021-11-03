@@ -11,12 +11,12 @@ function App () {
   const hint = {
     currentMode: 'host',
     navigationMode: 'remote',
-    navigationLink: '/'
+    navigationLink: '/rallie/index.html'
   }
   reactApp.runInRemoteMode(() => {
     hint.currentMode = 'remote'
     hint.navigationMode = 'host'
-    hint.navigationLink = '/apps/react-app/index.html'
+    hint.navigationLink = '/rallie/apps/react-app/index.html'
   })
 
   return (

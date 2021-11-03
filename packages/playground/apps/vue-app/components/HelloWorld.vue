@@ -11,12 +11,12 @@ const addCount = () => {
 const hint = {
   currentMode: 'host',
   navigationMode: 'remote',
-  navigationLink: '/'
+  navigationLink: '/rallie/index.html'
 }
 app.runInRemoteMode(() => {
   hint.currentMode = 'remote'
   hint.navigationMode = 'host'
-  hint.navigationLink = '/apps/vue-app/index.html'
+  hint.navigationLink = '/rallie/apps/vue-app/index.html'
 })
 
 </script>
