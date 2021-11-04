@@ -139,9 +139,9 @@ describe('Test dependencies of App', () => {
          *     |--g
          */
     apps.a.relyOn(['b', 'd', 'g']).relateTo(['b', 'c', 'd', 'e', { name: 'f' }, 'g', 'b'])
-    apps.b.relyOn(['c']).relateTo(['c']) // circular relations doesn't matter
+    apps.b.relyOn(['c']).relateTo(['c']).relateTo(['c']) // circular relations doesn't matter
     apps.c.relyOn([]).relateTo(['b']) // circular relations doesn't matter
-    apps.d.relyOn(['e', 'f'])
+    apps.d.relyOn(['e']).relyOn(['f']) // test duplicated dependencies
     bus.activateApp('a').then(() => {
       expect(bootstrapedApps.join(',')).toEqual('c,b,e,f,d,g,a')
       bootstrapedApps = []
