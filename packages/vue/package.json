@@ -1,6 +1,6 @@
 {
   "name": "@rallie/vue",
-  "version": "0.5.0-alpha.0",
+  "version": "0.5.0",
   "description": "vue binding for rallie",
   "author": "runnan <1608272694@qq.com>",
   "homepage": "https://github.com/ralliejs/rallie#readme",
@@ -19,7 +19,7 @@
     "url": "https://github.com/ralliejs/rallie/issues"
   },
   "dependencies": {
-    "rallie": "^0.5.0-alpha.0"
+    "rallie": "^0.5.0"
   },
   "peerDependencies": {
     "vue": ">=3.2.6"
