@@ -10,6 +10,10 @@
   },
   "author": "Philip Lau",
   "license": "MIT",
+  "files": ["dist"],
+  "exports": {
+    "./": "./dist/"
+  },
   "dependencies": {
     "@rallie/core": "^0.5.0",
     "tslib": "^2.3.1"

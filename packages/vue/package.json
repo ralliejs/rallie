@@ -12,6 +12,10 @@
     "type": "git",
     "url": "git+https://github.com/ralliejs/rallie.git"
   },
+  "files": ["dist"],
+  "exports": {
+    "./": "./dist/"
+  },
   "scripts": {
     "build": "rollup -c rollup.config.js"
   },
