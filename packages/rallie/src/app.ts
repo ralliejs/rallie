@@ -68,7 +68,7 @@ export class App<
     return this.globalBus.destroyApp(name, data)
   }
 
-  public async runInHostMode (callback: (use?: (middleware: MiddlewareFnType) => void, config?: (conf: Partial<ConfType>) => void) => void | Promise<void>) {
+  public async runInHostMode (callback: (use: (middleware: MiddlewareFnType) => void, config: (conf: Partial<ConfType>) => void) => void | Promise<void>) {
     if (this.isHost) {
       const use = (middleware: MiddlewareFnType) => {
         this.globalBus.use(middleware)

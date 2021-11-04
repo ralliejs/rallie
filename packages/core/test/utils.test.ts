@@ -16,13 +16,6 @@ describe('Test utils', () => {
     expect(utils.isPrimitive(1)).toBeTruthy()
     expect(utils.isPrimitive(false)).toBeTruthy()
   })
-
-  test('#case3: test getLibraryName', () => {
-    expect(utils.getLibraryName('a')).toBeUndefined()
-    expect(utils.getLibraryName('lib：xxx')).toBeUndefined()
-    expect(utils.getLibraryName('lib:ab_c123--_-def')).toEqual('AbC123Def')
-    expect(utils.getLibraryName('lib:react-dom')).toEqual('ReactDom')
-  })
 })
 
 describe('Test Effect', () => {

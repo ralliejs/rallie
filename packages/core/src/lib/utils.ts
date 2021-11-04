@@ -121,29 +121,6 @@ export function getDeduplicatedDependencies (dependencies: DependencyType[]): De
   return deduplicate<DependencyType>(dependencies, getNameFromDependency)
 }
 
-export function getLibraryName (appName: string) : string | undefined {
-  if (appName.startsWith('lib:')) {
-    const rawLibraryName: string = appName.slice(4).trim()
-    let result: string = ''
-    let shouldConvertToUppercase: boolean = true
-    for (const letter of rawLibraryName) {
-      if (letter === '-' || letter === '_') {
-        shouldConvertToUppercase = true
-        continue
-      }
-      if (shouldConvertToUppercase) {
-        result += letter.toUpperCase()
-        shouldConvertToUppercase = false
-      } else {
-        result += letter
-      }
-    }
-    return result
-  } else {
-    return undefined
-  }
-}
-
 /**
  * the compose function from koa-compose
  * @param middlewares
