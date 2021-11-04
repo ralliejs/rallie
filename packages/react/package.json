@@ -1,6 +1,6 @@
 {
   "name": "@rallie/react",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "react binding for rallie",
   "author": "Philip Lau",
   "homepage": "https://github.com/ralliejs/rallie#readme",
@@ -8,7 +8,9 @@
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ralliejs/rallie.git"
@@ -20,7 +22,7 @@
     "url": "https://github.com/ralliejs/rallie/issues"
   },
   "dependencies": {
-    "rallie": "^0.5.0"
+    "rallie": "^0.5.1"
   },
   "peerDependencies": {
     "react": ">=16.8.0"

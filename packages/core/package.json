@@ -1,6 +1,6 @@
 {
   "name": "@rallie/core",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
@@ -10,7 +10,9 @@
   },
   "author": "Philip Lau",
   "license": "MIT",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@vue/reactivity": "^3.2.14",
     "tslib": "^2.3.1"
