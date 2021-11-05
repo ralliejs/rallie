@@ -7,7 +7,7 @@ export class Connector<
   PrivateState extends object = {},
   Events extends Record<string, CallbackType> = {},
   Methods extends Record<string, CallbackType> = {}
-> {
+  > {
   constructor (connectedApp: string) {
     this.name = connectedApp
     this.isRallieApp = false
@@ -28,7 +28,7 @@ export class Connector<
   public methods: Methods
   public isRallieApp: boolean
 
-  public addEvents (events: Partial<Events>) {
+  public listenEvents (events: Partial<Events>) {
     return this.socket.onBroadcast<Partial<Events>>(events)
   }
 }

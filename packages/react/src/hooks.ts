@@ -20,7 +20,7 @@ export function stateHook<T extends object> (state: State<T> | ReadOnlyState<T>)
 export function eventsHook<Events> (app: App | Connector) {
   return function (events: Partial<Events>) {
     React.useEffect(() => {
-      const off = app.addEvents(events)
+      const off = app.listenEvents(events)
       return () => {
         off()
       }

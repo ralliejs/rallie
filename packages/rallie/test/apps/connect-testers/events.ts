@@ -22,7 +22,7 @@ let removeEvents: () => void
 
 registerApp(app)
   .onBootstrap(() => {
-    removeEvents = app.addEvents({
+    removeEvents = app.listenEvents({
       log (text) {
         console.log(text)
         app.events.record(text)

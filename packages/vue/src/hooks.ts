@@ -19,7 +19,7 @@ export function eventsHook<Events> (app: App | Connector) {
   return function (events: Partial<Events>) {
     let off = null
     onBeforeMount(() => {
-      off = app.addEvents(events)
+      off = app.listenEvents(events)
     })
     onBeforeUnmount(() => {
       off()

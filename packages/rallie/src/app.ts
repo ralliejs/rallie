@@ -15,7 +15,7 @@ export class App<
   PrivateState extends object = {},
   Events extends Record<string, CallbackType> = {},
   Methods extends Record<string, CallbackType> = {}
-> {
+  > {
   private globalBus: Bus
   private globalSocket: Socket
   private isHost: boolean
@@ -46,7 +46,7 @@ export class App<
   public privateState: State<PrivateState>
   public isRallieApp: boolean
 
-  public addEvents (events: Partial<Events>) {
+  public listenEvents (events: Partial<Events>) {
     return this.socket.onBroadcast<Partial<Events>>(events)
   }
 
@@ -75,12 +75,12 @@ export class App<
     return this.globalBus.destroyApp(name, data)
   }
 
-  public async runInHostMode (callback: (bus: Bus, enablePublicGlobalBus: () => void) => (void | Promise<void>)) {
+  public async runInHostMode (callback: (bus: Bus, setBusAccessible: (val: boolean) => void) => (void | Promise<void>)) {
     if (this.isHost) {
-      const enablePublicGlobalBus = () => {
-        this.globalSocket.setState(constant.isGlobalBusAccessed, state => { state.value = true })
+      const setBusAccessible = (val: boolean) => {
+        this.globalSocket.setState(constant.isGlobalBusAccessed, state => { state.value = val })
       }
-      await Promise.resolve(callback(this.globalBus, enablePublicGlobalBus))
+      await Promise.resolve(callback(this.globalBus, setBusAccessible))
     }
   }
 

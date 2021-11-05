@@ -63,9 +63,9 @@ describe('Test runInHostMode and runInRemoteMode', () => {
     remoteApp.runInRemoteMode((bus) => {
       expect(bus).toBeNull()
     })
-    hostApp.runInHostMode((bus, enablePublicGlobalBus) => {
+    hostApp.runInHostMode((bus, setBusAccessible) => {
       globalBus = bus
-      enablePublicGlobalBus()
+      setBusAccessible(true)
     })
     remoteApp.runInRemoteMode((bus) => {
       expect(bus).toEqual(globalBus)

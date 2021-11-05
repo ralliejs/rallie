@@ -11,7 +11,7 @@ app.runInHostMode((bus) => {
 })
 
 registerApp(app)
-  // you can try to replace next line by `.relyOn([{ ctx: 'vue-app', data: document.getElementById('vue-app') }])`
+  // you can try to replace the next line with `.relyOn([{ ctx: 'vue-app', data: document.getElementById('vue-app') }])`
   .relateTo(['vue-app'])
   .onBootstrap((container) => {
     // @ts-ignore
