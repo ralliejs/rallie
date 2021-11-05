@@ -71,9 +71,9 @@ describe('Test Vue hooks', () => {
     fireEvent.click(toggleThemeBtn)
     fireEvent.click(printThemeBtn) // log light
     cleanup()
-    producer.broadcaster.printTheme()
+    producer.events.printTheme()
     expect(() => {
-      producer.unicaster.toggleTheme()
+      producer.methods.toggleTheme()
     }).toThrowError()
     expect(console.log).toBeCalledTimes(2)
     expect(console.log).toBeCalledWith('dark')

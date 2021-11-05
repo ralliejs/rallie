@@ -15,7 +15,8 @@ export type AssetsConfigType = Record<string, {
 export type ConfType = {
   maxDependencyDepth: number;
   loadScriptByFetch: boolean;
-  assets: AssetsConfigType
+  assets: AssetsConfigType;
+  [key: string]: any
 };
 
 export type ContextType = {

@@ -1,10 +1,10 @@
 import { App } from 'rallie'
 
-type BroadcastEvents = {
+type Events = {
   printTheme: () => void
 }
 
-type UnicastEvents = {
+type Methods = {
   toggleTheme: () => void
 }
 
@@ -17,4 +17,4 @@ const state = {
   }
 }
 
-export const producer = new App<BroadcastEvents, UnicastEvents, typeof state.public, typeof state.private>('producer', { state })
+export const producer = new App<typeof state.public, typeof state.private, Events, Methods>('producer', { state })

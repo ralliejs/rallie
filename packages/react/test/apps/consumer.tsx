@@ -1,5 +1,5 @@
 import { App } from 'rallie'
-import { getStateHook } from '../../src'
+import { stateHook } from '../../src'
 
 type BroadcastEvents = {
   printTheme: () => void
@@ -18,11 +18,11 @@ type PrivateState = {
 }
 
 export const consumer = new App('consumer')
-const producer = consumer.connect<BroadcastEvents, UnicastEvents, PublicState, PrivateState>('producer')
-const useProducerPrivateState = getStateHook(producer.privateState)
+const producer = consumer.connect<PublicState, PrivateState, BroadcastEvents, UnicastEvents>('producer')
+const useProducerPrivateState = stateHook(producer.privateState)
 export const Consumer = () => {
   const toggleTheme = () => {
-    producer.unicaster.toggleTheme()
+    producer.methods.toggleTheme()
   }
   const addCount = () => {
     producer.publicState.set(state => {
@@ -30,7 +30,7 @@ export const Consumer = () => {
     })
   }
   const printTheme = () => {
-    producer.broadcaster.printTheme()
+    producer.events.printTheme()
   }
   const isDarkTheme = useProducerPrivateState<boolean>(state => state.isDarkTheme)
   return (

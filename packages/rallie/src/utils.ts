@@ -1,7 +1,8 @@
 export const constant = {
   privateBus: (appName: string) => `$${appName}:bus`,
   publicStateNamespace: '$public',
-  privateStateNamespace: '$private'
+  privateStateNamespace: '$private',
+  isGlobalBusAccessed: '$isGlobalBusAccessed'
 }
 
 export const errors = {

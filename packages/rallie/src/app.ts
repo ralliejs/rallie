@@ -1,5 +1,5 @@
 import { State } from './state'
-import { touchBus, CallbackType, MiddlewareFnType, ConfType, Bus, Socket, CustomCtxType } from '@rallie/core'
+import { touchBus, CallbackType, Bus, Socket, CustomCtxType } from '@rallie/core'
 import { constant } from './utils'
 import { Connector } from './connector'
 
@@ -11,49 +11,56 @@ interface AppConfig<PublicState, PrivateState> {
 }
 
 export class App<
-  BroadcastEvents extends Record<string, CallbackType> = {},
-  UnicastEvents extends Record<string, CallbackType> = {},
   PublicState extends object = {},
   PrivateState extends object = {},
+  Events extends Record<string, CallbackType> = {},
+  Methods extends Record<string, CallbackType> = {}
 > {
   private globalBus: Bus
+  private globalSocket: Socket
   private isHost: boolean
   private socket: Socket
 
   constructor (name: string, config?: AppConfig<PublicState, PrivateState>) {
     this.name = name
+    this.isRallieApp = true
     const [globalBus, isHost] = touchBus()
     this.globalBus = globalBus
+    this.globalSocket = globalBus.createSocket()
     this.isHost = isHost
+    if (isHost) {
+      this.globalSocket.initState(constant.isGlobalBusAccessed, { value: false }, true)
+    }
     const privateBus = touchBus(constant.privateBus(name))[0]
     this.socket = privateBus.createSocket()
-    this.broadcaster = this.socket.createBroadcaster()
-    this.unicaster = this.socket.createUnicaster()
+    this.events = this.socket.createBroadcaster()
+    this.methods = this.socket.createUnicaster()
     this.publicState = new State<PublicState>(this.socket, this.name, constant.publicStateNamespace, config?.state?.public)
     this.privateState = new State<PrivateState>(this.socket, this.name, constant.privateStateNamespace, config?.state?.private)
   }
 
   public name: string
-  public broadcaster: BroadcastEvents
-  public unicaster: UnicastEvents
+  public events: Events
+  public methods: Methods
   public publicState: State<PublicState>
   public privateState: State<PrivateState>
+  public isRallieApp: boolean
 
-  public onBroadcast (broadcastEvents: Partial<BroadcastEvents>) {
-    return this.socket.onBroadcast<Partial<BroadcastEvents>>(broadcastEvents)
+  public addEvents (events: Partial<Events>) {
+    return this.socket.onBroadcast<Partial<Events>>(events)
   }
 
-  public onUnicast (unicastEvents: Partial<UnicastEvents>) {
-    return this.socket.onUnicast<Partial<UnicastEvents>>(unicastEvents)
+  public addMethods (methods: Partial<Methods>) {
+    return this.socket.onUnicast<Partial<Methods>>(methods)
   }
 
   public connect<
-    ExternalBroadcastEvents extends Record<string, CallbackType> = {},
-    ExternalUnicastEvents extends Record<string, CallbackType> = {},
     ExternalPublicState extends object = {},
     ExternalPrivateState extends object = {},
+    ExternalEvents extends Record<string, CallbackType> = {},
+    ExternalMethods extends Record<string, CallbackType> = {}
   > (appName: string) {
-    return new Connector<ExternalBroadcastEvents, ExternalUnicastEvents, ExternalPublicState, ExternalPrivateState>(appName, this.name)
+    return new Connector<ExternalPublicState, ExternalPrivateState, ExternalEvents, ExternalMethods>(appName)
   }
 
   public load (ctx: CustomCtxType) {
@@ -68,21 +75,19 @@ export class App<
     return this.globalBus.destroyApp(name, data)
   }
 
-  public async runInHostMode (callback: (use: (middleware: MiddlewareFnType) => void, config: (conf: Partial<ConfType>) => void) => void | Promise<void>) {
+  public async runInHostMode (callback: (bus: Bus, enablePublicGlobalBus: () => void) => (void | Promise<void>)) {
     if (this.isHost) {
-      const use = (middleware: MiddlewareFnType) => {
-        this.globalBus.use(middleware)
+      const enablePublicGlobalBus = () => {
+        this.globalSocket.setState(constant.isGlobalBusAccessed, state => { state.value = true })
       }
-      const config = (conf: Partial<ConfType>) => {
-        this.globalBus.config(conf)
-      }
-      await Promise.resolve(callback(use, config))
+      await Promise.resolve(callback(this.globalBus, enablePublicGlobalBus))
     }
   }
 
-  public async runInRemoteMode (callback: () => any) {
+  public async runInRemoteMode (callback: (bus: Bus | null) => (void | Promise<void>)) {
     if (!this.isHost) {
-      await Promise.resolve(callback())
+      const bus = this.globalSocket.getState(constant.isGlobalBusAccessed)?.value ? this.globalBus : null
+      await Promise.resolve(callback(bus))
     }
   }
 }

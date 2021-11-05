@@ -1,12 +1,12 @@
 import { App, registerApp } from '../src/index'
+import { Bus } from '@rallie/core'
 import nativeLoader from './middlewares/native-loader'
 
 const hostApp = new App('host-app')
-hostApp.runInHostMode((use, config) => {
-  config({
+hostApp.runInHostMode((bus) => {
+  bus.config({
     maxDependencyDepth: 1
-  })
-  use(nativeLoader)
+  }).use(nativeLoader)
 })
 describe('Test runInHostMode and runInRemoteMode', () => {
   test('# case 1: the host-app should run in host mode, and other apps should run in remote mode', async () => {
@@ -53,6 +53,22 @@ describe('Test runInHostMode and runInRemoteMode', () => {
       const expectedError = "[rallie] the number of apps bootstraped at a time is greater than the maximum value of 1, it means that there may be circular dependencies, please check the app dependencies declaration or reset the bus's maxDependencyDepth" // eslint-disable-line
       expect(err.message).toEqual(expectedError)
       done()
+    })
+  })
+
+  test('# case 3: remote app should access global bus if host app allowed', () => {
+    const remoteApp = new App('case3')
+    registerApp(remoteApp)
+    let globalBus: Bus = null
+    remoteApp.runInRemoteMode((bus) => {
+      expect(bus).toBeNull()
+    })
+    hostApp.runInHostMode((bus, enablePublicGlobalBus) => {
+      globalBus = bus
+      enablePublicGlobalBus()
+    })
+    remoteApp.runInRemoteMode((bus) => {
+      expect(bus).toEqual(globalBus)
     })
   })
 })

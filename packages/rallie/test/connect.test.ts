@@ -3,30 +3,29 @@ import { App, registerApp } from '../src/index'
 import { errors } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
 
-type StateTesterPublicState = {
+type PublicState = {
   value: number
 }
 
-type StateTesterPrivateState = {
+type PrivateState = {
   value: number
 }
 
-type EventTesterBroadcastEvents = {
+type Events = {
   log: (text: string) => void;
   error: (text: string) => void;
   record: (text: string) => void;
 }
 
-type EventTesterUnicastEvents = {
+type Methods = {
   getCount: () => number;
   addCount: () => void;
-  printCount: (count: number) => void;
 }
 
 const hostApp = new App('host-app')
 
-hostApp.runInHostMode((use) => {
-  use(nativeLoader)
+hostApp.runInHostMode((bus) => {
+  bus.use(nativeLoader)
 })
 
 describe('Test state', () => {
@@ -37,7 +36,7 @@ describe('Test state', () => {
       .onBootstrap(async () => {
         console.log = jest.fn()
         console.warn = jest.fn()
-        const targetApp = app.connect<{}, {}, StateTesterPublicState, StateTesterPrivateState>('connect-testers/state')
+        const targetApp = app.connect<PublicState, PrivateState>('connect-testers/state')
         expect(targetApp.publicState.get(state => state.value)).toEqual(0)
         expect(targetApp.privateState.get(state => state.value)).toEqual(0)
         targetApp.publicState.set(state => { state.value = 1 }) // set state before watch
@@ -69,11 +68,11 @@ describe('Test state', () => {
     const app = new App('state-case2-2')
     registerApp(app).relateTo(['state-case2-1'])
     expect(() => {
-      app.connect<{}, {}, any>('state-case2-1').publicState.set(state => { state.value = 1 })
+      app.connect<any>('state-case2-1').publicState.set(state => { state.value = 1 })
     }).toThrowError(errors.stateNotInitialized('state-case2-1', false))
 
     expect(() => {
-      app.connect<{}, {}, {}, any>('state-case2-1').privateState.watch(state => state.value).do((value) => {
+      app.connect<any, any>('state-case2-1').privateState.watch(state => state.value).do((value) => {
         console.log(value)
       })
     }).toThrowError(errors.stateNotInitialized('state-case2-1', true))
@@ -81,26 +80,26 @@ describe('Test state', () => {
 })
 
 describe('Test Events', () => {
-  const app = new App('event-tester')
-  registerApp(app).relyOn(['connect-testers/event'])
+  const app = new App('events-tester')
+  registerApp(app).relyOn(['connect-testers/events'])
 
-  test('# case 1: test broadcast', async () => {
-    await app.activate('event-tester')
-    const targetApp = app.connect<EventTesterBroadcastEvents, EventTesterUnicastEvents, {}, {}>('connect-testers/event')
+  test('# case 1: test events', async () => {
+    await app.activate('events-tester')
+    const targetApp = app.connect<{}, {}, Events>('connect-testers/events')
     const recordedTexts = []
     console.log = jest.fn()
     console.warn = jest.fn()
     console.error = jest.fn()
-    targetApp.onBroadcast({
+    targetApp.addEvents({
       record (text) {
         recordedTexts.push(text)
       }
     })
-    targetApp.broadcaster.log('hello world')
-    targetApp.broadcaster.error('hello world')
-    await app.destroy('connect-testers/event')
-    targetApp.broadcaster.log('hello world')
-    targetApp.broadcaster.error('hello world')
+    targetApp.events.log('hello world')
+    targetApp.events.error('hello world')
+    await app.destroy('connect-testers/events')
+    targetApp.events.log('hello world')
+    targetApp.events.error('hello world')
     expect(recordedTexts.length).toEqual(2)
     expect(recordedTexts.join(',')).toEqual('hello world,hello world')
     expect(console.log).toBeCalledTimes(1)
@@ -110,23 +109,19 @@ describe('Test Events', () => {
     expect(console.warn).toBeCalledTimes(2)
     expect(console.warn).toBeCalledWith('[rallie] you have emitted log broadcast, but there is no listener of this event')
     expect(console.warn).toBeCalledWith('[rallie] you have emitted error broadcast, but there is no listener of this event')
-    await app.destroy('event-tester')
+    await app.destroy('events-tester')
   })
+})
 
-  test('# case 2: test unicast', async () => {
-    await app.activate('event-tester')
-    const targetApp = app.connect<EventTesterBroadcastEvents, EventTesterUnicastEvents, {}, {}>('connect-testers/event')
-    console.log = jest.fn()
-    targetApp.onUnicast({
-      printCount (count) {
-        console.log(count)
-      }
-    })
-    expect(targetApp.unicaster.getCount()).toEqual(0)
-    targetApp.unicaster.addCount()
-    expect(targetApp.unicaster.getCount()).toEqual(1)
-    expect(console.log).toBeCalledTimes(3)
-    expect(console.log).toBeCalledWith(0)
-    expect(console.log).toBeCalledWith(1)
+describe('Test Methods', () => {
+  const app = new App('methods-tester')
+  registerApp(app).relyOn(['connect-testers/methods'])
+
+  test('# case 2: test methods', async () => {
+    await app.activate('methods-tester')
+    const targetApp = app.connect<{}, {}, {}, Methods>('connect-testers/methods')
+    expect(targetApp.methods.getCount()).toEqual(0)
+    targetApp.methods.addCount()
+    expect(targetApp.methods.getCount()).toEqual(1)
   })
 })

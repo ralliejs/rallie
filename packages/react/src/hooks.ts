@@ -2,7 +2,7 @@ import React from 'react'
 import { App, Connector, State, ReadOnlyState } from 'rallie'
 // import { effect } from '@rallie/core'
 
-export function getStateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
+export function stateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
   return function <P = any> (getter: (_state: T) => P) {
     const [value, setValue] = React.useState<P>(state.get(getter))
     const unwatch = state.watch(getter).do((val) => {
@@ -17,10 +17,10 @@ export function getStateHook<T extends object> (state: State<T> | ReadOnlyState<
   }
 }
 
-export function getBroadcastHook<Events> (app: App | Connector) {
+export function eventsHook<Events> (app: App | Connector) {
   return function (events: Partial<Events>) {
     React.useEffect(() => {
-      const off = app.onBroadcast(events)
+      const off = app.addEvents(events)
       return () => {
         off()
       }
@@ -28,10 +28,10 @@ export function getBroadcastHook<Events> (app: App | Connector) {
   }
 }
 
-export function getUnicastHook<Events> (app: App | Connector) {
+export function methodsHook<Events> (app: App) {
   return function (events: Partial<Events>) {
     React.useEffect(() => {
-      const off = app.onUnicast(events)
+      const off = app.addMethods(events)
       return () => {
         off()
       }

@@ -2,7 +2,7 @@ import { onBeforeUnmount, onBeforeMount, ref, UnwrapRef } from 'vue'
 import { App, Connector, State, ReadOnlyState } from 'rallie'
 // import { effect } from '@rallie/core'
 
-export function getStateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
+export function stateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
   return function <P> (getter: (_state: T) => P) {
     const stateRef = ref<P>(state.get(getter))
     const unwatch = state.watch(getter).do((value) => {
@@ -15,26 +15,26 @@ export function getStateHook<T extends object> (state: State<T> | ReadOnlyState<
   }
 }
 
-export function getBroadcastHook<BroadcastEvents> (app: App) {
-  return function (events: Partial<BroadcastEvents>) {
-    let offBroadcast = null
+export function eventsHook<Events> (app: App | Connector) {
+  return function (events: Partial<Events>) {
+    let off = null
     onBeforeMount(() => {
-      offBroadcast = app.onBroadcast(events)
+      off = app.addEvents(events)
     })
     onBeforeUnmount(() => {
-      offBroadcast()
+      off()
     })
   }
 }
 
-export function getUnicastHook<UnicastEvents> (app: App | Connector) {
-  return function (events: Partial<UnicastEvents>) {
-    let offUnicast = null
+export function methodsHook<Methods> (app: App) {
+  return function (events: Partial<Methods>) {
+    let off = null
     onBeforeMount(() => {
-      offUnicast = app.onUnicast(events)
+      off = app.addMethods(events)
     })
     onBeforeUnmount(() => {
-      offUnicast()
+      off()
     })
   }
 }

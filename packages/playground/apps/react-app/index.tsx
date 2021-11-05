@@ -6,9 +6,8 @@ import { registerApp } from 'rallie'
 
 const rootContainer = null
 
-app.runInHostMode((use) => {
-  use(jsdelivrLibraryLoader)
-  use(dynamicImportLoader)
+app.runInHostMode((bus) => {
+  bus.use(jsdelivrLibraryLoader).use(dynamicImportLoader)
 })
 
 registerApp(app)

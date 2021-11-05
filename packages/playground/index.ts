@@ -3,9 +3,8 @@ import { jsdelivrLibraryLoader, dynamicImportLoader } from './middlewares'
 
 const host = new App('host')
 
-host.runInHostMode((use) => {
-  use(jsdelivrLibraryLoader)
-  use(dynamicImportLoader)
+host.runInHostMode((bus) => {
+  bus.use(jsdelivrLibraryLoader).use(dynamicImportLoader)
 })
 
 registerApp(host)

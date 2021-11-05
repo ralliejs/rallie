@@ -1,13 +1,13 @@
 <script lang="ts">
 import { producer } from './app'
-import { getStateHook } from '../../../src'
+import { stateHook } from '../../../src'
 import { defineComponent } from 'vue'
 
-const useProducerPrivateState = getStateHook(producer.privateState)
+const useProducerPrivateState = stateHook(producer.privateState)
 
 export default defineComponent(function Consumer () {
   const toggleTheme = () => {
-    producer.unicaster.toggleTheme()
+    producer.methods.toggleTheme()
   }
   const addCount = () => {
     producer.publicState.set(state => {
@@ -15,7 +15,7 @@ export default defineComponent(function Consumer () {
     })
   }
   const printTheme = () => {
-    producer.broadcaster.printTheme()
+    producer.events.printTheme()
   }
   const isDarkTheme = useProducerPrivateState<boolean>(state => state.isDarkTheme)
   return {

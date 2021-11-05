@@ -1,15 +1,7 @@
 import { registerApp, App } from '../../../src'
 
-type PublicState = {
-  value: number
-}
-
-type PrivateState = {
-  value: number
-}
-
 let unWatchPublicState: () => void = null
-const app = new App<{}, {}, PublicState, PrivateState>('connect-testers/state', {
+const app = new App('connect-testers/state', {
   state: {
     public: {
       value: 0

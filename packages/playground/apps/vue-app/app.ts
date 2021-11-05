@@ -1,5 +1,5 @@
 import { App } from 'rallie'
-import { getStateHook } from '@rallie/vue'
+import { stateHook } from '@rallie/vue'
 
 export const app = new App('vue-app', {
   state: {
@@ -9,4 +9,4 @@ export const app = new App('vue-app', {
   }
 })
 
-export const usePublicState = getStateHook(app.publicState)
+export const usePublicState = stateHook(app.publicState)

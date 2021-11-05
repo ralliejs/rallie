@@ -5,9 +5,8 @@ import logger from './middlewares/logger'
 describe('Test the dependencies', () => {
   const appsLoaded = []
   const hostApp = new App('host-app')
-  hostApp.runInHostMode((use) => {
-    use(logger(appsLoaded))
-    use(nativeLoader)
+  hostApp.runInHostMode((bus) => {
+    bus.use(logger(appsLoaded)).use(nativeLoader)
   })
 
   test('# case 1: the main app relate to a, b and c, activate the main app, a, b and c should be loaded', async () => {
