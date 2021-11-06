@@ -911,20 +911,20 @@ We say that Obvious is a lightweight library. We can take a look at the implemen
 ```js
 const busProxy = {};
 export const createBus = (name: string) => {
-  if (window.__Bus__ === undefined) {
-    Object.defineProperty(window, "__Bus__", {
+  if (window.RALLIE_BUS_STORE === undefined) {
+    Object.defineProperty(window, "RALLIE_BUS_STORE", {
       value: busProxy,
       writable: false,
     });
   }
 
-  if (window.__Bus__[name]) {
+  if (window.RALLIE_BUS_STORE[name]) {
     throw new Error(
       `[rallie] the bus named ${name} has been defined before, please rename your bus`
     );
   } else {
     const bus = new Bus(name);
-    Object.defineProperty(window.__Bus__, name, {
+    Object.defineProperty(window.RALLIE_BUS_STORE, name, {
       value: bus,
       writable: false,
     });
@@ -933,14 +933,14 @@ export const createBus = (name: string) => {
 };
 
 export const getBus = (name: string) => {
-  return window.__Bus__ && window.__Bus__[name];
+  return window.RALLIE_BUS_STORE && window.RALLIE_BUS_STORE[name];
 };
 ```
 
 As you can see, `createBus` is to create a bus instance and mount it to `window__ Bus__`. And `getBus` is to get the corresponding bus instance from `window__ Bus__`. Thanks to the use of factory pattern, the app instances and socket instances in micro applications are created by calling the corresponding factory methods of bus instances, Therefore, if we don't get the bus through the `getBus` API, we write like this instead:
 
 ```js
-const bus = window.__Bus__.host;
+const bus = window.RALLIE_BUS_STORE.host;
 ```
 
 Then we can find that there is no need to import obvious-core into micro applications. The code of Obvious only needs to be imported once in the host application

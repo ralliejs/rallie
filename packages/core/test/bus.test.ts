@@ -13,7 +13,7 @@ declare global {
     appsLoadedFromLocalhost: any;
     lastLoadingApp: any;
     React: any;
-    __Bus__: Record<string, Bus>;
+    RALLIE_BUS_STORE: Record<string, Bus>;
   }
 }
 
@@ -80,10 +80,10 @@ describe('Test the capability to load the resources of an app or lib', () => {
     }
   })
 
-  test('# case 1: create a bus, it should be mounted on window.__Bus__ ', () => {
+  test('# case 1: create a bus, it should be mounted on window.RALLIE_BUS_STORE ', () => {
     expect(getBus('testBus')).toBe(bus)
     expect(() => {
-      window.__Bus__.testBus = null
+      window.RALLIE_BUS_STORE.testBus = null
     }).toThrowError()
   })
 
@@ -141,7 +141,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
     expect(testBus).toEqual(bus)
     const [defaultBus1, isDefaultBus1Host] = touchBus()
     expect(isDefaultBus1Host).toBeTruthy()
-    expect(defaultBus1).toEqual(window.__Bus__[DEFAULT_BUS_NAME])
+    expect(defaultBus1).toEqual(window.RALLIE_BUS_STORE[DEFAULT_BUS_NAME])
     const [defaultBus2, isDefaultBus2Host] = touchBus()
     expect(isDefaultBus2Host).toBeFalsy()
     expect(defaultBus2).toEqual(defaultBus1)
@@ -195,5 +195,12 @@ describe('Test the capability to load the resources of an app or lib', () => {
       expect(err.message).toEqual(Errors.wrongContextType())
       done()
     })
+  })
+
+  test('# case 9: bus\'s name should be unique', () => {
+    createBus('case9')
+    expect(() => {
+      createBus('case9')
+    }).toThrowError(Errors.duplicatedBus('case9'))
   })
 })

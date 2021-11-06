@@ -232,24 +232,24 @@ export class Bus {
 }
 
 const busProxy = {}
-export const DEFAULT_BUS_NAME = '__DEFAULT_BUS__'
+export const DEFAULT_BUS_NAME = 'DEFAULT_BUS'
 /**
- * create a bus and record it on window.__Bus__
+ * create a bus and record it on window.RALLIE_BUS_STORE
  * @param name the name of the bus
  */
 export const createBus = (name: string = DEFAULT_BUS_NAME) => {
-  if (window.__Bus__ === undefined) {
-    Reflect.defineProperty(window, '__Bus__', {
+  if (window.RALLIE_BUS_STORE === undefined) {
+    Reflect.defineProperty(window, 'RALLIE_BUS_STORE', {
       value: busProxy,
       writable: false
     })
   }
 
-  if (window.__Bus__[name]) {
-    throw new Error(`[rallie] the bus named ${name} has been defined before, please rename your bus`)
+  if (window.RALLIE_BUS_STORE[name]) {
+    throw new Error(Errors.duplicatedBus(name))
   } else {
     const bus = new Bus(name)
-    Reflect.defineProperty(window.__Bus__, name, {
+    Reflect.defineProperty(window.RALLIE_BUS_STORE, name, {
       value: bus,
       writable: false
     })
@@ -258,16 +258,16 @@ export const createBus = (name: string = DEFAULT_BUS_NAME) => {
 }
 
 /**
- * get the bus from window.__Bus__
+ * get the bus from window.RALLIE_BUS_STORE
  * @param name the name of the bus
  * @returns
  */
 export const getBus = (name: string = DEFAULT_BUS_NAME) => {
-  return window.__Bus__ && window.__Bus__[name]
+  return window.RALLIE_BUS_STORE && window.RALLIE_BUS_STORE[name]
 }
 
 /**
- * get the bus from window.__Bus__, if the bus is not created, then create it
+ * get the bus from window.RALLIE_BUS_STORE, if the bus is not created, then create it
  * @param name the name of the bus
  * @returns
  */

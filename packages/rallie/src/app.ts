@@ -1,6 +1,6 @@
 import { State } from './state'
 import { touchBus, CallbackType, Bus, Socket, CustomCtxType } from '@rallie/core'
-import { constant } from './utils'
+import { constant, errors } from './utils'
 import { Connector } from './connector'
 
 interface AppConfig<PublicState, PrivateState> {
@@ -25,6 +25,9 @@ export class App<
     this.name = name
     this.isRallieApp = true
     const [globalBus, isHost] = touchBus()
+    if (globalBus.existApp(name)) {
+      throw new Error(errors.duplicatedAppName(name))
+    }
     this.globalBus = globalBus
     this.globalSocket = globalBus.createSocket()
     this.isHost = isHost
@@ -35,8 +38,8 @@ export class App<
     this.socket = privateBus.createSocket()
     this.events = this.socket.createBroadcaster()
     this.methods = this.socket.createUnicaster()
-    this.publicState = new State<PublicState>(this.socket, this.name, constant.publicStateNamespace, config?.state?.public)
-    this.privateState = new State<PrivateState>(this.socket, this.name, constant.privateStateNamespace, config?.state?.private)
+    this.publicState = new State<PublicState>(this.socket, this.name, constant.publicStateNamespace(this.name), config?.state?.public)
+    this.privateState = new State<PrivateState>(this.socket, this.name, constant.privateStateNamespace(this.name), config?.state?.private)
   }
 
   public name: string

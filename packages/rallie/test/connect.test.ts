@@ -1,4 +1,5 @@
 
+import { Warnings } from '@rallie/core'
 import { App, registerApp } from '../src/index'
 import { errors } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
@@ -107,8 +108,8 @@ describe('Test Events', () => {
     expect(console.log).toBeCalledWith('hello world')
     expect(console.error).toBeCalledWith('hello world')
     expect(console.warn).toBeCalledTimes(2)
-    expect(console.warn).toBeCalledWith('[rallie] you have emitted log broadcast, but there is no listener of this event')
-    expect(console.warn).toBeCalledWith('[rallie] you have emitted error broadcast, but there is no listener of this event')
+    expect(console.warn).toBeCalledWith(Warnings.emptyBroadcastEvents('log'))
+    expect(console.warn).toBeCalledWith(Warnings.emptyBroadcastEvents('error'))
     await app.destroy('events-tester')
   })
 })

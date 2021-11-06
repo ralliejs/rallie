@@ -13,8 +13,8 @@ export class Connector<
     this.isRallieApp = false
     const [bus] = touchBus(constant.privateBus(connectedApp))
     this.socket = bus.createSocket()
-    this.privateState = new State<PrivateState>(this.socket, connectedApp, constant.privateStateNamespace)
-    this.publicState = new State<PublicState>(this.socket, connectedApp, constant.publicStateNamespace)
+    this.privateState = new State<PrivateState>(this.socket, connectedApp, constant.privateStateNamespace(this.name))
+    this.publicState = new State<PublicState>(this.socket, connectedApp, constant.publicStateNamespace(this.name))
     this.events = this.socket.createBroadcaster()
     this.methods = this.socket.createUnicaster()
   }

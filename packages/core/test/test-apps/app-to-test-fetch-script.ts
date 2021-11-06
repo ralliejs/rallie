@@ -1,5 +1,5 @@
 const code = `\
-const bus = window.__Bus__.testBus;
+const bus = window.RALLIE_BUS_STORE.testBus;
 
 /**
  * app-a indicate both bootstrap and activate lifecycles

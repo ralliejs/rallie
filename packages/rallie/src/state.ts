@@ -23,7 +23,7 @@ export class ReadOnlyState<T extends object> {
     if (this.socket.existState(this.namespace)) {
       return this.socket.watchState<T, P>(this.namespace, getter)
     } else {
-      throw new Error(errors.stateNotInitialized(this.appName, this.namespace === constant.privateStateNamespace))
+      throw new Error(errors.stateNotInitialized(this.appName, this.namespace === constant.privateStateNamespace(this.appName)))
     }
   }
 }
@@ -33,7 +33,7 @@ export class State<T extends object> extends ReadOnlyState<T> {
     if (this.socket.existState(this.namespace)) {
       return this.socket.setState<T>(this.namespace, setter)
     } else {
-      throw new Error(errors.stateNotInitialized(this.appName, this.namespace === constant.privateStateNamespace))
+      throw new Error(errors.stateNotInitialized(this.appName, this.namespace === constant.privateStateNamespace(this.appName)))
     }
   }
 }

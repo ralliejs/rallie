@@ -1,5 +1,5 @@
 import { App, registerApp } from '../src/index'
-import { Bus } from '@rallie/core'
+import { Bus, Errors } from '@rallie/core'
 import nativeLoader from './middlewares/native-loader'
 
 const hostApp = new App('host-app')
@@ -50,7 +50,7 @@ describe('Test runInHostMode and runInRemoteMode', () => {
     hostApp.activate('case2-1').then(() => {
       throw new Error('this should never be reached')
     }).catch((err) => {
-      const expectedError = "[rallie] the number of apps bootstraped at a time is greater than the maximum value of 1, it means that there may be circular dependencies, please check the app dependencies declaration or reset the bus's maxDependencyDepth" // eslint-disable-line
+      const expectedError = Errors.bootstrapNumberOverflow(1)
       expect(err.message).toEqual(expectedError)
       done()
     })

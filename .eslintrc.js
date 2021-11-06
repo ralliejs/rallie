@@ -12,7 +12,7 @@ module.exports = {
     'plugin:vue/vue3-essential'
   ],
   globals: {
-    __Bus__: true
+    RALLIE_BUS_STORE: true
   },
   settings: {
     react: {

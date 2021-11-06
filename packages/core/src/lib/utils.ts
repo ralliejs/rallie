@@ -1,82 +1,83 @@
 
-import { MiddlewareFnType, NextFnType, ContextType, CustomCtxType, DependencyType, CallbackType } from '../types'; // eslint-disable-line
+import { MiddlewareFnType, NextFnType, ContextType, CustomCtxType, DependencyType } from '../types'; // eslint-disable-line
 
 export const Errors = {
   // ================= EventEmitter.broadcast  =================
   removeNonExistedBroadcast: (eventName: string) => {
-    return `[rallie] you are trying to remove a listener of the broadcast event ${eventName}, but ${eventName} hasn't been registed as a broadcast event`
+    return `[@rallie/core] you are trying to remove a listener of the broadcast event ${eventName}, but ${eventName} hasn't been registed as a broadcast event`
   },
   wrongBroadcastCallback: (eventName: string) => {
-    return `[rallie] you are trying to remove a listener of the broadcast event ${eventName}, but the listener hasn't been registed`
+    return `[@rallie/core] you are trying to remove a listener of the broadcast event ${eventName}, but the listener hasn't been registed`
   },
   broadcastCallbackError: (eventName: string) => {
-    return `[rallie] one of the callbacks of the broadcast event ${eventName} throws an uncaught error`
+    return `[@rallie/core] one of the callbacks of the broadcast event ${eventName} throws an uncaught error`
   },
   // ================= EventEmitter.unicast ====================
   removeNonExistedUnicast: (eventName: string) => {
-    return `[rallie] you are trying to remove a listener of the unicast event ${eventName}, but ${eventName} hasn't been registed as a unicast event`
+    return `[@rallie/core] you are trying to remove a listener of the unicast event ${eventName}, but ${eventName} hasn't been registed as a unicast event`
   },
   wrongUnicastCallback: (eventName: string) => {
-    return `[rallie] you are trying to remove a listener of the unicast event ${eventName}, but the listener hasn't been registed`
+    return `[@rallie/core] you are trying to remove a listener of the unicast event ${eventName}, but the listener hasn't been registed`
   },
   registedExistedUnicast: (eventName: string) => {
-    return `[rallie] you are trying to regist a unicast event ${eventName}, but it has been registed before`
+    return `[@rallie/core] you are trying to register a unicast event ${eventName}, but it has been registered before`
   },
   emittedNonExistedUnicast: (eventName: string) => {
-    return `[rallie] you have emitted ${eventName} unicast, but there is no listener of this event`
+    return `[@rallie/core] you have emitted ${eventName} unicast, but there is no listener of this event`
   },
   // ================= App ===================
   createExistingApp: (appName: string) => {
-    return `[rallie] ${appName} is existing, you are not allowed to create it again`
+    return `[@rallie/core] ${appName} is existing, you are not allowed to create it again`
   },
   resourceNotDeclared: (appName: string, busName: string) => {
-    return `[rallie] can not find any assets of the app ${appName} on the bus ${busName}`
+    return `[@rallie/core] can not find any assets of the app ${appName} on the bus ${busName}`
   },
   appNotCreated: (appName: string) => {
-    return `[rallie] you are trying to activate app ${appName}, but it was not created`
+    return `[@rallie/core] you are trying to activate app ${appName}, but it was not created`
   },
   // ================= Socket ===============
   modifyPrivateState: (namespace: string) => {
-    return `[rallie] state ${namespace} is private, you are not allowed to set it`
+    return `[@rallie/core] state ${namespace} is private, you are not allowed to set it`
   },
   accessUninitializedState: (namespace: string) => {
-    return `[rallie] it's not allowed to set or watch state ${namespace} before it is initialized`
+    return `[@rallie/core] it's not allowed to set or watch state ${namespace} before it is initialized`
   },
   waitStateTimeout: (namespaces: string[]) => {
-    return `[rallie] wait for states ${JSON.stringify(namespaces)} timeout`
+    return `[@rallie/core] wait for states ${JSON.stringify(namespaces)} timeout`
   },
   duplicatedInitial: (namespace: string) => {
-    return `[rallie] duplicated initialized state ${namespace}`
+    return `[@rallie/core] duplicated initialized state ${namespace}`
   },
   initializePrimitiveState: (namespace: string) => {
-    return `[rallie] it's not allowed to initialized state ${namespace} to a primitive value`
+    return `[@rallie/core] it's not allowed to initialized state ${namespace} to a primitive value`
   },
   // ================= Bus ==================
+  duplicatedBus: (name: string) => `[@rallie/core] the bus named ${name} has been defined before, please rename your bus`,
   invalidResource: (asset: string) => {
-    return `[rallie] ${asset} is not a valid asset`
+    return `[@rallie/core] ${asset} is not a valid asset`
   },
   bootstrapNumberOverflow: (num = 100) => {
-    return `[rallie] the number of apps bootstraped at a time is greater than the maximum value of ${num},` +
+    return `[@rallie/core] the number of apps bootstraped at a time is greater than the maximum value of ${num},` +
       ' it means that there may be circular dependencies, please check the app dependencies declaration' +
       ' or reset the bus\'s maxDependencyDepth'
   },
   multipleCalledNextFn: () => {
-    return '[rallie] next() called multiple times in the middleware'
+    return '[@rallie/core] next() called multiple times in the middleware'
   },
   wrongMiddlewareType: () => {
-    return '[rallie] the middleware must be a function'
+    return '[@rallie/core] the middleware must be a function'
   },
   wrongContextType: () => {
-    return '[rallie] the app\'s name is not specified when load or activate'
+    return '[@rallie/core] the app\'s name is not specified when load or activate'
   }
 }
 
 export const Warnings = {
   emptyBroadcastEvents: (eventName: string) => {
-    return `[rallie] you have emitted ${eventName} broadcast, but there is no listener of this event`
+    return `[@rallie/core] you have emitted ${eventName} broadcast, but there is no listener of this event`
   },
   handlerIsNotInTheEventsPool: (eventName: string, isUnicast: boolean) => {
-    return `[rallie] the event ${eventName} is not in the events pool that you specified when calling on${isUnicast ? 'Unicast' : 'Broadcast'}`
+    return `[@rallie/core] the event ${eventName} is not in the events pool that you specified when calling on${isUnicast ? 'Unicast' : 'Broadcast'}`
   }
 }
 

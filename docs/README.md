@@ -913,20 +913,20 @@ if (process.env.NODE_ENV === 'development') {
 ```js
 const busProxy = {};
 export const createBus = (name: string) => {
-  if (window.__Bus__ === undefined) {
-    Object.defineProperty(window, "__Bus__", {
+  if (window.RALLIE_BUS_STORE === undefined) {
+    Object.defineProperty(window, "RALLIE_BUS_STORE", {
       value: busProxy,
       writable: false,
     });
   }
 
-  if (window.__Bus__[name]) {
+  if (window.RALLIE_BUS_STORE[name]) {
     throw new Error(
       `[rallie] the bus named ${name} has been defined before, please rename your bus`
     );
   } else {
     const bus = new Bus(name);
-    Object.defineProperty(window.__Bus__, name, {
+    Object.defineProperty(window.RALLIE_BUS_STORE, name, {
       value: bus,
       writable: false,
     });
@@ -935,14 +935,14 @@ export const createBus = (name: string) => {
 };
 
 export const getBus = (name: string) => {
-  return window.__Bus__ && window.__Bus__[name];
+  return window.RALLIE_BUS_STORE && window.RALLIE_BUS_STORE[name];
 };
 ```
 
-你可以看到，createBus 就是 new 一个 Bus 实例并把它挂载到`window.__Bus__`上，而 getBus 就是从`window.__Bus__`上拿到对应的 Bus 实例。得益于工厂模式的使用，微应用中需要的 App 实例和 Socket 实例都是通过 Bus 实例调用工厂方法创建的。因此，如果我们不通过`getBus`api 获取 bus，而是直接这样写：
+你可以看到，createBus 就是 new 一个 Bus 实例并把它挂载到`window.RALLIE_BUS_STORE`上，而 getBus 就是从`window.RALLIE_BUS_STORE`上拿到对应的 Bus 实例。得益于工厂模式的使用，微应用中需要的 App 实例和 Socket 实例都是通过 Bus 实例调用工厂方法创建的。因此，如果我们不通过`getBus`api 获取 bus，而是直接这样写：
 
 ```js
-const bus = window.__Bus__.host;
+const bus = window.RALLIE_BUS_STORE.host;
 ```
 
 那么其实微应用中完全没有必要引入 obvious，obvious 的代码只需要在宿主应用中引用一次即可

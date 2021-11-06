@@ -11,7 +11,7 @@ export const jsdelivrLibraryLoader: MiddlewareFnType = async (ctx, next) => {
 }
 
 export const dynamicImportLoader: MiddlewareFnType = async (ctx, next) => {
-  console.log(ctx.name, JSON.stringify(window['__Bus__'])) // eslint-disable-line
+  console.log(ctx.name, JSON.stringify(window['RALLIE_BUS_STORE'])) // eslint-disable-line
   await import(`../apps/${ctx.name}/index.tsx`).catch(async (err) => {
     console.error(err)
     await next()

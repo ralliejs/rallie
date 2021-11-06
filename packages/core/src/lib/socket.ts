@@ -65,8 +65,10 @@ export class Socket {
   public createBroadcaster<T extends Record<string, CallbackType>> (logger?: (eventName: string) => void) {
     return new Proxy<T>(({} as any), {
       get: (target, eventName) => {
-        logger?.(eventName as string)
-        return (...args: any[]) => this.eventEmitter.emitBroadcast(eventName as string, ...args)
+        return (...args: any[]) => {
+          logger?.(eventName as string)
+          return this.eventEmitter.emitBroadcast(eventName as string, ...args)
+        }
       },
       set: () => {
         return false
@@ -81,8 +83,10 @@ export class Socket {
   public createUnicaster<T extends Record<string, CallbackType>> (logger?: (eventName: string) => void) {
     return new Proxy<T>(({} as any), {
       get: (target, eventName) => {
-        logger?.(eventName as string)
-        return (...args: any[]) => this.eventEmitter.emitUnicast(eventName as string, ...args)
+        return (...args: any[]) => {
+          logger?.(eventName as string)
+          return this.eventEmitter.emitUnicast(eventName as string, ...args)
+        }
       },
       set: () => {
         return false

@@ -12,9 +12,6 @@ describe('Test broadcast', () => {
   const broadcaster = socket.createBroadcaster<BroadcastEvents>((event) => {
     console.error('trigger', event)
   })
-  console.error = jest.fn()
-  console.warn = jest.fn()
-  console.log = jest.fn()
   const offBroadcast = socket.onBroadcast<BroadcastEvents>({
     printHelloWorld () {
       console.log('Hello World')
@@ -25,6 +22,12 @@ describe('Test broadcast', () => {
     shouldNotBeCalled () {
       console.log('This callback should not be called')
     }
+  })
+
+  beforeEach(() => {
+    console.error = jest.fn()
+    console.warn = jest.fn()
+    console.log = jest.fn()
   })
   test('# case 1: listen broadcast events and emit them with broadcaster', () => {
     broadcaster.printHelloWorld()
@@ -50,6 +53,13 @@ describe('Test broadcast', () => {
     expect(console.warn).toBeCalledWith(Warnings.emptyBroadcastEvents('shouldNotBeCalled'))
     expect(console.warn).toBeCalledTimes(4)
   })
+
+  test('# case 3: broadcaster can not be set', () => {
+    const broadcaster2 = socket.createBroadcaster()
+    expect(() => {
+      broadcaster2.printHelloWorld = null
+    }).toThrowError()
+  })
 })
 
 describe('Test unicast', () => {
@@ -60,10 +70,9 @@ describe('Test unicast', () => {
     getText: (text: string) => string;
     shouldNotBeCalled: () => void;
   }
-  const unicaster = socket.createUnicaster<UnicastEvents>()
-  console.error = jest.fn()
-  console.warn = jest.fn()
-  console.log = jest.fn()
+  const unicaster = socket.createUnicaster<UnicastEvents>((eventName) => {
+    console.log('trigger', eventName)
+  })
   const offUnicast = socket.onUnicast<UnicastEvents>({
     getHelloWorld () {
       return 'Hello World'
@@ -75,9 +84,18 @@ describe('Test unicast', () => {
       console.log('This callback should not be called')
     }
   })
+
+  beforeEach(() => {
+    console.error = jest.fn()
+    console.warn = jest.fn()
+    console.log = jest.fn()
+  })
   test('# case 1: listen unicast events and emit them with unicaster', () => {
     expect(unicaster.getHelloWorld()).toEqual('Hello World')
-    expect(unicaster.getText('Hello Obvious')).toEqual('Hello Obvious')
+    expect(unicaster.getText('Hello Rallie')).toEqual('Hello Rallie')
+    expect(console.log).toBeCalledTimes(2)
+    expect(console.log).toBeCalledWith('trigger', 'getHelloWorld')
+    expect(console.log).toBeCalledWith('trigger', 'getText')
   })
 
   test('# case 2: unwatch events with unicaster', () => {
@@ -94,5 +112,12 @@ describe('Test unicast', () => {
     expect(() => {
       unicaster.shouldNotBeCalled()
     }).toThrowError(Errors.emittedNonExistedUnicast('shouldNotBeCalled'))
+  })
+
+  test('# case 3: unicaster can not be set', () => {
+    const unicaster2 = socket.createUnicaster()
+    expect(() => {
+      unicaster2.getHelloWorld = null
+    }).toThrowError()
   })
 })
