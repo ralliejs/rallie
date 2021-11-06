@@ -26,5 +26,8 @@
   },
   "peerDependencies": {
     "vue": ">=3.2.6"
+  },
+  "devDependencies": {
+    "@rallie/core": "^0.5.1"
   }
 }

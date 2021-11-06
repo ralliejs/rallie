@@ -26,5 +26,8 @@
   },
   "peerDependencies": {
     "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@rallie/core": "^0.5.1"
   }
 }
