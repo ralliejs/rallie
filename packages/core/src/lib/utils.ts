@@ -123,7 +123,7 @@ export function getDeduplicatedDependencies (dependencies: DependencyType[]): De
 }
 
 /**
- * the compose function from koa-compose
+ * the compose function copied from koa-compose
  * @param middlewares
  * @returns
  */
