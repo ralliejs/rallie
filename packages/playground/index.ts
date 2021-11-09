@@ -1,10 +1,15 @@
 import { registerApp, App } from 'rallie'
-import { jsdelivrLibraryLoader, dynamicImportLoader } from './middlewares'
+import { jsdelivrLibraryLoader, dynamicImportLoader, htmlLoader } from './middlewares' // eslint-disable-line
+import loadHtml from '@rallie/load-html' // eslint-disable-line
 
 const host = new App('host')
 
 host.runInHostMode((bus) => {
-  bus.use(jsdelivrLibraryLoader).use(dynamicImportLoader)
+  bus.use(jsdelivrLibraryLoader)
+    .use(dynamicImportLoader)
+    // you can try to use the htmlLoader to replace the dynamicImportLoader
+    // .use(loadHtml())
+    // .use(htmlLoader)
 })
 
 registerApp(host)
