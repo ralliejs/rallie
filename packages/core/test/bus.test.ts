@@ -1,12 +1,12 @@
 import { createBus, getBus, touchBus } from '../src/index'
-import { Bus, DEFAULT_BUS_NAME } from '../src/lib/bus'
+import { Bus } from '../src/lib/bus'
 import nock from 'nock'
 import cssCode from './test-apps/css'
-import appACode from './test-apps/app-to-test-fetch-script'
+import appToTestFetchScriptCode from './test-apps/app-to-test-fetch-script'
+import appToTestLoadScriptCode from './test-apps/app-to-test-load-script'
 import appInvalidCode from './test-apps/app-invalid'
 import reactCode from './test-apps/react'
 import { Errors } from '../src/lib/utils'
-import loader from '../src/lib/loader'
 
 declare global {
   interface Window { // eslint-disable-line
@@ -18,9 +18,11 @@ declare global {
 }
 
 nock('https://cdn.obvious.com')
-  .get('/assets/app-a.js')
-  .reply(200, appACode)
-  .get('/assets/app-a.css')
+  .get('/assets/app-to-test-fetch-script.js')
+  .reply(200, appToTestFetchScriptCode)
+  .get('/assets/app-to-test-load-script.js')
+  .reply(200, appToTestLoadScriptCode)
+  .get('/assets/cssCode.css')
   .reply(200, cssCode)
   .get('/assets/react.js')
   .reply(200, reactCode)
@@ -38,17 +40,16 @@ describe('Test the capability to load the resources of an app or lib', () => {
     },
     'app-to-test-fetch-script': {
       js: [
-        'https://cdn.obvious.com/assets/app-a.js'
+        'https://cdn.obvious.com/assets/app-to-test-fetch-script.js'
       ],
       css: [
-        { href: 'https://cdn.obvious.com/assets/app-a.css' },
-        'https://cdn.obvious.com/assets/app-a.css'
+        { href: 'https://cdn.obvious.com/assets/cssCode.css' },
+        'https://cdn.obvious.com/assets/cssCode.css'
       ]
     },
-    'lib:app-to-test-load-script': {
+    'app-to-test-load-script': {
       js: [
-        { src: 'https://cdn.obvious.com/assets/app-a.js' },
-        'https://cdn.obvious.com/assets/react.js'
+        'https://cdn.obvious.com/assets/app-to-test-load-script.js'
       ]
     },
     'invalid-resource-app': {
@@ -63,8 +64,8 @@ describe('Test the capability to load the resources of an app or lib', () => {
 
   window.appsLoadedFromLocalhost = []
 
-  const bus = createBus('testBus')
-  bus.config({
+  const globalBus = createBus()
+  globalBus.config({
     loadScriptByFetch: true,
     assets: staticAssetsConfig
   }).use(async (ctx, next) => {
@@ -81,18 +82,18 @@ describe('Test the capability to load the resources of an app or lib', () => {
   })
 
   test('# case 1: create a bus, it should be mounted on window.RALLIE_BUS_STORE ', () => {
-    expect(getBus('testBus')).toBe(bus)
+    expect(getBus()).toBe(globalBus)
     expect(() => {
-      window.RALLIE_BUS_STORE.testBus = null
+      window.RALLIE_BUS_STORE.DEFAULT_BUS = null
     }).toThrowError()
   })
 
   test('# case 2: activate app-a, it should activate its dependencies and the bootstrap callback should be called', (done) => {
     console.log = jest.fn()
-    bus.activateApp('app-to-test-fetch-script').then(() => {
+    globalBus.activateApp('app-to-test-fetch-script').then(() => {
       expect(window.React.value).toEqual('reactSourceCode')
       expect(window.lastLoadingApp).toEqual('lib:react')
-      expect(console.log).toBeCalledWith('bootstraped')
+      expect(console.log).toBeCalledWith('app-to-test-fetch-script is created')
       expect(window.appsLoadedFromLocalhost.length).toEqual(0)
       done()
     })
@@ -100,7 +101,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
 
   test('# case 3: activate app-invalid, the middleware should be excuted', (done) => {
     console.log = jest.fn()
-    bus.activateApp({
+    globalBus.activateApp({
       name: 'app-invalid',
       loadedFromLocalhost: true
     }).then(() => {
@@ -116,7 +117,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
 
   test('# case 4: activate an app which does not have valid resource declaration, console.error should be called', (done) => {
     console.error = jest.fn()
-    bus.activateApp('invalid-resource-app').then(() => {
+    globalBus.activateApp('invalid-resource-app').then(() => {
       throw new Error('this callback should not be reached')
     }).catch((error) => {
       expect(console.error).toBeCalledTimes(2)
@@ -126,46 +127,35 @@ describe('Test the capability to load the resources of an app or lib', () => {
   })
 
   test('# case 5: activate an non-existence app, an error should be throwed', (done) => {
-    const bus = createBus('testBus2')
+    const bus = createBus('case5-bus')
     bus.activateApp('non-existence-app').then(() => {
       throw new Error('this callback should not be reached')
     }).catch((error) => {
-      expect(error.message).toEqual(Errors.resourceNotDeclared('non-existence-app', 'testBus2'))
+      expect(error.message).toEqual(Errors.resourceNotDeclared('non-existence-app', 'case5-bus'))
       done()
     })
   })
 
   test('# case 6: test touchBus and default bus', () => {
-    const [testBus, isTestBusHost] = touchBus('testBus')
-    expect(isTestBusHost).toBeFalsy()
-    expect(testBus).toEqual(bus)
-    const [defaultBus1, isDefaultBus1Host] = touchBus()
-    expect(isDefaultBus1Host).toBeTruthy()
-    expect(defaultBus1).toEqual(window.RALLIE_BUS_STORE[DEFAULT_BUS_NAME])
-    const [defaultBus2, isDefaultBus2Host] = touchBus()
-    expect(isDefaultBus2Host).toBeFalsy()
-    expect(defaultBus2).toEqual(defaultBus1)
+    const [bus1, isBus1Host] = touchBus('case6-bus')
+    expect(isBus1Host).toBeTruthy()
+    expect(bus1).toEqual(window.RALLIE_BUS_STORE['case6-bus'])
+    const [bus2, isBus2Host] = touchBus('case6-bus')
+    expect(isBus2Host).toBeFalsy()
+    expect(bus2).toEqual(bus1)
   })
 
-  test('# case 7: test load script tag', () => {
-    bus.config({
-      loadScriptByFetch: false,
-      assets: {
-        'lib:another-app-to-test-load-script': {
-          js: [
-            'thisCanNotBeTested.js'
-          ]
-        }
-      }
+  test('# case 7: test load script tag', async () => {
+    globalBus.config({
+      loadScriptByFetch: false
     })
-    bus.activateApp('lib:app-to-test-load-script') // to increase the coverage
-    loader.loadScript = jest.fn()
-    bus.activateApp('lib:another-app-to-test-load-script')
-    expect(loader.loadScript).toBeCalledTimes(1)
+    console.log = jest.fn()
+    await globalBus.activateApp('app-to-test-load-script')
+    expect(console.log).toHaveBeenCalledWith('app-to-test-load-script is created')
   })
 
   test('# case 8: test errors', (done) => {
-    const bus = new Bus('case8Bus')
+    const bus = new Bus('case8-bus')
     bus.createApp('case8')
     expect(() => {
       bus.createApp('case8')
@@ -177,7 +167,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
     }).use(() => {
       // an empty middleware to prevent to go to the core middleware
     })
-    bus.activateApp('case9-1').then(() => {
+    bus.activateApp('case8-1').then(() => {
       throw new Error('this should not be reached')
     }).catch((err) => {
       expect(err.message).toEqual(Errors.multipleCalledNextFn())
@@ -198,9 +188,9 @@ describe('Test the capability to load the resources of an app or lib', () => {
   })
 
   test('# case 9: bus\'s name should be unique', () => {
-    createBus('case9')
+    createBus('case9-bus')
     expect(() => {
-      createBus('case9')
-    }).toThrowError(Errors.duplicatedBus('case9'))
+      createBus('case9-bus')
+    }).toThrowError(Errors.duplicatedBus('case9-bus'))
   })
 })
