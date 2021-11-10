@@ -1,5 +1,4 @@
 const code = `\
-console.error('xxxxxxx')
 const bus = window.RALLIE_BUS_STORE.DEFAULT_BUS;
 bus.createApp('app-to-test-load-script')
   .onBootstrap(async () => {
