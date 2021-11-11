@@ -1,6 +1,5 @@
 import React from 'react'
-import { App, Connector, State, ReadOnlyState } from 'rallie'
-// import { effect } from '@rallie/core'
+import { App, Connector, State, ReadOnlyState, effect } from 'rallie'
 
 export function stateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
   return function <P = any> (getter: (_state: T) => P) {
@@ -39,15 +38,15 @@ export function methodsHook<Events> (app: App) {
   }
 }
 
-// export function useRallieState<P> (getter: () => P) {
-//   const [value, setValue] = React.useState<P>(getter())
-//   React.useEffect(() => {
-//     const runner = effect(() => {
-//       setValue(getter())
-//     })
-//     return () => {
-//       runner.effect.stop()
-//     }
-//   })
-//   return value
-// }
+export function useRallieState<P> (getter: () => P) {
+  const [value, setValue] = React.useState<P>(getter())
+  React.useEffect(() => {
+    const runner = effect(() => {
+      setValue(getter())
+    })
+    return () => {
+      runner.effect.stop()
+    }
+  }, []) // eslint-disable-line
+  return value
+}

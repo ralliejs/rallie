@@ -1,6 +1,5 @@
 import { onBeforeUnmount, onBeforeMount, ref, UnwrapRef } from 'vue'
-import { App, Connector, State, ReadOnlyState } from 'rallie'
-// import { effect } from '@rallie/core'
+import { App, Connector, State, ReadOnlyState, effect } from 'rallie'
 
 export function stateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
   return function <P> (getter: (_state: T) => P) {
@@ -39,13 +38,13 @@ export function methodsHook<Methods> (app: App) {
   }
 }
 
-// export function useRallieState<P> (getter: () => P) {
-//   const stateRef = ref(getter())
-//   const runner = effect(() => {
-//     stateRef.value = getter() as UnwrapRef<P>
-//   })
-//   onBeforeUnmount(() => {
-//     runner.effect.stop()
-//   })
-//   return stateRef
-// }
+export function useRallieState<P> (getter: () => P) {
+  const stateRef = ref(getter())
+  const runner = effect(() => {
+    stateRef.value = getter() as UnwrapRef<P>
+  })
+  onBeforeUnmount(() => {
+    runner.effect.stop()
+  })
+  return stateRef
+}

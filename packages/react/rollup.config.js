@@ -11,7 +11,8 @@ export default {
     name: 'RallieReact',
     exports: 'named',
     globals: {
-      react: 'React'
+      react: 'React',
+      rallie: 'Rallie'
     }
   }, {
     file: pkg.module,
@@ -23,5 +24,5 @@ export default {
     commonJs(),
     typescript()
   ],
-  external: ['react']
+  external: ['react', 'rallie']
 }
