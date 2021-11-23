@@ -11,7 +11,8 @@ export default {
     name: 'RallieVue',
     exports: 'named',
     globals: {
-      vue: 'Vue'
+      vue: 'Vue',
+      rallie: 'Rallie'
     }
   }, {
     file: pkg.module,
@@ -23,5 +24,5 @@ export default {
     commonJs(),
     typescript()
   ],
-  external: ['vue']
+  external: ['vue', 'rallie']
 }

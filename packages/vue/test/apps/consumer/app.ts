@@ -1,10 +1,7 @@
 import { App } from 'rallie'
 
-type PublicState = {
-  count: number
-}
-
-type PrivateState = {
+type State = {
+  count: number,
   isDarkTheme: boolean
 }
 
@@ -17,4 +14,4 @@ type Methods = {
 }
 
 export const consumer = new App('consumer')
-export const producer = consumer.connect<PublicState, PrivateState, Events, Methods>('producer')
+export const producer = consumer.connect<State, Events, Methods>('producer')

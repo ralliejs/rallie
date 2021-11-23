@@ -1,3 +1,3 @@
 import { App } from 'rallie'
 
-export const app = new App('react-app')
+export const reactApp = new App('react-app')

@@ -1,12 +1,13 @@
 import logo from '../../../assets/react-logo.svg'
-import * as vueApp from '../connect-apps/vue-app'
-import { app as reactApp } from '../app'
+import { vueApp } from '../connect-apps/vue-app'
+import { reactApp } from '../app'
+import { stateHook } from '@rallie/react'
 import classes from './App.module.css'
 
 function App () {
-  const count = vueApp.usePublicState<number>(state => state.count)
+  const count = stateHook(vueApp)<number>(state => state.count)
   const setCount = () => {
-    vueApp.app.publicState.set(state => state.count++)
+    vueApp.setState(state => { state.count++ })
   }
   const hint = {
     currentMode: 'host',
