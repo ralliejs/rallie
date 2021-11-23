@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { app, usePublicState } from '../app'
+import { app } from '../app'
+import { stateHook } from '@rallie/vue'
 
 defineProps({ msg: String }) // eslint-disable-line
 
-const count = usePublicState(state => state.count) // eslint-disable-line
+const count = stateHook(app)(state => state.count)
 const addCount = () => {
-  app.publicState.set(state => state.count++)
+  app.setState(state => { state.count++ })
 }
 
 const hint = {

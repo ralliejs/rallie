@@ -1,10 +1,8 @@
 import { touchBus, CallbackType, Socket } from '@rallie/core'
-import { ReadOnlyState, State } from './state'
-import { constant } from './utils'
+import { constant, errors } from './utils'
 
 export class Connector<
-  PublicState extends object = {},
-  PrivateState extends object = {},
+  State extends object = {},
   Events extends Record<string, CallbackType> = {},
   Methods extends Record<string, CallbackType> = {}
   > {
@@ -13,20 +11,37 @@ export class Connector<
     this.isRallieApp = false
     const [bus] = touchBus(constant.privateBus(connectedApp))
     this.socket = bus.createSocket()
-    this.privateState = new State<PrivateState>(this.socket, connectedApp, constant.privateStateNamespace(this.name))
-    this.publicState = new State<PublicState>(this.socket, connectedApp, constant.publicStateNamespace(this.name))
     this.events = this.socket.createBroadcaster()
     this.methods = this.socket.createUnicaster()
+    Reflect.defineProperty(this, 'state', {
+      get: () => this.socket.getState<State, State>(constant.stateNamespace(this.name)),
+      set: () => false
+    })
   }
 
   private socket: Socket
 
   public name: string
-  public privateState: ReadOnlyState<PrivateState>
-  public publicState: State<PublicState>
+  public state: State
   public events: Events
   public methods: Methods
   public isRallieApp: boolean
+
+  public setState (setter: (state: State) => void | Promise<void>) {
+    if (this.socket.existState(constant.stateNamespace(this.name))) {
+      return this.socket.setState(constant.stateNamespace(this.name), setter)
+    } else {
+      throw new Error(errors.stateNotInitialized(this.name))
+    }
+  }
+
+  public watchState<P = any> (getter: (state: State, isWatchingEffect?: boolean) => undefined | P) {
+    if (this.socket.existState(constant.stateNamespace(this.name))) {
+      return this.socket.watchState<State, P>(constant.stateNamespace(this.name), getter)
+    } else {
+      throw new Error(errors.stateNotInitialized(this.name))
+    }
+  }
 
   public listenEvents (events: Partial<Events>) {
     return this.socket.onBroadcast<Partial<Events>>(events)

@@ -8,4 +8,3 @@ export function registerApp (app: App) {
 
 export { App } from './app'
 export { Connector } from './connector'
-export { State, ReadOnlyState } from './state'

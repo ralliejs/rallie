@@ -21,13 +21,12 @@
   "bugs": {
     "url": "https://github.com/ralliejs/rallie/issues"
   },
-  "dependencies": {
-    "rallie": "^0.5.2"
-  },
   "peerDependencies": {
-    "vue": ">=3.2.6"
+    "vue": ">=3.2.6",
+    "rallie": ">=0.5.2"
   },
   "devDependencies": {
-    "@rallie/core": "^0.5.2"
+    "@rallie/core": "^0.5.2",
+    "rallie": "^0.5.2"
   }
 }

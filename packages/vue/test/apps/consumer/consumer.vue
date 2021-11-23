@@ -3,21 +3,21 @@ import { producer } from './app'
 import { stateHook } from '../../../src'
 import { defineComponent } from 'vue'
 
-const useProducerPrivateState = stateHook(producer.privateState)
+const useProducerState = stateHook(producer)
 
 export default defineComponent(function Consumer () {
   const toggleTheme = () => {
     producer.methods.toggleTheme()
   }
   const addCount = () => {
-    producer.publicState.set(state => {
+    producer.setState(state => {
       state.count++
     })
   }
   const printTheme = () => {
     producer.events.printTheme()
   }
-  const isDarkTheme = useProducerPrivateState<boolean>(state => state.isDarkTheme)
+  const isDarkTheme = useProducerState<boolean>(state => state.isDarkTheme)
   return {
     toggleTheme,
     addCount,

@@ -1,6 +1,6 @@
 import { App, registerApp } from '../../../src'
 
-type PrivateState = {
+type State = {
   count: number
 }
 
@@ -10,11 +10,9 @@ type Events = {
   record: (text: string) => void
 }
 
-const app = new App<{}, PrivateState, Events>('connect-testers/events', {
+const app = new App<State, Events>('connect-testers/events', {
   state: {
-    private: {
-      count: 0
-    }
+    count: 0
   }
 })
 

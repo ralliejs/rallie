@@ -11,8 +11,8 @@ registerApp(producer)
   })
   .onDestroy(() => {
     cleanup()
-    producer.publicState.set(state => { state.count = 0 })
-    producer.privateState.set(state => { state.isDarkTheme = true })
+    producer.setState(state => { state.count = 0 })
+    producer.setState(state => { state.isDarkTheme = true })
   })
 
 registerApp(consumer)

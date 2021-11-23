@@ -4,12 +4,9 @@ import { App, registerApp } from '../src/index'
 import { errors } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
 
-type PublicState = {
-  value: number
-}
-
-type PrivateState = {
-  value: number
+type State = {
+  count: number,
+  theme: string
 }
 
 type Events = {
@@ -37,29 +34,29 @@ describe('Test state', () => {
       .onBootstrap(async () => {
         console.log = jest.fn()
         console.warn = jest.fn()
-        const targetApp = app.connect<PublicState, PrivateState>('connect-testers/state')
-        expect(targetApp.publicState.get(state => state.value)).toEqual(0)
-        expect(targetApp.privateState.get(state => state.value)).toEqual(0)
-        targetApp.publicState.set(state => { state.value = 1 }) // set state before watch
-        targetApp.privateState.watch((state, isWatchingEffect) => {
+        const targetApp = app.connect<State>('connect-testers/state')
+        expect(targetApp.state.count).toEqual(0)
+        expect(targetApp.state.theme).toEqual('white')
+        targetApp.setState(state => { state.count = 1 }) // set count before watch
+        targetApp.watchState((state, isWatchingEffect) => {
           if (isWatchingEffect) {
-            console.warn(state.value)
+            console.warn(state.theme)
           }
         })
         await app.activate('connect-testers/state')
-        targetApp.publicState.set(state => { state.value = 2 }) // set public state after watch
-        await app.activate('connect-testers/state', 1) // set private state
-        await app.activate('connect-testers/state', 2) // set private state
+        targetApp.setState(state => { state.count = 2 }) // set count after watch
+        await app.activate('connect-testers/state', 'green') // set theme
+        await app.activate('connect-testers/state', 'red') // set theme
         await app.destroy('connect-testers/state')
-        targetApp.publicState.set(state => { state.value = 3 }) // set public state after unwatch
+        targetApp.setState(state => { state.count = 3 }) // set count state after unwatch
         expect(console.log).toBeCalledTimes(1)
         expect(console.log).toBeCalledWith(2, 1)
         expect(console.warn).toBeCalledTimes(3)
-        expect(console.warn).toBeCalledWith(0)
-        expect(console.warn).toBeCalledWith(1)
-        expect(console.warn).toBeCalledWith(2)
-        expect(targetApp.publicState.get(state => state.value)).toEqual(3)
-        expect(targetApp.privateState.get(state => state.value)).toEqual(2)
+        expect(console.warn).toBeCalledWith('white')
+        expect(console.warn).toBeCalledWith('green')
+        expect(console.warn).toBeCalledWith('red')
+        expect(targetApp.state.count).toEqual(3)
+        expect(targetApp.state.theme).toEqual('red')
       })
     await app.activate('state-case1')
   })
@@ -69,14 +66,14 @@ describe('Test state', () => {
     const app = new App('state-case2-2')
     registerApp(app).relateTo(['state-case2-1'])
     expect(() => {
-      app.connect<any>('state-case2-1').publicState.set(state => { state.value = 1 })
-    }).toThrowError(errors.stateNotInitialized('state-case2-1', false))
+      app.connect<any>('state-case2-1').setState(state => { state.value = 1 })
+    }).toThrowError(errors.stateNotInitialized('state-case2-1'))
 
     expect(() => {
-      app.connect<any, any>('state-case2-1').privateState.watch(state => state.value).do((value) => {
+      app.connect<any, any>('state-case2-1').watchState(state => state.value).do((value) => {
         console.log(value)
       })
-    }).toThrowError(errors.stateNotInitialized('state-case2-1', true))
+    }).toThrowError(errors.stateNotInitialized('state-case2-1'))
   })
 })
 
@@ -86,7 +83,7 @@ describe('Test Events', () => {
 
   test('# case 1: test events', async () => {
     await app.activate('events-tester')
-    const targetApp = app.connect<{}, {}, Events>('connect-testers/events')
+    const targetApp = app.connect<{}, Events>('connect-testers/events')
     const recordedTexts = []
     console.log = jest.fn()
     console.warn = jest.fn()
@@ -120,7 +117,7 @@ describe('Test Methods', () => {
 
   test('# case 2: test methods', async () => {
     await app.activate('methods-tester')
-    const targetApp = app.connect<{}, {}, {}, Methods>('connect-testers/methods')
+    const targetApp = app.connect<{}, {}, Methods>('connect-testers/methods')
     expect(targetApp.methods.getCount()).toEqual(0)
     targetApp.methods.addCount()
     expect(targetApp.methods.getCount()).toEqual(1)

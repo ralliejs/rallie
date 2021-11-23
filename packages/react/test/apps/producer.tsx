@@ -10,30 +10,25 @@ type Methods = {
 }
 
 const state = {
-  private: {
-    isDarkTheme: true
-  },
-  public: {
-    count: 0
-  }
+  isDarkTheme: true,
+  count: 0
 }
 
-export const producer = new App<typeof state.public, typeof state.private, Events, Methods>('producer', { state })
-const usePublicState = stateHook(producer.publicState)
-const usePrivateState = stateHook(producer.privateState)
-const useEvents = eventsHook(producer)
-const useMethods = methodsHook(producer)
+export const producer = new App<typeof state, Events, Methods>('producer', { state })
+const useProducerState = stateHook(producer)
+const useProducerEvents = eventsHook(producer)
+const useProducerMethods = methodsHook(producer)
 export const Producer = () => {
-  const count = usePublicState<number>(state => state.count)
-  const isDarkTheme = usePrivateState<boolean>(state => state.isDarkTheme)
-  useEvents({
+  const count = useProducerState<number>(state => state.count)
+  const isDarkTheme = useProducerState<boolean>(state => state.isDarkTheme)
+  useProducerEvents({
     printTheme () {
-      console.log(producer.privateState.get(state => state.isDarkTheme) ? 'dark' : 'light')
+      console.log(producer.state.isDarkTheme ? 'dark' : 'light')
     }
   })
-  useMethods({
+  useProducerMethods({
     toggleTheme () {
-      producer.privateState.set(state => {
+      producer.setState(state => {
         state.isDarkTheme = !state.isDarkTheme
       })
     }

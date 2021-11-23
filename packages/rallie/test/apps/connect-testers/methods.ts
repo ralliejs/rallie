@@ -1,6 +1,6 @@
 import { App, registerApp } from '../../../src'
 
-type PrivateState = {
+type State = {
   count: number
 }
 
@@ -10,11 +10,9 @@ type Methods = {
   printCount: (count: number) => void;
 }
 
-const app = new App<{}, PrivateState, {}, Methods>('connect-testers/methods', {
+const app = new App<State, {}, Methods>('connect-testers/methods', {
   state: {
-    private: {
-      count: 0
-    }
+    count: 0
   }
 })
 
@@ -24,11 +22,10 @@ registerApp(app)
   .onBootstrap(() => {
     removeMethods = app.addMethods({
       getCount () {
-        const count = app.privateState.get(state => state.count)
-        return count
+        return app.state.count
       },
       addCount () {
-        app.privateState.set(state => {
+        app.setState(state => {
           state.count++
         })
       }

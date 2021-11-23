@@ -9,12 +9,8 @@ type Methods = {
 }
 
 const state = {
-  private: {
-    isDarkTheme: true
-  },
-  public: {
-    count: 0
-  }
+  isDarkTheme: true,
+  count: 0
 }
 
-export const producer = new App<typeof state.public, typeof state.private, Events, Methods>('producer', { state })
+export const producer = new App<typeof state, Events, Methods>('producer', { state })

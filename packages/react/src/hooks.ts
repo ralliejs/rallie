@@ -1,14 +1,13 @@
 import React from 'react'
-import { App, Connector, State, ReadOnlyState } from 'rallie'
-// import { effect } from '@rallie/core'
+import { App, Connector } from 'rallie'
 
-export function stateHook<T extends object> (state: State<T> | ReadOnlyState<T>) {
-  return function <P = any> (getter: (_state: T) => P) {
-    const [value, setValue] = React.useState<P>(state.get(getter))
-    const unwatch = state.watch(getter).do((val) => {
+export function stateHook<State extends object> (app: App<State> | Connector<State>) {
+  return function <P = any> (getter: (_state: State) => P) {
+    const [value, setValue] = React.useState<P>(getter(app.state)) // eslint-disable-line
+    const unwatch = app.watchState(getter).do((val) => {
       setValue(val)
     })
-    React.useEffect(() => {
+    React.useEffect(() => { // eslint-disable-line
       return () => {
         unwatch()
       }
@@ -19,7 +18,7 @@ export function stateHook<T extends object> (state: State<T> | ReadOnlyState<T>)
 
 export function eventsHook<Events> (app: App | Connector) {
   return function (events: Partial<Events>) {
-    React.useEffect(() => {
+    React.useEffect(() => { // eslint-disable-line
       const off = app.listenEvents(events)
       return () => {
         off()
@@ -30,7 +29,7 @@ export function eventsHook<Events> (app: App | Connector) {
 
 export function methodsHook<Events> (app: App) {
   return function (events: Partial<Events>) {
-    React.useEffect(() => {
+    React.useEffect(() => { // eslint-disable-line
       const off = app.addMethods(events)
       return () => {
         off()
@@ -38,16 +37,3 @@ export function methodsHook<Events> (app: App) {
     }, []) // eslint-disable-line
   }
 }
-
-// export function useRallieState<P> (getter: () => P) {
-//   const [value, setValue] = React.useState<P>(getter())
-//   React.useEffect(() => {
-//     const runner = effect(() => {
-//       setValue(getter())
-//     })
-//     return () => {
-//       runner.effect.stop()
-//     }
-//   })
-//   return value
-// }

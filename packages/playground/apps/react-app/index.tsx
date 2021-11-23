@@ -1,4 +1,4 @@
-import { app } from './app'
+import { reactApp } from './app'
 import App from './components/App'
 import ReactDOM from 'react-dom'
 import { jsdelivrLibraryLoader, dynamicImportLoader } from '../../middlewares'
@@ -6,11 +6,11 @@ import { registerApp } from 'rallie'
 
 const rootContainer = null
 
-app.runInHostMode((bus) => {
+reactApp.runInHostMode((bus) => {
   bus.use(jsdelivrLibraryLoader).use(dynamicImportLoader)
 })
 
-registerApp(app)
+registerApp(reactApp)
   // you can try to replace the next line with `.relyOn([{ ctx: 'vue-app', data: document.getElementById('vue-app') }])`
   .relateTo(['vue-app'])
   .onBootstrap((container) => {
@@ -21,6 +21,6 @@ registerApp(app)
     ReactDOM.unmountComponentAtNode(rootContainer)
   })
 
-app.runInHostMode(() => {
-  app.activate(app.name, document.getElementById('react-app'))
+reactApp.runInHostMode(() => {
+  reactApp.activate(reactApp.name, document.getElementById('react-app'))
 })

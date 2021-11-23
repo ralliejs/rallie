@@ -1,18 +1,13 @@
-import { State } from './state'
 import { touchBus, CallbackType, Bus, Socket, CustomCtxType } from '@rallie/core'
 import { constant, errors } from './utils'
 import { Connector } from './connector'
 
-interface AppConfig<PublicState, PrivateState> {
-  state?: {
-    public?: PublicState
-    private?: PrivateState
-  }
+interface AppConfig<State> {
+  state?: State
 }
 
 export class App<
-  PublicState extends object = {},
-  PrivateState extends object = {},
+  State extends object = {},
   Events extends Record<string, CallbackType> = {},
   Methods extends Record<string, CallbackType> = {}
   > {
@@ -21,7 +16,7 @@ export class App<
   private isHost: boolean
   private socket: Socket
 
-  constructor (name: string, config?: AppConfig<PublicState, PrivateState>) {
+  constructor (name: string, config?: AppConfig<State>) {
     this.name = name
     this.isRallieApp = true
     const [globalBus, isHost] = touchBus()
@@ -38,16 +33,36 @@ export class App<
     this.socket = privateBus.createSocket()
     this.events = this.socket.createBroadcaster()
     this.methods = this.socket.createUnicaster()
-    this.publicState = new State<PublicState>(this.socket, this.name, constant.publicStateNamespace(this.name), config?.state?.public)
-    this.privateState = new State<PrivateState>(this.socket, this.name, constant.privateStateNamespace(this.name), config?.state?.private)
+    if (config?.state) {
+      this.socket.initState(constant.stateNamespace(name), config.state)
+    }
+    Reflect.defineProperty(this, 'state', {
+      get: () => this.socket.getState<State, State>(constant.stateNamespace(this.name)),
+      set: () => false
+    })
   }
 
   public name: string
+  public state: State
   public events: Events
   public methods: Methods
-  public publicState: State<PublicState>
-  public privateState: State<PrivateState>
   public isRallieApp: boolean
+
+  public setState (setter: (state: State) => void | Promise<void>) {
+    if (this.socket.existState(constant.stateNamespace(this.name))) {
+      return this.socket.setState(constant.stateNamespace(this.name), setter)
+    } else {
+      throw new Error(errors.stateNotInitialized(this.name))
+    }
+  }
+
+  public watchState<P = any> (getter: (state: State, isWatchingEffect?: boolean) => undefined | P) {
+    if (this.socket.existState(constant.stateNamespace(this.name))) {
+      return this.socket.watchState<State, P>(constant.stateNamespace(this.name), getter)
+    } else {
+      throw new Error(errors.stateNotInitialized(this.name))
+    }
+  }
 
   public listenEvents (events: Partial<Events>) {
     return this.socket.onBroadcast<Partial<Events>>(events)
@@ -58,12 +73,11 @@ export class App<
   }
 
   public connect<
-    ExternalPublicState extends object = {},
-    ExternalPrivateState extends object = {},
+    ExternalState extends object = {},
     ExternalEvents extends Record<string, CallbackType> = {},
     ExternalMethods extends Record<string, CallbackType> = {}
   > (appName: string) {
-    return new Connector<ExternalPublicState, ExternalPrivateState, ExternalEvents, ExternalMethods>(appName)
+    return new Connector<ExternalState, ExternalEvents, ExternalMethods>(appName)
   }
 
   public load (ctx: CustomCtxType) {
