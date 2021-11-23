@@ -1,6 +1,6 @@
 {
   "name": "@rallie/react",
-  "version": "0.5.3",
+  "version": "0.5.2",
   "description": "react binding for rallie",
   "author": "Philip Lau",
   "homepage": "https://github.com/ralliejs/rallie#readme",
@@ -22,7 +22,7 @@
     "url": "https://github.com/ralliejs/rallie/issues"
   },
   "peerDependencies": {
-    "rallie": ">=0.5.2",
+    "rallie": ">=0.5.3",
     "react": ">=16.8.0"
   },
   "devDependencies": {
