@@ -1,9 +1,9 @@
 import { EventEmitter } from './event-emitter'
 import { Socket } from './socket'
 import { App } from './app'
-import { Errors, compose, getNameFromCtx } from './utils'
+import { Errors, compose } from './utils'
 import loader from './loader'
-import { MiddlewareFnType, ContextType, NextFnType, ConfType, CustomCtxType, StoresType } from '../types'; // eslint-disable-line
+import { MiddlewareFnType, ContextType, NextFnType, ConfType, StoresType } from '../types'; // eslint-disable-line
 
 export class Bus {
   private name: string
@@ -66,26 +66,15 @@ export class Bus {
    * @param ctx
    * @returns
    */
-  private createContext (ctx: CustomCtxType) {
-    let context: ContextType = {
-      name: '',
+  private createContext (name: string, ctx: Record<string, any> = {}) {
+    const context: ContextType = {
+      name,
       loadScript: loader.loadScript,
       loadLink: loader.loadLink,
       fetchScript: loader.fetchScript,
       excuteCode: loader.excuteCode,
-      conf: this.conf
-    }
-    const appName: string = typeof ctx === 'string' ? ctx : ctx.name
-    if (appName) {
-      if (typeof ctx !== 'string') {
-        context = {
-          ...context,
-          ...ctx
-        }
-      }
-      context.name = appName
-    } else {
-      throw new Error(Errors.wrongContextType())
+      conf: this.conf,
+      ...ctx
     }
     return context
   }
@@ -169,18 +158,17 @@ export class Bus {
    * load the resources of an app
    * @param ctx
    */
-  public async loadApp (ctx: CustomCtxType) {
-    const context = this.createContext(ctx)
-    const appName = context.name
-    if (!this.apps[appName]) {
+  public async loadApp (name:string, ctx: Record<string, any> = {}) {
+    const context = this.createContext(name, ctx)
+    if (!this.apps[name]) {
       // apply the middlewares
       await this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))
-      const isLib = appName.startsWith('lib:')
-      if (isLib && !this.apps[appName]) {
-        this.apps[appName] = true
+      const isLib = name.startsWith('lib:')
+      if (isLib && !this.apps[name]) {
+        this.apps[name] = true
       }
-      if (!this.apps[appName]) {
-        throw new Error(Errors.appNotCreated(appName))
+      if (!this.apps[name]) {
+        throw new Error(Errors.appNotCreated(name))
       }
     }
   }
@@ -188,11 +176,10 @@ export class Bus {
   /**
    * activate an app
    * @param name
-   * @param config
+   * @param data
    */
-  public async activateApp<T = any> (ctx: CustomCtxType, config?: T) {
-    const name = getNameFromCtx(ctx)
-    await this.loadApp(ctx)
+  public async activateApp<T = any> (name: string, data?: T, ctx: Record<string, any> = {}) {
+    await this.loadApp(name, ctx)
     if (this.isRallieCoreApp(name)) {
       const app = this.apps[name] as App
       await app.loadRelatedApps(this.loadApp.bind(this))
@@ -204,14 +191,14 @@ export class Bus {
         this.dependencyDepth++
         await app.activateDependenciesApp(this.activateApp.bind(this))
         if (app.doBootstrap) {
-          await Promise.resolve(app.doBootstrap(config))
+          await Promise.resolve(app.doBootstrap(data))
         } else if (app.doActivate) {
-          await Promise.resolve(app.doActivate(config))
+          await Promise.resolve(app.doActivate(data))
         }
         app.bootstrapped = true
         this.dependencyDepth--
       } else {
-        app.doActivate && (await Promise.resolve(app.doActivate(config)))
+        app.doActivate && (await Promise.resolve(app.doActivate(data)))
       }
     }
   }
@@ -219,7 +206,7 @@ export class Bus {
   /**
    * destroy an app
    * @param name
-   * @param config
+   * @param data
    */
   public async destroyApp<T = any> (name: string, data?: T) {
     if (this.isRallieCoreApp(name)) {

@@ -101,8 +101,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
 
   test('# case 3: activate app-invalid, the middleware should be excuted', (done) => {
     console.log = jest.fn()
-    globalBus.activateApp({
-      name: 'app-invalid',
+    globalBus.activateApp('app-invalid', null, {
       loadedFromLocalhost: true
     }).then(() => {
       throw new Error('this callback should not be reached')
@@ -154,7 +153,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
     expect(console.log).toHaveBeenCalledWith('app-to-test-load-script is created')
   })
 
-  test('# case 8: test errors', (done) => {
+  test('# case 8: test errors', () => {
     const bus = new Bus('case8-bus')
     bus.createApp('case8')
     expect(() => {
@@ -177,14 +176,6 @@ describe('Test the capability to load the resources of an app or lib', () => {
       // @ts-ignore
       bus.use('')
     }).toThrowError(Errors.wrongMiddlewareType())
-
-    // @ts-ignore
-    bus.activateApp({}).then(() => {
-      throw new Error('this should not be reached')
-    }).catch((err) => {
-      expect(err.message).toEqual(Errors.wrongContextType())
-      done()
-    })
   })
 
   test('# case 9: bus\'s name should be unique', () => {

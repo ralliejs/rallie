@@ -3,11 +3,11 @@ import { App, Connector } from 'rallie'
 
 export function stateHook<State extends object> (app: App<State> | Connector<State>) {
   return function <P = any> (getter: (_state: State) => P) {
-    const [value, setValue] = React.useState<P>(getter(app.state)) // eslint-disable-line
+    const [value, setValue] = React.useState<P>(getter(app.state))
     const unwatch = app.watchState(getter).do((val) => {
       setValue(val)
     })
-    React.useEffect(() => { // eslint-disable-line
+    React.useEffect(() => {
       return () => {
         unwatch()
       }
@@ -18,7 +18,7 @@ export function stateHook<State extends object> (app: App<State> | Connector<Sta
 
 export function eventsHook<Events> (app: App | Connector) {
   return function (events: Partial<Events>) {
-    React.useEffect(() => { // eslint-disable-line
+    React.useEffect(() => {
       const off = app.listenEvents(events)
       return () => {
         off()
@@ -29,7 +29,7 @@ export function eventsHook<Events> (app: App | Connector) {
 
 export function methodsHook<Events> (app: App) {
   return function (events: Partial<Events>) {
-    React.useEffect(() => { // eslint-disable-line
+    React.useEffect(() => {
       const off = app.addMethods(events)
       return () => {
         off()

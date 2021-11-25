@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { producer } from './app'
+import { producer } from './apps'
 import { stateHook, eventsHook, methodsHook } from '../../../src'
 
 const useProducerState = stateHook(producer)
@@ -26,7 +26,6 @@ export default defineComponent(function Producer () {
 })
 </script>
 <template>
-  <!--TODO: fix the ts error-->
   <div data-testid="producer-container" :style="{backgroundColor: isDarkTheme ? 'black' : 'white'}">
     <span data-testid="count">{{ count }}</span>
     <div id="consumer"></div>

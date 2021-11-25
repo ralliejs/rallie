@@ -1,11 +1,11 @@
-import { CustomCtxType, LifecyleCallbackType, DependencyType } from '../types'; // eslint-disable-line
-import { getDeduplicatedDependencies, getDeduplicatedRelatedApps, getNameFromCtx, getNameFromDependency, isObject } from './utils'
+import { LifecyleCallbackType, DependencyType, RelateType } from '../types'; // eslint-disable-line
+import { deduplicate } from './utils'
 
 export class App {
   public dependenciesReady: boolean = false
   public bootstrapped: boolean = false
-  public dependencies: DependencyType[] = []
-  public relatedApps: CustomCtxType[] = []
+  public dependencies: Array<{name: string; ctx?: Record<string, any>; data?: any}> = []
+  public relatedApps: Array<{name: string; ctx?: Record<string, any>}> = []
   public doBootstrap?: LifecyleCallbackType
   public doActivate?: LifecyleCallbackType
   public doDestroy?: LifecyleCallbackType
@@ -21,12 +21,16 @@ export class App {
    * @param relatedApps
    * @returns
    */
-  public relateTo (relatedApps: CustomCtxType[]) {
-    const deduplicatedRelatedApps: CustomCtxType[] = getDeduplicatedRelatedApps(relatedApps)
-    const currentRelatedApps: string[] = this.relatedApps.map((item) => getNameFromCtx(item))
-    deduplicatedRelatedApps.forEach((ctx) => {
-      if (!currentRelatedApps.includes(getNameFromCtx(ctx))) {
-        this.relatedApps.push(ctx)
+  public relateTo (relatedApps: RelateType[]) {
+    const getName = (relateApp: RelateType) => typeof relateApp === 'string' ? relateApp : relateApp.name
+    const deduplicatedRelatedApps: RelateType[] = deduplicate(relatedApps)
+    const currentRelatedAppNames: string[] = this.relatedApps.map(item => item.name)
+    deduplicatedRelatedApps.forEach((relatedApp) => {
+      if (!currentRelatedAppNames.includes(getName(relatedApp))) {
+        this.relatedApps.push({
+          name: getName(relatedApp),
+          ctx: typeof relatedApp !== 'string' ? relatedApp.ctx : undefined
+        })
       }
     })
     return this
@@ -37,17 +41,24 @@ export class App {
    * @param dependencies
    */
   public relyOn (dependencies: DependencyType[]) {
-    const deduplicatedDependencies: DependencyType[] = getDeduplicatedDependencies(dependencies)
-    const currentDependencies = this.dependencies.map((item) => getNameFromDependency(item))
-    const currentRelatedApps = this.relatedApps.map((item) => getNameFromCtx(item))
+    const getName = (dependencyApp: DependencyType) => typeof dependencyApp === 'string' ? dependencyApp : dependencyApp.name
+    const deduplicatedDependencies: DependencyType[] = deduplicate(dependencies)
+    const currentDependenciesNames = this.dependencies.map(item => item.name)
+    const currentRelatedAppsNames = this.relatedApps.map(item => item.name)
     deduplicatedDependencies.forEach((dependency) => {
-      const name = getNameFromDependency(dependency)
-      if (!currentDependencies.includes(name)) {
-        this.dependencies.push(dependency)
+      const name = getName(dependency)
+      if (!currentDependenciesNames.includes(name)) {
+        this.dependencies.push({
+          name,
+          ctx: typeof dependency !== 'string' ? dependency.ctx : undefined,
+          data: typeof dependency !== 'string' ? dependency.data : undefined
+        })
       }
-      if (!currentRelatedApps.includes(name)) {
-        const ctx = typeof dependency === 'string' ? dependency : dependency.ctx
-        this.relatedApps.push(ctx)
+      if (!currentRelatedAppsNames.includes(name)) {
+        this.relatedApps.push({
+          name,
+          ctx: typeof dependency !== 'string' ? dependency.ctx : undefined
+        })
       }
     })
     return this
@@ -81,24 +92,20 @@ export class App {
   }
 
   public async activateDependenciesApp (
-    activateApp: (ctx: CustomCtxType, data?: any) => Promise<void>
+    activateApp: (name: string, data?: any, ctx?: Record<string, any>) => Promise<void>
   ) {
     if (!this.dependenciesReady && this.dependencies.length !== 0) {
       for (const dependence of this.dependencies) {
-        if (typeof dependence === 'string') {
-          await activateApp(dependence)
-        } else if (isObject(dependence)) {
-          const { ctx, data } = dependence
-          await activateApp(ctx, data)
-        }
+        const { name, data, ctx } = dependence
+        await activateApp(name, data, ctx)
       }
       this.dependenciesReady = true
     }
   }
 
   public async loadRelatedApps (
-    loadApp: (ctx: CustomCtxType) => Promise<void>
+    loadApp: (name: string, ctx?: Record<string, any>) => Promise<void>
   ) {
-    await Promise.all(this.relatedApps.map((ctx) => loadApp(ctx)))
+    await Promise.all(this.relatedApps.map(({ name, ctx }) => loadApp(name, ctx)))
   }
 }

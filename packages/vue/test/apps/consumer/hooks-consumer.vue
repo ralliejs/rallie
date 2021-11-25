@@ -1,5 +1,5 @@
 <script lang="ts">
-import { producer } from './app'
+import { producer } from './apps'
 import { stateHook } from '../../../src'
 import { defineComponent } from 'vue'
 
@@ -28,7 +28,6 @@ export default defineComponent(function Consumer () {
 </script>
 
 <template>
-  <!--TODO: fix the ts error-->
   <div data-testid="consumer-container" :style="{backgroundColor: isDarkTheme ? 'black' : 'white'}">
       <button @click="toggleTheme">toggle theme</button>
       <button @click="addCount">add count</button>
