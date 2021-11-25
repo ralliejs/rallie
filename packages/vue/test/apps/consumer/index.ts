@@ -1,2 +1,3 @@
-export { consumer } from './app'
-export { default as Consumer } from './consumer.vue'
+export { consumer } from './apps'
+export { default as HooksConsumer } from './hooks-consumer.vue'
+export { default as MixinsConsumer } from './mixins-consumer.vue'

@@ -3,7 +3,16 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonJs from '@rollup/plugin-commonjs'
 import pkg from './package.json'
 
-export default {
+const commonConfigs = {
+  plugins: [
+    resolve(),
+    commonJs(),
+    typescript()
+  ],
+  external: ['vue', 'rallie']
+}
+
+export default [{
   input: './src/index.ts',
   output: [{
     file: pkg.main,
@@ -19,10 +28,21 @@ export default {
     format: 'es',
     exports: 'named'
   }],
-  plugins: [
-    resolve(),
-    commonJs(),
-    typescript()
-  ],
-  external: ['vue', 'rallie']
-}
+  ...commonConfigs
+}, {
+  input: './src/mixins.ts',
+  output: [{
+    file: './dist/mixin.umd.js',
+    format: 'umd',
+    name: 'RallieVueMixin',
+    exports: 'named',
+    globals: {
+      rallie: 'Rallie'
+    }
+  }, {
+    file: './dist/mixin.js',
+    format: 'es',
+    exports: 'named'
+  }],
+  ...commonConfigs
+}]

@@ -7,5 +7,5 @@ registerApp(app)
   .relateTo([
     'relate-testers/a',
     'relate-testers/b',
-    { name: 'relate-testers/c' }
+    'relate-testers/c'
   ])

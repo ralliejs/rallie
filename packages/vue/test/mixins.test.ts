@@ -1,13 +1,13 @@
 // @ts-ignore
 import { render, fireEvent, screen, cleanup } from '@testing-library/vue'
-import { HooksProducer, producer } from './apps/producer'
-import { HooksConsumer, consumer } from './apps/consumer'
+import { MixinsProducer, producer } from './apps/producer'
+import { MixinsConsumer, consumer } from './apps/consumer'
 import { registerApp } from 'rallie'
 import { Warnings } from '@rallie/core'
 
 registerApp(producer)
   .onActivate(() => {
-    render(HooksProducer)
+    render(MixinsProducer)
   })
   .onDestroy(() => {
     cleanup()
@@ -18,14 +18,14 @@ registerApp(producer)
 registerApp(consumer)
   .relyOn(['producer'])
   .onActivate((containerId) => {
-    render(HooksConsumer, {
+    render(MixinsConsumer, {
       container: document.getElementById(containerId)
     })
   })
   .onDestroy(() => {
     cleanup()
   })
-describe('Test Vue hooks', () => {
+describe('Test Vue Mixins', () => {
   beforeEach(async () => {
     await consumer.activate(consumer.name, 'consumer')
   })
@@ -71,7 +71,7 @@ describe('Test Vue hooks', () => {
     const toggleThemeBtn = await screen.findByText('toggle theme')
     fireEvent.click(toggleThemeBtn)
     fireEvent.click(printThemeBtn) // log light
-    cleanup()
+    await cleanup()
     producer.events.printTheme()
     expect(() => {
       producer.methods.toggleTheme()

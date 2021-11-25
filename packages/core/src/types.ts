@@ -21,7 +21,6 @@ export type ConfType = {
 
 export type ContextType = {
   name: string;
-  libraryName?: string;
   loadScript: (script: ScriptType) => Promise<void>;
   loadLink: (link: LinkType) => void;
   fetchScript: (script: ScriptType) => Promise<string>;
@@ -30,12 +29,6 @@ export type ContextType = {
   [key: string]: any
 };
 
-export type CustomCtxType = {
-  name: string;
-  libraryName?: string;
-  [key: string]: any;
-} | string;
-
 export type NextFnType = (ctx?: ContextType) => void | Promise<void>;
 
 export type MiddlewareFnType = (ctx: ContextType, next: NextFnType) => void | Promise<void>;
@@ -43,9 +36,15 @@ export type MiddlewareFnType = (ctx: ContextType, next: NextFnType) => void | Pr
 export type LifecyleCallbackType = (data?: any) => Promise<void> | void;
 
 export type DependencyType = {
-  ctx: CustomCtxType,
-  data?: any
+  name: string,
+  data?: any,
+  ctx?: Record<string, any>,
 } | string;
+
+export type RelateType = {
+  name: string,
+  ctx: Record<string, any>
+} | string
 
 export type StoreType<T = any> = {
   state: T,

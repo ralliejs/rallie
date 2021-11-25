@@ -1,5 +1,4 @@
-
-import { MiddlewareFnType, NextFnType, ContextType, CustomCtxType, DependencyType } from '../types'; // eslint-disable-line
+import { MiddlewareFnType, NextFnType, ContextType, DependencyType, RelateType } from '../types'; // eslint-disable-line
 
 export const Errors = {
   // ================= EventEmitter.broadcast  =================
@@ -66,9 +65,6 @@ export const Errors = {
   },
   wrongMiddlewareType: () => {
     return '[@rallie/core] the middleware must be a function'
-  },
-  wrongContextType: () => {
-    return '[@rallie/core] the app\'s name is not specified when load or activate'
   }
 }
 
@@ -81,45 +77,21 @@ export const Warnings = {
   }
 }
 
-export function isObject (object: unknown): boolean {
-  return Object.prototype.toString.call(object) === '[object Object]'
-}
-
 export function isPrimitive (object: unknown): boolean {
   return ['string', 'number', 'boolean', 'undefined'].includes(typeof object)
 }
 
-export function getNameFromCtx (ctx: CustomCtxType): string {
-  return typeof ctx === 'string' ? ctx : ctx.name
-}
-
-export function getNameFromDependency (dependency: DependencyType): string {
-  if (typeof dependency === 'string') {
-    return dependency
-  } else {
-    return typeof dependency.ctx === 'string' ? dependency.ctx : dependency.ctx.name
-  }
-}
-
-function deduplicate<T> (items: T[], getName: (item: T) => string) {
+export function deduplicate (items: DependencyType[] | RelateType[]) {
   const flags: Record<string, boolean> = {}
-  const result: T[] = []
-  items.forEach(item => {
-    const name = getName(item)
+  const result = []
+  items.forEach((item: DependencyType | RelateType) => {
+    const name = typeof item === 'string' ? item : item.name
     if (!flags[name]) {
       result.push(item)
       flags[name] = true
     }
   })
   return result
-}
-
-export function getDeduplicatedRelatedApps (relatedApps: CustomCtxType[]): CustomCtxType[] {
-  return deduplicate<CustomCtxType>(relatedApps, getNameFromCtx)
-}
-
-export function getDeduplicatedDependencies (dependencies: DependencyType[]): DependencyType[] {
-  return deduplicate<DependencyType>(dependencies, getNameFromDependency)
 }
 
 /**

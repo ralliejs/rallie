@@ -1,7 +1,7 @@
 
-import { Warnings } from '@rallie/core'
+import { Warnings, Errors } from '@rallie/core'
 import { App, registerApp } from '../src/index'
-import { errors } from '../src/utils'
+import { errors, constant } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
 
 type State = {
@@ -74,6 +74,34 @@ describe('Test state', () => {
         console.log(value)
       })
     }).toThrowError(errors.stateNotInitialized('state-case2-1'))
+  })
+
+  test('#case 3: test private state', async () => {
+    console.log = jest.fn()
+    const app = new App('state-case3')
+    registerApp(app)
+    await app.activate('connect-testers/state')
+    // the app 'connect-testers/state.private' will be registered once the app 'connect-testers/state' is registered
+    type PrivateState = { user: string }
+    type PrivateMethods = {
+      login: (user: string) => void;
+      logout: () => void;
+    }
+    const privateApp = app.connect<PrivateState, {}, PrivateMethods>('connect-testers/state.private')
+    expect(privateApp.state.user).toEqual('Mike')
+    privateApp.watchState(state => state.user).do(value => {
+      console.log(value)
+    })
+    privateApp.setState(state => { state.user = 'Alice' }).catch(error => {
+      expect(error.message).toEqual(Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')))
+    })
+    privateApp.methods.logout()
+    expect(privateApp.state.user).toBeNull()
+    privateApp.methods.login('Alice')
+    expect(privateApp.state.user).toEqual('Alice')
+    expect(console.log).toBeCalledTimes(2)
+    expect(console.log).toBeCalledWith(null)
+    expect(console.log).toBeCalledWith('Alice')
   })
 })
 
