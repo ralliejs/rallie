@@ -1,9 +1,10 @@
-import { touchBus, CallbackType, Bus, Socket, CustomCtxType } from '@rallie/core'
+import { touchBus, CallbackType, Bus, Socket } from '@rallie/core'
 import { constant, errors } from './utils'
 import { Connector } from './connector'
 
 interface AppConfig<State> {
-  state?: State
+  state?: State,
+  isPrivate?: boolean
 }
 
 export class App<
@@ -34,7 +35,7 @@ export class App<
     this.events = this.socket.createBroadcaster()
     this.methods = this.socket.createUnicaster()
     if (config?.state) {
-      this.socket.initState(constant.stateNamespace(name), config.state)
+      this.socket.initState(constant.stateNamespace(name), config.state, config?.isPrivate ?? false)
     }
     Reflect.defineProperty(this, 'state', {
       get: () => this.socket.getState<State, State>(constant.stateNamespace(this.name)),
@@ -80,12 +81,12 @@ export class App<
     return new Connector<ExternalState, ExternalEvents, ExternalMethods>(appName)
   }
 
-  public load (ctx: CustomCtxType) {
-    return this.globalBus.loadApp(ctx)
+  public load (name: string, ctx: Record<string, any> = {}) {
+    return this.globalBus.loadApp(name, ctx)
   }
 
-  public activate<T> (ctx: CustomCtxType, data?: T) {
-    return this.globalBus.activateApp(ctx, data)
+  public activate<T> (name: string, data?: T, ctx: Record<string, any> = {}) {
+    return this.globalBus.activateApp(name, data, ctx)
   }
 
   public destroy<T> (name: string, data?: T) {

@@ -138,7 +138,7 @@ describe('Test dependencies of App', () => {
          *        |--f
          *     |--g
          */
-    apps.a.relyOn(['b', 'd', 'g']).relateTo(['b', 'c', 'd', 'e', { name: 'f' }, 'g', 'b'])
+    apps.a.relyOn(['b', 'd', 'g']).relateTo(['b', 'c', 'd', 'e', { name: 'f', ctx: { version: '0.1.0' } }, 'g', 'b'])
     apps.b.relyOn(['c']).relateTo(['c']).relateTo(['c']) // circular relations doesn't matter
     apps.c.relyOn([]).relateTo(['b']) // circular relations doesn't matter
     apps.d.relyOn(['e']).relyOn(['f']) // test duplicated dependencies
@@ -160,7 +160,7 @@ describe('Test dependencies of App', () => {
      *    |    |
      *    |----i
      * */
-    apps.h.relyOn([{ ctx: { name: 'i' } }])
+    apps.h.relyOn([{ name: 'i', ctx: { version: '*' } }])
     apps.i.relyOn(['h'])
     bus.activateApp('i').then(() => {
       throw new Error('you should never reach here')
@@ -171,7 +171,7 @@ describe('Test dependencies of App', () => {
   })
 
   test('# case 3: test params of lifecycles', (done) => {
-    apps.j.relyOn([{ ctx: 'k', data: 'app named j activate me' }])
+    apps.j.relyOn([{ name: 'k', data: 'app named j activate me' }])
     apps.k.relyOn([]).onBootstrap(async (data) => {
       console.log(data)
     })

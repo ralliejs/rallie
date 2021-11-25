@@ -8,6 +8,27 @@ const app = new App('connect-testers/state', {
   }
 })
 
+const privateApp = new App('connect-testers/state.private', {
+  state: {
+    user: 'Mike'
+  },
+  isPrivate: true
+})
+
+privateApp.addMethods({
+  logout () {
+    privateApp.setState(state => {
+      state.user = null
+    })
+  },
+  login (user: string) {
+    privateApp.setState(state => {
+      state.user = user
+    })
+  }
+})
+
+registerApp(privateApp)
 registerApp(app)
   .onBootstrap(() => {
     unwatchCount = app.watchState(state => state.count).do((newValue, oldValue) => {

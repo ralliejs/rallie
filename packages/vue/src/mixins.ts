@@ -1,4 +1,5 @@
 import { App, Connector } from 'rallie'
+import { CallbackType } from '@rallie/core'
 
 export const stateMixin = <State extends {}>(app: App<State> | Connector<State>) => <P>(mapStateToComputed: (state: State) => P) => {
   let unwatchState = null
@@ -20,36 +21,53 @@ export const stateMixin = <State extends {}>(app: App<State> | Connector<State>)
     computed,
     created () {
       unwatchState = app.watchState(mapStateToComputed).do(value => {
-        this.$set(this, dataKey, value)
+        this[dataKey] = value
       })
     },
-    beforeDestroy () {
+    beforeDestroy () { // for vue2
+      unwatchState()
+    },
+    beforeUnmount () { // for vue3
       unwatchState()
     }
   }
 }
 
-export const eventsMixin = <Events extends {}>(app: App<{}, Events> | Connector<{}, Events>) => (events: Partial<Events>) => {
+export const eventsMixin = <Events extends Record<string, CallbackType>>(app: App<{}, Events> | Connector<{}, Events>) => (events: Partial<Events>) => {
   let offEvents = null
   return {
     methods: events,
     created () {
-      offEvents = app.listenEvents(events)
+      const _events = {}
+      Object.entries(events).forEach(([key, Fn]) => {
+        _events[key] = Fn.bind(this)
+      })
+      offEvents = app.listenEvents(_events)
     },
-    beforeDestroy () {
+    beforeDestroy () { // for vue2
+      offEvents()
+    },
+    beforeUnmount () { // for vue3
       offEvents()
     }
   }
 }
 
-export const methodsMixin = <Methods extends {}>(app: App<{}, {}, Methods>) => (methods: Partial<Methods>) => {
+export const methodsMixin = <Methods extends Record<string, CallbackType>>(app: App<{}, {}, Methods>) => (methods: Partial<Methods>) => {
   let offMethods = null
   return {
     methods,
     created () {
-      offMethods = app.addMethods(methods)
+      const _methods = {}
+      Object.entries(methods).forEach(([key, Fn]) => {
+        _methods[key] = Fn.bind(this)
+      })
+      offMethods = app.addMethods(_methods)
     },
-    beforeDestroy () {
+    beforeDestroy () { // for vue2
+      offMethods()
+    },
+    beforeUnmount () { // for vue3
       offMethods()
     }
   }
