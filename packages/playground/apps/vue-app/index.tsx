@@ -7,7 +7,6 @@ import { app } from './app'
 let vm: VueApp<any>
 registerApp(app)
   .onBootstrap((container) => {
-    console.log(container)
     vm = createApp(App)
     vm.mount(container)
   })
