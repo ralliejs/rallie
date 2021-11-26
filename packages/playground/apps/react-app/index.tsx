@@ -7,7 +7,7 @@ reactApp.runInHostMode((bus) => {
     .use(jsdelivrLibraryLoader({
       vue: '@3.2.23/dist/vue.global.js',
       react: '@17.0.2/umd/react.development.js',
-      'react-dom': '@17.0.2/umd/react-dom.development.js',
+      'react-dom': '@17.0.2/umd/react-dom.development.js'
     }))
     .use(dynamicImportLoader)
 })
