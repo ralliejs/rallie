@@ -24,11 +24,12 @@ function App () {
     <div className={classes.app}>
       <header className={classes.appHeader}>
         <img src={logo} className={classes.appLogo} alt="logo" />
-        <h1>Hello Vite + React!</h1>
+        <h1>Hello Vite + React + Rallie!</h1>
         <p>
           this app is running in <strong>{hint.currentMode}</strong> mode,
           click <a className={classes.appLink} href={hint.navigationLink}>here</a> to see how it works in {hint.navigationMode} mode
         </p>
+        <p>the count is a state initialized by vue app</p>
         <p>
           <button type="button" onClick={setCount}>
             count is: {count}

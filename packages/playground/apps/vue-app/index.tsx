@@ -1,17 +1,22 @@
-import { createApp, App as VueApp } from 'vue'
-import App from './components/App.vue'
-
+import { jsdelivrLibraryLoader } from '../../middlewares'
 import { registerApp } from 'rallie'
 import { app } from './app'
 
-let vm: VueApp<any>
+app.runInHostMode((bus) => {
+  bus.use(jsdelivrLibraryLoader({
+    vue: '@3.2.23/dist/vue.global.js',
+    react: '@17.0.2/umd/react.development.js',
+    'react-dom': '@17.0.2/umd/react-dom.development.js',
+  }))
+})
+
 registerApp(app)
-  .onBootstrap((container) => {
-    vm = createApp(App)
-    vm.mount(container)
+  .relyOn(['lib:vue'])
+  .onBootstrap(async (container) => {
+    (await import('./lifecycles')).onBootstrap(container)
   })
-  .onDestroy(() => {
-    vm.unmount()
+  .onDestroy(async () => {
+    (await import('./lifecycles')).onDestroy()
   })
 
 app.runInHostMode(() => {

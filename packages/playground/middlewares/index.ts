@@ -1,10 +1,11 @@
 import { MiddlewareFnType } from '@rallie/core'
 
-export const jsdelivrLibraryLoader: MiddlewareFnType = async (ctx, next) => {
-  const { name, libFilePath = '' } = ctx
+export const jsdelivrLibraryLoader = (filePathMap = {}): MiddlewareFnType => async (ctx, next) => {
+  const { name } = ctx
   if (name.startsWith('lib:')) {
     const lib = name.slice(4)
-    await ctx.loadScript(`https://cdn.jsdelivr.net/npm/${lib}${libFilePath}`)
+    const filePath = filePathMap[lib] || ''
+    await ctx.loadScript(`https://cdn.jsdelivr.net/npm/${lib}${filePath}`)
   } else {
     await next()
   }

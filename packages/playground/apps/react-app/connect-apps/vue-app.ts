@@ -1,3 +1,11 @@
 import { reactApp } from '../app'
 
-export const vueApp = reactApp.connect<{ count: number }, {}, {}>('vue-app')
+type State = {
+  count: number
+}
+
+type Events = {}
+
+type Methods = {}
+
+export const vueApp = reactApp.connect<State, Events, Methods>('vue-app')

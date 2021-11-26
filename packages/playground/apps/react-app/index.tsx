@@ -1,24 +1,26 @@
 import { reactApp } from './app'
-import App from './components/App'
-import ReactDOM from 'react-dom'
 import { jsdelivrLibraryLoader, dynamicImportLoader } from '../../middlewares'
 import { registerApp } from 'rallie'
 
-const rootContainer = null
-
 reactApp.runInHostMode((bus) => {
-  bus.use(jsdelivrLibraryLoader).use(dynamicImportLoader)
+  bus
+    .use(jsdelivrLibraryLoader({
+      vue: '@3.2.23/dist/vue.global.js',
+      react: '@17.0.2/umd/react.development.js',
+      'react-dom': '@17.0.2/umd/react-dom.development.js',
+    }))
+    .use(dynamicImportLoader)
 })
 
 registerApp(reactApp)
-  // you can try to replace the next line with `.relyOn([{ ctx: 'vue-app', data: document.getElementById('vue-app') }])`
+  .relyOn(['lib:react', 'lib:react-dom'])
+  // you can try to replace the next line with `.relyOn([{ name: 'vue-app', data: document.getElementById('vue-app') }])`
   .relateTo(['vue-app'])
-  .onBootstrap((container) => {
-    // @ts-ignore
-    ReactDOM.render(<App />, container) // TODO: remove @ts-ignore
+  .onBootstrap(async (container) => {
+    (await import('./lifecycles')).onBootstrap(container)
   })
-  .onDestroy(() => {
-    ReactDOM.unmountComponentAtNode(rootContainer)
+  .onDestroy(async () => {
+    (await import('./lifecycles')).onDestroy()
   })
 
 reactApp.runInHostMode(() => {
