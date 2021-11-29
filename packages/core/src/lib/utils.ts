@@ -55,10 +55,9 @@ export const Errors = {
   invalidResource: (asset: string) => {
     return `[@rallie/core] ${asset} is not a valid asset`
   },
-  bootstrapNumberOverflow: (num = 100) => {
-    return `[@rallie/core] the number of apps bootstraped at a time is greater than the maximum value of ${num},` +
-      ' it means that there may be circular dependencies, please check the app dependencies declaration' +
-      ' or reset the bus\'s maxDependencyDepth'
+  bootstrapTimeout: (appName: string, time: number) => {
+    return `[@rallie/core] failed to bootstrap the app ${appName} in ${time} milliseconds. ` +
+      'If you see another same error at the same time, there might be circular dependencies'
   },
   multipleCalledNextFn: () => {
     return '[@rallie/core] next() called multiple times in the middleware'

@@ -4,9 +4,7 @@ import nativeLoader from './middlewares/native-loader'
 
 const hostApp = new App('host-app')
 hostApp.runInHostMode((bus) => {
-  bus.config({
-    maxDependencyDepth: 1
-  }).use(nativeLoader)
+  bus.use(nativeLoader)
 })
 describe('Test runInHostMode and runInRemoteMode', () => {
   test('# case 1: the host-app should run in host mode, and other apps should run in remote mode', async () => {
@@ -44,13 +42,18 @@ describe('Test runInHostMode and runInRemoteMode', () => {
   })
 
   test('# case 2: config in host mode should take effect', (done) => {
+    hostApp.runInHostMode((bus) => {
+      bus.config({
+        maxBootstrapTime: 100
+      })
+    })
     registerApp(new App('case2-1')).relyOn(['case2-2'])
     registerApp(new App('case2-2')).relyOn(['case2-3'])
-    registerApp(new App('case2-3'))
+    registerApp(new App('case2-3')).relyOn(['case2-1'])
     hostApp.activate('case2-1').then(() => {
       throw new Error('this should never be reached')
     }).catch((err) => {
-      const expectedError = Errors.bootstrapNumberOverflow(1)
+      const expectedError = Errors.bootstrapTimeout('case2-1', 100)
       expect(err.message).toEqual(expectedError)
       done()
     })

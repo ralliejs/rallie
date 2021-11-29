@@ -18,9 +18,9 @@ host.runInHostMode((bus) => {
 })
 
 registerApp(host)
-  .onBootstrap(() => {
-    host.activate('vue-app', document.getElementById('vue-app'))
+  .onBootstrap(async () => {
     host.activate('react-app', document.getElementById('react-app'))
+    host.activate('vue-app', document.getElementById('vue-app'))
   })
 
 host.runInHostMode(() => {

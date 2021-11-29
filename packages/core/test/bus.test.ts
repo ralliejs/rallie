@@ -66,7 +66,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
 
   const globalBus = createBus()
   globalBus.config({
-    loadScriptByFetch: true,
+    fetch: window.fetch,
     assets: staticAssetsConfig
   }).use(async (ctx, next) => {
     window.lastLoadingApp = ctx.name
@@ -146,7 +146,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
 
   test('# case 7: test load script tag', async () => {
     globalBus.config({
-      loadScriptByFetch: false
+      fetch: null
     })
     console.log = jest.fn()
     await globalBus.activateApp('app-to-test-load-script')

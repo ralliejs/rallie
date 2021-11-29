@@ -10,11 +10,11 @@ export class Bus {
   private eventEmitter: EventEmitter = new EventEmitter()
   private stores: StoresType = {}
   private apps: Record<string, App | boolean> = {}
-  private dependencyDepth = 0
+  private loadingApps: Record<string, Promise<void>> = {}
 
   private conf: ConfType = {
-    maxDependencyDepth: 100,
-    loadScriptByFetch: false,
+    maxBootstrapTime: 10 * 1000,
+    fetch: null,
     assets: {}
   };
 
@@ -71,7 +71,7 @@ export class Bus {
       name,
       loadScript: loader.loadScript,
       loadLink: loader.loadLink,
-      fetchScript: loader.fetchScript,
+      fetchScript: loader.fetchScript(this.conf.fetch),
       excuteCode: loader.excuteCode,
       conf: this.conf,
       ...ctx
@@ -88,11 +88,11 @@ export class Bus {
       name,
       loadScript = loader.loadScript,
       loadLink = loader.loadLink,
-      fetchScript = loader.fetchScript,
+      fetchScript = loader.fetchScript(this.conf.fetch),
       excuteCode = loader.excuteCode,
       conf = this.conf
     } = ctx
-    const { assets, loadScriptByFetch } = conf
+    const { assets, fetch } = conf
     if (assets[name]) {
       // insert link tag first
       assets[name].css &&
@@ -109,7 +109,7 @@ export class Bus {
         for (const asset of assets[name].js) {
           const src = typeof asset === 'string' ? asset : asset.src
           if (/^.+\.js$/.test(src)) {
-            if (!loadScriptByFetch) {
+            if (!fetch) {
               await loadScript(asset)
             } else {
               const code = await fetchScript(src)
@@ -159,18 +159,41 @@ export class Bus {
    * @param ctx
    */
   public async loadApp (name:string, ctx: Record<string, any> = {}) {
-    const context = this.createContext(name, ctx)
     if (!this.apps[name]) {
-      // apply the middlewares
-      await this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))
-      const isLib = name.startsWith('lib:')
-      if (isLib && !this.apps[name]) {
-        this.apps[name] = true
+      if (!this.loadingApps[name]) {
+        this.loadingApps[name] = new Promise((resolve, reject) => {
+          const context = this.createContext(name, ctx)
+          // apply the middlewares
+          this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this)).then(() => {
+            const isLib = name.startsWith('lib:')
+            if (isLib && !this.apps[name]) {
+              this.apps[name] = true
+            }
+            if (!this.apps[name]) {
+              reject(new Error(Errors.appNotCreated(name)))
+            }
+            resolve()
+          }).catch((error) => {
+            reject(error)
+          })
+        })
       }
-      if (!this.apps[name]) {
-        throw new Error(Errors.appNotCreated(name))
-      }
+      await this.loadingApps[name]
     }
+  }
+
+  private async activateDependencies (app: App) {
+    if (!app.dependenciesReady && app.dependencies.length !== 0) {
+      for (const dependence of app.dependencies) {
+        const { name, data, ctx } = dependence
+        await this.activateApp(name, data, ctx)
+      }
+      app.dependenciesReady = true
+    }
+  }
+
+  private async loadRelatedApps (app: App) {
+    await Promise.all(app.relatedApps.map(({ name, ctx }) => this.loadApp(name, ctx)))
   }
 
   /**
@@ -182,22 +205,25 @@ export class Bus {
     await this.loadApp(name, ctx)
     if (this.isRallieCoreApp(name)) {
       const app = this.apps[name] as App
-      await app.loadRelatedApps(this.loadApp.bind(this))
-      if (!app.bootstrapped) {
-        if (this.dependencyDepth > this.conf.maxDependencyDepth) {
-          this.dependencyDepth = 0
-          throw new Error(Errors.bootstrapNumberOverflow(this.conf.maxDependencyDepth))
+      await this.loadRelatedApps(app)
+      if (!app.bootstrapping) {
+        const bootstrapping = async () => {
+          await this.activateDependencies(app)
+          if (app.doBootstrap) {
+            await Promise.resolve(app.doBootstrap(data))
+          } else if (app.doActivate) {
+            await Promise.resolve(app.doActivate(data))
+          }
         }
-        this.dependencyDepth++
-        await app.activateDependenciesApp(this.activateApp.bind(this))
-        if (app.doBootstrap) {
-          await Promise.resolve(app.doBootstrap(data))
-        } else if (app.doActivate) {
-          await Promise.resolve(app.doActivate(data))
-        }
-        app.bootstrapped = true
-        this.dependencyDepth--
+        const timeout = (time: number) => new Promise<void>((resolve, reject) => {
+          setTimeout(() => {
+            reject(new Error(Errors.bootstrapTimeout(name, time)))
+          }, time)
+        })
+        app.bootstrapping = Promise.race([bootstrapping(), timeout(this.conf.maxBootstrapTime)])
+        await app.bootstrapping
       } else {
+        await app.bootstrapping
         app.doActivate && (await Promise.resolve(app.doActivate(data)))
       }
     }
@@ -212,7 +238,7 @@ export class Bus {
     if (this.isRallieCoreApp(name)) {
       const app = this.apps[name] as App
       app.doDestroy && (await Promise.resolve(app.doDestroy(data)))
-      app.bootstrapped = false
+      app.bootstrapping = null
       app.dependenciesReady = false
     }
   }

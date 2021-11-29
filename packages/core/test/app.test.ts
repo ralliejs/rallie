@@ -1,5 +1,6 @@
-import { createBus, App } from '../src'
+import { createBus, touchBus, App } from '../src'
 import { Errors } from '../src/lib/utils'
+import nock from 'nock'
 
 describe('Test lifecycles of App', () => {
   const bus = createBus('testBus')
@@ -10,15 +11,15 @@ describe('Test lifecycles of App', () => {
          * when it is activated after the first time , the activate callback should be called
          */
     let activateCount = 0
-    bus.createApp('a')
+    bus.createApp('case1')
       .onBootstrap(() => {
         activateCount = 1
       }).onActivate(() => {
         activateCount++
       })
-    bus.activateApp('a').then(() => {
+    bus.activateApp('case1').then(() => {
       expect(activateCount).toEqual(1)
-      return bus.activateApp('a')
+      return bus.activateApp('case1')
     }).then(() => {
       expect(activateCount).toEqual(2)
       done()
@@ -32,13 +33,13 @@ describe('Test lifecycles of App', () => {
          * when it is activated after the first time, nothing will happen
          */
     let activateCount = 0
-    bus.createApp('b')
+    bus.createApp('case2')
       .onBootstrap(async () => {
         activateCount++
       })
-    bus.activateApp('b').then(() => {
+    bus.activateApp('case2').then(() => {
       expect(activateCount).toEqual(1)
-      return bus.activateApp('b')
+      return bus.activateApp('case2')
     }).then(() => {
       expect(activateCount).toEqual(1)
       done()
@@ -51,13 +52,13 @@ describe('Test lifecycles of App', () => {
          * the activate callback will be called everytime it's activated
          */
     let activateCount = 0
-    bus.createApp('c')
+    bus.createApp('case3')
       .onActivate(async () => {
         activateCount++
       })
-    bus.activateApp('c').then(() => {
+    bus.activateApp('case3').then(() => {
       expect(activateCount).toEqual(1)
-      return bus.activateApp('c')
+      return bus.activateApp('case3')
     }).then(() => {
       expect(activateCount).toEqual(2)
       done()
@@ -72,7 +73,7 @@ describe('Test lifecycles of App', () => {
          */
     let bootstraped = false
     let activated = false
-    bus.createApp('d')
+    bus.createApp('case4')
       .onBootstrap(async () => {
         bootstraped = true
       })
@@ -83,23 +84,57 @@ describe('Test lifecycles of App', () => {
         bootstraped = false
         activated = false
       })
-    bus.activateApp('d').then(() => {
+    bus.activateApp('case4').then(() => {
       expect(bootstraped).toBeTruthy()
       expect(activated).toBeFalsy()
-      return bus.activateApp('d')
+      return bus.activateApp('case4')
     }).then(() => {
       expect(bootstraped).toBeTruthy()
       expect(activated).toBeTruthy()
-      return bus.destroyApp('d')
+      return bus.destroyApp('case4')
     }).then(() => {
       expect(bootstraped).toBeFalsy()
       expect(activated).toBeFalsy()
-      return bus.activateApp('d')
+      return bus.activateApp('case4')
     }).then(() => {
       expect(bootstraped).toBeTruthy()
       expect(activated).toBeFalsy()
       done()
     })
+  })
+
+  test('#case 5: test activate an app multi times at a time', async () => {
+    nock('https://test.case5.com')
+      .get('/index.js')
+      .reply(200, `
+        const bus = window.RALLIE_BUS_STORE.DEFAULT_BUS
+        bus.createApp('case5')
+          .onBootstrap((counter) => {
+            counter.bootstrap++
+          })
+          .onActivate((counter) => {
+            counter.activate++
+          })
+      `)
+    const [bus] = touchBus()
+    bus.config({
+      assets: {
+        case5: {
+          js: ['https://test.case5.com/index.js']
+        }
+      }
+    })
+    const counter = {
+      bootstrap: 0,
+      activate: 0
+    }
+    await Promise.all([
+      bus.activateApp('case5', counter),
+      bus.activateApp('case5', counter),
+      bus.activateApp('case5', counter)
+    ])
+    expect(counter.bootstrap).toEqual(1)
+    expect(counter.activate).toEqual(2)
   })
 })
 
@@ -155,6 +190,9 @@ describe('Test dependencies of App', () => {
   })
 
   test('# case 2: test circular dependency', (done) => {
+    bus.config({
+      maxBootstrapTime: 500
+    })
     /** the dependencies relationship
      * |--h----|
      *    |    |
@@ -165,7 +203,7 @@ describe('Test dependencies of App', () => {
     bus.activateApp('i').then(() => {
       throw new Error('you should never reach here')
     }).catch((error) => {
-      expect(error.message).toEqual(Errors.bootstrapNumberOverflow())
+      expect(error.message).toEqual(Errors.bootstrapTimeout('i', 500))
       done()
     })
   })

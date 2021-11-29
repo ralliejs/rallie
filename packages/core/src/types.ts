@@ -13,9 +13,8 @@ export type AssetsConfigType = Record<string, {
 }>;
 
 export type ConfType = {
-  maxDependencyDepth: number;
-  loadScriptByFetch: boolean;
-  assets: AssetsConfigType;
+  maxBootstrapTime: number;
+  fetch: typeof window.fetch;
   [key: string]: any
 };
 

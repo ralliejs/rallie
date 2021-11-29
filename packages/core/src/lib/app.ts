@@ -3,7 +3,7 @@ import { deduplicate } from './utils'
 
 export class App {
   public dependenciesReady: boolean = false
-  public bootstrapped: boolean = false
+  public bootstrapping: Promise<void> = null
   public dependencies: Array<{name: string; ctx?: Record<string, any>; data?: any}> = []
   public relatedApps: Array<{name: string; ctx?: Record<string, any>}> = []
   public doBootstrap?: LifecyleCallbackType
@@ -89,23 +89,5 @@ export class App {
   public onDestroy (callback: LifecyleCallbackType) {
     this.doDestroy = callback
     return this
-  }
-
-  public async activateDependenciesApp (
-    activateApp: (name: string, data?: any, ctx?: Record<string, any>) => Promise<void>
-  ) {
-    if (!this.dependenciesReady && this.dependencies.length !== 0) {
-      for (const dependence of this.dependencies) {
-        const { name, data, ctx } = dependence
-        await activateApp(name, data, ctx)
-      }
-      this.dependenciesReady = true
-    }
-  }
-
-  public async loadRelatedApps (
-    loadApp: (name: string, ctx?: Record<string, any>) => Promise<void>
-  ) {
-    await Promise.all(this.relatedApps.map(({ name, ctx }) => loadApp(name, ctx)))
   }
 }
