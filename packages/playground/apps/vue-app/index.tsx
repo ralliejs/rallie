@@ -1,24 +1,25 @@
-import { jsdelivrLibraryLoader } from '../../middlewares'
 import { registerApp } from 'rallie'
-import { app } from './app'
+import { vueApp } from './app'
 
-app.runInHostMode((bus) => {
-  bus.use(jsdelivrLibraryLoader({
-    vue: '@3.2.23/dist/vue.global.js',
-    react: '@17.0.2/umd/react.development.js',
-    'react-dom': '@17.0.2/umd/react-dom.development.js'
-  }))
-})
-
-registerApp(app)
-  .relyOn(['lib:vue'])
+registerApp(vueApp)
+  .relyOn(['lib:vue', 'host-app'])
   .onBootstrap(async (container) => {
+    console.log('vue-app bootstrapped');
     (await import('./lifecycles')).onBootstrap(container)
   })
   .onDestroy(async () => {
     (await import('./lifecycles')).onDestroy()
   })
 
-app.runInHostMode(() => {
-  app.activate(app.name, document.getElementById('vue-app'))
+vueApp.runInHostMode(async (bus, setBusAccessible) => {
+  setBusAccessible(true)
+  bus.use(async (ctx, next) => {
+    if (ctx.name === 'starter') {
+      await import('../../index')
+    } else {
+      await next()
+    }
+  })
+  await vueApp.load('starter')
+  vueApp.activate(vueApp.name, document.getElementById('vue-app'))
 })

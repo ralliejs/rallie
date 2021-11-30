@@ -5,7 +5,11 @@ export const jsdelivrLibraryLoader = (filePathMap = {}): MiddlewareFnType => asy
   if (name.startsWith('lib:')) {
     const lib = name.slice(4)
     const filePath = filePathMap[lib] || ''
-    await ctx.loadScript(`https://cdn.jsdelivr.net/npm/${lib}${filePath}`)
+    const start = Date.now()
+    const src = `https://cdn.jsdelivr.net/npm/${lib}${filePath}`
+    await ctx.loadScript(src)
+    const end = Date.now()
+    console.log(`load ${lib} from ${src}. cost ${end - start}ms`)
   } else {
     await next()
   }
@@ -20,5 +24,14 @@ export const dynamicImportLoader: MiddlewareFnType = async (ctx, next) => {
 
 // use @rallie/importHtml before use this middleware
 export const htmlLoader: MiddlewareFnType = async (ctx, next) => {
-  await ctx.loadHtml(`${window.location.origin}/rallie/apps/${ctx.name}/index.html`)
+  try {
+    const src = `${window.location.origin}/rallie/apps/${ctx.name}/index.html`
+    const start = Date.now()
+    await ctx.loadHtml(`${window.location.origin}/rallie/apps/${ctx.name}/index.html`)
+    const end = Date.now()
+    console.log(`load ${ctx.name} from ${src}, cost ${end - start}ms`)
+  } catch (err) {
+    console.error(err)
+    await next()
+  }
 }

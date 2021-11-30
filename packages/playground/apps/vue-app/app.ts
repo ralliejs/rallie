@@ -8,7 +8,7 @@ type Events = {}
 
 type Methods = {}
 
-export const app = new App<State, Events, Methods>('vue-app', {
+export const vueApp = new App<State, Events, Methods>('vue-app', {
   state: {
     count: 0
   }

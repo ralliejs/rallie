@@ -1,10 +1,13 @@
 import { createApp, App as VueApp } from 'vue'
+import { hostApp } from './connect-apps/host-app'
 import App from './components/App.vue'
 
 let app: VueApp<any>
 
-export const onBootstrap = (container: HTMLElement) => {
+export const onBootstrap = (container?: HTMLElement) => {
   app = createApp(App)
+  const naiveUI = hostApp.methods.useNaiveUI()
+  app.use(naiveUI)
   if (container) {
     app.mount(container)
   }

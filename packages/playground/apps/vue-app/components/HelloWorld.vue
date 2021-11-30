@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { app } from '../app'
+import { vueApp } from '../app'
 import { stateHook } from '@rallie/vue'
 
 defineProps({ msg: String }) // eslint-disable-line
 
-const count = stateHook(app)(state => state.count)
+const count = stateHook(vueApp)(state => state.count)
 const addCount = () => {
-  app.setState(state => { state.count++ })
+  vueApp.setState(state => { state.count++ })
 }
 
 const hint = {
@@ -14,7 +14,7 @@ const hint = {
   navigationMode: 'remote',
   navigationLink: '/rallie/index.html'
 }
-app.runInRemoteMode(() => {
+vueApp.runInRemoteMode(() => {
   hint.currentMode = 'remote'
   hint.navigationMode = 'host'
   hint.navigationLink = '/rallie/apps/vue-app/index.html'
@@ -30,7 +30,8 @@ app.runInRemoteMode(() => {
     click <a :href="hint.navigationLink">here</a> to see how it works in {{ hint.navigationMode }} mode
   </p>
   <p>the count can be get, set and watched by the react app</p>
-  <button type="button" @click="addCount">count is: {{ count }}</button>
+  <n-button @click="addCount">count is: {{ count }}</n-button>
+  <p>the host app provide a method service to use naive-ui's button component</p>
   <p>
     Edit
     <code>components/HelloWorld.vue</code> to test hot module replacement.

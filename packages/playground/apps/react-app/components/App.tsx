@@ -1,5 +1,6 @@
 import logo from '../../../assets/react-logo.svg'
 import { vueApp } from '../connect-apps/vue-app'
+import { hostApp } from '../connect-apps/host-app'
 import { reactApp } from '../app'
 import { stateHook } from '@rallie/react'
 import classes from './App.module.css'
@@ -9,6 +10,7 @@ function App () {
   const setCount = () => {
     vueApp.setState(state => { state.count++ })
   }
+  const messageTypes = ['info', 'error', 'warning', 'success', 'loading']
   const hint = {
     currentMode: 'host',
     navigationMode: 'remote',
@@ -31,10 +33,14 @@ function App () {
         </p>
         <p>the count is a state initialized by vue app</p>
         <p>
-          <button type="button" onClick={setCount}>
+          <button className={classes.button} type="button" onClick={setCount}>
             count is: {count}
           </button>
         </p>
+        <div>
+          <p>message is an event service provided by host app</p>
+          {messageTypes.map((type) => (<button className={classes.button} key={type} onClick={() => hostApp.events[type]('message is an event service provided by host app')}>{type}</button>))}
+        </div>
         <p>
           Edit <code>App.jsx</code> and save to test HMR updates.
         </p>

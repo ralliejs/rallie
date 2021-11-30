@@ -35,3 +35,26 @@
     transform: rotate(360deg);
   }
 }
+
+.button {
+  text-align: center;
+  padding: 8px 10px;
+  border: 2px solid #0790b6;
+  background-color: #0790b6;
+  color: white;
+  border-radius: 2px;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  margin: 0 10px;
+  width: 95px
+
+}
+
+.button:hover {
+  -webkit-transition-duration: 0.5s; /* Safari */
+  transition-duration: 0.5s;
+  background-color: #61dafb;
+  border: 2px solid #61dafb;
+  color: white
+}
