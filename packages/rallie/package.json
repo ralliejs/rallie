@@ -1,6 +1,6 @@
 {
   "name": "rallie",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
@@ -14,7 +14,7 @@
     "dist"
   ],
   "dependencies": {
-    "@rallie/core": "^0.6.1",
+    "@rallie/core": "^0.6.2",
     "tslib": "^2.3.1"
   },
   "repository": {
