@@ -1,7 +1,6 @@
 import { reactApp } from './app'
 import { registerApp } from 'rallie'
 
-
 registerApp(reactApp)
   .relyOn(['lib:react', 'lib:react-dom', 'host-app'])
   // you can try to replace the next line with `.relyOn([{ name: 'vue-app', data: document.getElementById('vue-app') }])`

@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import Provider from './provider.vue'
+import Provider from './Provider.vue'
 import { hostApp } from './app'
 import { NButton, create } from 'naive-ui'
 
