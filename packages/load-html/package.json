@@ -13,10 +13,6 @@
 	"scripts": {
 		"build": "rollup -c rollup.config.js"
 	},
-	"dependencies": {
-		"cheerio": "^1.0.0-rc.10",
-		"path-browserify": "^1.0.1"
-	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/ralliejs/rallie.git"
@@ -26,8 +22,6 @@
 	},
 	"homepage": "https://github.com/ralliejs/rallie#readme",
 	"devDependencies": {
-		"@rallie/core": "^0.6.2",
-		"@types/cheerio": "^0.22.30",
-		"@types/path-browserify": "^1.0.0"
+		"@rallie/core": "^0.6.2"
 	}
 }

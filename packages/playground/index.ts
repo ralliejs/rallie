@@ -12,10 +12,10 @@ const configMiddlewares = (bus?) => {
         react: '@17.0.2/umd/react.development.js',
         'react-dom': '@17.0.2/umd/react-dom.development.js'
       }))
-      .use(dynamicImportLoader)
+      // .use(dynamicImportLoader)
       // you can try to use the htmlLoader to replace the dynamicImportLoader
-      // .use(loadHtml())
-      // .use(htmlLoader)
+      .use(loadHtml())
+      .use(htmlLoader)
   }
 }
 
@@ -24,8 +24,8 @@ starter.runInRemoteMode(configMiddlewares)
 
 registerApp(starter)
   .onBootstrap(async () => {
-    starter.activate('react-app', document.getElementById('react-app'))
-    starter.activate('vue-app', document.getElementById('vue-app'))
+    starter.activate('react-app')
+    starter.activate('vue-app')
   })
 
 starter.runInHostMode(() => {

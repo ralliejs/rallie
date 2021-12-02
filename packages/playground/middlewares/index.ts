@@ -25,9 +25,9 @@ export const dynamicImportLoader: MiddlewareFnType = async (ctx, next) => {
 // use @rallie/importHtml before use this middleware
 export const htmlLoader: MiddlewareFnType = async (ctx, next) => {
   try {
-    const src = `${window.location.origin}/rallie/apps/${ctx.name}/index.html`
+    const src = `${window.location.origin}/rallie/apps/${ctx.name}/index.html#${ctx.name}`
     const start = Date.now()
-    await ctx.loadHtml(`${window.location.origin}/rallie/apps/${ctx.name}/index.html`)
+    await ctx.loadHtml(src)
     const end = Date.now()
     console.log(`load ${ctx.name} from ${src}, cost ${end - start}ms`)
   } catch (err) {

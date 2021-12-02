@@ -1,6 +1,5 @@
-import cheerio from 'cheerio'
 import { MiddlewareFnType } from '@rallie/core'
-import { getAttrs, insertStyle } from './utils'
+import { parseHtml, getEntirePath, parseHtmlPath } from './utils'
 
 export type Config = {
   regardHtmlPathAsRoot?: boolean,
@@ -14,20 +13,28 @@ export const loadHtml = (config: Config = {}): MiddlewareFnType => async (ctx, n
     const regardHtmlPathAsRoot = ctx.regardHtmlPathAsRoot ?? config.regardHtmlPathAsRoot ?? false
     const res = await fetch(url)
     const html = await res.text()
-    const $ = cheerio.load(html)
-    const scripts = $('script').toArray()
-    const links = $('link').toArray()
-    const styles = $('style').toArray()
-    links.forEach((link) => {
-      ctx.loadLink(getAttrs(link as cheerio.TagElement, url, regardHtmlPathAsRoot))
+    const [basePath, rootSelector] = parseHtmlPath(url)
+    const { root, scripts, links, styles } = parseHtml(html, rootSelector, (src) => {
+      return getEntirePath(src, basePath, regardHtmlPathAsRoot)
     })
-    styles.forEach((style) => {
-      insertStyle(style as cheerio.TagElement)
-    })
-    for (const script of scripts) {
-      await ctx.loadScript(getAttrs(script as cheerio.TagElement, url, regardHtmlPathAsRoot))
+    for (const style of styles) {
+      document.head.appendChild(style)
     }
-    return !!(scripts.length + links.length + styles.length)
+    for (const link of links) {
+      ctx.loadLink(link)
+    }
+    if (root) {
+      const rootContainer = document.querySelector(rootSelector)
+      if (rootContainer) {
+        rootContainer.innerHTML = root.innerHTML
+      } else {
+        document.body.appendChild(root)
+      }
+    }
+    for (const script of scripts) {
+      await ctx.loadScript(script)
+    }
+    return !!(scripts.length + links.length + styles.length) || !!root
   }
   const htmlEntries = config.entries || {}
   const entryUrl = htmlEntries[ctx.name]

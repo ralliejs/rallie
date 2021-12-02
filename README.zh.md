@@ -32,7 +32,7 @@ to do
 ## 生态
 - [@rallie/react](https://github.com/ralliejs/rallie/tree/master/packages/react): 为react服务提供hooks支持
 - [@rallie/vue](https://github.com/ralliejs/rallie/tree/master/packages/vue): 为vue3服务提供composition api支持，为vue2服务提供mixin支持
-- [@rallie/load-html](https://github.com/ralliejs/rallie/tree/master/packages/load-html): 一个基于`cheerio`实现内容解析，让服务直接从html中加载资源的中间件
+- [@rallie/load-html](https://github.com/ralliejs/rallie/tree/master/packages/load-html): 一个让服务直接从html路径中加载资源的中间件
 
 ## License
 rallie is [MIT Licensed](https://github.com/ralliejs/rallie/blob/master/LICENSE)

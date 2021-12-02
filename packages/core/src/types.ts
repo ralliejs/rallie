@@ -3,18 +3,19 @@ import { Watcher } from './lib/watcher'; // eslint-disable-line
 
 export type CallbackType = (...args: any[]) => any;
 
-export type ScriptType = Partial<HTMLScriptElement> | string;
+export type ScriptType = Partial<HTMLScriptElement> | string | HTMLScriptElement;
 
-export type LinkType = Partial<HTMLLinkElement> | string;
+export type LinkType = Partial<HTMLLinkElement> | string | HTMLLinkElement;
 
 export type AssetsConfigType = Record<string, {
-  js?: ScriptType[];
-  css?: LinkType[];
+  js?: Array<Partial<HTMLScriptElement> | string>;
+  css?: Array<Partial<HTMLLinkElement> | string>;
 }>;
 
 export type ConfType = {
   maxBootstrapTime: number;
   fetch: typeof window.fetch;
+  assets: AssetsConfigType;
   [key: string]: any
 };
 

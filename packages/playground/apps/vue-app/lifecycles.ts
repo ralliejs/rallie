@@ -8,9 +8,7 @@ export const onBootstrap = (container?: HTMLElement) => {
   app = createApp(App)
   const naiveUI = hostApp.methods.useNaiveUI()
   app.use(naiveUI)
-  if (container) {
-    app.mount(container)
-  }
+  app.mount(container ?? document.getElementById('vue-app'))
 }
 
 export const onDestroy = () => {

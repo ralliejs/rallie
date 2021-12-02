@@ -1,9 +1,9 @@
-import cheerio from 'cheerio'
-import path from 'path-browserify'
-
 const message = (info: string) => `[@rallie/load-html] ${info}`
 
+const basePathRegex = /^(http:\/\/|https:\/\/|\/\/)([^?#]*)(\?[^?#]+)?(#.+)?/
+
 export const errors = {
+  invalidHtmlPath: (basePath: string) => message(`Invalid html path: ${basePath}`),
   invalidEntirePath: (base: string, src: string) => message(`Can not construct a url by the base '${base}' and the path '${src}'`)
 }
 
@@ -11,72 +11,69 @@ export const getEntirePath = (src: string, base: string, regardHtmlPathAsRoot: b
   if (/^(http:\/\/|https:\/\/|\/\/).+/.test(src)) {
     return src
   }
-  const regex = /^(http:\/\/|https:\/\/|\/\/)(.*)((?<=\/).+\.html$)/
-  const mathResult = regex.exec(base)
+  const mathResult = basePathRegex.exec(base)
   if (mathResult) {
     const protocol = mathResult[1]
     const prePath = mathResult[2]
-    if (src.startsWith('../') || src.startsWith('./')) {
-      return protocol + path.join(prePath, src)
+    if (regardHtmlPathAsRoot && src.startsWith('/')) {
+      src = src.slice(1)
     }
-    if (regardHtmlPathAsRoot) {
-      if (src.startsWith('/')) {
-        src = src.slice(0)
-      }
-      return protocol + path.join(prePath, src)
-    } else {
-      let url = ''
-      const _protocol = protocol === '//' ? 'http://' : protocol
-      url = (new URL(src, _protocol + prePath)).href
-      if (protocol === '//') {
-        url = url.slice(5)
-      }
-      return url
+    let url = ''
+    const _protocol = protocol === '//' ? 'http://' : protocol
+    url = (new URL(src, _protocol + prePath)).href
+    if (protocol === '//') {
+      url = url.slice(5)
     }
+    return url
   } else {
     console.error(errors.invalidEntirePath(base, src))
     return ''
   }
 }
 
-export const getContent = (element: cheerio.TagElement) => {
-  if (element.children.length === 1) {
-    return element.children[0].data
+const cloneElement = <T extends HTMLElement>(element: T): T => {
+  const attributes = Array.from(element.attributes)
+  const result = document.createElement(element.tagName) as T
+  attributes.forEach((attr) => {
+    result.setAttribute(attr.name, attr.value)
+  })
+  result.innerHTML = element.innerHTML
+  return result
+}
+
+export const parseHtmlPath = (base: string): [string, string] => {
+  const mathResult = basePathRegex.exec(base)
+  if (mathResult) {
+    const path = mathResult[0]
+    const rootSelector = mathResult[4] || null
+    return [path, rootSelector]
   } else {
-    return ''
+    throw new Error(errors.invalidHtmlPath(base))
   }
 }
 
-export const getAttrs = (element: cheerio.TagElement, base: string, regardHtmlPathAsRoot: boolean) => {
-  const attrs: Record<string, string | boolean> = {}
-  Object.entries(element.attribs).forEach(([key, value]) => {
-    if (value === '') {
-      attrs[key] = true
-    } else if (['src', 'href'].includes(key)) {
-      const entirePath = getEntirePath(value, base, regardHtmlPathAsRoot)
-      if (entirePath) {
-        attrs[key] = entirePath
-      }
-    } else {
-      attrs[key] = value
+export const parseHtml = (html: string, rootSelector?: string, transferPath?: (src: string) => string): { root?: HTMLElement, scripts: Array<HTMLScriptElement>; links: Array<HTMLLinkElement>; styles: Array<HTMLStyleElement> } => {
+  const fragment = document.createElement('html')
+  fragment.innerHTML = html
+  const scripts = Array.from(fragment.querySelectorAll('script')).map((element) => cloneElement<HTMLScriptElement>(element)).map((element) => {
+    const src = element.getAttribute('src')
+    if (transferPath && src) {
+      element.setAttribute('src', transferPath(src))
     }
+    return element
   })
-  const content = getContent(element)
-  if (content) {
-    attrs.innerHTML = content
-  }
-  return attrs
-}
-
-export const insertStyle = (element: cheerio.TagElement) => {
-  const attrs = element.attribs
-  const content = getContent(element)
-  const style = document.createElement('style')
-  Object.entries(attrs).forEach(([attr, value]) => {
-    style[attr] = value === '' ? true : value
+  const links = Array.from(fragment.querySelectorAll('link')).map((element) => cloneElement<HTMLLinkElement>(element)).map((element) => {
+    const href = element.getAttribute('href')
+    if (transferPath && href) {
+      element.setAttribute('href', transferPath(href))
+    }
+    return element
   })
-  if (content) {
-    style.innerHTML = content
+  const styles = Array.from(fragment.querySelectorAll('style')).map((element) => cloneElement<HTMLStyleElement>(element))
+  return {
+    root: rootSelector ? fragment.querySelector(rootSelector) : null,
+    scripts,
+    links,
+    styles
   }
-  document.head.appendChild(style)
 }

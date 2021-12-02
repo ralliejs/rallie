@@ -4,17 +4,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] - 2021-12-2
+### Changed
+- remove `@rallie/load-html`'s dependencies of `cheerio` and `path-browserify`
+- allow `@rallie/load-html` to load content element
+
+## [0.6.2] - 2021-12-1
+### Fixed
+- fix some bugs
+
 ## [0.6.1] - 2021-11-25
+### Added
 - add mixins for @rallie/vue to support vue2
+### Changed
 - seprate name from `ctx`
 
 ## [0.6.0] - 2021-11-23
+### Changed
 - remove the `publicState` and `privateState`, only remain the `state`
 ## [0.5.2] - 2021-11-07
+### Changed
 - rename the `unicaster` to `methods`
+
+### Fixed
 - fix some bugs
 
 ## [0.5.0] - 2021-10-28
+### Changed
 - rename the project to 'rallie'
 - add the package rallie, @rallie/core, @rallie/react, @rallie/vue
 

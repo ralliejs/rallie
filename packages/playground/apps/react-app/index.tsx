@@ -23,5 +23,5 @@ reactApp.runInHostMode(async (bus, setBusAccessible) => {
     }
   })
   await reactApp.load('starter')
-  reactApp.activate(reactApp.name, document.getElementById('react-app'))
+  reactApp.activate(reactApp.name)
 })

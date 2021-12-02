@@ -10,7 +10,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        host: path.resolve(__dirname, './index.html'),
+        'starter': path.resolve(__dirname, './index.html'), // eslint-disable-line
+        'host-app': path.resolve(__dirname, './apps/host-app/index.html'),
         'react-app': path.resolve(__dirname, './apps/react-app/index.html'),
         'vue-app': path.resolve(__dirname, './apps/vue-app/index.html')
       }
