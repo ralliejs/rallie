@@ -1,5 +1,5 @@
 <div align="center">
-  <img width=300 height=300 src="docs/_media/logo_transparent.png" />
+  <img width=300 height=300 src="https://raw.githubusercontent.com/ralliejs/docs/main/.vuepress/public/logo.png" />
   <br><br>
 
   [![Coverage Status](https://coveralls.io/repos/github/ralliejs/rallie/badge.svg?branch=master)](https://coveralls.io/github/ralliejs/rallie?branch=master) [![release](https://img.shields.io/github/release/ralliejs/rallie.svg)](https://github.com/ralliejs/rallie/releases) [![lastCommit](https://img.shields.io/github/last-commit/ralliejs/rallie)](https://github.com/ralliejs/rallie/commits/master) [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
@@ -31,7 +31,7 @@ Rallie is a library that can help users implement decentralized front-end micro 
 - [@rallie/vue](https://github.com/ralliejs/rallie/tree/master/packages/vue): support vue3 services by providing composition api and support vue2 services by providing mixins
 - [@rallie/load-html](https://github.com/ralliejs/rallie/tree/master/packages/load-html): A middleware that allows services load resources directly from HTML
 ## Document
-to do
+[Rallie.js: A library that helps users implement decentralized front-end micro service architecture](https://ralliejs.github.io/docs/)
 
 ## License
 rallie is [MIT Licensed](https://github.com/ralliejs/rallie/blob/master/LICENSE)
