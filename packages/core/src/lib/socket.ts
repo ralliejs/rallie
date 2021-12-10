@@ -1,6 +1,6 @@
 import { effect, reactive, readonly } from '@vue/reactivity'
-import { EventEmitter } from './event-emitter'; // eslint-disable-line
-import { CallbackType, StoresType } from '../types'; // eslint-disable-line
+import type { EventEmitter } from './event-emitter'; // eslint-disable-line
+import type { CallbackType, StoresType } from '../types'; // eslint-disable-line
 import { Errors, isPrimitive, Warnings } from './utils'
 import { Watcher } from './watcher'
 

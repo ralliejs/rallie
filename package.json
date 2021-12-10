@@ -12,7 +12,7 @@
     "build": "lerna run build --stream",
     "commit": "git cz",
     "lint": "eslint --fix --ext .ts,tsx,.js packages",
-    "publish": "lerna publish",
+    "publish": "npm run build && lerna publish",
     "docs": "docsify serve docs",
     "playground:dev": "lerna run dev --stream",
     "playground:serve": "lerna run serve --stream",

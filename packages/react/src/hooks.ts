@@ -1,5 +1,5 @@
 import React from 'react'
-import { App, Connector } from 'rallie'
+import type { App, Connector, CallbackType } from 'rallie'
 
 export function stateHook<State extends object> (app: App<State> | Connector<State>) {
   return function <P = any> (getter: (_state: State) => P) {
@@ -16,7 +16,7 @@ export function stateHook<State extends object> (app: App<State> | Connector<Sta
   }
 }
 
-export function eventsHook<Events> (app: App | Connector) {
+export function eventsHook<Events extends Record<string, CallbackType>> (app: App | Connector) {
   return function (events: Partial<Events>) {
     React.useEffect(() => {
       const off = app.listenEvents(events)
@@ -27,8 +27,8 @@ export function eventsHook<Events> (app: App | Connector) {
   }
 }
 
-export function methodsHook<Events> (app: App) {
-  return function (events: Partial<Events>) {
+export function methodsHook<Methods extends Record<string, CallbackType>> (app: App) {
+  return function (events: Partial<Methods>) {
     React.useEffect(() => {
       const off = app.addMethods(events)
       return () => {

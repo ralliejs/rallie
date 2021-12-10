@@ -1,5 +1,5 @@
 import { onBeforeUnmount, onBeforeMount, ref, UnwrapRef } from 'vue'
-import { App, Connector } from 'rallie'
+import type { App, Connector, CallbackType } from 'rallie'
 
 export function stateHook<State extends object> (app: App<State> | Connector<State>) {
   return function <P> (getter: (_state: State) => P) {
@@ -14,7 +14,7 @@ export function stateHook<State extends object> (app: App<State> | Connector<Sta
   }
 }
 
-export function eventsHook<Events> (app: App | Connector) {
+export function eventsHook<Events extends Record<string, CallbackType>> (app: App | Connector) {
   return function (events: Partial<Events>) {
     let off = null
     onBeforeMount(() => {
@@ -26,7 +26,7 @@ export function eventsHook<Events> (app: App | Connector) {
   }
 }
 
-export function methodsHook<Methods> (app: App) {
+export function methodsHook<Methods extends Record<string, CallbackType>> (app: App) {
   return function (events: Partial<Methods>) {
     let off = null
     onBeforeMount(() => {

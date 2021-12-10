@@ -1,5 +1,5 @@
 import { App, Connector } from 'rallie'
-import { CallbackType } from '@rallie/core'
+import type { CallbackType } from 'rallie'
 
 export const stateMixin = <State extends {}>(app: App<State> | Connector<State>) => <P>(mapStateToComputed: (state: State) => P) => {
   let unwatchState = null

@@ -1,4 +1,4 @@
-import { ScriptType, LinkType } from '../types'; // eslint-disable-line
+import type { ScriptType, LinkType } from '../types'; // eslint-disable-line
 
 export const loadScript = async (scriptDeclare: ScriptType) => {
   const promise: Promise<void> = new Promise(resolve => {

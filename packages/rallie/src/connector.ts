@@ -1,4 +1,5 @@
-import { touchBus, CallbackType, Socket } from '@rallie/core'
+import { touchBus } from '@rallie/core'
+import type { CallbackType, Socket } from '@rallie/core'
 import { constant, errors } from './utils'
 
 export class Connector<

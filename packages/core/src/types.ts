@@ -8,8 +8,8 @@ export type ScriptType = Partial<HTMLScriptElement> | string | HTMLScriptElement
 export type LinkType = Partial<HTMLLinkElement> | string | HTMLLinkElement;
 
 export type AssetsConfigType = Record<string, {
-  js?: Array<Partial<HTMLScriptElement> | string>;
-  css?: Array<Partial<HTMLLinkElement> | string>;
+  js?: Array<ScriptType>;
+  css?: Array<LinkType>;
 }>;
 
 export type ConfType = {

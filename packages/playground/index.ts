@@ -4,7 +4,7 @@ import loadHtml from '@rallie/load-html' // eslint-disable-line
 
 const starter = new App('starter')
 
-const configMiddlewares = (bus?) => {
+const configMiddlewares = (bus) => {
   if (bus) {
     bus
       .use(jsdelivrLibraryLoader({

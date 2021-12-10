@@ -1,4 +1,4 @@
-import { LifecyleCallbackType, DependencyType, RelateType } from '../types'; // eslint-disable-line
+import type { LifecyleCallbackType, DependencyType, RelateType } from '../types'; // eslint-disable-line
 import { deduplicate } from './utils'
 
 export class App {

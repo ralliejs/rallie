@@ -1,4 +1,4 @@
-import { ContextType, NextFnType } from '@rallie/core'
+import type { ContextType, NextFnType } from '@rallie/core'
 
 export default async (ctx: ContextType, next: NextFnType) => {
   try {
