@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.5] - 2021-12-10
+### Fixed
+- fixed some bugs
+## [0.6.4] - 2021-12-9
+### Changed
+- change the vue version of @rallie/vue's peer dependency to v2.0.0
+
 ## [0.6.3] - 2021-12-2
 ### Changed
 - remove `@rallie/load-html`'s dependencies of `cheerio` and `path-browserify`

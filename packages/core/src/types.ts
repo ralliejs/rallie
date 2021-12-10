@@ -23,7 +23,7 @@ export type ContextType = {
   name: string;
   loadScript: (script: ScriptType) => Promise<void>;
   loadLink: (link: LinkType) => void;
-  fetchScript: (src: string) => Promise<string>;
+  fetchScript: (script: ScriptType) => Promise<string>;
   excuteCode: (code: string) => void;
   conf: ConfType;
   [key: string]: any

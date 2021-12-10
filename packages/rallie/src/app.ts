@@ -93,7 +93,7 @@ export class App<
     return this.globalBus.destroyApp(name, data)
   }
 
-  public async runInHostMode (callback: (bus: Bus, setBusAccessible: (val: boolean) => void) => (void | Promise<void>)) {
+  public async runInHostMode (callback: (bus: Bus, setBusAccessible?: (val: boolean) => void) => (void | Promise<void>)) {
     if (this.isHost) {
       const setBusAccessible = (val: boolean) => {
         this.globalSocket.setState(constant.isGlobalBusAccessed, state => { state.value = val })
@@ -102,7 +102,7 @@ export class App<
     }
   }
 
-  public async runInRemoteMode (callback: (bus: Bus | null) => (void | Promise<void>)) {
+  public async runInRemoteMode (callback: (bus?: Bus) => (void | Promise<void>)) {
     if (!this.isHost) {
       const bus = this.globalSocket.getState(constant.isGlobalBusAccessed)?.value ? this.globalBus : null
       await Promise.resolve(callback(bus))

@@ -97,26 +97,16 @@ export class Bus {
       // insert link tag first
       assets[name].css &&
         assets[name].css.forEach((asset) => {
-          const href = typeof asset === 'string' ? asset : asset.href
-          if (/^.+\.css$/.test(href)) {
-            loadLink(asset)
-          } else {
-            console.error(Errors.invalidResource(href))
-          }
+          loadLink(asset)
         })
       // load and execute js
       if (assets[name].js) {
         for (const asset of assets[name].js) {
-          const src = typeof asset === 'string' ? asset : asset.src
-          if (/^.+\.js$/.test(src)) {
-            if (!fetch) {
-              await loadScript(asset)
-            } else {
-              const code = await fetchScript(src)
-              code && excuteCode(code)
-            }
+          if (!fetch) {
+            await loadScript(asset)
           } else {
-            console.error(Errors.invalidResource(src))
+            const code = await fetchScript(asset)
+            code && excuteCode(code)
           }
         }
       }

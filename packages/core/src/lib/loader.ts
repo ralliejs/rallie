@@ -50,8 +50,16 @@ export const loadLink = (linkDeclare: LinkType) => {
   document.head.appendChild(link)
 }
 
-export const fetchScript = (fetch: typeof window.fetch) => async (src: string) => {
+export const fetchScript = (fetch: typeof window.fetch) => async (script: ScriptType) => {
   try {
+    let src = null
+    if (typeof script === 'string') {
+      src = script
+    } else if (script instanceof HTMLScriptElement) {
+      src = script.getAttribute('src')
+    } else {
+      src = script.src
+    }
     const res = await fetch(src)
     const code = await res.text()
     return code

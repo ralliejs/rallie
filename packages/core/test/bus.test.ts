@@ -22,7 +22,7 @@ nock('https://cdn.obvious.com')
   .reply(200, appToTestFetchScriptCode)
   .get('/assets/app-to-test-load-script.js')
   .reply(200, appToTestLoadScriptCode)
-  .get('/assets/cssCode.css')
+  .get('/assets/css-code.css')
   .reply(200, cssCode)
   .get('/assets/react.js')
   .reply(200, reactCode)
@@ -34,23 +34,16 @@ nock('https://localhost')
 describe('Test the capability to load the resources of an app or lib', () => {
   const staticAssetsConfig = {
     'lib:react': {
-      js: [
-        { src: 'https://cdn.obvious.com/assets/react.js' }
-      ]
+      js: ['https://cdn.obvious.com/assets/react.js']
     },
     'app-to-test-fetch-script': {
-      js: [
-        'https://cdn.obvious.com/assets/app-to-test-fetch-script.js'
-      ],
+      js: ['https://cdn.obvious.com/assets/app-to-test-fetch-script.js'],
       css: [
-        { href: 'https://cdn.obvious.com/assets/cssCode.css' },
-        'https://cdn.obvious.com/assets/cssCode.css'
+        'https://cdn.obvious.com/assets/css-code.css'
       ]
     },
     'app-to-test-load-script': {
-      js: [
-        'https://cdn.obvious.com/assets/app-to-test-load-script.js'
-      ]
+      js: ['https://cdn.obvious.com/assets/app-to-test-load-script.js']
     },
     'invalid-resource-app': {
       js: [
@@ -114,12 +107,11 @@ describe('Test the capability to load the resources of an app or lib', () => {
     })
   })
 
-  test('# case 4: activate an app which does not have valid resource declaration, console.error should be called', (done) => {
+  test('# case 4: activate an app which does not have valid resource declaration', (done) => {
     console.error = jest.fn()
     globalBus.activateApp('invalid-resource-app').then(() => {
       throw new Error('this callback should not be reached')
     }).catch((error) => {
-      expect(console.error).toBeCalledTimes(2)
       expect(error.message).toEqual(Errors.appNotCreated('invalid-resource-app'))
       done()
     })
