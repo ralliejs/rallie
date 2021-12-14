@@ -3,7 +3,6 @@ import { render, fireEvent, screen, cleanup } from '@testing-library/vue'
 import { MixinsProducer, producer } from './apps/producer'
 import { MixinsConsumer, consumer } from './apps/consumer'
 import { registerApp } from 'rallie'
-import { Warnings } from '@rallie/core'
 
 registerApp(producer)
   .onActivate(() => {
@@ -79,6 +78,5 @@ describe('Test Vue Mixins', () => {
     expect(console.log).toBeCalledTimes(2)
     expect(console.log).toBeCalledWith('dark')
     expect(console.log).toBeCalledWith('light')
-    expect(console.warn).toBeCalledWith(Warnings.emptyBroadcastEvents('printTheme'))
   })
 })

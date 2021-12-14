@@ -65,9 +65,6 @@ export const Errors = {
 }
 
 export const Warnings = {
-  emptyBroadcastEvents: (eventName: string) => {
-    return `[@rallie/core] you have emitted ${eventName} broadcast, but there is no listener of this event`
-  },
   handlerIsNotInTheEventsPool: (eventName: string, isUnicast: boolean) => {
     return `[@rallie/core] the event ${eventName} is not in the events pool that you specified when calling on${isUnicast ? 'Unicast' : 'Broadcast'}`
   }

@@ -1,5 +1,5 @@
 
-import { Warnings, Errors } from '@rallie/core'
+import { Errors } from '@rallie/core'
 import { App, registerApp } from '../src/index'
 import { errors, constant } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
@@ -132,9 +132,6 @@ describe('Test Events', () => {
     expect(console.error).toBeCalledTimes(1)
     expect(console.log).toBeCalledWith('hello world')
     expect(console.error).toBeCalledWith('hello world')
-    expect(console.warn).toBeCalledTimes(2)
-    expect(console.warn).toBeCalledWith(Warnings.emptyBroadcastEvents('log'))
-    expect(console.warn).toBeCalledWith(Warnings.emptyBroadcastEvents('error'))
     await app.destroy('events-tester')
   })
 })

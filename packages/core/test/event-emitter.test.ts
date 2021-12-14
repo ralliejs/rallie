@@ -1,5 +1,5 @@
 import { EventEmitter } from '../src/lib/event-emitter'
-import { Errors, Warnings } from '../src/lib/utils'
+import { Errors } from '../src/lib/utils'
 
 describe('Test broadcast:', () => {
   const broadCastTester = new EventEmitter()
@@ -14,16 +14,18 @@ describe('Test broadcast:', () => {
     expect(valueToModify).toBe(1)
   })
 
-  test('# case 2: remove an existed broadcast listener and emit the event, console.warn should be called', () => {
+  test('# case 2: emit the broadcast event before listening', () => {
     console.warn = jest.fn()
     broadCastTester.removeBroadcastEventListener('test', callback)
     broadCastTester.emitBroadcast('test')
-    const warnMessage = Warnings.emptyBroadcastEvents('test')
-    expect(console.warn).toBeCalledWith(warnMessage)
+    broadCastTester.addBroadcastEventListener('test', () => {
+      console.warn(valueToModify)
+    })
+    expect(console.warn).toBeCalledWith(1)
   })
 
   test('# case 3: remove non-existent listener of an broadcast event, it should throw an error', () => {
-        const errorMessage = Errors.wrongBroadcastCallback('test'); // eslint-disable-line
+    const errorMessage = Errors.wrongBroadcastCallback('test'); // eslint-disable-line
     const expectedError = new Error(errorMessage)
     expect(() => {
       broadCastTester.removeBroadcastEventListener('test', callback)

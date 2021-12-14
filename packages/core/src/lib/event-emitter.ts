@@ -1,7 +1,10 @@
 import type { CallbackType } from '../types'; // eslint-disable-line
-import { Errors, Warnings } from './utils'
+import { Errors } from './utils'
 
-type BroadcastEventsType = Record<string, Array<CallbackType>>
+type BroadcastEventsType = Record<string, {
+  listeners: CallbackType[],
+  emitedArgs: Array<any[]>
+}>
 
 type unicastEventsType = Record<string, CallbackType>
 
@@ -11,8 +14,18 @@ export class EventEmitter {
   private unicastEvents: unicastEventsType = {}
 
   public addBroadcastEventListener (event: string, callback: CallbackType) {
-    this.broadcastEvents[event] = this.broadcastEvents[event] || []
-    this.broadcastEvents[event].push(callback)
+    this.broadcastEvents[event] = this.broadcastEvents[event] || {
+      listeners: [],
+      emitedArgs: []
+    }
+    const { listeners, emitedArgs } = this.broadcastEvents[event]
+    listeners.push(callback)
+    if (emitedArgs.length > 0) {
+      emitedArgs.forEach((args) => {
+        this.emitBroadcast(event, ...args)
+      })
+      this.broadcastEvents[event].emitedArgs = []
+    }
   }
 
   public addUnicastEventListener (event: string, callback: CallbackType) {
@@ -23,7 +36,7 @@ export class EventEmitter {
   }
 
   public removeBroadcastEventListener (event: string, callback: CallbackType) {
-    const registedcallbacks = this.broadcastEvents[event]
+    const registedcallbacks = this.broadcastEvents[event]?.listeners
     if (registedcallbacks) {
       let targetIndex = -1
       for (let i = 0; i < registedcallbacks.length; i++) {
@@ -58,26 +71,29 @@ export class EventEmitter {
   }
 
   public emitBroadcast (event: string, ...args: any[]) {
-    const registedcallbacks = this.broadcastEvents[event]
-    const isInternalStateEvent = event.startsWith('$state')
-    if (registedcallbacks && registedcallbacks.length !== 0) {
-      registedcallbacks.forEach((callback) => {
+    this.broadcastEvents[event] = this.broadcastEvents[event] || {
+      listeners: [],
+      emitedArgs: []
+    }
+    const { listeners, emitedArgs } = this.broadcastEvents[event]
+    if (listeners.length > 0) {
+      listeners.forEach((callback) => {
         try {
-          callback(...args); // eslint-disable-line
+          callback(...args)
         } catch (error) {
           console.error(Errors.broadcastCallbackError(event))
           console.error(error)
         }
       })
-    } else if (!isInternalStateEvent) {
-      console.warn(Warnings.emptyBroadcastEvents(event))
+    } else {
+      emitedArgs.push(args)
     }
   }
 
   public emitUnicast (event: string, ...args: any[]) {
     const callback = this.unicastEvents[event]
     if (callback) {
-      return callback(...args); // eslint-disable-line
+      return callback(...args)
     } else {
       throw new Error(Errors.emittedNonExistedUnicast(event))
     }

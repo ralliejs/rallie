@@ -45,13 +45,11 @@ describe('Test broadcast', () => {
     expect(console.warn).toBeCalledWith(Warnings.handlerIsNotInTheEventsPool('nonExistentEvent', false))
     offBroadcast('printHelloWorld')
     broadcaster.printHelloWorld()
-    expect(console.warn).toBeCalledWith(Warnings.emptyBroadcastEvents('printHelloWorld'))
+    expect(console.log).toBeCalledTimes(0)
     offBroadcast()
     broadcaster.printText('')
     broadcaster.shouldNotBeCalled()
-    expect(console.warn).toBeCalledWith(Warnings.emptyBroadcastEvents('printText'))
-    expect(console.warn).toBeCalledWith(Warnings.emptyBroadcastEvents('shouldNotBeCalled'))
-    expect(console.warn).toBeCalledTimes(4)
+    expect(console.log).toBeCalledTimes(0)
   })
 
   test('# case 3: broadcaster can not be set', () => {
