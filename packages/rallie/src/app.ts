@@ -8,6 +8,12 @@ interface AppConfig<State> {
   isPrivate?: boolean
 }
 
+interface RunnerOptions {
+  isEntryApp: boolean;
+  bus?: Bus;
+  setBusAccessible?: (val: boolean) => void;
+}
+
 export class App<
   State extends object = {},
   Events extends Record<string, CallbackType> = {},
@@ -15,7 +21,7 @@ export class App<
   > {
   private globalBus: Bus
   private globalSocket: Socket
-  private isHost: boolean
+  private isEntryApp: boolean
   private socket: Socket
 
   constructor (name: string, config?: AppConfig<State>) {
@@ -27,9 +33,9 @@ export class App<
     }
     this.globalBus = globalBus
     this.globalSocket = globalBus.createSocket()
-    this.isHost = isHost
+    this.isEntryApp = isHost
     if (isHost) {
-      this.globalSocket.initState(constant.isGlobalBusAccessed, { value: false }, true)
+      this.globalSocket.initState(constant.isGlobalBusAccessible, { value: true }, true)
     }
     const privateBus = touchBus(constant.privateBus(name))[0]
     this.socket = privateBus.createSocket()
@@ -94,19 +100,15 @@ export class App<
     return this.globalBus.destroyApp(name, data)
   }
 
-  public async runInHostMode (callback: (bus: Bus, setBusAccessible?: (val: boolean) => void) => (void | Promise<void>)) {
-    if (this.isHost) {
-      const setBusAccessible = (val: boolean) => {
-        this.globalSocket.setState(constant.isGlobalBusAccessed, state => { state.value = val })
-      }
-      await Promise.resolve(callback(this.globalBus, setBusAccessible))
+  public async run (callback: (options: RunnerOptions) => (void | Promise<void>)) {
+    const isBusAccessible = this.isEntryApp || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
+    const setBusAccessible = (val: boolean) => {
+      this.globalSocket.setState(constant.isGlobalBusAccessible, state => { state.value = val })
     }
-  }
-
-  public async runInRemoteMode (callback: (bus?: Bus) => (void | Promise<void>)) {
-    if (!this.isHost) {
-      const bus = this.globalSocket.getState(constant.isGlobalBusAccessed)?.value ? this.globalBus : null
-      await Promise.resolve(callback(bus))
-    }
+    await Promise.resolve(callback({
+      isEntryApp: this.isEntryApp,
+      bus: isBusAccessible ? this.globalBus : undefined,
+      setBusAccessible: this.isEntryApp ? setBusAccessible : undefined
+    }))
   }
 }

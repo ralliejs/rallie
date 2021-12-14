@@ -3,31 +3,22 @@ import { Bus, Errors } from '@rallie/core'
 import nativeLoader from './middlewares/native-loader'
 
 const hostApp = new App('host-app')
-hostApp.runInHostMode((bus) => {
+hostApp.run(({ bus }) => {
   bus.use(nativeLoader)
 })
-describe('Test runInHostMode and runInRemoteMode', () => {
+describe('Test running mode', () => {
   test('# case 1: the host-app should run in host mode, and other apps should run in remote mode', async () => {
     const remoteApp = new App('remote-app')
     registerApp(remoteApp)
     console.log = jest.fn()
-    hostApp.runInHostMode(() => {
-      console.log('host-app is running in host mode')
+    hostApp.run(({ isEntryApp }) => {
+      expect(isEntryApp).toBeTruthy()
     })
-    hostApp.runInRemoteMode(() => {
-      console.log('host-app is running in remote mode')
+    remoteApp.run(({ isEntryApp }) => {
+      expect(isEntryApp).toBeFalsy()
     })
-    remoteApp.runInHostMode(() => {
-      console.log('remote-app in running in host mode')
-    })
-    remoteApp.runInRemoteMode(() => {
-      console.log('remote-app is running in remote mode')
-    })
-    expect(console.log).toBeCalledTimes(2)
-    expect(console.log).toBeCalledWith('host-app is running in host mode')
-    expect(console.log).toBeCalledWith('remote-app is running in remote mode')
     let order = ''
-    await remoteApp.runInRemoteMode(() => {
+    await remoteApp.run(() => {
       return new Promise<void>((resolve) => {
         setTimeout(() => {
           order += '1'
@@ -35,14 +26,14 @@ describe('Test runInHostMode and runInRemoteMode', () => {
         }, 200)
       })
     })
-    remoteApp.runInRemoteMode(() => {
+    remoteApp.run(() => {
       order += '2'
     })
     expect(order).toEqual('12')
   })
 
   test('# case 2: config in host mode should take effect', (done) => {
-    hostApp.runInHostMode((bus) => {
+    hostApp.run(({ bus }) => {
       bus.config({
         maxBootstrapTime: 100
       })
@@ -63,15 +54,19 @@ describe('Test runInHostMode and runInRemoteMode', () => {
     const remoteApp = new App('case3')
     registerApp(remoteApp)
     let globalBus: Bus = null
-    remoteApp.runInRemoteMode((bus) => {
-      expect(bus).toBeNull()
-    })
-    hostApp.runInHostMode((bus, setBusAccessible) => {
+    hostApp.run(({ bus }) => {
       globalBus = bus
-      setBusAccessible(true)
     })
-    remoteApp.runInRemoteMode((bus) => {
+    remoteApp.run(({ bus, setBusAccessible }) => {
       expect(bus).toEqual(globalBus)
+      expect(setBusAccessible).toBeUndefined()
+    })
+    hostApp.run(({ setBusAccessible }) => {
+      setBusAccessible(false)
+    })
+    remoteApp.run(({ bus, setBusAccessible }) => {
+      expect(bus).toBeUndefined()
+      expect(setBusAccessible).toBeUndefined()
     })
   })
 })

@@ -4,6 +4,8 @@ const app = new App('relate-testers/c')
 
 registerApp(app)
 
-app.runInRemoteMode(() => {
-  console.error('relate-testers/c is loaded')
+app.run(({ isEntryApp }) => {
+  if (!isEntryApp) {
+    console.error('relate-testers/c is loaded')
+  }
 })

@@ -11,15 +11,18 @@ registerApp(vueApp)
     (await import('./lifecycles')).onDestroy()
   })
 
-vueApp.runInHostMode(async (bus, setBusAccessible) => {
-  setBusAccessible(true)
-  bus.use(async (ctx, next) => {
-    if (ctx.name === 'starter') {
-      await import('../../index')
-    } else {
-      await next()
-    }
-  })
-  await vueApp.load('starter')
-  vueApp.activate(vueApp.name, document.getElementById('vue-app'))
+vueApp.run(async ({ bus, isEntryApp, setBusAccessible }) => {
+  if (isEntryApp) {
+    setBusAccessible?.(true)
+    bus?.use(async (ctx, next) => {
+      if (ctx.name === 'starter') {
+        await import('../../index')
+      } else {
+        await next()
+      }
+    })
+    await vueApp.load('starter')
+    setBusAccessible?.(false)
+    vueApp.activate(vueApp.name, document.getElementById('vue-app'))
+  }
 })

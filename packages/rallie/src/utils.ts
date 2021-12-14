@@ -1,7 +1,7 @@
 export const constant = {
   privateBus: (appName: string) => `${appName}.bus`,
   stateNamespace: (appName: string) => `${appName}.state`,
-  isGlobalBusAccessed: 'isGlobalBusAccessed'
+  isGlobalBusAccessible: 'isGlobalBusAccessible'
 }
 
 const message = (text: string) => `[rallie] ${text}`

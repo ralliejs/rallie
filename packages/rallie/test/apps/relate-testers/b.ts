@@ -6,6 +6,8 @@ registerApp(app)
   .relateTo(['relate-testers/a', 'relate-testers/c'])
   .relyOn(['relate-testers/a'])
 
-app.runInRemoteMode(() => {
-  console.warn('relate-testers/b is loaded')
+app.run(({ isEntryApp }) => {
+  if (!isEntryApp) {
+    console.warn('relate-testers/b is loaded')
+  }
 })

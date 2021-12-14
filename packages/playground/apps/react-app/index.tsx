@@ -13,15 +13,16 @@ registerApp(reactApp)
     (await import('./lifecycles')).onDestroy()
   })
 
-reactApp.runInHostMode(async (bus, setBusAccessible) => {
-  setBusAccessible(true)
-  bus.use(async (ctx, next) => {
-    if (ctx.name === 'starter') {
-      await import('../../index')
-    } else {
-      await next()
-    }
-  })
-  await reactApp.load('starter')
-  reactApp.activate(reactApp.name)
+reactApp.run(async ({ bus, isEntryApp }) => {
+  if (isEntryApp) {
+    bus?.use(async (ctx, next) => {
+      if (ctx.name === 'starter') {
+        await import('../../index')
+      } else {
+        await next()
+      }
+    })
+    await reactApp.load('starter')
+    reactApp.activate(reactApp.name)
+  }
 })

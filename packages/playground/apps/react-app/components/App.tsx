@@ -12,14 +12,16 @@ function App () {
   }
   const messageTypes = ['info', 'error', 'warning', 'success', 'loading']
   const hint = {
-    currentMode: 'host',
+    currentMode: 'entry',
     navigationMode: 'remote',
     navigationLink: '/rallie/index.html'
   }
-  reactApp.runInRemoteMode(() => {
-    hint.currentMode = 'remote'
-    hint.navigationMode = 'host'
-    hint.navigationLink = '/rallie/apps/react-app/index.html'
+  reactApp.run(({ isEntryApp }) => {
+    if (!isEntryApp) {
+      hint.currentMode = 'remote'
+      hint.navigationMode = 'entry'
+      hint.navigationLink = '/rallie/apps/react-app/index.html'
+    }
   })
 
   return (

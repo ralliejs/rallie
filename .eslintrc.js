@@ -42,6 +42,7 @@ module.exports = {
     semi: [2, 'never'],
     'react/prop-types': 0, // prop-types can be valid by ts
     'react-hooks/rules-of-hooks': 2,
-    'react-hooks/exhaustive-deps': 2
+    'react-hooks/exhaustive-deps': 2,
+    'node/no-callback-literal': 0
   }
 }

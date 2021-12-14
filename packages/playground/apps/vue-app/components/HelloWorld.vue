@@ -10,14 +10,16 @@ const addCount = () => {
 }
 
 const hint = {
-  currentMode: 'host',
+  currentMode: 'entry',
   navigationMode: 'remote',
   navigationLink: '/rallie/index.html'
 }
-vueApp.runInRemoteMode(() => {
-  hint.currentMode = 'remote'
-  hint.navigationMode = 'host'
-  hint.navigationLink = '/rallie/apps/vue-app/index.html'
+vueApp.run(({ isEntryApp }) => {
+  if (!isEntryApp) {
+    hint.currentMode = 'remote'
+    hint.navigationMode = 'entry'
+    hint.navigationLink = '/rallie/apps/vue-app/index.html'
+  }
 })
 
 </script>

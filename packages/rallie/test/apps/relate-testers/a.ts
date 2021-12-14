@@ -5,6 +5,8 @@ const app = new App('relate-testers/a')
 registerApp(app)
   .relateTo(['relate-testers/b'])
 
-app.runInRemoteMode(() => {
-  console.log('relate-testers/a is loaded')
+app.run(({ isEntryApp }) => {
+  if (!isEntryApp) {
+    console.log('relate-testers/a is loaded')
+  }
 })
