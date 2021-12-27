@@ -4,13 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.8] - 2021-12-27
+### Changed
+- remove the argument `isWatchingEffect` of `socket.watchState`
+- a string to describe the action is neccessary when calling `socket.setState`
+
 ## [0.6.7] - 2021-12-14
 ### Removed
 - remove `app.InHostMode` and `app.runInRemoteMode`
 ### Added
 - add `app.run`
-### Changed
-- 
+
 ## [0.6.6] - 2021-12-10
 ### Fixed
 - fixed the ty type error

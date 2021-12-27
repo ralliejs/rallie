@@ -72,7 +72,7 @@ describe('Test unicast:', () => {
   })
 
   test('#case 2: remove an existed unicast listener and emit the event, there should be an error to be throwed', () => {
-    unicastTester.removeUnicastEventListener('double', callback)
+    unicastTester.removeUnicastEventListener('double')
     expect(() => {
       unicastTester.emitUnicast('double', 2)
     }).toThrowError()
@@ -80,18 +80,12 @@ describe('Test unicast:', () => {
 
   test('#case 3: remove the listener of a non-existence unicast event, there should be an error to be throwed', () => {
     expect(() => {
-      unicastTester.removeUnicastEventListener('double', () => {})
+      unicastTester.removeUnicastEventListener('double')
     }).toThrowError(new Error(Errors.removeNonExistedUnicast('double')))
   })
 
-  test('#case 4: remove a wrong listener of a unicast event, there should be an error to be throwed', () => {
-    unicastTester.addUnicastEventListener('double', callback)
-    expect(() => {
-      unicastTester.removeUnicastEventListener('double', () => {})
-    }).toThrowError(new Error(Errors.wrongUnicastCallback('double')))
-  })
-
-  test('#case 5: registed a callback on an existed unicast event, there should be an error to be throwed', () => {
+  test('#case 4: registed a callback on an existed unicast event, there should be an error to be throwed', () => {
+    unicastTester.addUnicastEventListener('double', () => {})
     expect(() => {
       unicastTester.addUnicastEventListener('double', () => {})
     }).toThrowError(new Error(Errors.registedExistedUnicast('double')))

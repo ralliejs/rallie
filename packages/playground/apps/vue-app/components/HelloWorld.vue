@@ -6,7 +6,7 @@ defineProps({ msg: String }) // eslint-disable-line
 
 const count = stateHook(vueApp)(state => state.count)
 const addCount = () => {
-  vueApp.setState(state => { state.count++ })
+  vueApp.setState('vue-app add the count', state => { state.count++ })
 }
 
 const hint = {

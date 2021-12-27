@@ -55,11 +55,11 @@ describe('Test socket.setState', () => {
     console.warn = jest.fn()
     const counter = socket.getState('counter')
     expect(counter.value).toEqual(0)
-    await socket.setState('counter', async (state) => {
+    await socket.setState('counter', 'add the counter asynchronously', async (state) => {
       await delay(1)
       state.value++
     })
-    socket.setState('counter', (state) => {
+    socket.setState('counter', 'add the counter synchronously', (state) => {
       state.value++
     })
     counter.value++
@@ -69,7 +69,7 @@ describe('Test socket.setState', () => {
 
   test('# case 2: private state can not be modified by other socket', (done) => {
     const anotherSocket = bus.createSocket()
-    anotherSocket.setState('counter', (state) => {
+    anotherSocket.setState('counter', 'add counter by another socket', (state) => {
       state.value++
     }).catch((err) => {
       expect(err.message).toEqual(Errors.modifyPrivateState('counter'))
@@ -78,11 +78,19 @@ describe('Test socket.setState', () => {
   })
 
   test('# case 3: an uninitialized state can not be set', (done) => {
-    socket.setState('uninitialized', (state) => {
+    socket.setState('uninitialized', 'set an unintialized state', (state) => {
       state.value = 'whatever'
     }).catch((err) => {
       expect(err.message).toEqual(Errors.accessUninitializedState('uninitialized'))
       done()
+    })
+  })
+
+  test('# case 4: action is neccessary when calling socket.setState', () => {
+    socket.setState('counter', '', (state) => {
+      state.value++
+    }).catch((error) => {
+      expect(error.message).toEqual(Errors.actionIsNotDefined('counter'))
     })
   })
 })
@@ -145,7 +153,7 @@ describe('Test socket.watchState', () => {
       console.log(name, age)
       console.warn(oldName, oldAge)
     })
-    socket.setState('user', (state) => {
+    socket.setState('user', 'modify user', (state) => {
       state.name = 'Mike'
       state.age = 12
       state.gender = 'male'
@@ -166,7 +174,7 @@ describe('Test socket.watchState', () => {
   test('# case 3: watching callback should not be called after unwatching', () => {
     console.log = jest.fn()
     unwatch()
-    socket.setState('user', (state) => {
+    socket.setState('user', 'modify user', (state) => {
       state.name = 'Lily'
       state.age = 13
       state.gender = 'female'
@@ -183,16 +191,14 @@ describe('Test socket.watchState', () => {
   test('# case 4: test the behavior like watchEffect', async () => {
     await socket.waitState(['user']) // only to increase the coverage
     console.log = jest.fn()
-    const watcher = socket.watchState('user', (state, isWatchingEffect) => {
-      if (isWatchingEffect) {
-        console.log(state.name)
-      }
+    const watcher = socket.watchState('user', (state) => {
+      console.log(state.name)
     })
-    socket.setState('user', user => {
+    socket.setState('user', 'modify user\'s name', user => {
       user.name = 'Tom'
     })
     watcher.unwatch()
-    socket.setState('user', user => {
+    socket.setState('user', 'modify user\'s name', user => {
       user.name = 'Jack'
     })
     expect(console.log).toBeCalledTimes(2)

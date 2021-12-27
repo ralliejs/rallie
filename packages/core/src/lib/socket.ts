@@ -154,11 +154,16 @@ export class Socket {
   /**
    * set the value of the state
    * @param namespace
-   * @param arg
+   * @param action
+   * @param setter
    */
-  public async setState<T = any> (namespace: string, setter: (state: T) => void | Promise<void>) {
+  public async setState<T = any> (namespace: string, action: string, setter: (state: T) => void | Promise<void>) {
     const state: T = this.getStateToSet(namespace)
-    await Promise.resolve(setter(state))
+    if (action) {
+      await Promise.resolve(setter(state))
+    } else {
+      throw new Error(Errors.actionIsNotDefined(namespace))
+    }
   }
 
   /**
@@ -166,23 +171,23 @@ export class Socket {
    * @param namespace
    * @param getter
    */
-  public watchState<T = any, P = any> (namespace: string, getter: (state: T, isWatchingEffect?: boolean) => undefined | P) {
+  public watchState<T = any, P = any> (namespace: string, getter: (state: T) => undefined | P) {
     if (!this.existState(namespace)) {
       const msg = Errors.accessUninitializedState(namespace)
       throw new Error(msg)
     }
     const state: T = readonly(this.stores[namespace].state)
     const watcher = new Watcher<P>(namespace, this.stores)
-    watcher.oldWatchingStates = getter(JSON.parse(JSON.stringify(state)), false)
-    const runner = effect(() => {
-      const watchingStates = getter(state, true)
-      const clonedWatchingStates = isPrimitive(watchingStates) ? watchingStates : JSON.parse(JSON.stringify(watchingStates))
-      try {
-        watcher.handler?.(watchingStates, watcher.oldWatchingStates)
-      } finally {
-        watcher.oldWatchingStates = clonedWatchingStates
+    const clone = (val: any) => isPrimitive(val) ? val : JSON.parse(JSON.stringify(val))
+    const runner = effect(() => getter(state), {
+      lazy: true,
+      scheduler: () => {
+        const watchingState = getter(state)
+        watcher.handler?.(watchingState, watcher.oldWatchingStates)
+        watcher.oldWatchingStates = clone(watchingState)
       }
     })
+    watcher.oldWatchingStates = clone(runner())
     watcher.stopEffect = () => runner.effect.stop()
     return watcher
   }

@@ -15,7 +15,7 @@ export default defineComponent({
       producer.methods.toggleTheme()
     },
     addCount () {
-      producer.setState(state => {
+      producer.setState('add the count', state => {
         state.count++
       })
     },

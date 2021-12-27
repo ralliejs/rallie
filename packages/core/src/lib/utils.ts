@@ -15,9 +15,6 @@ export const Errors = {
   removeNonExistedUnicast: (eventName: string) => {
     return `[@rallie/core] you are trying to remove a listener of the unicast event ${eventName}, but ${eventName} hasn't been registed as a unicast event`
   },
-  wrongUnicastCallback: (eventName: string) => {
-    return `[@rallie/core] you are trying to remove a listener of the unicast event ${eventName}, but the listener hasn't been registed`
-  },
   registedExistedUnicast: (eventName: string) => {
     return `[@rallie/core] you are trying to register a unicast event ${eventName}, but it has been registered before`
   },
@@ -37,6 +34,9 @@ export const Errors = {
   // ================= Socket ===============
   modifyPrivateState: (namespace: string) => {
     return `[@rallie/core] state ${namespace} is private, you are not allowed to set it`
+  },
+  actionIsNotDefined: (namespace: string) => {
+    return `[@rallie/core] please describe your action when you modify the state ${namespace}`
   },
   accessUninitializedState: (namespace: string) => {
     return `[@rallie/core] it's not allowed to set or watch state ${namespace} before it is initialized`

@@ -17,12 +17,12 @@ const privateApp = new App('connect-testers/state.private', {
 
 privateApp.addMethods({
   logout () {
-    privateApp.setState(state => {
+    privateApp.setState('log out', state => {
       state.user = null
     })
   },
   login (user: string) {
-    privateApp.setState(state => {
+    privateApp.setState('log in', state => {
       state.user = user
     })
   }
@@ -36,7 +36,7 @@ registerApp(app)
     })
   })
   .onActivate((newTheme) => {
-    app.setState(state => {
+    app.setState('change theme', state => {
       state.theme = newTheme
     })
   })

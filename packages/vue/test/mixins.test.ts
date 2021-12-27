@@ -10,8 +10,8 @@ registerApp(producer)
   })
   .onDestroy(() => {
     cleanup()
-    producer.setState(state => { state.count = 0 })
-    producer.setState(state => { state.isDarkTheme = true })
+    producer.setState('reset the count', state => { state.count = 0 })
+    producer.setState('reset the theme', state => { state.isDarkTheme = true })
   })
 
 registerApp(consumer)

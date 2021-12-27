@@ -17,7 +17,7 @@ export default defineComponent({
     }),
     methodsMixin(producer)({
       toggleTheme () {
-        producer.setState(state => {
+        producer.setState('toggle theme', state => {
           state.isDarkTheme = !state.isDarkTheme
         })
       }

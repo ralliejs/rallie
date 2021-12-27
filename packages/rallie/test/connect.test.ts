@@ -37,18 +37,16 @@ describe('Test state', () => {
         const targetApp = app.connect<State>('connect-testers/state')
         expect(targetApp.state.count).toEqual(0)
         expect(targetApp.state.theme).toEqual('white')
-        targetApp.setState(state => { state.count = 1 }) // set count before watch
-        targetApp.watchState((state, isWatchingEffect) => {
-          if (isWatchingEffect) {
-            console.warn(state.theme)
-          }
+        targetApp.setState('set count before watch', state => { state.count = 1 })
+        targetApp.watchState((state) => {
+          console.warn(state.theme)
         })
         await app.activate('connect-testers/state')
-        targetApp.setState(state => { state.count = 2 }) // set count after watch
+        targetApp.setState('set count after watch', state => { state.count = 2 })
         await app.activate('connect-testers/state', 'green') // set theme
         await app.activate('connect-testers/state', 'red') // set theme
         await app.destroy('connect-testers/state')
-        targetApp.setState(state => { state.count = 3 }) // set count state after unwatch
+        targetApp.setState('set count state after unwatch', state => { state.count = 3 })
         expect(console.log).toBeCalledTimes(1)
         expect(console.log).toBeCalledWith(2, 1)
         expect(console.warn).toBeCalledTimes(3)
@@ -66,7 +64,7 @@ describe('Test state', () => {
     const app = new App('state-case2-2')
     registerApp(app).relateTo(['state-case2-1'])
     expect(() => {
-      app.connect<any>('state-case2-1').setState(state => { state.value = 1 })
+      app.connect<any>('state-case2-1').setState('app2 modify app1\'s state', state => { state.value = 1 })
     }).toThrowError(errors.stateNotInitialized('state-case2-1'))
 
     expect(() => {
@@ -92,7 +90,7 @@ describe('Test state', () => {
     privateApp.watchState(state => state.user).do(value => {
       console.log(value)
     })
-    privateApp.setState(state => { state.user = 'Alice' }).catch(error => {
+    privateApp.setState('set user to Alice', state => { state.user = 'Alice' }).catch(error => {
       expect(error.message).toEqual(Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')))
     })
     privateApp.methods.logout()

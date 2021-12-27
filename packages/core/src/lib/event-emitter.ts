@@ -57,14 +57,9 @@ export class EventEmitter {
     }
   }
 
-  public removeUnicastEventListener (event: string, callback: CallbackType) {
+  public removeUnicastEventListener (event: string) {
     if (!this.unicastEvents[event]) {
       const msg = Errors.removeNonExistedUnicast(event)
-      throw new Error(msg)
-    }
-
-    if (this.unicastEvents[event] !== callback) {
-      const msg = Errors.wrongUnicastCallback(event)
       throw new Error(msg)
     }
     delete this.unicastEvents[event]

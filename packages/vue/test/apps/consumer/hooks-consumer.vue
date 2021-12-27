@@ -10,7 +10,7 @@ export default defineComponent(function Consumer () {
     producer.methods.toggleTheme()
   }
   const addCount = () => {
-    producer.setState(state => {
+    producer.setState('add the count', state => {
       state.count++
     })
   }

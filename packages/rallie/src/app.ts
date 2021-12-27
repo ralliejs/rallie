@@ -56,15 +56,15 @@ export class App<
   public methods: Methods
   public isRallieApp: boolean
 
-  public setState (setter: (state: State) => void | Promise<void>) {
+  public setState (action: string, setter: (state: State) => void | Promise<void>) {
     if (this.socket.existState(constant.stateNamespace(this.name))) {
-      return this.socket.setState(constant.stateNamespace(this.name), setter)
+      return this.socket.setState(constant.stateNamespace(this.name), action, setter)
     } else {
       throw new Error(errors.stateNotInitialized(this.name))
     }
   }
 
-  public watchState<P = any> (getter: (state: State, isWatchingEffect?: boolean) => undefined | P) {
+  public watchState<P = any> (getter: (state: State) => undefined | P) {
     if (this.socket.existState(constant.stateNamespace(this.name))) {
       return this.socket.watchState<State, P>(constant.stateNamespace(this.name), getter)
     } else {
@@ -103,7 +103,7 @@ export class App<
   public async run (callback: (options: RunnerOptions) => (void | Promise<void>)) {
     const isBusAccessible = this.isEntryApp || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
     const setBusAccessible = (val: boolean) => {
-      this.globalSocket.setState(constant.isGlobalBusAccessible, state => { state.value = val })
+      this.globalSocket.setState(constant.isGlobalBusAccessible, `${val ? 'enable' : 'disable'} remote app to access the bus`, state => { state.value = val })
     }
     await Promise.resolve(callback({
       isEntryApp: this.isEntryApp,

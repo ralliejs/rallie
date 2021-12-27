@@ -17,7 +17,7 @@ export default defineComponent(function Producer () {
   })
   useProducerMethods({
     toggleTheme () {
-      producer.setState(state => {
+      producer.setState('toggle theme', state => {
         state.isDarkTheme = !state.isDarkTheme
       })
     }

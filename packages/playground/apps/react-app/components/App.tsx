@@ -8,7 +8,7 @@ import classes from './App.module.css'
 function App () {
   const count = stateHook(vueApp)<number>(state => state.count)
   const setCount = () => {
-    vueApp.setState(state => { state.count++ })
+    vueApp.setState('react-app add the count', state => { state.count++ })
   }
   const messageTypes = ['info', 'error', 'warning', 'success', 'loading']
   const hint = {

@@ -25,7 +25,7 @@ registerApp(app)
         return app.state.count
       },
       addCount () {
-        app.setState(state => {
+        app.setState('add count', state => {
           state.count++
         })
       }
