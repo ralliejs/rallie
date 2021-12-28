@@ -4,14 +4,14 @@ import type { App, Connector, CallbackType } from 'rallie'
 export function stateHook<State extends object> (app: App<State> | Connector<State>) {
   return function <P = any> (getter: (_state: State) => P) {
     const [value, setValue] = React.useState<P>(getter(app.state))
-    const unwatch = app.watchState(getter).do((val) => {
-      setValue(val)
-    })
     React.useEffect(() => {
+      const unwatch = app.watchState(getter).do((val) => {
+        setValue(val)
+      })
       return () => {
         unwatch()
       }
-    }, []) // eslint-disable-line
+    }, [getter])
     return value
   }
 }
@@ -23,7 +23,7 @@ export function eventsHook<Events extends Record<string, CallbackType>> (app: Ap
       return () => {
         off()
       }
-    }, []) // eslint-disable-line
+    }, [events])
   }
 }
 
@@ -34,6 +34,6 @@ export function methodsHook<Methods extends Record<string, CallbackType>> (app: 
       return () => {
         off()
       }
-    }, []) // eslint-disable-line
+    }, [events])
   }
 }
