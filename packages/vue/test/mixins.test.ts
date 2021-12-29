@@ -66,10 +66,10 @@ describe('Test Vue Mixins', () => {
     console.log = jest.fn()
     console.warn = jest.fn()
     const printThemeBtn = await screen.findByText('print theme')
-    fireEvent.click(printThemeBtn) // log dark
+    await fireEvent.click(printThemeBtn) // log dark
     const toggleThemeBtn = await screen.findByText('toggle theme')
-    fireEvent.click(toggleThemeBtn)
-    fireEvent.click(printThemeBtn) // log light
+    await fireEvent.click(toggleThemeBtn)
+    await fireEvent.click(printThemeBtn) // log light
     await cleanup()
     producer.events.printTheme()
     expect(() => {

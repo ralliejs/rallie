@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.10] - 2021-12-29
+### Fixed
+- fix the problem that the watching callbacks are executed multiple times when the state is modified multiple times
 ## [0.6.9] - 2021-12-28
 ### Fixed
 - fixed some bugs of `@rallie/react`

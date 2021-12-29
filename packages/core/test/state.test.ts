@@ -136,7 +136,7 @@ describe('Test socket.watchState', () => {
     }).toThrowError(Errors.accessUninitializedState('uninitialized'))
   })
 
-  test('# case 2: when state changes, the watching callback should be called', () => {
+  test('# case 2: when state changes, the watching callback should be called', async () => {
     const rawUser = {
       name: 'Mary',
       age: 11,
@@ -146,14 +146,12 @@ describe('Test socket.watchState', () => {
     socket.initState<User>('user', rawUser)
     type WatchingType = [string, number];
     console.log = jest.fn()
-    console.warn = jest.fn()
     unwatch = socket.watchState<User, WatchingType>('user', (state) => {
       return [state.name, state.age]
     }).do(([name, age], [oldName, oldAge]) => {
-      console.log(name, age)
-      console.warn(oldName, oldAge)
+      console.log(name, oldName, age, oldAge)
     })
-    socket.setState('user', 'modify user', (state) => {
+    await socket.setState('user', 'modify user', (state) => {
       state.name = 'Mike'
       state.age = 12
       state.gender = 'male'
@@ -161,20 +159,16 @@ describe('Test socket.watchState', () => {
     expect(rawUser.name).toEqual('Mike')
     expect(rawUser.age).toEqual(12)
     expect(rawUser.gender).toEqual('male')
-    expect(console.log).toBeCalledTimes(2)
-    expect(console.log).toBeCalledWith('Mike', 11)
-    expect(console.log).toBeCalledWith('Mike', 12)
-    expect(console.warn).toBeCalledTimes(2)
-    expect(console.warn).toBeCalledWith('Mary', 11)
-    expect(console.warn).toBeCalledWith('Mike', 11)
+    expect(console.log).toBeCalledTimes(1)
+    expect(console.log).toBeCalledWith('Mike', 'Mary', 12, 11)
     // @ts-ignore
     expect(socket.stores.user.watchers.length).toEqual(1)
   })
 
-  test('# case 3: watching callback should not be called after unwatching', () => {
+  test('# case 3: watching callback should not be called after unwatching', async () => {
     console.log = jest.fn()
     unwatch()
-    socket.setState('user', 'modify user', (state) => {
+    await socket.setState('user', 'modify user', (state) => {
       state.name = 'Lily'
       state.age = 13
       state.gender = 'female'
@@ -194,7 +188,7 @@ describe('Test socket.watchState', () => {
     const watcher = socket.watchState('user', (state) => {
       console.log(state.name)
     })
-    socket.setState('user', 'modify user\'s name', user => {
+    await socket.setState('user', 'modify user\'s name', user => {
       user.name = 'Tom'
     })
     watcher.unwatch()

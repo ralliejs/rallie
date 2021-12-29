@@ -43,7 +43,7 @@ describe('Test React hooks', () => {
     const addCountBtn = await screen.findByText('add count')
     const count = await screen.findByTestId('count')
     expect(count.innerHTML).toEqual('0')
-    act(() => {
+    await act(async () => {
       fireEvent.click(addCountBtn)
       fireEvent.click(addCountBtn)
       fireEvent.click(addCountBtn)
@@ -54,7 +54,7 @@ describe('Test React hooks', () => {
   test('#case2: modify private state by unicaster', async () => {
     console.log = jest.fn()
     const printThemeBtn = await screen.findByText('print theme')
-    act(() => {
+    await act(async () => {
       fireEvent.click(printThemeBtn) // log dark
     })
     const producerContainer = await screen.findByTestId('producer-container')
@@ -62,7 +62,7 @@ describe('Test React hooks', () => {
     expect(producerContainer.style.backgroundColor).toEqual('black')
     expect(consumerContainer.style.backgroundColor).toEqual('black')
     const toggleThemeBtn = await screen.findByText('toggle theme')
-    act(() => {
+    await act(async () => {
       fireEvent.click(toggleThemeBtn)
     })
     expect(producerContainer.style.backgroundColor).toEqual('white')

@@ -176,15 +176,22 @@ export class Socket {
       const msg = Errors.accessUninitializedState(namespace)
       throw new Error(msg)
     }
+    let dirty = false
     const state: T = readonly(this.stores[namespace].state)
     const watcher = new Watcher<P>(namespace, this.stores)
     const clone = (val: any) => isPrimitive(val) ? val : JSON.parse(JSON.stringify(val))
     const runner = effect(() => getter(state), {
       lazy: true,
       scheduler: () => {
-        const watchingState = getter(state)
-        watcher.handler?.(watchingState, watcher.oldWatchingStates)
-        watcher.oldWatchingStates = clone(watchingState)
+        if (!dirty) {
+          dirty = true
+          Promise.resolve().then(() => {
+            const watchingState = getter(state)
+            watcher.handler?.(watchingState, watcher.oldWatchingStates)
+            watcher.oldWatchingStates = clone(watchingState)
+            dirty = false
+          })
+        }
       }
     })
     watcher.oldWatchingStates = clone(runner())
