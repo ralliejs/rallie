@@ -33,18 +33,13 @@ describe('Test running mode', () => {
   })
 
   test('# case 2: config in host mode should take effect', (done) => {
-    hostApp.run(({ bus }) => {
-      bus.config({
-        maxBootstrapTime: 100
-      })
-    })
     registerApp(new App('case2-1')).relyOn(['case2-2'])
     registerApp(new App('case2-2')).relyOn(['case2-3'])
     registerApp(new App('case2-3')).relyOn(['case2-1'])
     hostApp.activate('case2-1').then(() => {
       throw new Error('this should never be reached')
     }).catch((err) => {
-      const expectedError = Errors.bootstrapTimeout('case2-1', 100)
+      const expectedError = Errors.circularDependencies('case2-1', ['case2-1', 'case2-2', 'case2-3', 'case2-1'])
       expect(err.message).toEqual(expectedError)
       done()
     })
