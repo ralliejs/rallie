@@ -13,7 +13,6 @@ export class Bus {
   private loadingApps: Record<string, Promise<void>> = {}
 
   private conf: ConfType = {
-    maxBootstrapTime: 10 * 1000,
     fetch: null,
     assets: {}
   };
@@ -172,11 +171,11 @@ export class Bus {
     }
   }
 
-  private async activateDependencies (app: App) {
+  private async activateDependencies (app: App, visitPath: string[]) {
     if (!app.dependenciesReady && app.dependencies.length !== 0) {
       for (const dependence of app.dependencies) {
         const { name, data, ctx } = dependence
-        await this.activateApp(name, data, ctx)
+        await this.activateApp(name, data, ctx, visitPath)
       }
       app.dependenciesReady = true
     }
@@ -193,31 +192,33 @@ export class Bus {
    * @param name
    * @param data
    */
-  public async activateApp<T = any> (name: string, data?: T, ctx: Record<string, any> = {}) {
+  public async activateApp<T = any> (name: string, data?: T, ctx: Record<string, any> = {}, visitPath: string[] = []) {
     await this.loadApp(name, ctx)
     if (this.isRallieCoreApp(name)) {
       const app = this.apps[name] as App
       await this.loadRelatedApps(app)
+      if (visitPath.includes(name)) {
+        const startIndex = visitPath.indexOf(name)
+        const circularPath = [...visitPath.slice(startIndex), name]
+        throw new Error(Errors.circularDependencies(name, circularPath))
+      }
+      visitPath.push(name)
       if (!app.bootstrapping) {
         const bootstrapping = async () => {
-          await this.activateDependencies(app)
+          await this.activateDependencies(app, visitPath)
           if (app.doBootstrap) {
             await Promise.resolve(app.doBootstrap(data))
           } else if (app.doActivate) {
             await Promise.resolve(app.doActivate(data))
           }
         }
-        const timeout = (time: number) => new Promise<void>((resolve, reject) => {
-          setTimeout(() => {
-            reject(new Error(Errors.bootstrapTimeout(name, time)))
-          }, time)
-        })
-        app.bootstrapping = Promise.race([bootstrapping(), timeout(this.conf.maxBootstrapTime)])
+        app.bootstrapping = bootstrapping()
         await app.bootstrapping
       } else {
         await app.bootstrapping
         app.doActivate && (await Promise.resolve(app.doActivate(data)))
       }
+      visitPath.pop()
     }
   }
 

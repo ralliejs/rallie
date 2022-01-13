@@ -13,7 +13,6 @@ export type AssetsConfigType = Record<string, {
 }>;
 
 export type ConfType = {
-  maxBootstrapTime: number;
   fetch: typeof window.fetch;
   assets: AssetsConfigType;
   [key: string]: any

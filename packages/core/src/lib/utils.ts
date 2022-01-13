@@ -52,10 +52,7 @@ export const Errors = {
   },
   // ================= Bus ==================
   duplicatedBus: (name: string) => `[@rallie/core] the bus named ${name} has been defined before, please rename your bus`,
-  bootstrapTimeout: (appName: string, time: number) => {
-    return `[@rallie/core] failed to bootstrap the app ${appName} in ${time} milliseconds. ` +
-      'If you see another same error at the same time, there might be circular dependencies'
-  },
+  circularDependencies: (appName: string, circularPath: string[]) => `[@rallie/core] There is a circular dependency when activating the app ${appName}, and the circular path is ${circularPath.join('->')}`,
   multipleCalledNextFn: () => {
     return '[@rallie/core] next() called multiple times in the middleware'
   },

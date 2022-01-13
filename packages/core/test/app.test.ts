@@ -140,7 +140,7 @@ describe('Test lifecycles of App', () => {
 
 describe('Test dependencies of App', () => {
   const bus = createBus('testBus2')
-  const appNames = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']
+  const appNames = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
   const apps: Record<string, App> = {}
   appNames.forEach((appName) => {
     const app = bus.createApp(appName)
@@ -189,10 +189,7 @@ describe('Test dependencies of App', () => {
     })
   })
 
-  test('# case 2: test circular dependency', (done) => {
-    bus.config({
-      maxBootstrapTime: 500
-    })
+  test('# case 2: test circular dependency', async () => {
     /** the dependencies relationship
      * |--h----|
      *    |    |
@@ -200,22 +197,40 @@ describe('Test dependencies of App', () => {
      * */
     apps.h.relyOn([{ name: 'i', ctx: { version: '*' } }])
     apps.i.relyOn(['h'])
-    bus.activateApp('i').then(() => {
-      throw new Error('you should never reach here')
-    }).catch((error) => {
-      expect(error.message).toEqual(Errors.bootstrapTimeout('i', 500))
-      done()
-    })
+    try {
+      await bus.activateApp('i')
+    } catch (err) {
+      expect(err.message).toEqual(Errors.circularDependencies('i', ['i', 'h', 'i']))
+    }
+
+    /** the dependencies relationship
+     *         j<-------------|
+     * |-------|--------|     |
+     * k------>l        m     |
+     * |       |        |     |
+     * n------>o        p-----|
+     * */
+    apps.j.relyOn(['k', 'l', 'm'])
+    apps.k.relyOn(['n', 'l'])
+    apps.l.relyOn(['o'])
+    apps.m.relyOn(['p'])
+    apps.n.relyOn(['o'])
+    apps.p.relyOn(['j'])
+    try {
+      await bus.activateApp('j')
+    } catch (err) {
+      expect(err.message).toEqual(Errors.circularDependencies('j', ['j', 'm', 'p', 'j']))
+    }
   })
 
   test('# case 3: test params of lifecycles', (done) => {
-    apps.j.relyOn([{ name: 'k', data: 'app named j activate me' }])
-    apps.k.relyOn([]).onBootstrap(async (data) => {
+    apps.q.relyOn([{ name: 'r', data: 'app named q activate me' }])
+    apps.r.relyOn([]).onBootstrap(async (data) => {
       console.log(data)
     })
     console.log = jest.fn()
-    bus.activateApp('j').then(() => {
-      expect(console.log).toBeCalledWith('app named j activate me')
+    bus.activateApp('q').then(() => {
+      expect(console.log).toBeCalledWith('app named q activate me')
       done()
     })
   })
