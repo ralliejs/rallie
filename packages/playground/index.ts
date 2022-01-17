@@ -4,17 +4,16 @@ import loadHtml from '@rallie/load-html' // eslint-disable-line
 
 const starter = new App('starter')
 
-starter.run(({ bus, isEntryApp }) => {
-  bus
-    ?.use(jsdelivrLibraryLoader({
-      vue: '@3.2.23/dist/vue.global.js',
-      react: '@17.0.2/umd/react.development.js',
-      'react-dom': '@17.0.2/umd/react-dom.development.js'
-    }))
-    // .use(dynamicImportLoader)
-    // you can try to use the htmlLoader to replace the dynamicImportLoader
-    .use(loadHtml())
-    .use(htmlLoader)
+starter.run((env) => {
+  env.use(jsdelivrLibraryLoader({
+    vue: '@3.2.23/dist/vue.global.js',
+    react: '@17.0.2/umd/react.development.js',
+    'react-dom': '@17.0.2/umd/react-dom.development.js'
+  }))
+  env.use(dynamicImportLoader)
+  // you can try to use the htmlLoader to replace the dynamicImportLoader
+  // env.use(loadHtml())
+  env.use(htmlLoader)
 
   registerApp(starter)
     .onBootstrap(async () => {
@@ -22,7 +21,7 @@ starter.run(({ bus, isEntryApp }) => {
       starter.activate('vue-app')
     })
 
-  if (isEntryApp) {
+  if (env.isEntry) {
     starter.activate(starter.name)
   }
 })

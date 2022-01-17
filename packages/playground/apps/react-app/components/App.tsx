@@ -16,8 +16,8 @@ function App () {
     navigationMode: 'remote',
     navigationLink: '/rallie/index.html'
   }
-  reactApp.run(({ isEntryApp }) => {
-    if (!isEntryApp) {
+  reactApp.run((env) => {
+    if (!env.isEntry) {
       hint.currentMode = 'remote'
       hint.navigationMode = 'entry'
       hint.navigationLink = '/rallie/apps/react-app/index.html'

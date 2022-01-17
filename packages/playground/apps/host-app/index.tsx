@@ -8,9 +8,9 @@ registerApp(hostApp)
     (await import('./lifecycles')).onBootstrap()
   })
 
-hostApp.run(async ({ bus, isEntryApp }) => {
-  if (isEntryApp) {
-    bus?.use(async (ctx, next) => {
+hostApp.run(async (env) => {
+  if (env.isEntry) {
+    env.use(async (ctx, next) => {
       if (ctx.name === 'starter') {
         await import('../../index')
       } else {

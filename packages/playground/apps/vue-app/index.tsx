@@ -11,10 +11,10 @@ registerApp(vueApp)
     (await import('./lifecycles')).onDestroy()
   })
 
-vueApp.run(async ({ bus, isEntryApp, setBusAccessible }) => {
-  if (isEntryApp) {
-    setBusAccessible?.(true)
-    bus?.use(async (ctx, next) => {
+vueApp.run(async (env) => {
+  if (env.isEntry) {
+    env.freeze(false)
+    env.use(async (ctx, next) => {
       if (ctx.name === 'starter') {
         await import('../../index')
       } else {
@@ -22,7 +22,7 @@ vueApp.run(async ({ bus, isEntryApp, setBusAccessible }) => {
       }
     })
     await vueApp.load('starter')
-    setBusAccessible?.(false)
+    env.freeze(true)
     vueApp.activate(vueApp.name, document.getElementById('vue-app'))
   }
 })

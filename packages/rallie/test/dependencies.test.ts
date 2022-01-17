@@ -5,9 +5,9 @@ import logger from './middlewares/logger'
 describe('Test the dependencies', () => {
   const appsLoaded = []
   const hostApp = new App('host-app')
-  hostApp.run(({ bus }) => {
-    bus?.use(logger(appsLoaded))
-    bus?.use(nativeLoader)
+  hostApp.run((env) => {
+    env.use(logger(appsLoaded))
+    env.use(nativeLoader)
   })
 
   test('# case 1: the main app relys on a, b and c, activate the main app, a, b and c should be activated', async () => {

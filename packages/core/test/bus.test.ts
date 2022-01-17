@@ -2,9 +2,8 @@ import { createBus, getBus, touchBus } from '../src/index'
 import { Bus } from '../src/lib/bus'
 import nock from 'nock'
 import cssCode from './test-apps/css'
-import appToTestFetchScriptCode from './test-apps/app-to-test-fetch-script'
-import appToTestLoadScriptCode from './test-apps/app-to-test-load-script'
-import appInvalidCode from './test-apps/app-invalid'
+import validAppCode from './test-apps/valid-app'
+import invalidAppCode from './test-apps/invalid-app'
 import reactCode from './test-apps/react'
 import { Errors } from '../src/lib/utils'
 
@@ -18,32 +17,27 @@ declare global {
 }
 
 nock('https://cdn.obvious.com')
-  .get('/assets/app-to-test-fetch-script.js')
-  .reply(200, appToTestFetchScriptCode)
-  .get('/assets/app-to-test-load-script.js')
-  .reply(200, appToTestLoadScriptCode)
+  .get('/assets/valid-app.js')
+  .reply(200, validAppCode)
   .get('/assets/css-code.css')
   .reply(200, cssCode)
   .get('/assets/react.js')
   .reply(200, reactCode)
 
 nock('https://localhost')
-  .get('/assets/app-invalid.js')
-  .reply(200, appInvalidCode)
+  .get('/assets/invalid-app.js')
+  .reply(200, invalidAppCode)
 
 describe('Test the capability to load the resources of an app or lib', () => {
   const staticAssetsConfig = {
     'lib:react': {
       js: ['https://cdn.obvious.com/assets/react.js']
     },
-    'app-to-test-fetch-script': {
-      js: ['https://cdn.obvious.com/assets/app-to-test-fetch-script.js'],
+    'valid-app': {
+      js: ['https://cdn.obvious.com/assets/valid-app.js'],
       css: [
         'https://cdn.obvious.com/assets/css-code.css'
       ]
-    },
-    'app-to-test-load-script': {
-      js: ['https://cdn.obvious.com/assets/app-to-test-load-script.js']
     },
     'invalid-resource-app': {
       js: [
@@ -59,7 +53,6 @@ describe('Test the capability to load the resources of an app or lib', () => {
 
   const globalBus = createBus()
   globalBus.config({
-    fetch: window.fetch,
     assets: staticAssetsConfig
   }).use(async (ctx, next) => {
     window.lastLoadingApp = ctx.name
@@ -67,8 +60,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
   }).use(async (ctx, next) => {
     if (ctx.loadedFromLocalhost) {
       window.appsLoadedFromLocalhost.push(ctx.name)
-      const code = await ctx.fetchScript(`https://localhost/assets/${ctx.name}.js`)
-      ctx.excuteCode(code)
+      await ctx.loadScript(`https://localhost/assets/${ctx.name}.js`)
     } else {
       await next()
     }
@@ -81,50 +73,43 @@ describe('Test the capability to load the resources of an app or lib', () => {
     }).toThrowError()
   })
 
-  test('# case 2: activate app-a, it should activate its dependencies and the bootstrap callback should be called', (done) => {
+  test('# case 2: activate valid-app, it should activate its dependencies and the bootstrap callback should be called', async () => {
     console.log = jest.fn()
-    globalBus.activateApp('app-to-test-fetch-script').then(() => {
-      expect(window.React.value).toEqual('reactSourceCode')
-      expect(window.lastLoadingApp).toEqual('lib:react')
-      expect(console.log).toBeCalledWith('app-to-test-fetch-script is created')
-      expect(window.appsLoadedFromLocalhost.length).toEqual(0)
-      done()
-    })
+    await globalBus.activateApp('valid-app')
+    expect(window.React.value).toEqual('reactSourceCode')
+    expect(window.lastLoadingApp).toEqual('lib:react')
+    expect(console.log).toBeCalledWith('valid-app is created')
+    expect(window.appsLoadedFromLocalhost.length).toEqual(0)
   })
 
-  test('# case 3: activate app-invalid, the middleware should be excuted', (done) => {
+  test('# case 3: activate invalid-app, the middleware should be excuted', async () => {
     console.log = jest.fn()
-    globalBus.activateApp('app-invalid', null, {
-      loadedFromLocalhost: true
-    }).then(() => {
-      throw new Error('this callback should not be reached')
-    }).catch((error) => {
-      expect(error.message).toEqual(Errors.appNotCreated('app-invalid'))
-      expect(window.appsLoadedFromLocalhost[0]).toEqual('app-invalid')
-      expect(window.lastLoadingApp).toEqual('app-invalid')
-      expect(console.log).toBeCalledWith('app-invalid loaded')
-      done()
-    })
+    try {
+      await globalBus.activateApp('invalid-app', null, { loadedFromLocalhost: true })
+    } catch (error) {
+      expect(error.message).toEqual(Errors.appNotCreated('invalid-app'))
+      expect(window.appsLoadedFromLocalhost[0]).toEqual('invalid-app')
+      expect(window.lastLoadingApp).toEqual('invalid-app')
+      expect(console.log).toBeCalledWith('invalid-app loaded')
+    }
   })
 
-  test('# case 4: activate an app which does not have valid resource declaration', (done) => {
+  test('# case 4: activate an app which does not have valid resource declaration', async () => {
     console.error = jest.fn()
-    globalBus.activateApp('invalid-resource-app').then(() => {
-      throw new Error('this callback should not be reached')
-    }).catch((error) => {
+    try {
+      await globalBus.activateApp('invalid-resource-app')
+    } catch (error) {
       expect(error.message).toEqual(Errors.appNotCreated('invalid-resource-app'))
-      done()
-    })
+    }
   })
 
-  test('# case 5: activate an non-existence app, an error should be throwed', (done) => {
+  test('# case 5: activate an non-existence app, an error should be throwed', async () => {
     const bus = createBus('case5-bus')
-    bus.activateApp('non-existence-app').then(() => {
-      throw new Error('this callback should not be reached')
-    }).catch((error) => {
+    try {
+      await bus.activateApp('non-existence-app')
+    } catch (error) {
       expect(error.message).toEqual(Errors.resourceNotDeclared('non-existence-app', 'case5-bus'))
-      done()
-    })
+    }
   })
 
   test('# case 6: test touchBus and default bus', () => {
@@ -136,21 +121,12 @@ describe('Test the capability to load the resources of an app or lib', () => {
     expect(bus2).toEqual(bus1)
   })
 
-  test('# case 7: test load script tag', async () => {
-    globalBus.config({
-      fetch: null
-    })
-    console.log = jest.fn()
-    await globalBus.activateApp('app-to-test-load-script')
-    expect(console.log).toHaveBeenCalledWith('app-to-test-load-script is created')
-  })
-
-  test('# case 8: test errors', () => {
-    const bus = new Bus('case8-bus')
-    bus.createApp('case8')
+  test('# case 7: test errors', async () => {
+    const bus = new Bus('case7-bus')
+    bus.createApp('case7')
     expect(() => {
-      bus.createApp('case8')
-    }).toThrowError(Errors.createExistingApp('case8'))
+      bus.createApp('case7')
+    }).toThrowError(Errors.createExistingApp('case7'))
 
     bus.use(async (ctx, next) => {
       await next()
@@ -158,11 +134,11 @@ describe('Test the capability to load the resources of an app or lib', () => {
     }).use(() => {
       // an empty middleware to prevent to go to the core middleware
     })
-    bus.activateApp('case8-1').then(() => {
-      throw new Error('this should not be reached')
-    }).catch((err) => {
-      expect(err.message).toEqual(Errors.multipleCalledNextFn())
-    })
+    try {
+      await bus.activateApp('case7-1')
+    } catch (error) {
+      expect(error.message).toEqual(Errors.multipleCalledNextFn())
+    }
 
     expect(() => {
       // @ts-ignore
@@ -170,10 +146,10 @@ describe('Test the capability to load the resources of an app or lib', () => {
     }).toThrowError(Errors.wrongMiddlewareType())
   })
 
-  test('# case 9: bus\'s name should be unique', () => {
-    createBus('case9-bus')
+  test('# case 8: bus\'s name should be unique', () => {
+    createBus('case8-bus')
     expect(() => {
-      createBus('case9-bus')
-    }).toThrowError(Errors.duplicatedBus('case9-bus'))
+      createBus('case8-bus')
+    }).toThrowError(Errors.duplicatedBus('case8-bus'))
   })
 })

@@ -13,9 +13,10 @@ registerApp(reactApp)
     (await import('./lifecycles')).onDestroy()
   })
 
-reactApp.run(async ({ bus, isEntryApp }) => {
-  if (isEntryApp) {
-    bus?.use(async (ctx, next) => {
+reactApp.run(async (env) => {
+  if (env.isEntry) {
+    env.freeze(false)
+    env.use(async (ctx, next) => {
       if (ctx.name === 'starter') {
         await import('../../index')
       } else {
@@ -23,6 +24,7 @@ reactApp.run(async ({ bus, isEntryApp }) => {
       }
     })
     await reactApp.load('starter')
+    env.freeze(true)
     reactApp.activate(reactApp.name)
   }
 })

@@ -1,21 +1,22 @@
 import { App, registerApp } from '../src/index'
-import { Bus, Errors } from '@rallie/core'
+import { Errors } from '@rallie/core'
+import { Env } from '../src/app'
 import nativeLoader from './middlewares/native-loader'
 
 const hostApp = new App('host-app')
-hostApp.run(({ bus }) => {
-  bus.use(nativeLoader)
+hostApp.run((env) => {
+  env.use(nativeLoader)
 })
 describe('Test running mode', () => {
   test('# case 1: the host-app should run in host mode, and other apps should run in remote mode', async () => {
     const remoteApp = new App('remote-app')
     registerApp(remoteApp)
     console.log = jest.fn()
-    hostApp.run(({ isEntryApp }) => {
-      expect(isEntryApp).toBeTruthy()
+    hostApp.run((env) => {
+      expect(env.isEntry).toBeTruthy()
     })
-    remoteApp.run(({ isEntryApp }) => {
-      expect(isEntryApp).toBeFalsy()
+    remoteApp.run((env) => {
+      expect(env.isEntry).toBeFalsy()
     })
     let order = ''
     await remoteApp.run(() => {
@@ -45,23 +46,40 @@ describe('Test running mode', () => {
     })
   })
 
-  test('# case 3: remote app should access global bus if host app allowed', () => {
+  test('# case 3: remote app should access global bus if host app allowed', async () => {
+    console.error = jest.fn()
     const remoteApp = new App('case3')
+    let isRemoteAppMiddlewareCalled = false
     registerApp(remoteApp)
-    let globalBus: Bus = null
-    hostApp.run(({ bus }) => {
-      globalBus = bus
+    hostApp.run((env) => {
+      env.freeze(true)
+      env.config({
+        isConfTouchedByRemoteApp: false
+      })
     })
-    remoteApp.run(({ bus, setBusAccessible }) => {
-      expect(bus).toEqual(globalBus)
-      expect(setBusAccessible).toBeUndefined()
+    const remoteAppRunner = async (env: Env) => {
+      env.use(async (ctx, next) => {
+        isRemoteAppMiddlewareCalled = true
+        await next()
+      })
+      env.config({
+        isConfTouchedByRemoteApp: true
+      })
+    }
+    await remoteApp.run(remoteAppRunner)
+    await remoteApp.activate('anyApp1').catch(() => { /* ignore the error */ })
+    expect(console.error).toBeCalledTimes(1)
+    expect(isRemoteAppMiddlewareCalled).toBeFalsy()
+    await hostApp.run((env) => {
+      expect(env.conf.isConfTouchedByRemoteApp).toBeFalsy()
+      env.freeze(false)
     })
-    hostApp.run(({ setBusAccessible }) => {
-      setBusAccessible(false)
-    })
-    remoteApp.run(({ bus, setBusAccessible }) => {
-      expect(bus).toBeUndefined()
-      expect(setBusAccessible).toBeUndefined()
+    await remoteApp.run(remoteAppRunner)
+    await remoteApp.activate('anyApp2').catch(() => { /* ignore the error */ })
+    expect(console.error).toBeCalledTimes(2)
+    expect(isRemoteAppMiddlewareCalled).toBeTruthy()
+    hostApp.run((env) => {
+      expect(env.conf.isConfTouchedByRemoteApp).toBeTruthy()
     })
   })
 })

@@ -5,8 +5,8 @@ const app = new App('relate-testers/a')
 registerApp(app)
   .relateTo(['relate-testers/b'])
 
-app.run(({ isEntryApp }) => {
-  if (!isEntryApp) {
+app.run((env) => {
+  if (!env.isEntry) {
     console.log('relate-testers/a is loaded')
   }
 })

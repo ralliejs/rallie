@@ -6,8 +6,8 @@ registerApp(app)
   .relateTo(['relate-testers/a', 'relate-testers/c'])
   .relyOn(['relate-testers/a'])
 
-app.run(({ isEntryApp }) => {
-  if (!isEntryApp) {
+app.run((env) => {
+  if (!env.isEntry) {
     console.warn('relate-testers/b is loaded')
   }
 })

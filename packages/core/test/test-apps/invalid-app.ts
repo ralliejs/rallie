@@ -6,7 +6,7 @@ const code = `\
  **/
 
 const doSomething = () => {
-  console.log('app-invalid loaded');
+  console.log('invalid-app loaded');
 };
 doSomething();
 `

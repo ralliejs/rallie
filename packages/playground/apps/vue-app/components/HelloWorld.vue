@@ -14,8 +14,8 @@ const hint = {
   navigationMode: 'remote',
   navigationLink: '/rallie/index.html'
 }
-vueApp.run(({ isEntryApp }) => {
-  if (!isEntryApp) {
+vueApp.run((env) => {
+  if (!env.isEntry) {
     hint.currentMode = 'remote'
     hint.navigationMode = 'entry'
     hint.navigationLink = '/rallie/apps/vue-app/index.html'

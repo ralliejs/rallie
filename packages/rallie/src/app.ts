@@ -1,5 +1,5 @@
 import { touchBus } from '@rallie/core'
-import type { CallbackType, Bus, Socket } from '@rallie/core'
+import type { CallbackType, Bus, Socket, MiddlewareFnType, ConfType } from '@rallie/core'
 import { constant, errors } from './utils'
 import { Connector } from './connector'
 
@@ -8,10 +8,12 @@ interface AppConfig<State> {
   isPrivate?: boolean
 }
 
-interface RunnerOptions {
-  isEntryApp: boolean;
-  bus?: Bus;
-  setBusAccessible?: (val: boolean) => void;
+export interface Env {
+  isEntry: boolean;
+  conf: Bus['conf'];
+  use: (middleware: MiddlewareFnType) => void;
+  config: (conf: Partial<ConfType>) => void;
+  freeze: (isFreezed: boolean) => void;
 }
 
 export class App<
@@ -21,7 +23,7 @@ export class App<
   > {
   private globalBus: Bus
   private globalSocket: Socket
-  private isEntryApp: boolean
+  private isEntry: boolean
   private socket: Socket
 
   constructor (name: string, config?: AppConfig<State>) {
@@ -33,7 +35,7 @@ export class App<
     }
     this.globalBus = globalBus
     this.globalSocket = globalBus.createSocket()
-    this.isEntryApp = isHost
+    this.isEntry = isHost
     if (isHost) {
       this.globalSocket.initState(constant.isGlobalBusAccessible, { value: true }, true)
     }
@@ -100,15 +102,30 @@ export class App<
     return this.globalBus.destroyApp(name, data)
   }
 
-  public async run (callback: (options: RunnerOptions) => (void | Promise<void>)) {
-    const isBusAccessible = this.isEntryApp || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
-    const setBusAccessible = (val: boolean) => {
-      this.globalSocket.setState(constant.isGlobalBusAccessible, `${val ? 'enable' : 'disable'} remote app to access the bus`, state => { state.value = val })
+  public async run (callback: (env: Env) => (void | Promise<void>)) {
+    const isBusAccessible = this.isEntry || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
+    const env: Env = {
+      isEntry: this.isEntry,
+      conf: JSON.parse(JSON.stringify(this.globalBus.conf)),
+      use: (middleware) => {
+        if (isBusAccessible) {
+          this.globalBus.use(middleware)
+        }
+      },
+      config: (conf) => {
+        if (isBusAccessible) {
+          this.globalBus.config(conf)
+        }
+      },
+      freeze: (isEnvFreezed) => {
+        if (this.isEntry) {
+          this.globalSocket.setState(
+            constant.isGlobalBusAccessible, `${isEnvFreezed ? 'disable' : 'enable'} remote app to access the bus`,
+            state => { state.value = !isEnvFreezed }
+          )
+        }
+      }
     }
-    await Promise.resolve(callback({
-      isEntryApp: this.isEntryApp,
-      bus: isBusAccessible ? this.globalBus : undefined,
-      setBusAccessible: this.isEntryApp ? setBusAccessible : undefined
-    }))
+    await Promise.resolve(callback(env))
   }
 }

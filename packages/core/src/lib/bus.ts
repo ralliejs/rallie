@@ -12,8 +12,7 @@ export class Bus {
   private apps: Record<string, App | boolean> = {}
   private loadingApps: Record<string, Promise<void>> = {}
 
-  private conf: ConfType = {
-    fetch: null,
+  public conf: ConfType = {
     assets: {}
   };
 
@@ -70,9 +69,6 @@ export class Bus {
       name,
       loadScript: loader.loadScript,
       loadLink: loader.loadLink,
-      fetchScript: loader.fetchScript(this.conf.fetch),
-      excuteCode: loader.excuteCode,
-      conf: this.conf,
       ...ctx
     }
     return context
@@ -86,12 +82,9 @@ export class Bus {
     const {
       name,
       loadScript = loader.loadScript,
-      loadLink = loader.loadLink,
-      fetchScript = loader.fetchScript(this.conf.fetch),
-      excuteCode = loader.excuteCode,
-      conf = this.conf
+      loadLink = loader.loadLink
     } = ctx
-    const { assets, fetch } = conf
+    const { assets } = this.conf
     if (assets[name]) {
       // insert link tag first
       assets[name].css &&
@@ -101,12 +94,7 @@ export class Bus {
       // load and execute js
       if (assets[name].js) {
         for (const asset of assets[name].js) {
-          if (!fetch) {
-            await loadScript(asset)
-          } else {
-            const code = await fetchScript(asset)
-            code && excuteCode(code)
-          }
+          await loadScript(asset)
         }
       }
     } else {

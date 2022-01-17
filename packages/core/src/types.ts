@@ -13,7 +13,6 @@ export type AssetsConfigType = Record<string, {
 }>;
 
 export type ConfType = {
-  fetch: typeof window.fetch;
   assets: AssetsConfigType;
   [key: string]: any
 };
@@ -22,9 +21,6 @@ export type ContextType = {
   name: string;
   loadScript: (script: ScriptType) => Promise<void>;
   loadLink: (link: LinkType) => void;
-  fetchScript: (script: ScriptType) => Promise<string>;
-  excuteCode: (code: string) => void;
-  conf: ConfType;
   [key: string]: any
 };
 

@@ -22,8 +22,8 @@ type Methods = {
 
 const hostApp = new App('host-app')
 
-hostApp.run(({ bus }) => {
-  bus?.use(nativeLoader)
+hostApp.run((env) => {
+  env.use(nativeLoader)
 })
 
 describe('Test state', () => {
