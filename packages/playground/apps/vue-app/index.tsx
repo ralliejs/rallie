@@ -13,7 +13,6 @@ registerApp(vueApp)
 
 vueApp.run(async (env) => {
   if (env.isEntry) {
-    env.freeze(false)
     env.use(async (ctx, next) => {
       if (ctx.name === 'starter') {
         await import('../../index')
@@ -22,7 +21,7 @@ vueApp.run(async (env) => {
       }
     })
     await vueApp.load('starter')
-    env.freeze(true)
+    env.freeze()
     vueApp.activate(vueApp.name, document.getElementById('vue-app'))
   }
 })

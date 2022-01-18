@@ -1,7 +1,6 @@
 import { App, Connector } from 'rallie'
-import type { CallbackType } from 'rallie'
 
-export const stateMixin = <State extends {}>(app: App<State> | Connector<State>) => <P>(mapStateToComputed: (state: State) => P) => {
+export function mixinRallieState<T extends App | Connector, U> (app: T, mapStateToComputed: (state: T['state']) => U) {
   let unwatchState = null
   const computed = {}
   const mappedState = mapStateToComputed(app.state)
@@ -19,7 +18,7 @@ export const stateMixin = <State extends {}>(app: App<State> | Connector<State>)
       return result
     },
     computed,
-    created () {
+    mounted () {
       unwatchState = app.watchState(mapStateToComputed).do(value => {
         this[dataKey] = value
       })
@@ -33,14 +32,14 @@ export const stateMixin = <State extends {}>(app: App<State> | Connector<State>)
   }
 }
 
-export const eventsMixin = <Events extends Record<string, CallbackType>>(app: App<{}, Events> | Connector<{}, Events>) => (events: Partial<Events>) => {
+export function mixinRallieEvents<T extends App | Connector> (app: T, events: Partial<T['events']>) {
   let offEvents = null
   return {
     methods: events,
-    created () {
+    mounted () {
       const _events = {}
       Object.entries(events).forEach(([key, Fn]) => {
-        _events[key] = Fn.bind(this)
+        _events[key] = (Fn as Function).bind(this)
       })
       offEvents = app.listenEvents(_events)
     },
@@ -53,14 +52,14 @@ export const eventsMixin = <Events extends Record<string, CallbackType>>(app: Ap
   }
 }
 
-export const methodsMixin = <Methods extends Record<string, CallbackType>>(app: App<{}, {}, Methods>) => (methods: Partial<Methods>) => {
+export function mixinRallieMethods<T extends App> (app: T, methods: Partial<T['methods']>) {
   let offMethods = null
   return {
     methods,
     created () {
       const _methods = {}
       Object.entries(methods).forEach(([key, Fn]) => {
-        _methods[key] = Fn.bind(this)
+        _methods[key] = (Fn as Function).bind(this)
       })
       offMethods = app.addMethods(_methods)
     },

@@ -13,7 +13,8 @@ export interface Env {
   conf: Bus['conf'];
   use: (middleware: MiddlewareFnType) => void;
   config: (conf: Partial<ConfType>) => void;
-  freeze: (isFreezed: boolean) => void;
+  freeze: () => void;
+  unfreeze: () => void;
 }
 
 export class App<
@@ -117,11 +118,19 @@ export class App<
           this.globalBus.config(conf)
         }
       },
-      freeze: (isEnvFreezed) => {
+      freeze: () => {
         if (this.isEntry) {
           this.globalSocket.setState(
-            constant.isGlobalBusAccessible, `${isEnvFreezed ? 'disable' : 'enable'} remote app to access the bus`,
-            state => { state.value = !isEnvFreezed }
+            constant.isGlobalBusAccessible, 'freeze the enviroment',
+            state => { state.value = false }
+          )
+        }
+      },
+      unfreeze: () => {
+        if (this.isEntry) {
+          this.globalSocket.setState(
+            constant.isGlobalBusAccessible, 'unfreeze the enviroment',
+            state => { state.value = true }
           )
         }
       }

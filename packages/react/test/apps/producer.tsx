@@ -1,5 +1,5 @@
 import { App } from 'rallie'
-import { stateHook, eventsHook, methodsHook } from '../../src'
+import { useRallieState, useRallieEvents, useRallieMethods } from '../../src'
 
 type Events = {
   printTheme: () => void
@@ -15,18 +15,15 @@ const state = {
 }
 
 export const producer = new App<typeof state, Events, Methods>('producer', { state })
-const useProducerState = stateHook(producer)
-const useProducerEvents = eventsHook(producer)
-const useProducerMethods = methodsHook(producer)
+
 export const Producer = () => {
-  const count = useProducerState<number>(state => state.count)
-  const isDarkTheme = useProducerState<boolean>(state => state.isDarkTheme)
-  useProducerEvents({
+  const [count, isDarkTheme] = useRallieState(producer, state => [state.count, state.isDarkTheme])
+  useRallieEvents(producer, {
     printTheme () {
       console.log(producer.state.isDarkTheme ? 'dark' : 'light')
     }
   })
-  useProducerMethods({
+  useRallieMethods(producer, {
     toggleTheme () {
       producer.setState('toggle theme', state => {
         state.isDarkTheme = !state.isDarkTheme

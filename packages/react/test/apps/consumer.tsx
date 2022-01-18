@@ -1,5 +1,5 @@
 import { App } from 'rallie'
-import { stateHook } from '../../src'
+import { useRallieState } from '../../src'
 
 type Events = {
   printTheme: () => void
@@ -16,7 +16,6 @@ type State = {
 
 export const consumer = new App('consumer')
 const producer = consumer.connect<State, Events, Methods>('producer')
-const useProducerState = stateHook(producer)
 export const Consumer = () => {
   const toggleTheme = () => {
     producer.methods.toggleTheme()
@@ -29,7 +28,7 @@ export const Consumer = () => {
   const printTheme = () => {
     producer.events.printTheme()
   }
-  const isDarkTheme = useProducerState<boolean>(state => state.isDarkTheme)
+  const isDarkTheme = useRallieState(producer, state => state.isDarkTheme)
   return (
     <div data-testid="consumer-container" style={{ backgroundColor: isDarkTheme ? 'black' : 'white' }}>
       <button onClick={toggleTheme}>toggle theme</button>

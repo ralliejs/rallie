@@ -1,21 +1,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { producer } from './apps'
-import { stateHook, eventsHook, methodsHook } from '../../../src'
-
-const useProducerState = stateHook(producer)
-const useProducerEvents = eventsHook(producer)
-const useProducerMethods = methodsHook(producer)
+import { useRallieState, useRallieEvents, useRallieMethods } from '../../../src'
 
 export default defineComponent(function Producer () {
-  const count = useProducerState<number>(state => state.count)
-  const isDarkTheme = useProducerState<boolean>(state => state.isDarkTheme)
-  useProducerEvents({
+  const count = useRallieState(producer, state => state.count)
+  const isDarkTheme = useRallieState(producer, state => state.isDarkTheme)
+  useRallieEvents(producer, {
     printTheme () {
       console.log(producer.state.isDarkTheme ? 'dark' : 'light')
     }
   })
-  useProducerMethods({
+  useRallieMethods(producer, {
     toggleTheme () {
       producer.setState('toggle theme', state => {
         state.isDarkTheme = !state.isDarkTheme

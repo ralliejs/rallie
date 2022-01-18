@@ -2,11 +2,11 @@ import logo from '../../../assets/react-logo.svg'
 import { vueApp } from '../connect-apps/vue-app'
 import { hostApp } from '../connect-apps/host-app'
 import { reactApp } from '../app'
-import { stateHook } from '@rallie/react'
+import { useRallieState } from '@rallie/react'
 import classes from './App.module.css'
 
 function App () {
-  const count = stateHook(vueApp)<number>(state => state.count)
+  const count = useRallieState(vueApp, state => state.count)
   const setCount = () => {
     vueApp.setState('react-app add the count', state => { state.count++ })
   }

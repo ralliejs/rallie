@@ -51,12 +51,6 @@ describe('Test running mode', () => {
     const remoteApp = new App('case3')
     let isRemoteAppMiddlewareCalled = false
     registerApp(remoteApp)
-    hostApp.run((env) => {
-      env.freeze(true)
-      env.config({
-        isConfTouchedByRemoteApp: false
-      })
-    })
     const remoteAppRunner = async (env: Env) => {
       env.use(async (ctx, next) => {
         isRemoteAppMiddlewareCalled = true
@@ -66,19 +60,25 @@ describe('Test running mode', () => {
         isConfTouchedByRemoteApp: true
       })
     }
+    hostApp.run((env) => {
+      env.config({
+        isConfTouchedByRemoteApp: false
+      })
+      env.freeze()
+    })
     await remoteApp.run(remoteAppRunner)
     await remoteApp.activate('anyApp1').catch(() => { /* ignore the error */ })
-    expect(console.error).toBeCalledTimes(1)
-    expect(isRemoteAppMiddlewareCalled).toBeFalsy()
+    expect(console.error).toBeCalledTimes(1) // the error consoled in the nativeLoader middleware
     await hostApp.run((env) => {
+      expect(isRemoteAppMiddlewareCalled).toBeFalsy()
       expect(env.conf.isConfTouchedByRemoteApp).toBeFalsy()
-      env.freeze(false)
+      env.unfreeze()
     })
     await remoteApp.run(remoteAppRunner)
     await remoteApp.activate('anyApp2').catch(() => { /* ignore the error */ })
     expect(console.error).toBeCalledTimes(2)
-    expect(isRemoteAppMiddlewareCalled).toBeTruthy()
     hostApp.run((env) => {
+      expect(isRemoteAppMiddlewareCalled).toBeTruthy()
       expect(env.conf.isConfTouchedByRemoteApp).toBeTruthy()
     })
   })

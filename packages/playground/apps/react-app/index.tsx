@@ -15,7 +15,6 @@ registerApp(reactApp)
 
 reactApp.run(async (env) => {
   if (env.isEntry) {
-    env.freeze(false)
     env.use(async (ctx, next) => {
       if (ctx.name === 'starter') {
         await import('../../index')
@@ -24,7 +23,7 @@ reactApp.run(async (env) => {
       }
     })
     await reactApp.load('starter')
-    env.freeze(true)
+    env.freeze()
     reactApp.activate(reactApp.name)
   }
 })
