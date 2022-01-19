@@ -37,7 +37,7 @@ export class App {
   }
 
   /**
-   * indicate the apps to be started before your app is bootstrapped
+   * indicate the apps to be activate before your app is bootstrapped
    * @param dependencies
    */
   public relyOn (dependencies: DependencyType[]) {

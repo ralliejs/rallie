@@ -105,6 +105,15 @@ export class App<
 
   public async run (callback: (env: Env) => (void | Promise<void>)) {
     const isBusAccessible = this.isEntry || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
+    const setBusAccessible = (isAccessible: boolean) => {
+      if (this.isEntry) {
+        this.globalSocket.setState(
+          constant.isGlobalBusAccessible,
+          isAccessible ? 'unfreeze the enviroment' : 'freeze the enviroment',
+          state => { state.value = isAccessible }
+        )
+      }
+    }
     const env: Env = {
       isEntry: this.isEntry,
       conf: JSON.parse(JSON.stringify(this.globalBus.conf)),
@@ -119,20 +128,10 @@ export class App<
         }
       },
       freeze: () => {
-        if (this.isEntry) {
-          this.globalSocket.setState(
-            constant.isGlobalBusAccessible, 'freeze the enviroment',
-            state => { state.value = false }
-          )
-        }
+        setBusAccessible(false)
       },
       unfreeze: () => {
-        if (this.isEntry) {
-          this.globalSocket.setState(
-            constant.isGlobalBusAccessible, 'unfreeze the enviroment',
-            state => { state.value = true }
-          )
-        }
+        setBusAccessible(true)
       }
     }
     await Promise.resolve(callback(env))

@@ -10,7 +10,7 @@ export function useRallieState<T extends App | Connector, U> (app: T, getter: (s
     return () => {
       unwatch()
     }
-  }, [getter, app])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   return value
 }
 
@@ -20,7 +20,7 @@ export function useRallieEvents<T extends App | Connector> (app: T, events: Part
     return () => {
       off()
     }
-  }, [events, app])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 export function useRallieMethods<T extends App> (app: T, methods: Partial<T['methods']>) {
@@ -29,5 +29,5 @@ export function useRallieMethods<T extends App> (app: T, methods: Partial<T['met
     return () => {
       off()
     }
-  }, [methods, app])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 }
