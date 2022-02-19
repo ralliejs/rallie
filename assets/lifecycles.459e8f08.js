@@ -1,0 +1,25 @@
+import{r as f}from"./index.1347dd2e.js";import"./preload-helper.040f5dcf.js";var j="/rallie/assets/react-logo.ecc203fb.svg";const g=f.connect("vue-app"),w=f.connect("host-app"),v=window.React;/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */function L(r,n,o){if(o||arguments.length===2)for(var e=0,t=n.length,a;e<t;e++)(a||!(e in n))&&(a||(a=Array.prototype.slice.call(n,0,e)),a[e]=n[e]);return r.concat(a||Array.prototype.slice.call(n))}function k(r,n,o){o===void 0&&(o=[]);var e=v.useState(n(r.state)),t=e[0],a=e[1];return v.useEffect(function(){var c=r.watchState(n).do(function(i){a(i)});return function(){c()}},L([],o,!0)),t}const R="_app_1oof7_1",S="_appLogo_1oof7_5",x="_appLogoSpin_1oof7_1",N="_appHeader_1oof7_16",E="_appLink_1oof7_26",A="_button_1oof7_39";var p={app:R,appLogo:S,appLogoSpin:x,appHeader:N,appLink:E,button:A},h={exports:{}},u={};/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/var m=Object.getOwnPropertySymbols,P=Object.prototype.hasOwnProperty,C=Object.prototype.propertyIsEnumerable;function M(r){if(r==null)throw new TypeError("Object.assign cannot be called with null or undefined");return Object(r)}function D(){try{if(!Object.assign)return!1;var r=new String("abc");if(r[5]="de",Object.getOwnPropertyNames(r)[0]==="5")return!1;for(var n={},o=0;o<10;o++)n["_"+String.fromCharCode(o)]=o;var e=Object.getOwnPropertyNames(n).map(function(a){return n[a]});if(e.join("")!=="0123456789")return!1;var t={};return"abcdefghijklmnopqrst".split("").forEach(function(a){t[a]=a}),Object.keys(Object.assign({},t)).join("")==="abcdefghijklmnopqrst"}catch{return!1}}D();/** @license React v17.0.2
+ * react-jsx-runtime.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */var H=window.React,b=60103;u.Fragment=60107;if(typeof Symbol=="function"&&Symbol.for){var _=Symbol.for;b=_("react.element"),u.Fragment=_("react.fragment")}var I=H.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner,T=Object.prototype.hasOwnProperty,q={key:!0,ref:!0,__self:!0,__source:!0};function y(r,n,o){var e,t={},a=null,c=null;o!==void 0&&(a=""+o),n.key!==void 0&&(a=""+n.key),n.ref!==void 0&&(c=n.ref);for(e in n)T.call(n,e)&&!q.hasOwnProperty(e)&&(t[e]=n[e]);if(r&&r.defaultProps)for(e in n=r.defaultProps,n)t[e]===void 0&&(t[e]=n[e]);return{$$typeof:b,type:r,key:a,ref:c,props:t,_owner:I.current}}u.jsx=y;u.jsxs=y;h.exports=u;const s=h.exports.jsx,l=h.exports.jsxs;function B(){const r=k(g,t=>t.count),n=()=>{g.setState("react-app add the count",t=>{t.count++})},o=["info","error","warning","success","loading"],e={currentMode:"entry",navigationMode:"remote",navigationLink:"/rallie/index.html"};return f.run(t=>{t.isEntry||(e.currentMode="remote",e.navigationMode="entry",e.navigationLink="/rallie/apps/react-app/index.html")}),s("div",{className:p.app,children:l("header",{className:p.appHeader,children:[s("img",{src:j,className:p.appLogo,alt:"logo"}),s("h1",{children:"Hello Vite + React + Rallie!"}),l("p",{children:["this app is running in ",s("strong",{children:e.currentMode})," mode, click ",s("a",{className:p.appLink,href:e.navigationLink,children:"here"})," to see how it works in ",e.navigationMode," mode"]}),s("p",{children:"the count is a state initialized by vue app"}),s("p",{children:l("button",{className:p.button,type:"button",onClick:n,children:["count is: ",r]})}),l("div",{children:[s("p",{children:"message is an event service provided by host app"}),o.map(t=>s("button",{className:p.button,onClick:()=>w.events[t]("message is an event service provided by host app"),children:t},t))]}),l("p",{children:["Edit ",s("code",{children:"App.jsx"})," and save to test HMR updates."]}),l("p",{children:[s("a",{className:p.appLink,href:"https://reactjs.org",target:"_blank",rel:"noopener noreferrer",children:"Learn React"})," | ",s("a",{className:p.appLink,href:"https://vitejs.dev/guide/features.html",target:"_blank",rel:"noopener noreferrer",children:"Vite Docs"})]})]})})}const O=window.ReactDOM;let d=null;const V=r=>{d=r!=null?r:document.getElementById("react-app"),O.render(s(B,{}),d)},$=()=>{O.unmountComponentAtNode(d)};export{V as onBootstrap,$ as onDestroy};
