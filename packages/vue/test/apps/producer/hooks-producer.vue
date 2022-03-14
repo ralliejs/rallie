@@ -22,7 +22,10 @@ export default defineComponent(function Producer() {
 })
 </script>
 <template>
-  <div data-testid="producer-container" :style="{ backgroundColor: isDarkTheme ? 'black' : 'white' }">
+  <div
+    data-testid="producer-container"
+    :style="{ backgroundColor: isDarkTheme ? 'black' : 'white' }"
+  >
     <span data-testid="count">{{ count }}</span>
     <div id="consumer"></div>
   </div>

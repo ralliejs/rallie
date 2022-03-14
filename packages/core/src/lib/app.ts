@@ -22,7 +22,8 @@ export class App {
    * @returns
    */
   public relateTo(relatedApps: RelateType[]) {
-    const getName = (relateApp: RelateType) => (typeof relateApp === 'string' ? relateApp : relateApp.name)
+    const getName = (relateApp: RelateType) =>
+      typeof relateApp === 'string' ? relateApp : relateApp.name
     const deduplicatedRelatedApps: RelateType[] = deduplicate(relatedApps)
     const currentRelatedAppNames: string[] = this.relatedApps.map((item) => item.name)
     deduplicatedRelatedApps.forEach((relatedApp) => {
@@ -41,7 +42,8 @@ export class App {
    * @param dependencies
    */
   public relyOn(dependencies: DependencyType[]) {
-    const getName = (dependencyApp: DependencyType) => (typeof dependencyApp === 'string' ? dependencyApp : dependencyApp.name)
+    const getName = (dependencyApp: DependencyType) =>
+      typeof dependencyApp === 'string' ? dependencyApp : dependencyApp.name
     const deduplicatedDependencies: DependencyType[] = deduplicate(dependencies)
     const currentDependenciesNames = this.dependencies.map((item) => item.name)
     const currentRelatedAppsNames = this.relatedApps.map((item) => item.name)

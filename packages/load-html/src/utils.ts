@@ -4,7 +4,8 @@ const basePathRegex = /^(http:\/\/|https:\/\/|\/\/)([^?#]*)(\?[^?#]+)?(#.+)?/
 
 export const errors = {
   invalidHtmlPath: (basePath: string) => message(`Invalid html path: ${basePath}`),
-  invalidEntirePath: (base: string, src: string) => message(`Can not construct a url by the base '${base}' and the path '${src}'`),
+  invalidEntirePath: (base: string, src: string) =>
+    message(`Can not construct a url by the base '${base}' and the path '${src}'`),
 }
 
 export const getEntirePath = (src: string, base: string, regardHtmlPathAsRoot: boolean = false) => {
@@ -56,7 +57,12 @@ export const parseHtml = (
   html: string,
   rootSelector?: string,
   transferPath?: (src: string) => string,
-): { root?: HTMLElement; scripts: Array<HTMLScriptElement>; links: Array<HTMLLinkElement>; styles: Array<HTMLStyleElement> } => {
+): {
+  root?: HTMLElement
+  scripts: Array<HTMLScriptElement>
+  links: Array<HTMLLinkElement>
+  styles: Array<HTMLStyleElement>
+} => {
   const fragment = document.createElement('html')
   fragment.innerHTML = html
   const scripts = Array.from(fragment.querySelectorAll('script'))
@@ -77,7 +83,9 @@ export const parseHtml = (
       }
       return element
     })
-  const styles = Array.from(fragment.querySelectorAll('style')).map((element) => cloneElement<HTMLStyleElement>(element))
+  const styles = Array.from(fragment.querySelectorAll('style')).map((element) =>
+    cloneElement<HTMLStyleElement>(element),
+  )
   return {
     root: rootSelector ? fragment.querySelector(rootSelector) : null,
     scripts,

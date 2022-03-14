@@ -47,7 +47,13 @@ function App() {
         <div>
           <p>message is an event service provided by host app</p>
           {messageTypes.map((type) => (
-            <button className={classes.button} key={type} onClick={() => hostApp.events[type]('message is an event service provided by host app')}>
+            <button
+              className={classes.button}
+              key={type}
+              onClick={() =>
+                hostApp.events[type]('message is an event service provided by host app')
+              }
+            >
               {type}
             </button>
           ))}
@@ -56,11 +62,21 @@ function App() {
           Edit <code>App.jsx</code> and save to test HMR updates.
         </p>
         <p>
-          <a className={classes.appLink} href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
+          <a
+            className={classes.appLink}
+            href="https://reactjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Learn React
           </a>
           {' | '}
-          <a className={classes.appLink} href="https://vitejs.dev/guide/features.html" target="_blank" rel="noopener noreferrer">
+          <a
+            className={classes.appLink}
+            href="https://vitejs.dev/guide/features.html"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Vite Docs
           </a>
         </p>

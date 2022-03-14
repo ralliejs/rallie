@@ -4,33 +4,75 @@ import * as utils from '../src/utils'
 describe('Test utils', () => {
   test('#case1: test getEntirePath', () => {
     console.error = jest.fn()
-    expect(utils.getEntirePath('https://cdn.unpkg.com/react.js', 'https://test.com/index.html')).toBe('https://cdn.unpkg.com/react.js')
-    expect(utils.getEntirePath('/a/b/c.js', 'https://test.com/prefix/index.html', false)).toEqual('https://test.com/a/b/c.js')
-    expect(utils.getEntirePath('/a/b/c.js', 'https://test.com/prefix/index.html', true)).toEqual('https://test.com/prefix/a/b/c.js')
-    expect(utils.getEntirePath('/a/b/c.js', 'http://test.com/prefix/index.html', true)).toEqual('http://test.com/prefix/a/b/c.js')
-    expect(utils.getEntirePath('/a/b/c.js', '//test.com/prefix/index.html', true)).toEqual('//test.com/prefix/a/b/c.js')
+    expect(
+      utils.getEntirePath('https://cdn.unpkg.com/react.js', 'https://test.com/index.html'),
+    ).toBe('https://cdn.unpkg.com/react.js')
+    expect(utils.getEntirePath('/a/b/c.js', 'https://test.com/prefix/index.html', false)).toEqual(
+      'https://test.com/a/b/c.js',
+    )
+    expect(utils.getEntirePath('/a/b/c.js', 'https://test.com/prefix/index.html', true)).toEqual(
+      'https://test.com/prefix/a/b/c.js',
+    )
+    expect(utils.getEntirePath('/a/b/c.js', 'http://test.com/prefix/index.html', true)).toEqual(
+      'http://test.com/prefix/a/b/c.js',
+    )
+    expect(utils.getEntirePath('/a/b/c.js', '//test.com/prefix/index.html', true)).toEqual(
+      '//test.com/prefix/a/b/c.js',
+    )
 
-    expect(utils.getEntirePath('d/e/f.js', 'https://test.com/a/b/index.html', false)).toEqual('https://test.com/a/b/d/e/f.js')
-    expect(utils.getEntirePath('d/e/f.js', 'https://test.com/a/b/index.html', true)).toEqual('https://test.com/a/b/d/e/f.js')
-    expect(utils.getEntirePath('d/e/f.js', 'http://test.com/a/b/index.html', true)).toEqual('http://test.com/a/b/d/e/f.js')
-    expect(utils.getEntirePath('d/e/f.js', '//test.com/a/b/index.html', true)).toEqual('//test.com/a/b/d/e/f.js')
-    expect(utils.getEntirePath('d/e/f.js', '//test.com/a/b/index.html?a=1#test', true)).toEqual('//test.com/a/b/d/e/f.js')
-    expect(utils.getEntirePath('d/e/f.js', '//test.com/a/b/index.html?a=1', true)).toEqual('//test.com/a/b/d/e/f.js')
-    expect(utils.getEntirePath('d/e/f.js', '//test.com/a/b/index.html#test', true)).toEqual('//test.com/a/b/d/e/f.js')
+    expect(utils.getEntirePath('d/e/f.js', 'https://test.com/a/b/index.html', false)).toEqual(
+      'https://test.com/a/b/d/e/f.js',
+    )
+    expect(utils.getEntirePath('d/e/f.js', 'https://test.com/a/b/index.html', true)).toEqual(
+      'https://test.com/a/b/d/e/f.js',
+    )
+    expect(utils.getEntirePath('d/e/f.js', 'http://test.com/a/b/index.html', true)).toEqual(
+      'http://test.com/a/b/d/e/f.js',
+    )
+    expect(utils.getEntirePath('d/e/f.js', '//test.com/a/b/index.html', true)).toEqual(
+      '//test.com/a/b/d/e/f.js',
+    )
+    expect(utils.getEntirePath('d/e/f.js', '//test.com/a/b/index.html?a=1#test', true)).toEqual(
+      '//test.com/a/b/d/e/f.js',
+    )
+    expect(utils.getEntirePath('d/e/f.js', '//test.com/a/b/index.html?a=1', true)).toEqual(
+      '//test.com/a/b/d/e/f.js',
+    )
+    expect(utils.getEntirePath('d/e/f.js', '//test.com/a/b/index.html#test', true)).toEqual(
+      '//test.com/a/b/d/e/f.js',
+    )
 
-    expect(utils.getEntirePath('./d/e/f.js', 'https://test.com/a/b/index.html', false)).toEqual('https://test.com/a/b/d/e/f.js')
-    expect(utils.getEntirePath('./d/e/f.js', 'https://test.com/a/b/index.html', true)).toEqual('https://test.com/a/b/d/e/f.js')
-    expect(utils.getEntirePath('./d/e/f.js', 'http://test.com/a/b/index.html', true)).toEqual('http://test.com/a/b/d/e/f.js')
-    expect(utils.getEntirePath('./d/e/f.js', '//test.com/a/b/index.html', true)).toEqual('//test.com/a/b/d/e/f.js')
+    expect(utils.getEntirePath('./d/e/f.js', 'https://test.com/a/b/index.html', false)).toEqual(
+      'https://test.com/a/b/d/e/f.js',
+    )
+    expect(utils.getEntirePath('./d/e/f.js', 'https://test.com/a/b/index.html', true)).toEqual(
+      'https://test.com/a/b/d/e/f.js',
+    )
+    expect(utils.getEntirePath('./d/e/f.js', 'http://test.com/a/b/index.html', true)).toEqual(
+      'http://test.com/a/b/d/e/f.js',
+    )
+    expect(utils.getEntirePath('./d/e/f.js', '//test.com/a/b/index.html', true)).toEqual(
+      '//test.com/a/b/d/e/f.js',
+    )
 
-    expect(utils.getEntirePath('../d/e/f.js', 'https://test.com/a/b/index.html', false)).toEqual('https://test.com/a/d/e/f.js')
-    expect(utils.getEntirePath('../d/e/f.js', 'https://test.com/a/b/index.html', true)).toEqual('https://test.com/a/d/e/f.js')
-    expect(utils.getEntirePath('../d/e/f.js', 'http://test.com/a/b/index.html', true)).toEqual('http://test.com/a/d/e/f.js')
-    expect(utils.getEntirePath('../d/e/f.js', '//test.com/a/b/index.html', true)).toEqual('//test.com/a/d/e/f.js')
+    expect(utils.getEntirePath('../d/e/f.js', 'https://test.com/a/b/index.html', false)).toEqual(
+      'https://test.com/a/d/e/f.js',
+    )
+    expect(utils.getEntirePath('../d/e/f.js', 'https://test.com/a/b/index.html', true)).toEqual(
+      'https://test.com/a/d/e/f.js',
+    )
+    expect(utils.getEntirePath('../d/e/f.js', 'http://test.com/a/b/index.html', true)).toEqual(
+      'http://test.com/a/d/e/f.js',
+    )
+    expect(utils.getEntirePath('../d/e/f.js', '//test.com/a/b/index.html', true)).toEqual(
+      '//test.com/a/d/e/f.js',
+    )
 
     expect(utils.getEntirePath('/a/b/c.js', 'ftp://test.com')).toEqual('')
     expect(console.error).toHaveBeenCalledTimes(1)
-    expect(console.error).toHaveBeenLastCalledWith(utils.errors.invalidEntirePath('ftp://test.com', '/a/b/c.js'))
+    expect(console.error).toHaveBeenLastCalledWith(
+      utils.errors.invalidEntirePath('ftp://test.com', '/a/b/c.js'),
+    )
   })
 
   test('#case2: test parseHtmlPath', () => {

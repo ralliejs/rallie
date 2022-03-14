@@ -1,6 +1,9 @@
 import { App, Connector } from 'rallie'
 
-export function mixinRallieState<T extends App | Connector, U>(app: T, mapStateToComputed: (state: T['state']) => U) {
+export function mixinRallieState<T extends App | Connector, U>(
+  app: T,
+  mapStateToComputed: (state: T['state']) => U,
+) {
   let unwatchState = null
   const computed = {}
   const mappedState = mapStateToComputed(app.state)

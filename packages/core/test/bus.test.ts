@@ -6,10 +6,10 @@ import validAppCode from './test-apps/valid-app'
 import invalidAppCode from './test-apps/invalid-app'
 import reactCode from './test-apps/react'
 import { Errors } from '../src/lib/utils'
+/* eslint-disable no-unused-vars */
 
 declare global {
   interface Window {
-    // eslint-disable-line
     appsLoadedFromLocalhost: any
     lastLoadingApp: any
     React: any
@@ -17,7 +17,13 @@ declare global {
   }
 }
 
-nock('https://cdn.obvious.com').get('/assets/valid-app.js').reply(200, validAppCode).get('/assets/css-code.css').reply(200, cssCode).get('/assets/react.js').reply(200, reactCode)
+nock('https://cdn.obvious.com')
+  .get('/assets/valid-app.js')
+  .reply(200, validAppCode)
+  .get('/assets/css-code.css')
+  .reply(200, cssCode)
+  .get('/assets/react.js')
+  .reply(200, reactCode)
 
 nock('https://localhost').get('/assets/invalid-app.js').reply(200, invalidAppCode)
 

@@ -146,7 +146,11 @@ describe('Test lifecycles of App', () => {
       bootstrap: 0,
       activate: 0,
     }
-    await Promise.all([bus.activateApp('case5', counter), bus.activateApp('case5', counter), bus.activateApp('case5', counter)])
+    await Promise.all([
+      bus.activateApp('case5', counter),
+      bus.activateApp('case5', counter),
+      bus.activateApp('case5', counter),
+    ])
     expect(counter.bootstrap).toEqual(1)
     expect(counter.activate).toEqual(2)
   })
@@ -154,7 +158,26 @@ describe('Test lifecycles of App', () => {
 
 describe('Test dependencies of App', () => {
   const bus = createBus('testBus2')
-  const appNames = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
+  const appNames = [
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'f',
+    'g',
+    'h',
+    'i',
+    'j',
+    'k',
+    'l',
+    'm',
+    'n',
+    'o',
+    'p',
+    'q',
+    'r',
+  ]
   const apps: Record<string, App> = {}
   appNames.forEach((appName) => {
     const app = bus.createApp(appName)
@@ -190,7 +213,9 @@ describe('Test dependencies of App', () => {
      *        |--f
      *     |--g
      */
-    apps.a.relyOn(['b', 'd', 'g']).relateTo(['b', 'c', 'd', 'e', { name: 'f', ctx: { version: '0.1.0' } }, 'g', 'b'])
+    apps.a
+      .relyOn(['b', 'd', 'g'])
+      .relateTo(['b', 'c', 'd', 'e', { name: 'f', ctx: { version: '0.1.0' } }, 'g', 'b'])
     apps.b.relyOn(['c']).relateTo(['c']).relateTo(['c']) // circular relations doesn't matter
     apps.c.relyOn([]).relateTo(['b']) // circular relations doesn't matter
     apps.d.relyOn(['e']).relyOn(['f']) // test duplicated dependencies

@@ -30,7 +30,10 @@ export const Consumer = () => {
   }
   const isDarkTheme = useRallieState(producer, (state) => state.isDarkTheme)
   return (
-    <div data-testid="consumer-container" style={{ backgroundColor: isDarkTheme ? 'black' : 'white' }}>
+    <div
+      data-testid="consumer-container"
+      style={{ backgroundColor: isDarkTheme ? 'black' : 'white' }}
+    >
       <button onClick={toggleTheme}>toggle theme</button>
       <button onClick={addCount}>add count</button>
       <button onClick={printTheme}>print theme</button>

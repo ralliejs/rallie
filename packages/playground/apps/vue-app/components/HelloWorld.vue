@@ -29,7 +29,8 @@ vueApp.run((env) => {
   <h1>{{ msg }}</h1>
 
   <p>
-    This app is running in <strong>{{ hint.currentMode }}</strong> mode, click <a :href="hint.navigationLink">here</a> to see how it works in {{ hint.navigationMode }} mode
+    This app is running in <strong>{{ hint.currentMode }}</strong> mode, click
+    <a :href="hint.navigationLink">here</a> to see how it works in {{ hint.navigationMode }} mode
   </p>
   <p>the count can be get, set and watched by the react app</p>
   <n-button @click="addCount">count is: {{ count }}</n-button>

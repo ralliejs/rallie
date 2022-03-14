@@ -95,7 +95,9 @@ describe('Test state', () => {
       login: (user: string) => void
       logout: () => void
     }
-    const privateApp = app.connect<PrivateState, {}, PrivateMethods>('connect-testers/state.private')
+    const privateApp = app.connect<PrivateState, {}, PrivateMethods>(
+      'connect-testers/state.private',
+    )
     expect(privateApp.state.user).toEqual('Mike')
     privateApp
       .watchState((state) => state.user)
@@ -107,7 +109,9 @@ describe('Test state', () => {
         state.user = 'Alice'
       })
       .catch((error) => {
-        expect(error.message).toEqual(Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')))
+        expect(error.message).toEqual(
+          Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')),
+        )
       })
     privateApp.methods.logout()
     await Promise.resolve()

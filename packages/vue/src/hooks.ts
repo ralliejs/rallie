@@ -1,7 +1,10 @@
 import { onBeforeUnmount, onBeforeMount, ref, UnwrapRef } from 'vue'
 import type { App, Connector } from 'rallie'
 
-export function useRallieState<T extends App | Connector, U>(app: T, getter: (state: T['state']) => U) {
+export function useRallieState<T extends App | Connector, U>(
+  app: T,
+  getter: (state: T['state']) => U,
+) {
   const stateRef = ref<U>(getter(app.state))
   let unwatch = null
   onBeforeMount(() => {

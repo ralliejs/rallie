@@ -26,7 +26,10 @@ export default defineComponent(function Consumer() {
 </script>
 
 <template>
-  <div data-testid="consumer-container" :style="{ backgroundColor: isDarkTheme ? 'black' : 'white' }">
+  <div
+    data-testid="consumer-container"
+    :style="{ backgroundColor: isDarkTheme ? 'black' : 'white' }"
+  >
     <button @click="toggleTheme">toggle theme</button>
     <button @click="addCount">add count</button>
     <button @click="printTheme">print theme</button>

@@ -33,7 +33,10 @@ describe('Test socket.initState, socket.existState and socket.getState', () => {
     console.warn = jest.fn()
     counter.value += 1
     expect(counter.value).toEqual(0)
-    expect(console.warn).toBeCalledWith('Set operation on key "value" failed: target is readonly.', counter)
+    expect(console.warn).toBeCalledWith(
+      'Set operation on key "value" failed: target is readonly.',
+      counter,
+    )
   })
 })
 
@@ -68,7 +71,10 @@ describe('Test socket.setState', () => {
     })
     counter.value++
     expect(counter.value).toEqual(2)
-    expect(console.warn).toBeCalledWith('Set operation on key "value" failed: target is readonly.', counter)
+    expect(console.warn).toBeCalledWith(
+      'Set operation on key "value" failed: target is readonly.',
+      counter,
+    )
   })
 
   test('# case 2: private state can not be modified by other socket', (done) => {
