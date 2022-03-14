@@ -10,16 +10,21 @@ registerApp(producer)
   })
   .onDestroy(() => {
     cleanup()
-    producer.setState('reset the count', state => { state.count = 0 })
-    producer.setState('reset the theme', state => { state.isDarkTheme = true })
+    producer.setState('reset the count', (state) => {
+      state.count = 0
+    })
+    producer.setState('reset the theme', (state) => {
+      state.isDarkTheme = true
+    })
   })
 
 registerApp(consumer)
   .relyOn(['producer'])
   .onActivate((containerId) => {
     // @ts-ignore
-    render(<Consumer />, { // TODO: fix the ts error
-      container: document.getElementById(containerId)
+    render(<Consumer />, {
+      // TODO: fix the ts error
+      container: document.getElementById(containerId),
     })
   })
   .onDestroy(() => {

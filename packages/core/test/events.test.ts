@@ -5,23 +5,23 @@ describe('Test broadcast', () => {
   const bus = new Bus('innerBus')
   const socket = bus.createSocket()
   type BroadcastEvents = {
-    printHelloWorld: () => void;
-    printText: (text: string) => void;
-    shouldNotBeCalled: () => void;
+    printHelloWorld: () => void
+    printText: (text: string) => void
+    shouldNotBeCalled: () => void
   }
   const broadcaster = socket.createBroadcaster<BroadcastEvents>((event) => {
     console.error('trigger', event)
   })
   const offBroadcast = socket.onBroadcast<BroadcastEvents>({
-    printHelloWorld () {
+    printHelloWorld() {
       console.log('Hello World')
     },
-    printText (text: string) {
+    printText(text: string) {
       console.log(text)
     },
-    shouldNotBeCalled () {
+    shouldNotBeCalled() {
       console.log('This callback should not be called')
-    }
+    },
   })
 
   beforeEach(() => {
@@ -64,23 +64,23 @@ describe('Test unicast', () => {
   const bus = new Bus('innerBus')
   const socket = bus.createSocket()
   type UnicastEvents = {
-    getHelloWorld: () => string;
-    getText: (text: string) => string;
-    shouldNotBeCalled: () => void;
+    getHelloWorld: () => string
+    getText: (text: string) => string
+    shouldNotBeCalled: () => void
   }
   const unicaster = socket.createUnicaster<UnicastEvents>((eventName) => {
     console.log('trigger', eventName)
   })
   const offUnicast = socket.onUnicast<UnicastEvents>({
-    getHelloWorld () {
+    getHelloWorld() {
       return 'Hello World'
     },
-    getText (text: string) {
+    getText(text: string) {
       return text
     },
-    shouldNotBeCalled () {
+    shouldNotBeCalled() {
       console.log('This callback should not be called')
-    }
+    },
   })
 
   beforeEach(() => {

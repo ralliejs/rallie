@@ -8,63 +8,53 @@ import reactCode from './test-apps/react'
 import { Errors } from '../src/lib/utils'
 
 declare global {
-  interface Window { // eslint-disable-line
-    appsLoadedFromLocalhost: any;
-    lastLoadingApp: any;
-    React: any;
-    RALLIE_BUS_STORE: Record<string, Bus>;
+  interface Window {
+    // eslint-disable-line
+    appsLoadedFromLocalhost: any
+    lastLoadingApp: any
+    React: any
+    RALLIE_BUS_STORE: Record<string, Bus>
   }
 }
 
-nock('https://cdn.obvious.com')
-  .get('/assets/valid-app.js')
-  .reply(200, validAppCode)
-  .get('/assets/css-code.css')
-  .reply(200, cssCode)
-  .get('/assets/react.js')
-  .reply(200, reactCode)
+nock('https://cdn.obvious.com').get('/assets/valid-app.js').reply(200, validAppCode).get('/assets/css-code.css').reply(200, cssCode).get('/assets/react.js').reply(200, reactCode)
 
-nock('https://localhost')
-  .get('/assets/invalid-app.js')
-  .reply(200, invalidAppCode)
+nock('https://localhost').get('/assets/invalid-app.js').reply(200, invalidAppCode)
 
 describe('Test the capability to load the resources of an app or lib', () => {
   const staticAssetsConfig = {
     'lib:react': {
-      js: ['https://cdn.obvious.com/assets/react.js']
+      js: ['https://cdn.obvious.com/assets/react.js'],
     },
     'valid-app': {
       js: ['https://cdn.obvious.com/assets/valid-app.js'],
-      css: [
-        'https://cdn.obvious.com/assets/css-code.css'
-      ]
+      css: ['https://cdn.obvious.com/assets/css-code.css'],
     },
     'invalid-resource-app': {
-      js: [
-        'validFile.png'
-      ],
-      css: [
-        '/invalidFile.png'
-      ]
-    }
+      js: ['validFile.png'],
+      css: ['/invalidFile.png'],
+    },
   }
 
   window.appsLoadedFromLocalhost = []
 
   const globalBus = createBus()
-  globalBus.config({
-    assets: staticAssetsConfig
-  }).use(async (ctx, next) => {
-    window.lastLoadingApp = ctx.name
-    await next()
-  }).use(async (ctx, next) => {
-    if (ctx.loadedFromLocalhost) {
-      window.appsLoadedFromLocalhost.push(ctx.name)
-      await ctx.loadScript(`https://localhost/assets/${ctx.name}.js`)
-    } else {
+  globalBus
+    .config({
+      assets: staticAssetsConfig,
+    })
+    .use(async (ctx, next) => {
+      window.lastLoadingApp = ctx.name
       await next()
-    }
-  })
+    })
+    .use(async (ctx, next) => {
+      if (ctx.loadedFromLocalhost) {
+        window.appsLoadedFromLocalhost.push(ctx.name)
+        await ctx.loadScript(`https://localhost/assets/${ctx.name}.js`)
+      } else {
+        await next()
+      }
+    })
 
   test('# case 1: create a bus, it should be mounted on window.RALLIE_BUS_STORE ', () => {
     expect(getBus()).toBe(globalBus)
@@ -128,12 +118,14 @@ describe('Test the capability to load the resources of an app or lib', () => {
       bus.createApp('case7')
     }).toThrowError(Errors.createExistingApp('case7'))
 
-    bus.use(async (ctx, next) => {
-      await next()
-      await next()
-    }).use(() => {
-      // an empty middleware to prevent to go to the core middleware
-    })
+    bus
+      .use(async (ctx, next) => {
+        await next()
+        await next()
+      })
+      .use(() => {
+        // an empty middleware to prevent to go to the core middleware
+      })
     try {
       await bus.activateApp('case7-1')
     } catch (error) {
@@ -146,7 +138,7 @@ describe('Test the capability to load the resources of an app or lib', () => {
     }).toThrowError(Errors.wrongMiddlewareType())
   })
 
-  test('# case 8: bus\'s name should be unique', () => {
+  test("# case 8: bus's name should be unique", () => {
     createBus('case8-bus')
     expect(() => {
       createBus('case8-bus')

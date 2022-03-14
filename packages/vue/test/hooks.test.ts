@@ -10,15 +10,19 @@ registerApp(producer)
   })
   .onDestroy(() => {
     cleanup()
-    producer.setState('reset the count', state => { state.count = 0 })
-    producer.setState('reset the theme', state => { state.isDarkTheme = true })
+    producer.setState('reset the count', (state) => {
+      state.count = 0
+    })
+    producer.setState('reset the theme', (state) => {
+      state.isDarkTheme = true
+    })
   })
 
 registerApp(consumer)
   .relyOn(['producer'])
   .onActivate((containerId) => {
     render(HooksConsumer, {
-      container: document.getElementById(containerId)
+      container: document.getElementById(containerId),
     })
   })
   .onDestroy(() => {

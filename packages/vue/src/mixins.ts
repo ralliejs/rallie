@@ -1,6 +1,6 @@
 import { App, Connector } from 'rallie'
 
-export function mixinRallieState<T extends App | Connector, U> (app: T, mapStateToComputed: (state: T['state']) => U) {
+export function mixinRallieState<T extends App | Connector, U>(app: T, mapStateToComputed: (state: T['state']) => U) {
   let unwatchState = null
   const computed = {}
   const mappedState = mapStateToComputed(app.state)
@@ -11,63 +11,69 @@ export function mixinRallieState<T extends App | Connector, U> (app: T, mapState
     }
   })
   return {
-    data () {
+    data() {
       const result = {
-        [dataKey]: mappedState
+        [dataKey]: mappedState,
       }
       return result
     },
     computed,
-    mounted () {
-      unwatchState = app.watchState(mapStateToComputed).do(value => {
+    mounted() {
+      unwatchState = app.watchState(mapStateToComputed).do((value) => {
         this[dataKey] = value
       })
     },
-    beforeDestroy () { // for vue2
+    beforeDestroy() {
+      // for vue2
       unwatchState()
     },
-    beforeUnmount () { // for vue3
+    beforeUnmount() {
+      // for vue3
       unwatchState()
-    }
+    },
   }
 }
 
-export function mixinRallieEvents<T extends App | Connector> (app: T, events: Partial<T['events']>) {
+export function mixinRallieEvents<T extends App | Connector>(app: T, events: Partial<T['events']>) {
   let offEvents = null
   return {
     methods: events,
-    mounted () {
+    mounted() {
       const _events = {}
       Object.entries(events).forEach(([key, Fn]) => {
         _events[key] = (Fn as Function).bind(this)
       })
       offEvents = app.listenEvents(_events)
     },
-    beforeDestroy () { // for vue2
+    beforeDestroy() {
+      // for vue2
       offEvents()
     },
-    beforeUnmount () { // for vue3
+    beforeUnmount() {
+      // for vue3
       offEvents()
-    }
+    },
   }
 }
 
-export function mixinRallieMethods<T extends App> (app: T, methods: Partial<T['methods']>) {
+export function mixinRallieMethods<T extends App>(app: T, methods: Partial<T['methods']>) {
   let offMethods = null
   return {
     methods,
-    created () {
+    created() {
       const _methods = {}
       Object.entries(methods).forEach(([key, Fn]) => {
         _methods[key] = (Fn as Function).bind(this)
       })
       offMethods = app.addMethods(_methods)
     },
-    beforeDestroy () { // for vue2
+    beforeDestroy() {
+      // for vue2
       offMethods()
     },
-    beforeUnmount () { // for vue3
+    beforeUnmount() {
+      // for vue3
       offMethods()
-    }
+    },
   }
 }

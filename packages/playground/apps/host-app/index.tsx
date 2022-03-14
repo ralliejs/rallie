@@ -4,8 +4,8 @@ import { hostApp } from './app'
 registerApp(hostApp)
   .relyOn(['lib:vue'])
   .onBootstrap(async () => {
-    console.log('host app is bootstrapped');
-    (await import('./lifecycles')).onBootstrap()
+    console.log('host app is bootstrapped')
+    ;(await import('./lifecycles')).onBootstrap()
   })
 
 hostApp.run(async (env) => {

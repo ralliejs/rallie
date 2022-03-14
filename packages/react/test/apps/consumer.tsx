@@ -10,7 +10,7 @@ type Methods = {
 }
 
 type State = {
-  count: number,
+  count: number
   isDarkTheme: boolean
 }
 
@@ -21,14 +21,14 @@ export const Consumer = () => {
     producer.methods.toggleTheme()
   }
   const addCount = () => {
-    producer.setState('add the count', state => {
+    producer.setState('add the count', (state) => {
       state.count++
     })
   }
   const printTheme = () => {
     producer.events.printTheme()
   }
-  const isDarkTheme = useRallieState(producer, state => state.isDarkTheme)
+  const isDarkTheme = useRallieState(producer, (state) => state.isDarkTheme)
   return (
     <div data-testid="consumer-container" style={{ backgroundColor: isDarkTheme ? 'black' : 'white' }}>
       <button onClick={toggleTheme}>toggle theme</button>

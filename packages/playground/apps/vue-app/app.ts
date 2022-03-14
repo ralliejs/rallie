@@ -10,6 +10,6 @@ type Methods = {}
 
 export const vueApp = new App<State, Events, Methods>('vue-app', {
   state: {
-    count: 0
-  }
+    count: 0,
+  },
 })

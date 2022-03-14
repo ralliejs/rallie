@@ -1,10 +1,13 @@
-import type { CallbackType } from '../types'; // eslint-disable-line
+import type { CallbackType } from '../types' // eslint-disable-line
 import { Errors } from './utils'
 
-type BroadcastEventsType = Record<string, {
-  listeners: CallbackType[],
-  emitedArgs: Array<any[]>
-}>
+type BroadcastEventsType = Record<
+  string,
+  {
+    listeners: CallbackType[]
+    emitedArgs: Array<any[]>
+  }
+>
 
 type unicastEventsType = Record<string, CallbackType>
 
@@ -13,10 +16,10 @@ export class EventEmitter {
 
   private unicastEvents: unicastEventsType = {}
 
-  public addBroadcastEventListener (event: string, callback: CallbackType) {
+  public addBroadcastEventListener(event: string, callback: CallbackType) {
     this.broadcastEvents[event] = this.broadcastEvents[event] || {
       listeners: [],
-      emitedArgs: []
+      emitedArgs: [],
     }
     const { listeners, emitedArgs } = this.broadcastEvents[event]
     listeners.push(callback)
@@ -28,14 +31,14 @@ export class EventEmitter {
     }
   }
 
-  public addUnicastEventListener (event: string, callback: CallbackType) {
+  public addUnicastEventListener(event: string, callback: CallbackType) {
     if (this.unicastEvents[event]) {
       throw new Error(Errors.registedExistedUnicast(event))
     }
     this.unicastEvents[event] = callback
   }
 
-  public removeBroadcastEventListener (event: string, callback: CallbackType) {
+  public removeBroadcastEventListener(event: string, callback: CallbackType) {
     const registedcallbacks = this.broadcastEvents[event]?.listeners
     if (registedcallbacks) {
       let targetIndex = -1
@@ -57,7 +60,7 @@ export class EventEmitter {
     }
   }
 
-  public removeUnicastEventListener (event: string) {
+  public removeUnicastEventListener(event: string) {
     if (!this.unicastEvents[event]) {
       const msg = Errors.removeNonExistedUnicast(event)
       throw new Error(msg)
@@ -65,10 +68,10 @@ export class EventEmitter {
     delete this.unicastEvents[event]
   }
 
-  public emitBroadcast (event: string, ...args: any[]) {
+  public emitBroadcast(event: string, ...args: any[]) {
     this.broadcastEvents[event] = this.broadcastEvents[event] || {
       listeners: [],
-      emitedArgs: []
+      emitedArgs: [],
     }
     const { listeners, emitedArgs } = this.broadcastEvents[event]
     if (listeners.length > 0) {
@@ -85,7 +88,7 @@ export class EventEmitter {
     }
   }
 
-  public emitUnicast (event: string, ...args: any[]) {
+  public emitUnicast(event: string, ...args: any[]) {
     const callback = this.unicastEvents[event]
     if (callback) {
       return callback(...args)

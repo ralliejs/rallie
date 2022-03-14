@@ -4,11 +4,11 @@ import { vueApp } from './app'
 registerApp(vueApp)
   .relyOn(['lib:vue', 'host-app'])
   .onBootstrap(async (container) => {
-    console.log('vue-app bootstrapped');
-    (await import('./lifecycles')).onBootstrap(container)
+    console.log('vue-app bootstrapped')
+    ;(await import('./lifecycles')).onBootstrap(container)
   })
   .onDestroy(async () => {
-    (await import('./lifecycles')).onDestroy()
+    ;(await import('./lifecycles')).onDestroy()
   })
 
 vueApp.run(async (env) => {

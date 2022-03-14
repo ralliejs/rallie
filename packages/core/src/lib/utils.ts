@@ -1,4 +1,4 @@
-import type { MiddlewareFnType, NextFnType, ContextType, DependencyType, RelateType } from '../types'; // eslint-disable-line
+import type { MiddlewareFnType, NextFnType, ContextType, DependencyType, RelateType } from '../types' // eslint-disable-line
 
 export const Errors = {
   // ================= EventEmitter.broadcast  =================
@@ -52,26 +52,27 @@ export const Errors = {
   },
   // ================= Bus ==================
   duplicatedBus: (name: string) => `[@rallie/core] the bus named ${name} has been defined before, please rename your bus`,
-  circularDependencies: (appName: string, circularPath: string[]) => `[@rallie/core] There is a circular dependency when activating the app ${appName}, and the circular path is ${circularPath.join('->')}`,
+  circularDependencies: (appName: string, circularPath: string[]) =>
+    `[@rallie/core] There is a circular dependency when activating the app ${appName}, and the circular path is ${circularPath.join('->')}`,
   multipleCalledNextFn: () => {
     return '[@rallie/core] next() called multiple times in the middleware'
   },
   wrongMiddlewareType: () => {
     return '[@rallie/core] the middleware must be a function'
-  }
+  },
 }
 
 export const Warnings = {
   handlerIsNotInTheEventsPool: (eventName: string, isUnicast: boolean) => {
     return `[@rallie/core] the event ${eventName} is not in the events pool that you specified when calling on${isUnicast ? 'Unicast' : 'Broadcast'}`
-  }
+  },
 }
 
-export function isPrimitive (object: unknown): boolean {
+export function isPrimitive(object: unknown): boolean {
   return ['string', 'number', 'boolean', 'undefined'].includes(typeof object)
 }
 
-export function deduplicate (items: DependencyType[] | RelateType[]) {
+export function deduplicate(items: DependencyType[] | RelateType[]) {
   const flags: Record<string, boolean> = {}
   const result = []
   items.forEach((item: DependencyType | RelateType) => {

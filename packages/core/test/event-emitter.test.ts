@@ -25,7 +25,7 @@ describe('Test broadcast:', () => {
   })
 
   test('# case 3: remove non-existent listener of an broadcast event, it should throw an error', () => {
-    const errorMessage = Errors.wrongBroadcastCallback('test'); // eslint-disable-line
+    const errorMessage = Errors.wrongBroadcastCallback('test') // eslint-disable-line
     const expectedError = new Error(errorMessage)
     expect(() => {
       broadCastTester.removeBroadcastEventListener('test', callback)
@@ -34,7 +34,7 @@ describe('Test broadcast:', () => {
 
   test('# case 4: remove a listener of a non-existent event, it should throw an error', () => {
     const eventName = 'nonExistentEvent'
-        const errorMessage = Errors.removeNonExistedBroadcast(eventName); // eslint-disable-line
+    const errorMessage = Errors.removeNonExistedBroadcast(eventName) // eslint-disable-line
     const expectedError = new Error(errorMessage)
     expect(() => {
       broadCastTester.removeBroadcastEventListener(eventName, callback)
@@ -46,7 +46,8 @@ describe('Test broadcast:', () => {
     broadCastTester.addBroadcastEventListener('testEvent', () => {
       throw new Error()
     })
-    let valueToModify1 = false; let valueToModify2 = false
+    let valueToModify1 = false
+    let valueToModify2 = false
     broadCastTester.addBroadcastEventListener('testEvent', () => {
       valueToModify1 = true
     })

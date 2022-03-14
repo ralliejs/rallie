@@ -4,7 +4,7 @@ const basePathRegex = /^(http:\/\/|https:\/\/|\/\/)([^?#]*)(\?[^?#]+)?(#.+)?/
 
 export const errors = {
   invalidHtmlPath: (basePath: string) => message(`Invalid html path: ${basePath}`),
-  invalidEntirePath: (base: string, src: string) => message(`Can not construct a url by the base '${base}' and the path '${src}'`)
+  invalidEntirePath: (base: string, src: string) => message(`Can not construct a url by the base '${base}' and the path '${src}'`),
 }
 
 export const getEntirePath = (src: string, base: string, regardHtmlPathAsRoot: boolean = false) => {
@@ -20,7 +20,7 @@ export const getEntirePath = (src: string, base: string, regardHtmlPathAsRoot: b
     }
     let url = ''
     const _protocol = protocol === '//' ? 'http://' : protocol
-    url = (new URL(src, _protocol + prePath)).href
+    url = new URL(src, _protocol + prePath).href
     if (protocol === '//') {
       url = url.slice(5)
     }
@@ -52,28 +52,36 @@ export const parseHtmlPath = (base: string): [string, string] => {
   }
 }
 
-export const parseHtml = (html: string, rootSelector?: string, transferPath?: (src: string) => string): { root?: HTMLElement, scripts: Array<HTMLScriptElement>; links: Array<HTMLLinkElement>; styles: Array<HTMLStyleElement> } => {
+export const parseHtml = (
+  html: string,
+  rootSelector?: string,
+  transferPath?: (src: string) => string,
+): { root?: HTMLElement; scripts: Array<HTMLScriptElement>; links: Array<HTMLLinkElement>; styles: Array<HTMLStyleElement> } => {
   const fragment = document.createElement('html')
   fragment.innerHTML = html
-  const scripts = Array.from(fragment.querySelectorAll('script')).map((element) => cloneElement<HTMLScriptElement>(element)).map((element) => {
-    const src = element.getAttribute('src')
-    if (transferPath && src) {
-      element.setAttribute('src', transferPath(src))
-    }
-    return element
-  })
-  const links = Array.from(fragment.querySelectorAll('link')).map((element) => cloneElement<HTMLLinkElement>(element)).map((element) => {
-    const href = element.getAttribute('href')
-    if (transferPath && href) {
-      element.setAttribute('href', transferPath(href))
-    }
-    return element
-  })
+  const scripts = Array.from(fragment.querySelectorAll('script'))
+    .map((element) => cloneElement<HTMLScriptElement>(element))
+    .map((element) => {
+      const src = element.getAttribute('src')
+      if (transferPath && src) {
+        element.setAttribute('src', transferPath(src))
+      }
+      return element
+    })
+  const links = Array.from(fragment.querySelectorAll('link'))
+    .map((element) => cloneElement<HTMLLinkElement>(element))
+    .map((element) => {
+      const href = element.getAttribute('href')
+      if (transferPath && href) {
+        element.setAttribute('href', transferPath(href))
+      }
+      return element
+    })
   const styles = Array.from(fragment.querySelectorAll('style')).map((element) => cloneElement<HTMLStyleElement>(element))
   return {
     root: rootSelector ? fragment.querySelector(rootSelector) : null,
     scripts,
     links,
-    styles
+    styles,
   }
 }

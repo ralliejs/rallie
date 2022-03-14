@@ -7,12 +7,10 @@ export const onBootstrap = () => {
   hostApp.addMethods({
     useNaiveUI: () => {
       const naive = create({
-        components: [
-          NButton
-        ]
+        components: [NButton],
       })
       return naive
-    }
+    },
   })
   const root = document.createElement('div')
   const instance = createApp(Provider)

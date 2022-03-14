@@ -10,7 +10,7 @@ type Methods = {
 
 const state = {
   isDarkTheme: true,
-  count: 0
+  count: 0,
 }
 
 export const producer = new App<typeof state, Events, Methods>('producer', { state })

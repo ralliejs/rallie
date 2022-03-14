@@ -1,16 +1,37 @@
-import { getBus } from '@rallie/core'
-import type { App } from './app'
+import { CreatedBlock } from './created-block'
+import { touchBus, getBus, CallbackType, App as RegisteredBlock } from '@rallie/core'
+import { errors, constant } from './utils'
 
-export function registerApp (app: App) {
-  const bus = getBus()
-  return bus.createApp(app.name)
+export function createBlock<
+  State extends Record<string, any>,
+  Events extends Record<string, CallbackType>,
+  Methods extends Record<string, CallbackType>,
+>(name: string) {
+  const [globalBus, isEntry] = touchBus()
+  if (globalBus.existApp(name)) {
+    throw new Error(errors.duplicatedBlockName(name))
+  }
+  if (isEntry) {
+    this.globalSocket.initState(constant.isGlobalBusAccessible, { value: true }, true)
+  }
+  return new CreatedBlock<State, Events, Methods>(name, globalBus, isEntry)
 }
 
-export { App } from './app'
+export function registerBlock(block: CreatedBlock<any, any, any>): RegisteredBlock {
+  if (block.isCreatedBlock) {
+    const bus = getBus()
+    return bus.createApp(block.name)
+  } else {
+    throw new Error(errors.invalidBlock(block.name))
+  }
+}
 
-export type { Connector } from './connector'
+export type { Block } from './block'
+export type { CreatedBlock, Env } from './created-block'
+export type { ConnectedBlock } from './connected-block'
+
 export type {
-  App as Registrant,
+  App as RegisteredBlock,
   CallbackType,
   ScriptType,
   LinkType,
@@ -22,5 +43,5 @@ export type {
   LifecyleCallbackType,
   DependencyType,
   RelateType,
-  Bus
+  Bus,
 } from '@rallie/core'

@@ -5,24 +5,23 @@ import pkg from './package.json'
 
 export default {
   input: './src/index.ts',
-  output: [{
-    file: pkg.main,
-    format: 'umd',
-    name: 'RallieReact',
-    exports: 'named',
-    globals: {
-      react: 'React',
-      rallie: 'Rallie'
-    }
-  }, {
-    file: pkg.module,
-    format: 'es',
-    exports: 'named'
-  }],
-  plugins: [
-    resolve(),
-    commonJs(),
-    typescript()
+  output: [
+    {
+      file: pkg.main,
+      format: 'umd',
+      name: 'RallieReact',
+      exports: 'named',
+      globals: {
+        react: 'React',
+        rallie: 'Rallie',
+      },
+    },
+    {
+      file: pkg.module,
+      format: 'es',
+      exports: 'named',
+    },
   ],
-  external: ['react', 'rallie']
+  plugins: [resolve(), commonJs(), typescript()],
+  external: ['react', 'rallie'],
 }

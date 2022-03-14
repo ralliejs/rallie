@@ -1,6 +1,6 @@
-import { registerApp, App } from '../../src/index'
+import { registerBlock, createBlock } from '../../src/index'
 
-registerApp(new App('lifecycle-tester'))
+registerBlock(createBlock('lifecycle-tester'))
   .onBootstrap(() => {
     console.log('bootstraped')
   })

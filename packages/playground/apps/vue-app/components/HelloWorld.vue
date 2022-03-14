@@ -4,15 +4,17 @@ import { useRallieState } from '@rallie/vue'
 
 defineProps({ msg: String }) // eslint-disable-line
 
-const count = useRallieState(vueApp, state => state.count) // eslint-disable-line
+const count = useRallieState(vueApp, (state) => state.count) // eslint-disable-line
 const addCount = () => {
-  vueApp.setState('vue-app add the count', state => { state.count++ })
+  vueApp.setState('vue-app add the count', (state) => {
+    state.count++
+  })
 }
 
 const hint = {
   currentMode: 'entry',
   navigationMode: 'remote',
-  navigationLink: '/rallie/index.html'
+  navigationLink: '/rallie/index.html',
 }
 vueApp.run((env) => {
   if (!env.isEntry) {
@@ -21,15 +23,13 @@ vueApp.run((env) => {
     hint.navigationLink = '/rallie/apps/vue-app/index.html'
   }
 })
-
 </script>
 
 <template>
   <h1>{{ msg }}</h1>
 
   <p>
-    This app is running in <strong>{{ hint.currentMode }}</strong> mode,
-    click <a :href="hint.navigationLink">here</a> to see how it works in {{ hint.navigationMode }} mode
+    This app is running in <strong>{{ hint.currentMode }}</strong> mode, click <a :href="hint.navigationLink">here</a> to see how it works in {{ hint.navigationMode }} mode
   </p>
   <p>the count can be get, set and watched by the react app</p>
   <n-button @click="addCount">count is: {{ count }}</n-button>
@@ -39,9 +39,7 @@ vueApp.run((env) => {
     <code>components/HelloWorld.vue</code> to test hot module replacement.
   </p>
   <p>
-    <a href="https://vitejs.dev/guide/features.html" target="_blank">
-      Vite Docs
-    </a>
+    <a href="https://vitejs.dev/guide/features.html" target="_blank"> Vite Docs </a>
     |
     <a href="https://v3.vuejs.org/" target="_blank">Vue 3 Docs</a>
   </p>

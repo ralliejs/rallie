@@ -10,12 +10,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        'starter': path.resolve(__dirname, './index.html'), // eslint-disable-line
+        starter: path.resolve(__dirname, './index.html'), // eslint-disable-line
         'host-app': path.resolve(__dirname, './apps/host-app/index.html'),
         'react-app': path.resolve(__dirname, './apps/react-app/index.html'),
-        'vue-app': path.resolve(__dirname, './apps/vue-app/index.html')
-      }
-    }
+        'vue-app': path.resolve(__dirname, './apps/vue-app/index.html'),
+      },
+    },
   },
   plugins: [
     vue(),
@@ -23,7 +23,7 @@ export default defineConfig({
     viteExternalsPlugin({
       vue: 'Vue',
       react: 'React',
-      'react-dom': 'ReactDOM'
-    })
-  ]
+      'react-dom': 'ReactDOM',
+    }),
+  ],
 })

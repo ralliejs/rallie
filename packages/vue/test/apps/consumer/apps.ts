@@ -1,7 +1,7 @@
 import { App } from 'rallie'
 
 type State = {
-  count: number,
+  count: number
   isDarkTheme: boolean
 }
 

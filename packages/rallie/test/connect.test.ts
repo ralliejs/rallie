@@ -1,23 +1,22 @@
-
 import { Errors } from '@rallie/core'
 import { App, registerApp } from '../src/index'
 import { errors, constant } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
 
 type State = {
-  count: number,
+  count: number
   theme: string
 }
 
 type Events = {
-  log: (text: string) => void;
-  error: (text: string) => void;
-  record: (text: string) => void;
+  log: (text: string) => void
+  error: (text: string) => void
+  record: (text: string) => void
 }
 
 type Methods = {
-  getCount: () => number;
-  addCount: () => void;
+  getCount: () => number
+  addCount: () => void
 }
 
 const hostApp = new App('host-app')
@@ -37,16 +36,22 @@ describe('Test state', () => {
         const targetApp = app.connect<State>('connect-testers/state')
         expect(targetApp.state.count).toEqual(0)
         expect(targetApp.state.theme).toEqual('white')
-        targetApp.setState('set count before watch', state => { state.count = 1 })
+        targetApp.setState('set count before watch', (state) => {
+          state.count = 1
+        })
         targetApp.watchState((state) => {
           console.warn(state.theme)
         })
         await app.activate('connect-testers/state')
-        await targetApp.setState('set count after watch', state => { state.count = 2 })
+        await targetApp.setState('set count after watch', (state) => {
+          state.count = 2
+        })
         await app.activate('connect-testers/state', 'green') // set theme
         await app.activate('connect-testers/state', 'red') // set theme
         await app.destroy('connect-testers/state')
-        await targetApp.setState('set count state after unwatch', state => { state.count = 3 })
+        await targetApp.setState('set count state after unwatch', (state) => {
+          state.count = 3
+        })
         expect(console.log).toBeCalledTimes(1)
         expect(console.log).toBeCalledWith(2, 1)
         expect(console.warn).toBeCalledTimes(3)
@@ -64,13 +69,18 @@ describe('Test state', () => {
     const app = new App('state-case2-2')
     registerApp(app).relateTo(['state-case2-1'])
     expect(() => {
-      app.connect<any>('state-case2-1').setState('app2 modify app1\'s state', state => { state.value = 1 })
+      app.connect<any>('state-case2-1').setState("app2 modify app1's state", (state) => {
+        state.value = 1
+      })
     }).toThrowError(errors.stateNotInitialized('state-case2-1'))
 
     expect(() => {
-      app.connect<any, any>('state-case2-1').watchState(state => state.value).do((value) => {
-        console.log(value)
-      })
+      app
+        .connect<any, any>('state-case2-1')
+        .watchState((state) => state.value)
+        .do((value) => {
+          console.log(value)
+        })
     }).toThrowError(errors.stateNotInitialized('state-case2-1'))
   })
 
@@ -82,17 +92,23 @@ describe('Test state', () => {
     // the app 'connect-testers/state.private' will be registered once the app 'connect-testers/state' is registered
     type PrivateState = { user: string }
     type PrivateMethods = {
-      login: (user: string) => void;
-      logout: () => void;
+      login: (user: string) => void
+      logout: () => void
     }
     const privateApp = app.connect<PrivateState, {}, PrivateMethods>('connect-testers/state.private')
     expect(privateApp.state.user).toEqual('Mike')
-    privateApp.watchState(state => state.user).do(value => {
-      console.log(value)
-    })
-    privateApp.setState('set user to Alice', state => { state.user = 'Alice' }).catch(error => {
-      expect(error.message).toEqual(Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')))
-    })
+    privateApp
+      .watchState((state) => state.user)
+      .do((value) => {
+        console.log(value)
+      })
+    privateApp
+      .setState('set user to Alice', (state) => {
+        state.user = 'Alice'
+      })
+      .catch((error) => {
+        expect(error.message).toEqual(Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')))
+      })
     privateApp.methods.logout()
     await Promise.resolve()
     expect(privateApp.state.user).toBeNull()
@@ -117,9 +133,9 @@ describe('Test Events', () => {
     console.warn = jest.fn()
     console.error = jest.fn()
     targetApp.listenEvents({
-      record (text) {
+      record(text) {
         recordedTexts.push(text)
-      }
+      },
     })
     targetApp.events.log('hello world')
     targetApp.events.error('hello world')

@@ -1,7 +1,7 @@
 import { onBeforeUnmount, onBeforeMount, ref, UnwrapRef } from 'vue'
 import type { App, Connector } from 'rallie'
 
-export function useRallieState<T extends App | Connector, U> (app: T, getter: (state: T['state']) => U) {
+export function useRallieState<T extends App | Connector, U>(app: T, getter: (state: T['state']) => U) {
   const stateRef = ref<U>(getter(app.state))
   let unwatch = null
   onBeforeMount(() => {
@@ -15,7 +15,7 @@ export function useRallieState<T extends App | Connector, U> (app: T, getter: (s
   return stateRef
 }
 
-export function useRallieEvents<T extends App | Connector> (app: T, events: Partial<T['events']>) {
+export function useRallieEvents<T extends App | Connector>(app: T, events: Partial<T['events']>) {
   let off = null
   onBeforeMount(() => {
     off = app.listenEvents(events)
@@ -25,7 +25,7 @@ export function useRallieEvents<T extends App | Connector> (app: T, events: Part
   })
 }
 
-export function useRallieMethods<T extends App> (app: T, methods: Partial<T['methods']>) {
+export function useRallieMethods<T extends App>(app: T, methods: Partial<T['methods']>) {
   let off = null
   onBeforeMount(() => {
     off = app.addMethods(methods)

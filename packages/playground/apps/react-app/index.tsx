@@ -6,11 +6,11 @@ registerApp(reactApp)
   // you can try to replace the next line with `.relyOn([{ name: 'vue-app', data: document.getElementById('vue-app') }])`
   .relateTo(['vue-app'])
   .onBootstrap(async (container) => {
-    console.log('react-app bootstrapped');
-    (await import('./lifecycles')).onBootstrap(container)
+    console.log('react-app bootstrapped')
+    ;(await import('./lifecycles')).onBootstrap(container)
   })
   .onDestroy(async () => {
-    (await import('./lifecycles')).onDestroy()
+    ;(await import('./lifecycles')).onDestroy()
   })
 
 reactApp.run(async (env) => {

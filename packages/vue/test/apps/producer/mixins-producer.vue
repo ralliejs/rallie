@@ -6,27 +6,27 @@ import { mixinRallieEvents, mixinRallieMethods, mixinRallieState } from '../../.
 export default defineComponent({
   name: 'Consumer', // eslint-disable-line
   mixins: [
-    mixinRallieState(producer, state => ({
+    mixinRallieState(producer, (state) => ({
       isDarkTheme: state.isDarkTheme,
-      count: state.count
+      count: state.count,
     })),
     mixinRallieEvents(producer, {
-      printTheme () {
+      printTheme() {
         console.log(this.isDarkTheme ? 'dark' : 'light')
-      }
+      },
     }),
     mixinRallieMethods(producer, {
-      toggleTheme () {
-        producer.setState('toggle theme', state => {
+      toggleTheme() {
+        producer.setState('toggle theme', (state) => {
           state.isDarkTheme = !state.isDarkTheme
         })
-      }
-    })
-  ]
+      },
+    }),
+  ],
 })
 </script>
 <template>
-  <div data-testid="producer-container" :style="{backgroundColor: isDarkTheme ? 'black' : 'white'}">
+  <div data-testid="producer-container" :style="{ backgroundColor: isDarkTheme ? 'black' : 'white' }">
     <span data-testid="count">{{ count }}</span>
     <div id="consumer"></div>
   </div>

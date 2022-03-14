@@ -3,7 +3,7 @@ import { Socket } from './socket'
 import { App } from './app'
 import { Errors, compose } from './utils'
 import loader from './loader'
-import type { MiddlewareFnType, ContextType, NextFnType, ConfType, StoresType } from '../types'; // eslint-disable-line
+import type { MiddlewareFnType, ContextType, NextFnType, ConfType, StoresType } from '../types' // eslint-disable-line
 
 export class Bus {
   private name: string
@@ -13,20 +13,20 @@ export class Bus {
   private loadingApps: Record<string, Promise<void>> = {}
 
   public conf: ConfType = {
-    assets: {}
-  };
+    assets: {},
+  }
 
   private middlewares: MiddlewareFnType[] = []
   private composedMiddlewareFn: (ctx: ContextType, next: NextFnType) => Promise<any>
 
   public state: Record<string, any>
 
-  constructor (name: string) {
+  constructor(name: string) {
     this.name = name
     this.composedMiddlewareFn = compose(this.middlewares)
   }
 
-  private isRallieCoreApp (appName: string) {
+  private isRallieCoreApp(appName: string) {
     return this.apps[appName] && typeof this.apps[appName] !== 'boolean'
   }
 
@@ -34,14 +34,14 @@ export class Bus {
    * config the bus
    * @param conf the new configuration object
    */
-  public config (conf: Partial<ConfType>) {
+  public config(conf: Partial<ConfType>) {
     this.conf = {
       ...this.conf,
       ...conf,
       assets: {
         ...this.conf.assets,
-        ...(conf?.assets || {})
-      }
+        ...(conf?.assets || {}),
+      },
     }
     return this
   }
@@ -50,7 +50,7 @@ export class Bus {
    * register the middleware
    * @param middleware
    */
-  public use (middleware: MiddlewareFnType) {
+  public use(middleware: MiddlewareFnType) {
     if (typeof middleware !== 'function') {
       throw new Error(Errors.wrongMiddlewareType())
     }
@@ -64,12 +64,12 @@ export class Bus {
    * @param ctx
    * @returns
    */
-  private createContext (name: string, ctx: Record<string, any> = {}) {
+  private createContext(name: string, ctx: Record<string, any> = {}) {
     const context: ContextType = {
       name,
       loadScript: loader.loadScript,
       loadLink: loader.loadLink,
-      ...ctx
+      ...ctx,
     }
     return context
   }
@@ -78,12 +78,8 @@ export class Bus {
    * the core middleware
    * @param ctx the context
    */
-  private async loadResourcesFromAssetsConfig (ctx: ContextType) {
-    const {
-      name,
-      loadScript = loader.loadScript,
-      loadLink = loader.loadLink
-    } = ctx
+  private async loadResourcesFromAssetsConfig(ctx: ContextType) {
+    const { name, loadScript = loader.loadScript, loadLink = loader.loadLink } = ctx
     const { assets } = this.conf
     if (assets[name]) {
       // insert link tag first
@@ -106,14 +102,14 @@ export class Bus {
    * create a socket
    * @return the socket instance
    */
-  public createSocket () {
+  public createSocket() {
     return new Socket(this.eventEmitter, this.stores)
   }
 
   /**
    * return true if an app is created
    */
-  public existApp (name: string) {
+  public existApp(name: string) {
     return !!this.apps[name]
   }
 
@@ -122,7 +118,7 @@ export class Bus {
    * @param name the name of the app
    * @return the app instance
    */
-  public createApp (name: string) {
+  public createApp(name: string) {
     if (this.existApp(name)) {
       throw new Error(Errors.createExistingApp(name))
     }
@@ -135,31 +131,33 @@ export class Bus {
    * load the resources of an app
    * @param ctx
    */
-  public async loadApp (name:string, ctx: Record<string, any> = {}) {
+  public async loadApp(name: string, ctx: Record<string, any> = {}) {
     if (!this.apps[name]) {
       if (!this.loadingApps[name]) {
         this.loadingApps[name] = new Promise((resolve, reject) => {
           const context = this.createContext(name, ctx)
           // apply the middlewares
-          this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this)).then(() => {
-            const isLib = name.startsWith('lib:')
-            if (isLib && !this.apps[name]) {
-              this.apps[name] = true
-            }
-            if (!this.apps[name]) {
-              reject(new Error(Errors.appNotCreated(name)))
-            }
-            resolve()
-          }).catch((error) => {
-            reject(error)
-          })
+          this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))
+            .then(() => {
+              const isLib = name.startsWith('lib:')
+              if (isLib && !this.apps[name]) {
+                this.apps[name] = true
+              }
+              if (!this.apps[name]) {
+                reject(new Error(Errors.appNotCreated(name)))
+              }
+              resolve()
+            })
+            .catch((error) => {
+              reject(error)
+            })
         })
       }
       await this.loadingApps[name]
     }
   }
 
-  private async activateDependencies (app: App, visitPath: string[]) {
+  private async activateDependencies(app: App, visitPath: string[]) {
     if (!app.dependenciesReady && app.dependencies.length !== 0) {
       for (const dependence of app.dependencies) {
         const { name, data, ctx } = dependence
@@ -169,7 +167,7 @@ export class Bus {
     }
   }
 
-  private async loadRelatedApps (app: App) {
+  private async loadRelatedApps(app: App) {
     for (const { name, ctx } of app.relatedApps) {
       await this.loadApp(name, ctx)
     }
@@ -180,7 +178,7 @@ export class Bus {
    * @param name
    * @param data
    */
-  public async activateApp<T = any> (name: string, data?: T, ctx: Record<string, any> = {}, visitPath: string[] = []) {
+  public async activateApp<T = any>(name: string, data?: T, ctx: Record<string, any> = {}, visitPath: string[] = []) {
     await this.loadApp(name, ctx)
     if (this.isRallieCoreApp(name)) {
       const app = this.apps[name] as App
@@ -215,7 +213,7 @@ export class Bus {
    * @param name
    * @param data
    */
-  public async destroyApp<T = any> (name: string, data?: T) {
+  public async destroyApp<T = any>(name: string, data?: T) {
     if (this.isRallieCoreApp(name)) {
       const app = this.apps[name] as App
       app.doDestroy && (await Promise.resolve(app.doDestroy(data)))
@@ -235,7 +233,7 @@ export const createBus = (name: string = DEFAULT_BUS_NAME) => {
   if (window.RALLIE_BUS_STORE === undefined) {
     Reflect.defineProperty(window, 'RALLIE_BUS_STORE', {
       value: busProxy,
-      writable: false
+      writable: false,
     })
   }
 
@@ -245,7 +243,7 @@ export const createBus = (name: string = DEFAULT_BUS_NAME) => {
     const bus = new Bus(name)
     Reflect.defineProperty(window.RALLIE_BUS_STORE, name, {
       value: bus,
-      writable: false
+      writable: false,
     })
     return bus
   }

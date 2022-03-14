@@ -4,7 +4,9 @@ import nock from 'nock'
 
 nock('https://cdn.rallie.com/test')
   .get('/case1.html')
-  .reply(200, `
+  .reply(
+    200,
+    `
     <html>
       <body>
         <link href="/case.css"></link>
@@ -20,9 +22,12 @@ nock('https://cdn.rallie.com/test')
         </script>
       </body>
     </html>
-  `)
+  `,
+  )
   .get('/case2.html')
-  .reply(200, `
+  .reply(
+    200,
+    `
     <html>
       <body>
         <div id="case2">
@@ -34,7 +39,8 @@ nock('https://cdn.rallie.com/test')
         </script>
       </body>
     </html>
-  `)
+  `,
+  )
   .get('/remote.js')
   .reply(200, "console.log('remote.js loaded')") // eslint-disable-line
   .get('/another-remote.js')
@@ -43,11 +49,13 @@ nock('https://cdn.rallie.com/test')
 describe('Test the load-html middleware', () => {
   test('#case1: test load-html middleware with entries', async () => {
     const bus = createBus('case1')
-    bus.use(loadHtml({
-      entries: {
-        case1: 'https://cdn.rallie.com/test/case1.html#case1'
-      }
-    }))
+    bus.use(
+      loadHtml({
+        entries: {
+          case1: 'https://cdn.rallie.com/test/case1.html#case1',
+        },
+      }),
+    )
     console.log = jest.fn()
     await bus.activateApp('case1')
     expect(console.log).toHaveBeenCalledTimes(2)
@@ -64,12 +72,16 @@ describe('Test the load-html middleware', () => {
     root.id = 'case2'
     document.body.appendChild(root)
     const bus = createBus('case2')
-    bus.use(loadHtml({
-      fetch: window.fetch,
-      regardHtmlPathAsRoot: true
-    })).use(async (ctx) => {
-      await ctx.loadHtml(`https://cdn.rallie.com/test/${ctx.name}.html#case2`)
-    })
+    bus
+      .use(
+        loadHtml({
+          fetch: window.fetch,
+          regardHtmlPathAsRoot: true,
+        }),
+      )
+      .use(async (ctx) => {
+        await ctx.loadHtml(`https://cdn.rallie.com/test/${ctx.name}.html#case2`)
+      })
     console.log = jest.fn()
     await bus.activateApp('case2')
     expect(console.log).toHaveBeenCalledWith('another remote.js loaded')

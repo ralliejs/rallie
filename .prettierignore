@@ -1,0 +1,6 @@
+# Folder
+
+dist
+node_modules
+coverage
+tsconfig.json

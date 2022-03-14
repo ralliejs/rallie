@@ -40,9 +40,13 @@ describe('Test socket.initState, socket.existState and socket.getState', () => {
 describe('Test socket.setState', () => {
   const bus = new Bus('innerBus')
   const socket = bus.createSocket()
-  socket.initState('counter', {
-    value: 0
-  }, true)
+  socket.initState(
+    'counter',
+    {
+      value: 0,
+    },
+    true,
+  )
 
   test('# case 1: state can be modified by socket.setState', async () => {
     const delay = (seconds: number) => {
@@ -69,29 +73,35 @@ describe('Test socket.setState', () => {
 
   test('# case 2: private state can not be modified by other socket', (done) => {
     const anotherSocket = bus.createSocket()
-    anotherSocket.setState('counter', 'add counter by another socket', (state) => {
-      state.value++
-    }).catch((err) => {
-      expect(err.message).toEqual(Errors.modifyPrivateState('counter'))
-      done()
-    })
+    anotherSocket
+      .setState('counter', 'add counter by another socket', (state) => {
+        state.value++
+      })
+      .catch((err) => {
+        expect(err.message).toEqual(Errors.modifyPrivateState('counter'))
+        done()
+      })
   })
 
   test('# case 3: an uninitialized state can not be set', (done) => {
-    socket.setState('uninitialized', 'set an unintialized state', (state) => {
-      state.value = 'whatever'
-    }).catch((err) => {
-      expect(err.message).toEqual(Errors.accessUninitializedState('uninitialized'))
-      done()
-    })
+    socket
+      .setState('uninitialized', 'set an unintialized state', (state) => {
+        state.value = 'whatever'
+      })
+      .catch((err) => {
+        expect(err.message).toEqual(Errors.accessUninitializedState('uninitialized'))
+        done()
+      })
   })
 
   test('# case 4: action is neccessary when calling socket.setState', () => {
-    socket.setState('counter', '', (state) => {
-      state.value++
-    }).catch((error) => {
-      expect(error.message).toEqual(Errors.actionIsNotDefined('counter'))
-    })
+    socket
+      .setState('counter', '', (state) => {
+        state.value++
+      })
+      .catch((error) => {
+        expect(error.message).toEqual(Errors.actionIsNotDefined('counter'))
+      })
   })
 })
 
@@ -112,12 +122,15 @@ describe('Test socket.waitState', () => {
   })
 
   test('# case 2: wait for some states time out, an error should be throwed', (done) => {
-    socket.waitState(['gender', 'session'], 50).then(() => {
-      throw new Error('this should not be callled')
-    }).catch((error) => {
-      expect(error.message).toEqual(Errors.waitStateTimeout(['session']))
-      done()
-    })
+    socket
+      .waitState(['gender', 'session'], 50)
+      .then(() => {
+        throw new Error('this should not be callled')
+      })
+      .catch((error) => {
+        expect(error.message).toEqual(Errors.waitStateTimeout(['session']))
+        done()
+      })
     socket.initState('gender', { value: 'female' })
     const timerId = setTimeout(() => {
       socket.initState('session', { value: 'abc' })
@@ -132,7 +145,7 @@ describe('Test socket.watchState', () => {
   let unwatch = null
   test('# case 1: state can not be watched before it is initialized', () => {
     expect(() => {
-      socket.watchState('uninitialized', state => state)
+      socket.watchState('uninitialized', (state) => state)
     }).toThrowError(Errors.accessUninitializedState('uninitialized'))
   })
 
@@ -140,17 +153,19 @@ describe('Test socket.watchState', () => {
     const rawUser = {
       name: 'Mary',
       age: 11,
-      gender: 'female'
+      gender: 'female',
     }
-    type User = typeof rawUser;
+    type User = typeof rawUser
     socket.initState<User>('user', rawUser)
-    type WatchingType = [string, number];
+    type WatchingType = [string, number]
     console.log = jest.fn()
-    unwatch = socket.watchState<User, WatchingType>('user', (state) => {
-      return [state.name, state.age]
-    }).do(([name, age], [oldName, oldAge]) => {
-      console.log(name, oldName, age, oldAge)
-    })
+    unwatch = socket
+      .watchState<User, WatchingType>('user', (state) => {
+        return [state.name, state.age]
+      })
+      .do(([name, age], [oldName, oldAge]) => {
+        console.log(name, oldName, age, oldAge)
+      })
     await socket.setState('user', 'modify user', (state) => {
       state.name = 'Mike'
       state.age = 12
@@ -188,11 +203,11 @@ describe('Test socket.watchState', () => {
     const watcher = socket.watchState('user', (state) => {
       console.log(state.name)
     })
-    await socket.setState('user', 'modify user\'s name', user => {
+    await socket.setState('user', "modify user's name", (user) => {
       user.name = 'Tom'
     })
     watcher.unwatch()
-    socket.setState('user', 'modify user\'s name', user => {
+    socket.setState('user', "modify user's name", (user) => {
       user.name = 'Jack'
     })
     expect(console.log).toBeCalledTimes(2)

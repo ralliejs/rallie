@@ -1,17 +1,17 @@
 import { effect, reactive, readonly } from '@vue/reactivity'
-import type { EventEmitter } from './event-emitter'; // eslint-disable-line
-import type { CallbackType, StoresType } from '../types'; // eslint-disable-line
+import type { EventEmitter } from './event-emitter' // eslint-disable-line
+import type { CallbackType, StoresType } from '../types' // eslint-disable-line
 import { Errors, isPrimitive, Warnings } from './utils'
 import { Watcher } from './watcher'
 
 const STATE_INITIALIZED = '$state-initialized'
 export class Socket {
-  constructor (private eventEmitter: EventEmitter, private stores: StoresType) {
+  constructor(private eventEmitter: EventEmitter, private stores: StoresType) {
     this.eventEmitter = eventEmitter
     this.stores = stores
   }
 
-  private offEvents (events: Record<string, CallbackType>, isUnicast: boolean, eventName?: string) {
+  private offEvents(events: Record<string, CallbackType>, isUnicast: boolean, eventName?: string) {
     let cancelListening = isUnicast ? this.eventEmitter.removeUnicastEventListener : this.eventEmitter.removeBroadcastEventListener
     cancelListening = cancelListening.bind(this.eventEmitter)
     if (eventName) {
@@ -32,7 +32,7 @@ export class Socket {
    * add broadcast event listeners
    * @param events
    */
-  public onBroadcast<T extends Record<string, CallbackType>> (events: T) {
+  public onBroadcast<T extends Record<string, CallbackType>>(events: T) {
     Object.entries(events).forEach(([eventName, handler]) => {
       this.eventEmitter.addBroadcastEventListener(eventName, handler)
     })
@@ -45,7 +45,7 @@ export class Socket {
    * add unicast event listeners
    * @param events
    */
-  public onUnicast<T extends Record<string, CallbackType>> (events: T) {
+  public onUnicast<T extends Record<string, CallbackType>>(events: T) {
     Object.entries(events).forEach(([eventName, handler]) => {
       try {
         this.eventEmitter.addUnicastEventListener(eventName, handler)
@@ -62,8 +62,8 @@ export class Socket {
    * create a proxy to emit a broadcast event
    * @param logger
    */
-  public createBroadcaster<T extends Record<string, CallbackType>> (logger?: (eventName: string) => void) {
-    return new Proxy<T>(({} as any), {
+  public createBroadcaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void) {
+    return new Proxy<T>({} as any, {
       get: (target, eventName) => {
         return (...args: any[]) => {
           logger?.(eventName as string)
@@ -72,7 +72,7 @@ export class Socket {
       },
       set: () => {
         return false
-      }
+      },
     })
   }
 
@@ -80,8 +80,8 @@ export class Socket {
    * create a proxy to emit unicast event
    * @param logger
    */
-  public createUnicaster<T extends Record<string, CallbackType>> (logger?: (eventName: string) => void) {
-    return new Proxy<T>(({} as any), {
+  public createUnicaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void) {
+    return new Proxy<T>({} as any, {
       get: (target, eventName) => {
         return (...args: any[]) => {
           logger?.(eventName as string)
@@ -90,7 +90,7 @@ export class Socket {
       },
       set: () => {
         return false
-      }
+      },
     })
   }
 
@@ -98,7 +98,7 @@ export class Socket {
    * judge if state has been initialized
    * @param namespace
    */
-  public existState (namespace: string) {
+  public existState(namespace: string) {
     return !!this.stores[namespace]
   }
 
@@ -108,9 +108,9 @@ export class Socket {
    * @param value
    * @param isPrivate is state can only be modified by the socket which initialized it
    */
-  public initState<T extends object = any> (namespace: string, initialState: T, isPrivate: boolean = false) {
+  public initState<T extends object = any>(namespace: string, initialState: T, isPrivate: boolean = false) {
     if (this.existState(namespace)) {
-      throw (new Error(Errors.duplicatedInitial(namespace)))
+      throw new Error(Errors.duplicatedInitial(namespace))
     } else {
       if (isPrimitive(initialState)) {
         throw new Error(Errors.initializePrimitiveState(namespace))
@@ -118,7 +118,7 @@ export class Socket {
       this.stores[namespace] = {
         state: reactive(initialState),
         owner: isPrivate ? this : null,
-        watchers: []
+        watchers: [],
       }
       this.eventEmitter.emitBroadcast(STATE_INITIALIZED, namespace)
     }
@@ -129,7 +129,7 @@ export class Socket {
    * get a state
    * @param {string} namespace
    */
-  public getState<T = any, P = T> (namespace: string, getter?: (state: T) => P) {
+  public getState<T = any, P = T>(namespace: string, getter?: (state: T) => P) {
     if (this.existState(namespace)) {
       const state = readonly(this.stores[namespace].state)
       return getter ? getter(state) : state
@@ -138,7 +138,7 @@ export class Socket {
     }
   }
 
-  private getStateToSet (namespace: string) {
+  private getStateToSet(namespace: string) {
     if (!this.existState(namespace)) {
       const msg = Errors.accessUninitializedState(namespace)
       throw new Error(msg)
@@ -157,7 +157,7 @@ export class Socket {
    * @param action
    * @param setter
    */
-  public async setState<T = any> (namespace: string, action: string, setter: (state: T) => void | Promise<void>) {
+  public async setState<T = any>(namespace: string, action: string, setter: (state: T) => void | Promise<void>) {
     const state: T = this.getStateToSet(namespace)
     if (action) {
       await Promise.resolve(setter(state))
@@ -171,7 +171,7 @@ export class Socket {
    * @param namespace
    * @param getter
    */
-  public watchState<T = any, P = any> (namespace: string, getter: (state: T) => undefined | P) {
+  public watchState<T = any, P = any>(namespace: string, getter: (state: T) => undefined | P) {
     if (!this.existState(namespace)) {
       const msg = Errors.accessUninitializedState(namespace)
       throw new Error(msg)
@@ -179,7 +179,7 @@ export class Socket {
     let dirty = false
     const state: T = readonly(this.stores[namespace].state)
     const watcher = new Watcher<P>(namespace, this.stores)
-    const clone = (val: any) => isPrimitive(val) ? val : JSON.parse(JSON.stringify(val))
+    const clone = (val: any) => (isPrimitive(val) ? val : JSON.parse(JSON.stringify(val)))
     const runner = effect(() => getter(state), {
       lazy: true,
       scheduler: () => {
@@ -192,7 +192,7 @@ export class Socket {
             dirty = false
           })
         }
-      }
+      },
     })
     watcher.oldWatchingStates = clone(runner())
     watcher.stopEffect = () => runner.effect.stop()
@@ -204,9 +204,10 @@ export class Socket {
    * @param dependencies the dependencies to be waited for
    * @param timeout the time to wait
    */
-  public waitState (dependencies: string[], timeout = 10 * 1000): Promise<any[]> {
+  public waitState(dependencies: string[], timeout = 10 * 1000): Promise<any[]> {
     const allDependencies = [...dependencies]
-    const unreadyDependencies = dependencies.filter((namespace: string) => { // remove all ready states first
+    const unreadyDependencies = dependencies.filter((namespace: string) => {
+      // remove all ready states first
       return !this.existState(namespace)
     })
 

@@ -37,13 +37,16 @@ describe('Test running mode', () => {
     registerApp(new App('case2-1')).relyOn(['case2-2'])
     registerApp(new App('case2-2')).relyOn(['case2-3'])
     registerApp(new App('case2-3')).relyOn(['case2-1'])
-    hostApp.activate('case2-1').then(() => {
-      throw new Error('this should never be reached')
-    }).catch((err) => {
-      const expectedError = Errors.circularDependencies('case2-1', ['case2-1', 'case2-2', 'case2-3', 'case2-1'])
-      expect(err.message).toEqual(expectedError)
-      done()
-    })
+    hostApp
+      .activate('case2-1')
+      .then(() => {
+        throw new Error('this should never be reached')
+      })
+      .catch((err) => {
+        const expectedError = Errors.circularDependencies('case2-1', ['case2-1', 'case2-2', 'case2-3', 'case2-1'])
+        expect(err.message).toEqual(expectedError)
+        done()
+      })
   })
 
   test('# case 3: remote app should access global bus if host app allowed', async () => {
@@ -57,17 +60,19 @@ describe('Test running mode', () => {
         await next()
       })
       env.config({
-        isConfTouchedByRemoteApp: true
+        isConfTouchedByRemoteApp: true,
       })
     }
     hostApp.run((env) => {
       env.config({
-        isConfTouchedByRemoteApp: false
+        isConfTouchedByRemoteApp: false,
       })
       env.freeze()
     })
     await remoteApp.run(remoteAppRunner)
-    await remoteApp.activate('anyApp1').catch(() => { /* ignore the error */ })
+    await remoteApp.activate('anyApp1').catch(() => {
+      /* ignore the error */
+    })
     expect(console.error).toBeCalledTimes(1) // the error consoled in the nativeLoader middleware
     await hostApp.run((env) => {
       expect(isRemoteAppMiddlewareCalled).toBeFalsy()
@@ -75,7 +80,9 @@ describe('Test running mode', () => {
       env.unfreeze()
     })
     await remoteApp.run(remoteAppRunner)
-    await remoteApp.activate('anyApp2').catch(() => { /* ignore the error */ })
+    await remoteApp.activate('anyApp2').catch(() => {
+      /* ignore the error */
+    })
     expect(console.error).toBeCalledTimes(2)
     hostApp.run((env) => {
       expect(isRemoteAppMiddlewareCalled).toBeTruthy()
@@ -83,7 +90,7 @@ describe('Test running mode', () => {
     })
   })
 })
-describe('Test App\'s lifecycles', () => {
+describe("Test App's lifecycles", () => {
   test('# case 1: test lifecycles', async () => {
     // the middleware in host mode should take effect
     const tester = 'lifecycle-tester'

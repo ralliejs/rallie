@@ -10,7 +10,7 @@ const RallieCore = {
   createBus,
   getBus,
   touchBus,
-  Bus
+  Bus,
 }
 
 export default RallieCore

@@ -1,19 +1,21 @@
 import { MiddlewareFnType } from '@rallie/core'
 
-export const jsdelivrLibraryLoader = (filePathMap = {}): MiddlewareFnType => async (ctx, next) => {
-  const { name } = ctx
-  if (name.startsWith('lib:')) {
-    const lib = name.slice(4)
-    const filePath = filePathMap[lib] || ''
-    const start = Date.now()
-    const src = `https://cdn.jsdelivr.net/npm/${lib}${filePath}`
-    await ctx.loadScript(src)
-    const end = Date.now()
-    console.log(`load ${lib} from ${src}. cost ${end - start}ms`)
-  } else {
-    await next()
+export const jsdelivrLibraryLoader =
+  (filePathMap = {}): MiddlewareFnType =>
+  async (ctx, next) => {
+    const { name } = ctx
+    if (name.startsWith('lib:')) {
+      const lib = name.slice(4)
+      const filePath = filePathMap[lib] || ''
+      const start = Date.now()
+      const src = `https://cdn.jsdelivr.net/npm/${lib}${filePath}`
+      await ctx.loadScript(src)
+      const end = Date.now()
+      console.log(`load ${lib} from ${src}. cost ${end - start}ms`)
+    } else {
+      await next()
+    }
   }
-}
 
 export const dynamicImportLoader: MiddlewareFnType = async (ctx, next) => {
   await import(`../apps/${ctx.name}/index.tsx`).catch(async (err) => {

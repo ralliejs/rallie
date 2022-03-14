@@ -47,8 +47,7 @@
   display: inline-block;
   cursor: pointer;
   margin: 0 10px;
-  width: 95px
-
+  width: 95px;
 }
 
 .button:hover {
@@ -56,5 +55,5 @@
   transition-duration: 0.5s;
   background-color: #61dafb;
   border: 2px solid #61dafb;
-  color: white
+  color: white;
 }

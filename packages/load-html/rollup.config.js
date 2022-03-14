@@ -6,20 +6,18 @@ import pkg from './package.json'
 
 export default {
   input: './src/index.ts',
-  output: [{
-    file: pkg.main,
-    format: 'umd',
-    name: 'RallieImportHtml',
-    exports: 'named'
-  }, {
-    file: pkg.module,
-    format: 'es',
-    exports: 'named'
-  }],
-  plugins: [
-    resolve(),
-    commonJs(),
-    typescript(),
-    json()
-  ]
+  output: [
+    {
+      file: pkg.main,
+      format: 'umd',
+      name: 'RallieImportHtml',
+      exports: 'named',
+    },
+    {
+      file: pkg.module,
+      format: 'es',
+      exports: 'named',
+    },
+  ],
+  plugins: [resolve(), commonJs(), typescript(), json()],
 }
