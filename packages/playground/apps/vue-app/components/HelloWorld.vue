@@ -2,8 +2,10 @@
 import { vueApp } from '../blocks/vue-app'
 import { useBlockState } from '@rallie/vue'
 
+// eslint-disable-next-line
 defineProps({ msg: String })
 
+// eslint-disable-next-line
 const count = useBlockState(vueApp, (state) => state.count)
 const addCount = () => {
   vueApp.setState('vue-app add the count', (state) => {
