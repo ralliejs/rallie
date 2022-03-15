@@ -1,10 +1,10 @@
-import { App } from '../src/index'
+import { createBlock } from '../src/index'
 import nativeLoader from './middlewares/native-loader'
 import logger from './middlewares/logger'
 
 describe('Test the dependencies', () => {
   const appsLoaded = []
-  const hostApp = new App('host-app')
+  const hostApp = createBlock('host-app')
   hostApp.run((env) => {
     env.use(logger(appsLoaded))
     env.use(nativeLoader)

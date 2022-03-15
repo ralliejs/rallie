@@ -1,21 +1,21 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { producer } from './apps'
-import { mixinRallieEvents, mixinRallieMethods, mixinRallieState } from '../../../src'
+import { producer } from './blocks'
+import { mixinBlockEvents, mixinBlockMethods, mixinBlockState } from '../../../src'
 
 export default defineComponent({
-  name: 'Consumer', // eslint-disable-line
+  name: 'Consumer',
   mixins: [
-    mixinRallieState(producer, (state) => ({
+    mixinBlockState(producer, (state) => ({
       isDarkTheme: state.isDarkTheme,
       count: state.count,
     })),
-    mixinRallieEvents(producer, {
+    mixinBlockEvents(producer, {
       printTheme() {
         console.log(this.isDarkTheme ? 'dark' : 'light')
       },
     }),
-    mixinRallieMethods(producer, {
+    mixinBlockMethods(producer, {
       toggleTheme() {
         producer.setState('toggle theme', (state) => {
           state.isDarkTheme = !state.isDarkTheme

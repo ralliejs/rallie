@@ -1,14 +1,14 @@
 import React from 'react'
-import type { App, Connector } from 'rallie'
+import type { Block, CreatedBlock } from 'rallie'
 
-export function useRallieState<T extends App | Connector, U>(
-  app: T,
+export function useBlockState<T extends Block<any, any, any>, U>(
+  block: T,
   getter: (state: T['state']) => U,
   deps: any[] = [],
 ) {
-  const [value, setValue] = React.useState<U>(getter(app.state))
+  const [value, setValue] = React.useState<U>(getter(block.state))
   React.useEffect(() => {
-    const unwatch = app.watchState(getter).do((val) => {
+    const unwatch = block.watchState(getter).do((val) => {
       setValue(val)
     })
     return () => {
@@ -18,26 +18,26 @@ export function useRallieState<T extends App | Connector, U>(
   return value
 }
 
-export function useRallieEvents<T extends App | Connector>(
-  app: T,
+export function useBlockEvents<T extends Block<any, any, any>>(
+  block: T,
   events: Partial<T['events']>,
   deps: any[] = [],
 ) {
   React.useEffect(() => {
-    const off = app.listenEvents(events)
+    const off = block.listenEvents(events)
     return () => {
       off()
     }
   }, [...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-export function useRallieMethods<T extends App>(
-  app: T,
+export function useBlockMethods<T extends CreatedBlock<any, any, any>>(
+  block: T,
   methods: Partial<T['methods']>,
   deps: any[] = [],
 ) {
   React.useEffect(() => {
-    const off = app.addMethods(methods)
+    const off = block.addMethods(methods)
     return () => {
       off()
     }

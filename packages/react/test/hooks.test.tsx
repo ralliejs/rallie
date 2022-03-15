@@ -1,12 +1,13 @@
-import { producer, Producer } from './apps/producer'
-import { consumer, Consumer } from './apps/consumer'
+import { producer, Producer } from './blocks/producer'
+import { consumer, Consumer } from './blocks/consumer'
 import { render, fireEvent, act, screen, cleanup } from '@testing-library/react'
-import { registerApp } from 'rallie'
+import { registerBlock } from 'rallie'
 
-registerApp(producer)
+registerBlock(producer)
   .onActivate(() => {
+    // TODO: fix the ts error
     // @ts-ignore
-    render(<Producer />) // TODO: fix the ts error
+    render(<Producer />)
   })
   .onDestroy(() => {
     cleanup()
@@ -18,12 +19,12 @@ registerApp(producer)
     })
   })
 
-registerApp(consumer)
+registerBlock(consumer)
   .relyOn(['producer'])
   .onActivate((containerId) => {
+    // TODO: fix the ts error
     // @ts-ignore
     render(<Consumer />, {
-      // TODO: fix the ts error
       container: document.getElementById(containerId),
     })
   })

@@ -1,10 +1,10 @@
 // @ts-ignore
 import { render, fireEvent, screen, cleanup } from '@testing-library/vue'
-import { MixinsProducer, producer } from './apps/producer'
-import { MixinsConsumer, consumer } from './apps/consumer'
-import { registerApp } from 'rallie'
+import { MixinsProducer, producer } from './blocks/producer'
+import { MixinsConsumer, consumer } from './blocks/consumer'
+import { registerBlock } from 'rallie'
 
-registerApp(producer)
+registerBlock(producer)
   .onActivate(() => {
     render(MixinsProducer)
   })
@@ -18,7 +18,7 @@ registerApp(producer)
     })
   })
 
-registerApp(consumer)
+registerBlock(consumer)
   .relyOn(['producer'])
   .onActivate((containerId) => {
     render(MixinsConsumer, {

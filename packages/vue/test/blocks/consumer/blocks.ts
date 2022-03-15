@@ -1,4 +1,4 @@
-import { App } from 'rallie'
+import { createBlock } from 'rallie'
 
 type State = {
   count: number
@@ -13,5 +13,5 @@ type Methods = {
   toggleTheme: () => void
 }
 
-export const consumer = new App('consumer')
+export const consumer = createBlock('consumer')
 export const producer = consumer.connect<State, Events, Methods>('producer')

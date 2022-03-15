@@ -1,5 +1,5 @@
 import { createApp, App as VueApp } from 'vue'
-import { hostApp } from './connect-apps/host-app'
+import { hostApp } from './blocks/host-app'
 import App from './components/App.vue'
 
 let app: VueApp<any>

@@ -1,17 +1,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { producer } from './apps'
-import { useRallieState, useRallieEvents, useRallieMethods } from '../../../src'
+import { producer } from './blocks'
+import { useBlockState, useBlockEvents, useBlockMethods } from '../../../src'
 
 export default defineComponent(function Producer() {
-  const count = useRallieState(producer, (state) => state.count)
-  const isDarkTheme = useRallieState(producer, (state) => state.isDarkTheme)
-  useRallieEvents(producer, {
+  const count = useBlockState(producer, (state) => state.count)
+  const isDarkTheme = useBlockState(producer, (state) => state.isDarkTheme)
+  useBlockEvents(producer, {
     printTheme() {
       console.log(producer.state.isDarkTheme ? 'dark' : 'light')
     },
   })
-  useRallieMethods(producer, {
+  useBlockMethods(producer, {
     toggleTheme() {
       producer.setState('toggle theme', (state) => {
         state.isDarkTheme = !state.isDarkTheme

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { vueApp } from '../app'
-import { useRallieState } from '@rallie/vue'
+import { vueApp } from '../blocks/vue-app'
+import { useBlockState } from '@rallie/vue'
 
-defineProps({ msg: String }) // eslint-disable-line
+defineProps({ msg: String })
 
-const count = useRallieState(vueApp, (state) => state.count) // eslint-disable-line
+const count = useBlockState(vueApp, (state) => state.count)
 const addCount = () => {
   vueApp.setState('vue-app add the count', (state) => {
     state.count++

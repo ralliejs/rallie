@@ -1,5 +1,5 @@
-import { App } from 'rallie'
-import { useRallieState, useRallieEvents, useRallieMethods } from '../../src'
+import { createBlock } from 'rallie'
+import { useBlockState, useBlockEvents, useBlockMethods } from '../../src'
 
 type Events = {
   printTheme: () => void
@@ -14,16 +14,17 @@ const state = {
   count: 0,
 }
 
-export const producer = new App<typeof state, Events, Methods>('producer', { state })
+export const producer = createBlock<typeof state, Events, Methods>('producer')
+producer.initState(state)
 
 export const Producer = () => {
-  const [count, isDarkTheme] = useRallieState(producer, (state) => [state.count, state.isDarkTheme])
-  useRallieEvents(producer, {
+  const [count, isDarkTheme] = useBlockState(producer, (state) => [state.count, state.isDarkTheme])
+  useBlockEvents(producer, {
     printTheme() {
       console.log(producer.state.isDarkTheme ? 'dark' : 'light')
     },
   })
-  useRallieMethods(producer, {
+  useBlockMethods(producer, {
     toggleTheme() {
       producer.setState('toggle theme', (state) => {
         state.isDarkTheme = !state.isDarkTheme

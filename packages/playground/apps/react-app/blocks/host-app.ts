@@ -1,4 +1,4 @@
-import { vueApp } from '../app'
+import { reactApp } from './react-app'
 
 type State = {}
 
@@ -10,8 +10,6 @@ type Events = {
   loading: (message: string) => void
 }
 
-type Methods = {
-  useNaiveUI: () => any
-}
+type Methods = {}
 
-export const hostApp = vueApp.connect<State, Events, Methods>('host-app')
+export const hostApp = reactApp.connect<State, Events, Methods>('host-app')

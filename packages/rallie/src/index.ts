@@ -11,10 +11,11 @@ export function createBlock<
   if (globalBus.existApp(name)) {
     throw new Error(errors.duplicatedBlockName(name))
   }
+  const globalSocket = globalBus.createSocket()
   if (isEntry) {
-    this.globalSocket.initState(constant.isGlobalBusAccessible, { value: true }, true)
+    globalSocket.initState(constant.isGlobalBusAccessible, { value: true }, true)
   }
-  return new CreatedBlock<State, Events, Methods>(name, globalBus, isEntry)
+  return new CreatedBlock<State, Events, Methods>(name, globalBus, globalSocket, isEntry)
 }
 
 export function registerBlock(block: CreatedBlock<any, any, any>): RegisteredBlock {

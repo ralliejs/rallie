@@ -1,5 +1,5 @@
-import { App } from 'rallie'
-import { useRallieState } from '../../src'
+import { createBlock } from 'rallie'
+import { useBlockState } from '../../src'
 
 type Events = {
   printTheme: () => void
@@ -14,7 +14,7 @@ type State = {
   isDarkTheme: boolean
 }
 
-export const consumer = new App('consumer')
+export const consumer = createBlock('consumer')
 const producer = consumer.connect<State, Events, Methods>('producer')
 export const Consumer = () => {
   const toggleTheme = () => {
@@ -28,7 +28,7 @@ export const Consumer = () => {
   const printTheme = () => {
     producer.events.printTheme()
   }
-  const isDarkTheme = useRallieState(producer, (state) => state.isDarkTheme)
+  const isDarkTheme = useBlockState(producer, (state) => state.isDarkTheme)
   return (
     <div
       data-testid="consumer-container"

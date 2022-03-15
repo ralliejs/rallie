@@ -1,4 +1,4 @@
-import { App } from 'rallie'
+import { createBlock } from 'rallie'
 
 type Events = {
   printTheme: () => void
@@ -13,4 +13,5 @@ const state = {
   count: 0,
 }
 
-export const producer = new App<typeof state, Events, Methods>('producer', { state })
+export const producer = createBlock<typeof state, Events, Methods>('producer')
+producer.initState(state)

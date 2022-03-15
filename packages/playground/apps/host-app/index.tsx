@@ -1,7 +1,7 @@
-import { registerApp } from 'rallie'
-import { hostApp } from './app'
+import { registerBlock } from 'rallie'
+import { hostApp } from './block'
 
-registerApp(hostApp)
+registerBlock(hostApp)
   .relyOn(['lib:vue'])
   .onBootstrap(async () => {
     console.log('host app is bootstrapped')

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useMessage, NButton } from 'naive-ui'
-import { hostApp } from './app'
+import { hostApp } from './block'
 
 const message = useMessage() // eslint-disable-line
 const types = ['error', 'info', 'loading', 'success', 'warning']

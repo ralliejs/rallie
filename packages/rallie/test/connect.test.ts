@@ -1,5 +1,5 @@
 import { Errors } from '@rallie/core'
-import { App, registerApp } from '../src/index'
+import { createBlock, registerBlock } from '../src/index'
 import { errors, constant } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
 
@@ -19,7 +19,7 @@ type Methods = {
   addCount: () => void
 }
 
-const hostApp = new App('host-app')
+const hostApp = createBlock('host-app')
 
 hostApp.run((env) => {
   env.use(nativeLoader)
@@ -27,8 +27,8 @@ hostApp.run((env) => {
 
 describe('Test state', () => {
   test('# case 1: test set, get and watch of state', async () => {
-    const app = new App('state-case1')
-    registerApp(app)
+    const app = createBlock('state-case1')
+    registerBlock(app)
       .relateTo(['connect-testers/state'])
       .onBootstrap(async () => {
         console.log = jest.fn()
@@ -65,9 +65,9 @@ describe('Test state', () => {
   })
 
   test('# case 2: set and watch uninitialized state', () => {
-    registerApp(new App('state-case2-1'))
-    const app = new App('state-case2-2')
-    registerApp(app).relateTo(['state-case2-1'])
+    registerBlock(createBlock('state-case2-1'))
+    const app = createBlock('state-case2-2')
+    registerBlock(app).relateTo(['state-case2-1'])
     expect(() => {
       app.connect<any>('state-case2-1').setState("app2 modify app1's state", (state) => {
         state.value = 1
@@ -86,8 +86,8 @@ describe('Test state', () => {
 
   test('#case 3: test private state', async () => {
     console.log = jest.fn()
-    const app = new App('state-case3')
-    registerApp(app)
+    const app = createBlock('state-case3')
+    registerBlock(app)
     await app.activate('connect-testers/state')
     // the app 'connect-testers/state.private' will be registered once the app 'connect-testers/state' is registered
     type PrivateState = { user: string }
@@ -126,8 +126,8 @@ describe('Test state', () => {
 })
 
 describe('Test Events', () => {
-  const app = new App('events-tester')
-  registerApp(app).relyOn(['connect-testers/events'])
+  const app = createBlock('events-tester')
+  registerBlock(app).relyOn(['connect-testers/events'])
 
   test('# case 1: test events', async () => {
     await app.activate('events-tester')
@@ -157,8 +157,8 @@ describe('Test Events', () => {
 })
 
 describe('Test Methods', () => {
-  const app = new App('methods-tester')
-  registerApp(app).relyOn(['connect-testers/methods'])
+  const app = createBlock('methods-tester')
+  registerBlock(app).relyOn(['connect-testers/methods'])
 
   test('# case 2: test methods', async () => {
     await app.activate('methods-tester')

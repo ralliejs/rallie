@@ -1,13 +1,13 @@
-import { App, Connector } from 'rallie'
+import type { Block, CreatedBlock } from 'rallie'
 
-export function mixinRallieState<T extends App | Connector, U>(
-  app: T,
+export function mixinBlockState<T extends Block<any, any, any>, U>(
+  block: T,
   mapStateToComputed: (state: T['state']) => U,
 ) {
   let unwatchState = null
   const computed = {}
-  const mappedState = mapStateToComputed(app.state)
-  const dataKey = `rallie-state-${app.name}`
+  const mappedState = mapStateToComputed(block.state)
+  const dataKey = `rallie-state-${block.name}`
   Object.keys(mappedState).forEach((key) => {
     computed[key] = function () {
       return this[dataKey][key]
@@ -22,22 +22,25 @@ export function mixinRallieState<T extends App | Connector, U>(
     },
     computed,
     mounted() {
-      unwatchState = app.watchState(mapStateToComputed).do((value) => {
+      unwatchState = block.watchState(mapStateToComputed).do((value) => {
         this[dataKey] = value
       })
     },
+    // for vue2
     beforeDestroy() {
-      // for vue2
       unwatchState()
     },
+    // for vue3
     beforeUnmount() {
-      // for vue3
       unwatchState()
     },
   }
 }
 
-export function mixinRallieEvents<T extends App | Connector>(app: T, events: Partial<T['events']>) {
+export function mixinBlockEvents<T extends Block<any, any, any>>(
+  block: T,
+  events: Partial<T['events']>,
+) {
   let offEvents = null
   return {
     methods: events,
@@ -46,20 +49,23 @@ export function mixinRallieEvents<T extends App | Connector>(app: T, events: Par
       Object.entries(events).forEach(([key, Fn]) => {
         _events[key] = (Fn as Function).bind(this)
       })
-      offEvents = app.listenEvents(_events)
+      offEvents = block.listenEvents(_events)
     },
+    // for vue2
     beforeDestroy() {
-      // for vue2
       offEvents()
     },
+    // for vue3
     beforeUnmount() {
-      // for vue3
       offEvents()
     },
   }
 }
 
-export function mixinRallieMethods<T extends App>(app: T, methods: Partial<T['methods']>) {
+export function mixinBlockMethods<T extends CreatedBlock<any, any, any>>(
+  block: T,
+  methods: Partial<T['methods']>,
+) {
   let offMethods = null
   return {
     methods,
@@ -68,14 +74,14 @@ export function mixinRallieMethods<T extends App>(app: T, methods: Partial<T['me
       Object.entries(methods).forEach(([key, Fn]) => {
         _methods[key] = (Fn as Function).bind(this)
       })
-      offMethods = app.addMethods(_methods)
+      offMethods = block.addMethods(_methods)
     },
+    // for vue2
     beforeDestroy() {
-      // for vue2
       offMethods()
     },
+    // for vue3
     beforeUnmount() {
-      // for vue3
       offMethods()
     },
   }

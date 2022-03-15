@@ -1,14 +1,14 @@
 import { onBeforeUnmount, onBeforeMount, ref, UnwrapRef } from 'vue'
-import type { App, Connector } from 'rallie'
+import type { Block, CreatedBlock } from 'rallie'
 
-export function useRallieState<T extends App | Connector, U>(
-  app: T,
+export function useBlockState<T extends Block<any, any, any>, U>(
+  block: T,
   getter: (state: T['state']) => U,
 ) {
-  const stateRef = ref<U>(getter(app.state))
+  const stateRef = ref<U>(getter(block.state))
   let unwatch = null
   onBeforeMount(() => {
-    unwatch = app.watchState(getter).do((value) => {
+    unwatch = block.watchState(getter).do((value) => {
       stateRef.value = value as UnwrapRef<U>
     })
   })
@@ -18,20 +18,26 @@ export function useRallieState<T extends App | Connector, U>(
   return stateRef
 }
 
-export function useRallieEvents<T extends App | Connector>(app: T, events: Partial<T['events']>) {
+export function useBlockEvents<T extends Block<any, any, any>>(
+  block: T,
+  events: Partial<T['events']>,
+) {
   let off = null
   onBeforeMount(() => {
-    off = app.listenEvents(events)
+    off = block.listenEvents(events)
   })
   onBeforeUnmount(() => {
     off()
   })
 }
 
-export function useRallieMethods<T extends App>(app: T, methods: Partial<T['methods']>) {
+export function useBlockMethods<T extends CreatedBlock<any, any, any>>(
+  block: T,
+  methods: Partial<T['methods']>,
+) {
   let off = null
   onBeforeMount(() => {
-    off = app.addMethods(methods)
+    off = block.addMethods(methods)
   })
   onBeforeUnmount(() => {
     off()

@@ -21,11 +21,11 @@ export class CreatedBlock<
   private globalSocket: Socket
   private isEntry: boolean
 
-  constructor(name: string, globalBus: Bus, isEntry: boolean) {
+  constructor(name: string, globalBus: Bus, globalSocket: Socket, isEntry: boolean) {
     super(name)
     this.isCreatedBlock = true
     this.globalBus = globalBus
-    this.globalSocket = globalBus.createSocket()
+    this.globalSocket = globalSocket
     this.isEntry = isEntry
   }
 

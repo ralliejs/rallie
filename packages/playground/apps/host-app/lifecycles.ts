@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import Provider from './Provider.vue'
-import { hostApp } from './app'
+import { hostApp } from './block'
 import { NButton, create } from 'naive-ui'
 
 export const onBootstrap = () => {

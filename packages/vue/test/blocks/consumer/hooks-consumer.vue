@@ -1,6 +1,6 @@
 <script lang="ts">
-import { producer } from './apps'
-import { useRallieState } from '../../../src'
+import { producer } from './blocks'
+import { useBlockState } from '../../../src'
 import { defineComponent } from 'vue'
 
 export default defineComponent(function Consumer() {
@@ -15,7 +15,7 @@ export default defineComponent(function Consumer() {
   const printTheme = () => {
     producer.events.printTheme()
   }
-  const isDarkTheme = useRallieState(producer, (state) => state.isDarkTheme)
+  const isDarkTheme = useBlockState(producer, (state) => state.isDarkTheme)
   return {
     toggleTheme,
     addCount,

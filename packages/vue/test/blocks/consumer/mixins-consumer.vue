@@ -1,12 +1,12 @@
 <script lang="ts">
-import { producer } from './apps'
-import { mixinRallieState } from '../../../src'
+import { producer } from './blocks'
+import { mixinBlockState } from '../../../src'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'Consumer', // eslint-disable-line
+  name: 'Consumer',
   mixins: [
-    mixinRallieState(producer, (state) => ({
+    mixinBlockState(producer, (state) => ({
       isDarkTheme: state.isDarkTheme,
     })),
   ],

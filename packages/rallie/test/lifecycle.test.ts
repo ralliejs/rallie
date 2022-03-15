@@ -1,16 +1,15 @@
-import { App, registerApp } from '../src/index'
+import { createBlock, registerBlock, Env } from '../src/index'
 import { Errors } from '@rallie/core'
-import { Env } from '../src/app'
 import nativeLoader from './middlewares/native-loader'
 
-const hostApp = new App('host-app')
+const hostApp = createBlock('host-app')
 hostApp.run((env) => {
   env.use(nativeLoader)
 })
 describe('Test running mode', () => {
   test('# case 1: the host-app should run in host mode, and other apps should run in remote mode', async () => {
-    const remoteApp = new App('remote-app')
-    registerApp(remoteApp)
+    const remoteApp = createBlock('remote-app')
+    registerBlock(remoteApp)
     console.log = jest.fn()
     hostApp.run((env) => {
       expect(env.isEntry).toBeTruthy()
@@ -34,9 +33,9 @@ describe('Test running mode', () => {
   })
 
   test('# case 2: config in host mode should take effect', (done) => {
-    registerApp(new App('case2-1')).relyOn(['case2-2'])
-    registerApp(new App('case2-2')).relyOn(['case2-3'])
-    registerApp(new App('case2-3')).relyOn(['case2-1'])
+    registerBlock(createBlock('case2-1')).relyOn(['case2-2'])
+    registerBlock(createBlock('case2-2')).relyOn(['case2-3'])
+    registerBlock(createBlock('case2-3')).relyOn(['case2-1'])
     hostApp
       .activate('case2-1')
       .then(() => {
@@ -56,9 +55,9 @@ describe('Test running mode', () => {
 
   test('# case 3: remote app should access global bus if host app allowed', async () => {
     console.error = jest.fn()
-    const remoteApp = new App('case3')
+    const remoteApp = createBlock('case3')
     let isRemoteAppMiddlewareCalled = false
-    registerApp(remoteApp)
+    registerBlock(remoteApp)
     const remoteAppRunner = async (env: Env) => {
       env.use(async (ctx, next) => {
         isRemoteAppMiddlewareCalled = true

@@ -1,4 +1,4 @@
-import { reactApp } from '../app'
+import { createBlock } from 'rallie'
 
 type State = {}
 
@@ -10,6 +10,8 @@ type Events = {
   loading: (message: string) => void
 }
 
-type Methods = {}
+type Methods = {
+  useNaiveUI: () => any
+}
 
-export const hostApp = reactApp.connect<State, Events, Methods>('host-app')
+export const hostApp = createBlock<State, Events, Methods>('host-app')

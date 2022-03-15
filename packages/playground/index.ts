@@ -1,8 +1,8 @@
-import { registerApp, App } from 'rallie'
+import { registerBlock, createBlock } from 'rallie'
 import { jsdelivrLibraryLoader, dynamicImportLoader, htmlLoader } from './middlewares' // eslint-disable-line
 import loadHtml from '@rallie/load-html' // eslint-disable-line
 
-const starter = new App('starter')
+const starter = createBlock('starter')
 
 starter.run((env) => {
   env.use(
@@ -17,7 +17,7 @@ starter.run((env) => {
   // env.use(loadHtml())
   env.use(htmlLoader)
 
-  registerApp(starter).onBootstrap(async () => {
+  registerBlock(starter).onBootstrap(async () => {
     starter.activate('react-app')
     starter.activate('vue-app')
   })

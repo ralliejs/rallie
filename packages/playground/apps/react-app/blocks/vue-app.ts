@@ -1,4 +1,4 @@
-import { reactApp } from '../app'
+import { reactApp } from './react-app'
 
 type State = {
   count: number
