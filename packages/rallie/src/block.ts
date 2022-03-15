@@ -22,7 +22,9 @@ export class Block<
     this.methods = this.socket.createUnicaster()
     Reflect.defineProperty(this, 'state', {
       get: () => this.socket.getState<State, State>(constant.stateNamespace(this.name)),
-      set: () => false,
+      set: () => {
+        throw new Error(errors.stateIsReadonly(this.name))
+      },
     })
   }
 

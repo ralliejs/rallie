@@ -14,14 +14,14 @@ function App() {
   }
   const messageTypes = ['info', 'error', 'warning', 'success', 'loading']
   const hint = {
-    currentMode: 'entry',
-    navigationMode: 'remote',
+    currentEnv: 'entry',
+    navigationEnv: 'non-entry',
     navigationLink: '/rallie/index.html',
   }
   reactApp.run((env) => {
     if (!env.isEntry) {
-      hint.currentMode = 'remote'
-      hint.navigationMode = 'entry'
+      hint.currentEnv = 'non-entry'
+      hint.navigationEnv = 'entry'
       hint.navigationLink = '/rallie/apps/react-app/index.html'
     }
   })
@@ -32,11 +32,11 @@ function App() {
         <img src={logo} className={classes.appLogo} alt="logo" />
         <h1>Hello Vite + React + Rallie!</h1>
         <p>
-          this app is running in <strong>{hint.currentMode}</strong> mode, click{' '}
+          react-app is running in <strong>{hint.currentEnv}</strong> enviroment, click{' '}
           <a className={classes.appLink} href={hint.navigationLink}>
             here
           </a>{' '}
-          to see how it works in {hint.navigationMode} mode
+          to see how it works in {hint.navigationEnv} enviroment
         </p>
         <p>the count is a state initialized by vue app</p>
         <p>
@@ -45,7 +45,7 @@ function App() {
           </button>
         </p>
         <div>
-          <p>message is an event service provided by host app</p>
+          <p>message is an event service provided by host-app</p>
           {messageTypes.map((type) => (
             <button
               className={classes.button}

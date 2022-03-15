@@ -14,14 +14,14 @@ const addCount = () => {
 }
 
 const hint = {
-  currentMode: 'entry',
-  navigationMode: 'remote',
+  currentEnv: 'entry',
+  navigationEnv: 'non-entry',
   navigationLink: '/rallie/index.html',
 }
 vueApp.run((env) => {
   if (!env.isEntry) {
-    hint.currentMode = 'remote'
-    hint.navigationMode = 'entry'
+    hint.currentEnv = 'non-entry'
+    hint.navigationEnv = 'entry'
     hint.navigationLink = '/rallie/apps/vue-app/index.html'
   }
 })
@@ -31,12 +31,13 @@ vueApp.run((env) => {
   <h1>{{ msg }}</h1>
 
   <p>
-    This app is running in <strong>{{ hint.currentMode }}</strong> mode, click
-    <a :href="hint.navigationLink">here</a> to see how it works in {{ hint.navigationMode }} mode
+    vue-app is running in <strong>{{ hint.currentEnv }}</strong> enviroment, click
+    <a :href="hint.navigationLink">here</a> to see how it works in
+    {{ hint.navigationEnv }} enviroment
   </p>
   <p>the count can be get, set and watched by the react app</p>
   <n-button @click="addCount">count is: {{ count }}</n-button>
-  <p>the host app provide a method service to use naive-ui's button component</p>
+  <p>host-app provides a method service to use naive-ui's button component</p>
   <p>
     Edit
     <code>components/HelloWorld.vue</code> to test hot module replacement.
