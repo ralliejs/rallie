@@ -6,7 +6,6 @@
     "packages/*"
   ],
   "scripts": {
-    "prepare": "npm run bootstrap",
     "bootstrap": "lerna bootstrap --hoist --force-local",
     "clean": "lerna clean",
     "test": "npm run build && jest --coverage",
