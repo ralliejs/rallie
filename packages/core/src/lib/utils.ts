@@ -1,10 +1,4 @@
-import type {
-  MiddlewareFnType,
-  NextFnType,
-  ContextType,
-  DependencyType,
-  RelateType,
-} from '../types' // eslint-disable-line
+import type { MiddlewareFnType, NextFnType, ContextType, DependencyType, RelateType } from '../types' // eslint-disable-line
 
 export const Errors = {
   // ================= EventEmitter.broadcast  =================
@@ -57,12 +51,9 @@ export const Errors = {
     return `[@rallie/core] it's not allowed to initialized state ${namespace} to a primitive value`
   },
   // ================= Bus ==================
-  duplicatedBus: (name: string) =>
-    `[@rallie/core] the bus named ${name} has been defined before, please rename your bus`,
+  duplicatedBus: (name: string) => `[@rallie/core] the bus named ${name} has been defined before, please rename your bus`,
   circularDependencies: (appName: string, circularPath: string[]) =>
-    `[@rallie/core] There is a circular dependency when activating the app ${appName}, and the circular path is ${circularPath.join(
-      '->',
-    )}`,
+    `[@rallie/core] There is a circular dependency when activating the app ${appName}, and the circular path is ${circularPath.join('->')}`,
   multipleCalledNextFn: () => {
     return '[@rallie/core] next() called multiple times in the middleware'
   },
@@ -73,9 +64,7 @@ export const Errors = {
 
 export const Warnings = {
   handlerIsNotInTheEventsPool: (eventName: string, isUnicast: boolean) => {
-    return `[@rallie/core] the event ${eventName} is not in the events pool that you specified when calling on${
-      isUnicast ? 'Unicast' : 'Broadcast'
-    }`
+    return `[@rallie/core] the event ${eventName} is not in the events pool that you specified when calling on${isUnicast ? 'Unicast' : 'Broadcast'}`
   },
 }
 
@@ -101,27 +90,26 @@ export function deduplicate(items: DependencyType[] | RelateType[]) {
  * @param middlewares
  * @returns
  */
-export const compose =
-  (middlewares: MiddlewareFnType[]) => (context: ContextType, next: NextFnType) => {
-    // last called middleware #
-    let index = -1
-    const dispatch = (i: number) => {
-      if (i <= index) {
-        return Promise.reject(new Error(Errors.multipleCalledNextFn()))
-      }
-      index = i
-      let fn = middlewares[i]
-      if (i === middlewares.length) {
-        fn = next
-      }
-      if (!fn) {
-        return Promise.resolve()
-      }
-      try {
-        return Promise.resolve(fn(context, dispatch.bind(null, i + 1)))
-      } catch (err) {
-        return Promise.reject(err)
-      }
+export const compose = (middlewares: MiddlewareFnType[]) => (context: ContextType, next: NextFnType) => {
+  // last called middleware #
+  let index = -1
+  const dispatch = (i: number) => {
+    if (i <= index) {
+      return Promise.reject(new Error(Errors.multipleCalledNextFn()))
     }
-    return dispatch(0)
+    index = i
+    let fn = middlewares[i]
+    if (i === middlewares.length) {
+      fn = next
+    }
+    if (!fn) {
+      return Promise.resolve()
+    }
+    try {
+      return Promise.resolve(fn(context, dispatch.bind(null, i + 1)))
+    } catch (err) {
+      return Promise.reject(err)
+    }
   }
+  return dispatch(0)
+}

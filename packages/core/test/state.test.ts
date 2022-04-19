@@ -33,10 +33,7 @@ describe('Test socket.initState, socket.existState and socket.getState', () => {
     console.warn = jest.fn()
     counter.value += 1
     expect(counter.value).toEqual(0)
-    expect(console.warn).toBeCalledWith(
-      'Set operation on key "value" failed: target is readonly.',
-      counter,
-    )
+    expect(console.warn).toBeCalledWith('Set operation on key "value" failed: target is readonly.', counter)
   })
 })
 
@@ -71,10 +68,7 @@ describe('Test socket.setState', () => {
     })
     counter.value++
     expect(counter.value).toEqual(2)
-    expect(console.warn).toBeCalledWith(
-      'Set operation on key "value" failed: target is readonly.',
-      counter,
-    )
+    expect(console.warn).toBeCalledWith('Set operation on key "value" failed: target is readonly.', counter)
   })
 
   test('# case 2: private state can not be modified by other socket', (done) => {
@@ -184,6 +178,24 @@ describe('Test socket.watchState', () => {
     expect(console.log).toBeCalledWith('Mike', 'Mary', 12, 11)
     // @ts-ignore
     expect(socket.stores.user.watchers.length).toEqual(1)
+    const deepObj = {
+      foo: {
+        bar: 1,
+      },
+    }
+    type DeepObj = typeof deepObj
+    socket.initState<DeepObj>('deepObj', deepObj)
+    socket
+      .watchState<DeepObj, { bar: number }>('deepObj', (state) => state.foo)
+      .do((newFoo, oldFoo) => {
+        console.log(newFoo.bar, oldFoo.bar)
+      })
+    await socket.setState('deepObj', 'set foo', (state) => {
+      state.foo = {
+        bar: 2,
+      }
+    })
+    expect(console.log).toBeCalledWith(2, 1)
   })
 
   test('# case 3: watching callback should not be called after unwatching', async () => {

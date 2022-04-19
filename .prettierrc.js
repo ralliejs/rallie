@@ -1,6 +1,6 @@
 module.exports = {
   /** 一行的字符数, 如果超过会进行换行 */
-  printWidth: 100,
+  printWidth: 150,
   /** 一个tab代表几个空格数 */
   tabWidth: 2,
   /** 是否使用tab进行缩进 */

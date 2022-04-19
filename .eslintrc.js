@@ -5,13 +5,7 @@ module.exports = {
     commonjs: true,
     jest: true,
   },
-  extends: [
-    'standard',
-    'prettier',
-    'plugin:react/recommended',
-    'plugin:react/jsx-runtime',
-    'plugin:vue/vue3-essential',
-  ],
+  extends: ['standard', 'plugin:react/recommended', 'plugin:react/jsx-runtime', 'plugin:vue/vue3-essential', 'prettier'],
   globals: {
     RALLIE_BUS_STORE: true,
   },
@@ -32,7 +26,6 @@ module.exports = {
   plugins: ['react', 'react-hooks', 'vue', '@typescript-eslint'],
   // 0-ignore; 1-warn; 2-error
   rules: {
-    indent: [2, 2],
     'linebreak-style': [2, 'unix'],
     semi: [2, 'never'],
     'react/prop-types': 0, // prop-types can be valid by ts
