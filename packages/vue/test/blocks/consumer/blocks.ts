@@ -1,17 +1,15 @@
 import { createBlock } from 'rallie'
 
-type State = {
-  count: number
-  isDarkTheme: boolean
-}
-
-type Events = {
-  printTheme: () => void
-}
-
-type Methods = {
-  toggleTheme: () => void
-}
-
 export const consumer = createBlock('consumer')
-export const producer = consumer.connect<State, Events, Methods>('producer')
+export const producer = consumer.connect<{
+  state: {
+    count: number
+    isDarkTheme: boolean
+  }
+  events: {
+    printTheme: () => void
+  }
+  methods: {
+    toggleTheme: () => void
+  }
+}>('producer')

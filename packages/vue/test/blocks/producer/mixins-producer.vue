@@ -4,7 +4,6 @@ import { producer } from './blocks'
 import { mixinBlockEvents, mixinBlockMethods, mixinBlockState } from '../../../src'
 
 export default defineComponent({
-  name: 'Consumer',
   mixins: [
     mixinBlockState(producer, (state) => ({
       isDarkTheme: state.isDarkTheme,

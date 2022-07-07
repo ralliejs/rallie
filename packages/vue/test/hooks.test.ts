@@ -22,7 +22,7 @@ registerBlock(consumer)
   .relyOn(['producer'])
   .onActivate((containerId) => {
     render(HooksConsumer, {
-      container: document.getElementById(containerId),
+      container: document.getElementById(containerId) as HTMLElement,
     })
   })
   .onDestroy(() => {

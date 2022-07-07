@@ -25,7 +25,7 @@ registerBlock(consumer)
     // TODO: fix the ts error
     // @ts-ignore
     render(<Consumer />, {
-      container: document.getElementById(containerId),
+      container: document.getElementById(containerId) as HTMLElement,
     })
   })
   .onDestroy(() => {

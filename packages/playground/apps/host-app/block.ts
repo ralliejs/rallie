@@ -1,17 +1,16 @@
 import { createBlock } from 'rallie'
 
-type State = {}
-
-type Events = {
-  info: (message: string) => void
-  error: (message: string) => void
-  success: (message: string) => void
-  warning: (message: string) => void
-  loading: (message: string) => void
+interface HostApp {
+  events: {
+    info: (message: string) => void
+    error: (message: string) => void
+    success: (message: string) => void
+    warning: (message: string) => void
+    loading: (message: string) => void
+  }
+  methods: {
+    useNaiveUI: () => any
+  }
 }
 
-type Methods = {
-  useNaiveUI: () => any
-}
-
-export const hostApp = createBlock<State, Events, Methods>('host-app')
+export const hostApp = createBlock<HostApp>('host-app')

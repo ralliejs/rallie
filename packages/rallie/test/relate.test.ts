@@ -3,7 +3,7 @@ import nativeLoader from './middlewares/native-loader'
 import logger from './middlewares/logger'
 
 describe('Test the dependencies', () => {
-  const appsLoaded = []
+  const appsLoaded: string[] = []
   const hostApp = createBlock('host-app')
   hostApp.run((env) => {
     env.use(logger(appsLoaded))

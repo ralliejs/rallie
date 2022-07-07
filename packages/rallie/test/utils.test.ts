@@ -11,7 +11,11 @@ describe('Test errors and warnings', () => {
 
   test('#case2: state should be initialized before registering', () => {
     console.warn = jest.fn()
-    const block = createBlock('case2')
+    const block = createBlock<{
+      state: {
+        count: number
+      }
+    }>('case2')
     registerBlock(block)
     block.initState({
       count: 0,
@@ -29,7 +33,11 @@ describe('Test errors and warnings', () => {
   })
 
   test('#case4: state should be readonly', () => {
-    const block = createBlock('case4')
+    const block = createBlock<{
+      state: {
+        count: number
+      }
+    }>('case4')
     block.initState({
       count: 0,
     })

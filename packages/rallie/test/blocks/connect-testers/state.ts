@@ -6,17 +6,19 @@ const publicState = {
 }
 
 const privateState = {
-  user: 'Mike',
+  user: 'Mike' as string | null,
 }
 
-type Methods = {
-  logout: () => void
-  login: (user: string) => void
-}
-const blockWithPublicState = createBlock<typeof publicState, never, never>('connect-testers/state')
-const blockWithPrivateState = createBlock<typeof privateState, never, Methods>(
-  'connect-testers/state.private',
-)
+const blockWithPublicState = createBlock<{
+  state: typeof publicState
+}>('connect-testers/state')
+const blockWithPrivateState = createBlock<{
+  state: typeof privateState
+  methods: {
+    logout: () => void
+    login: (user: string) => void
+  }
+}>('connect-testers/state.private')
 
 blockWithPublicState.initState({
   count: 0,
@@ -43,7 +45,7 @@ blockWithPrivateState.addMethods({
   },
 })
 
-let unwatchCount: () => void = null
+let unwatchCount: () => void = () => {}
 
 registerBlock(blockWithPrivateState)
 registerBlock(blockWithPublicState)

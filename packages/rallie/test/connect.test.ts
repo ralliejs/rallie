@@ -3,22 +3,6 @@ import { createBlock, registerBlock } from '../src/index'
 import { errors, constant } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
 
-type State = {
-  count: number
-  theme: string
-}
-
-type Events = {
-  log: (text: string) => void
-  error: (text: string) => void
-  record: (text: string) => void
-}
-
-type Methods = {
-  getCount: () => number
-  addCount: () => void
-}
-
 const hostApp = createBlock('host-app')
 
 hostApp.run((env) => {
@@ -33,7 +17,12 @@ describe('Test state', () => {
       .onBootstrap(async () => {
         console.log = jest.fn()
         console.warn = jest.fn()
-        const targetApp = app.connect<State>('connect-testers/state')
+        const targetApp = app.connect<{
+          state: {
+            count: number
+            theme: string
+          }
+        }>('connect-testers/state')
         expect(targetApp.state.count).toEqual(0)
         expect(targetApp.state.theme).toEqual('white')
         targetApp.setState('set count before watch', (state) => {
@@ -76,7 +65,7 @@ describe('Test state', () => {
 
     expect(() => {
       app
-        .connect<any, any>('state-case2-1')
+        .connect<any>('state-case2-1')
         .watchState((state) => state.value)
         .do((value) => {
           console.log(value)
@@ -90,14 +79,13 @@ describe('Test state', () => {
     registerBlock(app)
     await app.activate('connect-testers/state')
     // the app 'connect-testers/state.private' will be registered once the app 'connect-testers/state' is registered
-    type PrivateState = { user: string }
-    type PrivateMethods = {
-      login: (user: string) => void
-      logout: () => void
-    }
-    const privateApp = app.connect<PrivateState, {}, PrivateMethods>(
-      'connect-testers/state.private',
-    )
+    const privateApp = app.connect<{
+      state: { user: string }
+      methods: {
+        login: (user: string) => void
+        logout: () => void
+      }
+    }>('connect-testers/state.private')
     expect(privateApp.state.user).toEqual('Mike')
     privateApp
       .watchState((state) => state.user)
@@ -109,9 +97,7 @@ describe('Test state', () => {
         state.user = 'Alice'
       })
       .catch((error) => {
-        expect(error.message).toEqual(
-          Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')),
-        )
+        expect(error.message).toEqual(Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')))
       })
     privateApp.methods.logout()
     await Promise.resolve()
@@ -131,8 +117,14 @@ describe('Test Events', () => {
 
   test('# case 1: test events', async () => {
     await app.activate('events-tester')
-    const targetApp = app.connect<{}, Events>('connect-testers/events')
-    const recordedTexts = []
+    const targetApp = app.connect<{
+      events: {
+        log: (text: string) => void
+        error: (text: string) => void
+        record: (text: string) => void
+      }
+    }>('connect-testers/events')
+    const recordedTexts: string[] = []
     console.log = jest.fn()
     console.warn = jest.fn()
     console.error = jest.fn()
@@ -160,11 +152,38 @@ describe('Test Methods', () => {
   const app = createBlock('methods-tester')
   registerBlock(app).relyOn(['connect-testers/methods'])
 
-  test('# case 2: test methods', async () => {
+  test('# case 1: test methods', async () => {
     await app.activate('methods-tester')
-    const targetApp = app.connect<{}, {}, Methods>('connect-testers/methods')
+    const targetApp = app.connect<{
+      methods: {
+        getCount: () => number
+        addCount: () => void
+      }
+    }>('connect-testers/methods')
     expect(targetApp.methods.getCount()).toEqual(0)
     targetApp.methods.addCount()
     expect(targetApp.methods.getCount()).toEqual(1)
+  })
+})
+
+describe('Test export and import', () => {
+  const app = createBlock('exports-tester')
+  registerBlock(app).relateTo(['connect-testers/exports'])
+
+  test('# case 1: test export and import', async () => {
+    await app.activate(app.name)
+    const targetApp = app.connect<{
+      imports: {
+        testedValue: number
+      }
+    }>('connect-testers/exports')
+    const { testedValue: testedValue0 } = targetApp.import()
+    expect(testedValue0).toBeUndefined()
+    await app.activate('connect-testers/exports')
+    const { testedValue: testedValue1 } = targetApp.import()
+    expect(testedValue1).toEqual(1)
+    await app.activate('connect-testers/exports')
+    const { testedValue: testedValue2 } = targetApp.import()
+    expect(testedValue2).toEqual(1)
   })
 })

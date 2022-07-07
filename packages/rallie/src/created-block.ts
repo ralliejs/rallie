@@ -1,6 +1,7 @@
 import { ConnectedBlock } from './connected-block'
 import type { CallbackType, Bus, Socket, MiddlewareFnType, ConfType } from '@rallie/core'
 import { constant, warnings } from './utils'
+import type { ConstraintedType } from './utils'
 import { Block } from './block'
 
 export interface Env {
@@ -16,10 +17,13 @@ export class CreatedBlock<
   State extends Record<string, any>,
   Events extends Record<string, CallbackType>,
   Methods extends Record<string, CallbackType>,
+  Exports extends Record<string, any>,
 > extends Block<State, Events, Methods> {
   private globalBus: Bus
   private globalSocket: Socket
   private isEntry: boolean
+  private exports: Exports | {}
+  private exported: boolean
 
   constructor(name: string, globalBus: Bus, globalSocket: Socket, isEntry: boolean) {
     super(name)
@@ -27,6 +31,11 @@ export class CreatedBlock<
     this.globalBus = globalBus
     this.globalSocket = globalSocket
     this.isEntry = isEntry
+    this.exported = false
+    this.exports = {}
+    this.socket.onUnicast({
+      [constant.exportMethodName]: () => this.exports,
+    })
   }
 
   public initState(state: State, isPrivate: boolean = false) {
@@ -41,12 +50,27 @@ export class CreatedBlock<
     return this.socket.onUnicast<Partial<Methods>>(methods)
   }
 
+  public export(exports: Exports) {
+    if (!this.exported) {
+      this.exported = true
+      this.exports = exports
+    }
+  }
+
   public connect<
-    ExternalState extends Record<string, any> = {},
-    ExternalEvents extends Record<string, CallbackType> = never,
-    ExternalMethods extends Record<string, CallbackType> = never,
+    T extends {
+      state?: Record<string, any>
+      events?: Record<string, CallbackType>
+      methods?: Record<string, CallbackType>
+      imports?: Record<string, any>
+    } = {},
   >(name: string) {
-    return new ConnectedBlock<ExternalState, ExternalEvents, ExternalMethods>(name)
+    return new ConnectedBlock<
+      ConstraintedType<T['state'], undefined>,
+      ConstraintedType<T['events'], never>,
+      ConstraintedType<T['methods'], never>,
+      ConstraintedType<T['imports'], {}>
+    >(name)
   }
 
   public load(name: string, ctx: Record<string, any> = {}) {
@@ -62,17 +86,12 @@ export class CreatedBlock<
   }
 
   public async run(callback: (env: Env) => void | Promise<void>) {
-    const isBusAccessible =
-      this.isEntry || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
+    const isBusAccessible = this.isEntry || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
     const setBusAccessible = (isAccessible: boolean) => {
       if (this.isEntry) {
-        this.globalSocket.setState(
-          constant.isGlobalBusAccessible,
-          isAccessible ? 'unfreeze the enviroment' : 'freeze the enviroment',
-          (state) => {
-            state.value = isAccessible
-          },
-        )
+        this.globalSocket.setState(constant.isGlobalBusAccessible, isAccessible ? 'unfreeze the enviroment' : 'freeze the enviroment', (state) => {
+          state.value = isAccessible
+        })
       }
     }
     const env: Env = {

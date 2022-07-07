@@ -1,21 +1,21 @@
 import { createBlock } from 'rallie'
 import { useBlockState } from '../../src'
 
-type Events = {
-  printTheme: () => void
-}
-
-type Methods = {
-  toggleTheme: () => void
-}
-
-type State = {
-  count: number
-  isDarkTheme: boolean
+interface ConsumerType {
+  state: {
+    count: number
+    isDarkTheme: boolean
+  }
+  events: {
+    printTheme: () => void
+  }
+  methods: {
+    toggleTheme: () => void
+  }
 }
 
 export const consumer = createBlock('consumer')
-const producer = consumer.connect<State, Events, Methods>('producer')
+const producer = consumer.connect<ConsumerType>('producer')
 export const Consumer = () => {
   const toggleTheme = () => {
     producer.methods.toggleTheme()
@@ -30,10 +30,7 @@ export const Consumer = () => {
   }
   const isDarkTheme = useBlockState(producer, (state) => state.isDarkTheme)
   return (
-    <div
-      data-testid="consumer-container"
-      style={{ backgroundColor: isDarkTheme ? 'black' : 'white' }}
-    >
+    <div data-testid="consumer-container" style={{ backgroundColor: isDarkTheme ? 'black' : 'white' }}>
       <button onClick={toggleTheme}>toggle theme</button>
       <button onClick={addCount}>add count</button>
       <button onClick={printTheme}>print theme</button>

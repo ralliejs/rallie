@@ -4,7 +4,6 @@ import { mixinBlockState } from '../../../src'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'Consumer',
   mixins: [
     mixinBlockState(producer, (state) => ({
       isDarkTheme: state.isDarkTheme,

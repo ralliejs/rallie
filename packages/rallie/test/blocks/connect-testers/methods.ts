@@ -1,18 +1,15 @@
 import { createBlock, registerBlock } from '../../../src'
 
-type State = {
-  count: number
-}
-
-type Events = never
-
-type Methods = {
-  getCount: () => number
-  addCount: () => void
-  printCount: (count: number) => void
-}
-
-const block = createBlock<State, Events, Methods>('connect-testers/methods')
+const block = createBlock<{
+  state: {
+    count: number
+  }
+  methods: {
+    getCount: () => number
+    addCount: () => void
+    printCount: (count: number) => void
+  }
+}>('connect-testers/methods')
 
 block.initState({
   count: 0,

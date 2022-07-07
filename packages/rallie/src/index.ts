@@ -1,11 +1,15 @@
 import { CreatedBlock } from './created-block'
 import { touchBus, getBus, CallbackType, App as RegisteredBlock } from '@rallie/core'
 import { errors, constant } from './utils'
+import type { ConstraintedType } from './utils'
 
 export function createBlock<
-  State extends Record<string, any>,
-  Events extends Record<string, CallbackType>,
-  Methods extends Record<string, CallbackType>,
+  T extends {
+    state?: Record<string, any>
+    events?: Record<string, CallbackType>
+    methods?: Record<string, CallbackType>
+    exports?: Record<string, any>
+  } = {},
 >(name: string) {
   const [globalBus, isEntry] = touchBus()
   if (globalBus.existApp(name)) {
@@ -15,10 +19,15 @@ export function createBlock<
   if (isEntry) {
     globalSocket.initState(constant.isGlobalBusAccessible, { value: true }, true)
   }
-  return new CreatedBlock<State, Events, Methods>(name, globalBus, globalSocket, isEntry)
+  return new CreatedBlock<
+    ConstraintedType<T['state'], undefined>,
+    ConstraintedType<T['events'], never>,
+    ConstraintedType<T['methods'], never>,
+    ConstraintedType<T['exports'], {}>
+  >(name, globalBus, globalSocket, isEntry)
 }
 
-export function registerBlock(block: CreatedBlock<any, any, any>): RegisteredBlock {
+export function registerBlock(block: CreatedBlock<any, any, any, any>): RegisteredBlock {
   if (block.isCreatedBlock) {
     const bus = getBus()
     return bus.createApp(block.name)

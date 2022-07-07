@@ -22,7 +22,7 @@ registerBlock(consumer)
   .relyOn(['producer'])
   .onActivate((containerId) => {
     render(MixinsConsumer, {
-      container: document.getElementById(containerId),
+      container: document.getElementById(containerId) as HTMLElement,
     })
   })
   .onDestroy(() => {
@@ -74,7 +74,7 @@ describe('Test Vue Mixins', () => {
     const toggleThemeBtn = await screen.findByText('toggle theme')
     await fireEvent.click(toggleThemeBtn)
     await fireEvent.click(printThemeBtn) // log light
-    await cleanup()
+    cleanup()
     producer.events.printTheme()
     expect(() => {
       producer.methods.toggleTheme()
