@@ -1,6 +1,6 @@
 {
   "name": "playground",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -9,10 +9,10 @@
   },
   "dependencies": {
     "@rallie/load-html": "^0.9.0",
-    "@rallie/react": "^0.9.0",
-    "@rallie/vue": "^0.9.0",
+    "@rallie/react": "^0.9.1",
+    "@rallie/vue": "^0.9.1",
     "naive-ui": "^2.21.1",
-    "rallie": "^0.9.0"
+    "rallie": "^0.9.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^1.0.7",
