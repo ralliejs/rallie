@@ -173,7 +173,7 @@ describe('Test export and import', () => {
   test('# case 1: test export and import', async () => {
     await app.activate(app.name)
     const targetApp = app.connect<{
-      imports: {
+      exports: {
         testedValue: number
       }
     }>('connect-testers/exports')

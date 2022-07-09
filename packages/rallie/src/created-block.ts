@@ -62,14 +62,14 @@ export class CreatedBlock<
       state?: Record<string, any>
       events?: Record<string, CallbackType>
       methods?: Record<string, CallbackType>
-      imports?: Record<string, any>
+      exports?: Record<string, any>
     } = {},
   >(name: string) {
     return new ConnectedBlock<
       ConstraintedType<T['state'], undefined>,
       ConstraintedType<T['events'], never>,
       ConstraintedType<T['methods'], never>,
-      ConstraintedType<T['imports'], {}>
+      ConstraintedType<T['exports'], {}>
     >(name)
   }
 
