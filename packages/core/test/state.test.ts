@@ -33,7 +33,7 @@ describe('Test socket.initState, socket.existState and socket.getState', () => {
     console.warn = jest.fn()
     counter.value += 1
     expect(counter.value).toEqual(0)
-    expect(console.warn).toBeCalledWith('Set operation on key "value" failed: target is readonly.', counter)
+    expect(console.warn).toBeCalledWith('[Vue warn] Set operation on key "value" failed: target is readonly.', counter)
   })
 })
 
@@ -68,7 +68,7 @@ describe('Test socket.setState', () => {
     })
     counter.value++
     expect(counter.value).toEqual(2)
-    expect(console.warn).toBeCalledWith('Set operation on key "value" failed: target is readonly.', counter)
+    expect(console.warn).toBeCalledWith('[Vue warn] Set operation on key "value" failed: target is readonly.', counter)
   })
 
   test('# case 2: private state can not be modified by other socket', (done) => {
@@ -142,7 +142,7 @@ describe('Test socket.waitState', () => {
 describe('Test socket.watchState', () => {
   const bus = new Bus('innerBus')
   const socket = bus.createSocket()
-  let unwatch = null
+  let unwatch: () => void = () => {}
   test('# case 1: state can not be watched before it is initialized', () => {
     expect(() => {
       socket.watchState('uninitialized', (state) => state)
