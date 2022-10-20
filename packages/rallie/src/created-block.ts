@@ -24,6 +24,7 @@ export class CreatedBlock<
   private isEntry: boolean
   private exports: Exports | {}
   private exported: boolean
+  private connectedBlocks: Record<string, ConnectedBlock<any, any, any, any>> = {}
 
   constructor(name: string, globalBus: Bus, globalSocket: Socket, isEntry: boolean) {
     super(name)
@@ -65,12 +66,15 @@ export class CreatedBlock<
       exports?: Record<string, any>
     } = {},
   >(name: string) {
-    return new ConnectedBlock<
+    if (!this.connectedBlocks[name]) {
+      this.connectedBlocks[name] = new ConnectedBlock(name)
+    }
+    return this.connectedBlocks[name] as ConnectedBlock<
       ConstraintedType<T['state'], undefined>,
       ConstraintedType<T['events'], never>,
       ConstraintedType<T['methods'], never>,
       ConstraintedType<T['exports'], {}>
-    >(name)
+    >
   }
 
   public load(name: string, ctx: Record<string, any> = {}) {
