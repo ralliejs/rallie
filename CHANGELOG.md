@@ -1,3 +1,14 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.9.2](https://github.com/ralliejs/rallie/compare/v0.9.1...v0.9.2) (2022-10-21)
+
+### Performance Improvements
+
+- cache connected block to avoid memory leak ([28109b9](https://github.com/ralliejs/rallie/commit/28109b9d1f3605054910a7e566960114978f38bf))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -8,11 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.1] - 2022-07-09
 
 ### Changed
+
 - change the generic parameter of `block.connect`
 
 ## [0.9.0] - 2022-07-08
 
 ### Added
+
 - add `CreatedBlock.export()` and `ConnectedBlock.import()`
 
 ## [0.8.1] - 2022-04-20
