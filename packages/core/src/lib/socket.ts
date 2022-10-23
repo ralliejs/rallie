@@ -176,19 +176,19 @@ export class Socket {
       const msg = Errors.accessUninitializedState(namespace)
       throw new Error(msg)
     }
-    let dirty = false
+    let flushed = false
     const state: T = readonly(this.stores[namespace].state)
     const watcher = new Watcher<P>(namespace, this.stores)
     const runner = effect(() => getter(state), {
       lazy: true,
       scheduler: () => {
-        if (!dirty) {
-          dirty = true
+        if (!flushed) {
+          flushed = true
           Promise.resolve().then(() => {
             const watchingState = getter(state)
             watcher.handler?.(watchingState, watcher.oldWatchingStates)
             watcher.oldWatchingStates = watchingState
-            dirty = false
+            flushed = false
           })
         }
       },
@@ -196,44 +196,5 @@ export class Socket {
     watcher.oldWatchingStates = runner()
     watcher.stopEffect = () => runner.effect.stop()
     return watcher
-  }
-
-  /**
-   * waiting for some states to be initialized
-   * @param dependencies the dependencies to be waited for
-   * @param timeout the time to wait
-   */
-  public waitState(dependencies: string[], timeout = 10 * 1000): Promise<any[]> {
-    const allDependencies = [...dependencies]
-    const unreadyDependencies = dependencies.filter((namespace: string) => {
-      // remove all ready states first
-      return !this.existState(namespace)
-    })
-
-    if (unreadyDependencies.length === 0) {
-      const states = allDependencies.map((namespace: string) => this.getState(namespace))
-      return Promise.resolve(states)
-    } else {
-      return new Promise<any[]>((resolve, reject) => {
-        const timeId = setTimeout(() => {
-          clearTimeout(timeId)
-          const msg = Errors.waitStateTimeout(unreadyDependencies)
-          reject(new Error(msg))
-        }, timeout)
-        const stateInitialCallback = (namespace: string) => {
-          const index = unreadyDependencies.indexOf(namespace)
-          if (index !== -1) {
-            unreadyDependencies.splice(index, 1)
-          }
-          if (unreadyDependencies.length === 0) {
-            clearTimeout(timeId)
-            this.eventEmitter.removeBroadcastEventListener(STATE_INITIALIZED, stateInitialCallback)
-            const states = allDependencies.map((namespace: string) => this.getState(namespace))
-            resolve(states)
-          }
-        }
-        this.eventEmitter.addBroadcastEventListener(STATE_INITIALIZED, stateInitialCallback)
-      })
-    }
   }
 }

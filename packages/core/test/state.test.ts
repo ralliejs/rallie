@@ -105,40 +105,6 @@ describe('Test socket.setState', () => {
   })
 })
 
-describe('Test socket.waitState', () => {
-  const bus = new Bus('innerBus')
-  const socket = bus.createSocket()
-  test('# case 1: wait for some states to be initialized, callback should be called after all states are ready', (done) => {
-    socket.initState('user', { value: 'user' })
-    socket.waitState(['user', 'theme'], 2 * 100).then(([user, theme]) => {
-      expect(user.value).toEqual('user')
-      expect(theme.value).toEqual('dark')
-      done()
-    })
-    const timerId = setTimeout(() => {
-      socket.initState('theme', { value: 'dark' })
-      clearTimeout(timerId)
-    }, 1 * 100)
-  })
-
-  test('# case 2: wait for some states time out, an error should be throwed', (done) => {
-    socket
-      .waitState(['gender', 'session'], 50)
-      .then(() => {
-        throw new Error('this should not be callled')
-      })
-      .catch((error) => {
-        expect(error.message).toEqual(Errors.waitStateTimeout(['session']))
-        done()
-      })
-    socket.initState('gender', { value: 'female' })
-    const timerId = setTimeout(() => {
-      socket.initState('session', { value: 'abc' })
-      clearTimeout(timerId)
-    }, 1 * 100)
-  })
-})
-
 describe('Test socket.watchState', () => {
   const bus = new Bus('innerBus')
   const socket = bus.createSocket()
@@ -216,7 +182,6 @@ describe('Test socket.watchState', () => {
   })
 
   test('# case 4: test the behavior like watchEffect', async () => {
-    await socket.waitState(['user']) // only to increase the coverage
     console.log = jest.fn()
     const watcher = socket.watchState('user', (state) => {
       console.log(state.name)

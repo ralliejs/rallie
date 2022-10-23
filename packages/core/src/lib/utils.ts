@@ -41,9 +41,6 @@ export const Errors = {
   accessUninitializedState: (namespace: string) => {
     return `[@rallie/core] it's not allowed to set or watch state ${namespace} before it is initialized`
   },
-  waitStateTimeout: (namespaces: string[]) => {
-    return `[@rallie/core] wait for states ${JSON.stringify(namespaces)} timeout`
-  },
   duplicatedInitial: (namespace: string) => {
     return `[@rallie/core] duplicated initialized state ${namespace}`
   },
