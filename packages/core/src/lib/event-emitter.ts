@@ -4,7 +4,7 @@ import { Errors } from './utils'
 type BroadcastEventsType = Record<
   string,
   {
-    listeners: CallbackType[]
+    listeners: Set<CallbackType>
     emitedArgs: Array<any[]>
   }
 >
@@ -18,11 +18,11 @@ export class EventEmitter {
 
   public addBroadcastEventListener(event: string, callback: CallbackType) {
     this.broadcastEvents[event] = this.broadcastEvents[event] || {
-      listeners: [],
+      listeners: new Set(),
       emitedArgs: [],
     }
     const { listeners, emitedArgs } = this.broadcastEvents[event]
-    listeners.push(callback)
+    listeners.add(callback)
     if (emitedArgs.length > 0) {
       emitedArgs.forEach((args) => {
         this.emitBroadcast(event, ...args)
@@ -41,15 +41,8 @@ export class EventEmitter {
   public removeBroadcastEventListener(event: string, callback: CallbackType) {
     const registedcallbacks = this.broadcastEvents[event]?.listeners
     if (registedcallbacks) {
-      let targetIndex = -1
-      for (let i = 0; i < registedcallbacks.length; i++) {
-        if (registedcallbacks[i] === callback) {
-          targetIndex = i
-          break
-        }
-      }
-      if (targetIndex !== -1) {
-        registedcallbacks.splice(targetIndex, 1)
+      if (registedcallbacks.has(callback)) {
+        registedcallbacks.delete(callback)
       } else {
         const msg = Errors.wrongBroadcastCallback(event)
         throw new Error(msg)
@@ -70,11 +63,11 @@ export class EventEmitter {
 
   public emitBroadcast(event: string, ...args: any[]) {
     this.broadcastEvents[event] = this.broadcastEvents[event] || {
-      listeners: [],
+      listeners: new Set(),
       emitedArgs: [],
     }
     const { listeners, emitedArgs } = this.broadcastEvents[event]
-    if (listeners.length > 0) {
+    if (listeners.size > 0) {
       listeners.forEach((callback) => {
         try {
           callback(...args)
