@@ -42,9 +42,7 @@ describe('Test broadcast', () => {
 
   test('# case 2: unwatch events with broadcaster', () => {
     offBroadcast('nonExistentEvent')
-    expect(console.warn).toBeCalledWith(
-      Warnings.handlerIsNotInTheEventsPool('nonExistentEvent', false),
-    )
+    expect(console.warn).toBeCalledWith(Warnings.handlerIsNotInTheEventsPool('nonExistentEvent', false))
     offBroadcast('printHelloWorld')
     broadcaster.printHelloWorld()
     expect(console.log).toBeCalledTimes(0)
@@ -57,6 +55,7 @@ describe('Test broadcast', () => {
   test('# case 3: broadcaster can not be set', () => {
     const broadcaster2 = socket.createBroadcaster()
     expect(() => {
+      // @ts-ignore
       broadcaster2.printHelloWorld = null
     }).toThrowError()
   })
@@ -100,9 +99,7 @@ describe('Test unicast', () => {
 
   test('# case 2: unwatch events with unicaster', () => {
     offUnicast('nonExistentEvent')
-    expect(console.warn).toBeCalledWith(
-      Warnings.handlerIsNotInTheEventsPool('nonExistentEvent', true),
-    )
+    expect(console.warn).toBeCalledWith(Warnings.handlerIsNotInTheEventsPool('nonExistentEvent', true))
     offUnicast('getHelloWorld')
     expect(() => {
       unicaster.getHelloWorld()
@@ -119,6 +116,7 @@ describe('Test unicast', () => {
   test('# case 3: unicaster can not be set', () => {
     const unicaster2 = socket.createUnicaster()
     expect(() => {
+      // @ts-ignore
       unicaster2.getHelloWorld = null
     }).toThrowError()
   })

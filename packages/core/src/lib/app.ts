@@ -23,7 +23,7 @@ export class App {
    */
   public relateTo(relatedApps: RelateType[]) {
     const getName = (relateApp: RelateType) => (typeof relateApp === 'string' ? relateApp : relateApp.name)
-    const deduplicatedRelatedApps: RelateType[] = deduplicate(relatedApps)
+    const deduplicatedRelatedApps = deduplicate(relatedApps)
     const currentRelatedAppNames: string[] = this.relatedApps.map((item) => item.name)
     deduplicatedRelatedApps.forEach((relatedApp) => {
       if (!currentRelatedAppNames.includes(getName(relatedApp))) {

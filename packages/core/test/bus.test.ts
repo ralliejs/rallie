@@ -13,7 +13,7 @@ declare global {
     appsLoadedFromLocalhost: any
     lastLoadingApp: any
     React: any
-    RALLIE_BUS_STORE: Record<string, Bus>
+    RALLIE_BUS_STORE: Record<string, Bus | null>
   }
 }
 

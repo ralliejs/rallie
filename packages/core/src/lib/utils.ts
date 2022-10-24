@@ -69,10 +69,10 @@ export function isPrimitive(object: unknown): boolean {
   return ['string', 'number', 'boolean', 'undefined'].includes(typeof object)
 }
 
-export function deduplicate(items: DependencyType[] | RelateType[]) {
+export function deduplicate<T extends DependencyType | RelateType>(items: T[]) {
   const flags: Record<string, boolean> = {}
-  const result = []
-  items.forEach((item: DependencyType | RelateType) => {
+  const result: Array<T> = []
+  items.forEach((item) => {
     const name = typeof item === 'string' ? item : item.name
     if (!flags[name]) {
       result.push(item)
