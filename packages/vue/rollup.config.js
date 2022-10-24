@@ -5,7 +5,7 @@ import pkg from './package.json'
 
 const commonConfigs = {
   plugins: [resolve(), commonJs(), typescript()],
-  external: ['vue', 'rallie'],
+  external: ['vue', '@rallie/block'],
 }
 
 export default [
@@ -19,7 +19,7 @@ export default [
         exports: 'named',
         globals: {
           vue: 'Vue',
-          rallie: 'Rallie',
+          '@rallie/block': 'RallieBlock',
         },
       },
       {
@@ -39,7 +39,7 @@ export default [
         name: 'RallieVueMixin',
         exports: 'named',
         globals: {
-          rallie: 'Rallie',
+          '@rallie/block': 'RallieBlock',
         },
       },
       {

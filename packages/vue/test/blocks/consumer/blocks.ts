@@ -1,4 +1,4 @@
-import { createBlock } from 'rallie'
+import { createBlock } from '@rallie/block'
 
 export const consumer = createBlock('consumer')
 export const producer = consumer.connect<{

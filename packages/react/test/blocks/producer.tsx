@@ -1,4 +1,4 @@
-import { createBlock } from 'rallie'
+import { createBlock } from '@rallie/block'
 import { useBlockState, useBlockEvents, useBlockMethods } from '../../src'
 
 interface ProducerType {

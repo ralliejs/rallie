@@ -1,5 +1,5 @@
 import { reactApp } from './blocks/react-app'
-import { registerBlock } from 'rallie'
+import { registerBlock } from '@rallie/block'
 
 registerBlock(reactApp)
   .relyOn(['lib:react', 'lib:react-dom', 'host-app'])

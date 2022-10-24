@@ -1,4 +1,4 @@
-import { createBlock } from 'rallie'
+import { createBlock } from '@rallie/block'
 
 interface HostApp {
   events: {

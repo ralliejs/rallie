@@ -9,7 +9,7 @@ export default {
     {
       file: pkg.main,
       format: 'umd',
-      name: 'Rallie',
+      name: 'RallieBlock',
       exports: 'named',
     },
     {

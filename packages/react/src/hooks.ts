@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Block, CreatedBlock } from 'rallie'
+import type { Block, CreatedBlock } from '@rallie/block'
 
 export function useBlockState<T extends Block<any, any, any>, U>(block: T, getter: (state: T['state']) => U, deps: any[] = []) {
   const [value, setValue] = React.useState<U>(getter(block.state))

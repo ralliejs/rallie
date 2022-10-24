@@ -1,4 +1,4 @@
-import type { Block, CreatedBlock } from 'rallie'
+import type { Block, CreatedBlock } from '@rallie/block'
 
 export function mixinBlockState<T extends Block<any, any, any>, U>(block: T, mapStateToComputed: (state: T['state']) => U) {
   let unwatchState = null

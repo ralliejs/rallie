@@ -13,7 +13,7 @@ export default {
       exports: 'named',
       globals: {
         react: 'React',
-        rallie: 'Rallie',
+        '@rallie/block': 'RallieBlock',
       },
     },
     {
@@ -23,5 +23,5 @@ export default {
     },
   ],
   plugins: [resolve(), commonJs(), typescript()],
-  external: ['react', 'rallie'],
+  external: ['react', '@rallie/block'],
 }

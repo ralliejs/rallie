@@ -2,11 +2,7 @@ import { touchBus } from '@rallie/core'
 import type { CallbackType, Socket } from '@rallie/core'
 import { constant, errors } from './utils'
 
-export class Block<
-  State extends Record<string, any>,
-  Events extends Record<string, CallbackType>,
-  Methods extends Record<string, CallbackType>,
-> {
+export class Block<State extends Record<string, any>, Events extends Record<string, CallbackType>, Methods extends Record<string, CallbackType>> {
   protected socket: Socket
   public name: string
   public state: State

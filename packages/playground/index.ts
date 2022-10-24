@@ -1,4 +1,4 @@
-import { registerBlock, createBlock } from 'rallie'
+import { registerBlock, createBlock } from '@rallie/block'
 import { jsdelivrLibraryLoader, dynamicImportLoader, htmlLoader } from './middlewares' // eslint-disable-line
 import loadHtml from '@rallie/load-html' // eslint-disable-line
 

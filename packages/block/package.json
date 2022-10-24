@@ -1,5 +1,5 @@
 {
-  "name": "rallie",
+  "name": "@rallie/block",
   "version": "0.10.0",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",

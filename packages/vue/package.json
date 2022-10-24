@@ -22,10 +22,10 @@
     "url": "https://github.com/ralliejs/rallie/issues"
   },
   "peerDependencies": {
-    "rallie": "^0.6.0",
+    "@rallie/block": "^0.6.0",
     "vue": ">=2.0.0"
   },
   "devDependencies": {
-    "rallie": "0.10.0"
+    "@rallie/block": "0.10.0"
   }
 }

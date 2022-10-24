@@ -1,5 +1,5 @@
 import { onBeforeUnmount, onBeforeMount, ref, UnwrapRef } from 'vue'
-import type { Block, CreatedBlock } from 'rallie'
+import type { Block, CreatedBlock } from '@rallie/block'
 
 export function useBlockState<T extends Block<any, any, any>, U>(block: T, getter: (state: T['state']) => U) {
   const stateRef = ref<U>(getter(block.state))

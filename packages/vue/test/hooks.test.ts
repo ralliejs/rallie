@@ -2,7 +2,7 @@
 import { render, fireEvent, screen, cleanup } from '@testing-library/vue'
 import { HooksProducer, producer } from './blocks/producer'
 import { HooksConsumer, consumer } from './blocks/consumer'
-import { registerBlock } from 'rallie'
+import { registerBlock } from '@rallie/block'
 
 registerBlock(producer)
   .onActivate(() => {

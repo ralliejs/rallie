@@ -1,4 +1,4 @@
-import { registerBlock } from 'rallie'
+import { registerBlock } from '@rallie/block'
 import { vueApp } from './blocks/vue-app'
 
 registerBlock(vueApp)

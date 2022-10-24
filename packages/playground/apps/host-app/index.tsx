@@ -1,4 +1,4 @@
-import { registerBlock } from 'rallie'
+import { registerBlock } from '@rallie/block'
 import { hostApp } from './block'
 
 registerBlock(hostApp)

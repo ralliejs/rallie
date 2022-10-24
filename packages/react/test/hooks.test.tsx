@@ -1,7 +1,7 @@
 import { producer, Producer } from './blocks/producer'
 import { consumer, Consumer } from './blocks/consumer'
 import { render, fireEvent, act, screen, cleanup } from '@testing-library/react'
-import { registerBlock } from 'rallie'
+import { registerBlock } from '@rallie/block'
 
 registerBlock(producer)
   .onActivate(() => {
