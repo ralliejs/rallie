@@ -51,7 +51,7 @@ export type RelateType =
 export type StoreType<T = any> = {
   state: T
   owner: Socket | null
-  watchers: Watcher<any>[]
+  watchers: Set<Watcher<any>>
 }
 
 export type StoresType = Record<string, StoreType>

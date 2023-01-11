@@ -118,7 +118,7 @@ export class Socket {
       this.stores[namespace] = {
         state: reactive(initialState),
         owner: isPrivate ? this : null,
-        watchers: [],
+        watchers: new Set(),
       }
       this.eventEmitter.emitBroadcast(STATE_INITIALIZED, namespace)
     }

@@ -168,9 +168,7 @@ export class Bus {
   }
 
   private async loadRelatedApps(app: App) {
-    for (const { name, ctx } of app.relatedApps) {
-      await this.loadApp(name, ctx)
-    }
+    await Promise.all(app.relatedApps.map(({ name, ctx }) => this.loadApp(name, ctx)))
   }
 
   /**
