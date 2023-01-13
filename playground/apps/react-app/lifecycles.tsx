@@ -1,12 +1,12 @@
+import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './components/App'
 
-let rootContainer: HTMLElement = null
+let rootContainer: HTMLElement
 
 export const onBootstrap = (container: HTMLElement) => {
   rootContainer = container ?? document.getElementById('react-app')
-  // @ts-ignore
-  ReactDOM.render(<App />, rootContainer) // TODO: remove @ts-ignore
+  ReactDOM.render(<App />, rootContainer)
 }
 
 export const onDestroy = () => {

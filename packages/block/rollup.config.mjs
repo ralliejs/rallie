@@ -1,7 +1,7 @@
 import typescript from 'rollup-plugin-typescript2'
 import resolve from '@rollup/plugin-node-resolve'
 import commonJs from '@rollup/plugin-commonjs'
-import pkg from './package.json'
+import pkg from './package.json' assert { type: 'json' }
 
 export default {
   input: './src/index.ts',
@@ -9,12 +9,8 @@ export default {
     {
       file: pkg.main,
       format: 'umd',
-      name: 'RallieReact',
+      name: 'RallieBlock',
       exports: 'named',
-      globals: {
-        react: 'React',
-        '@rallie/block': 'RallieBlock',
-      },
     },
     {
       file: pkg.module,
@@ -23,5 +19,4 @@ export default {
     },
   ],
   plugins: [resolve(), commonJs(), typescript()],
-  external: ['react', '@rallie/block'],
 }

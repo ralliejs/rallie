@@ -1,0 +1,25 @@
+name: update coveralls and deploy playground
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: ./.github/workflows/unit-test.yml
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy playground
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          branch: gh-page # The branch the action should deploy to.
+          folder: playground/dist # The folder the action should deploy.

@@ -4,8 +4,15 @@ module.exports = {
     es6: true,
     commonjs: true,
     jest: true,
+    'vue/setup-compiler-macros': true,
   },
-  extends: ['standard', 'plugin:react/recommended', 'plugin:react/jsx-runtime', 'plugin:vue/vue3-essential', 'prettier'],
+  extends: [
+    'standard',
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime',
+    'plugin:vue/vue3-essential',
+    'prettier',
+  ],
   globals: {
     RALLIE_BUS_STORE: true,
   },
