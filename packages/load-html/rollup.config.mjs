@@ -1,7 +1,8 @@
 import typescript from 'rollup-plugin-typescript2'
 import resolve from '@rollup/plugin-node-resolve'
 import commonJs from '@rollup/plugin-commonjs'
-import pkg from './package.json'
+import json from '@rollup/plugin-json'
+import pkg from './package.json' assert { type: 'json' }
 
 export default {
   input: './src/index.ts',
@@ -9,7 +10,7 @@ export default {
     {
       file: pkg.main,
       format: 'umd',
-      name: 'RallieBlock',
+      name: 'RallieImportHtml',
       exports: 'named',
     },
     {
@@ -18,5 +19,5 @@ export default {
       exports: 'named',
     },
   ],
-  plugins: [resolve(), commonJs(), typescript()],
+  plugins: [resolve(), commonJs(), typescript(), json()],
 }

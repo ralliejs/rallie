@@ -12,8 +12,6 @@
 
 </div>
 
-> WIP: 该库还在实验阶段，API 尚不稳定，请勿用于生产环境。
-
 ## 介绍
 
 rallie 是一个可以帮助用户实现去中心化的前端微服务架构的库。基于 rallie 开发的前端应用可以成为一个对外暴露响应式状态，事件和方法的服务，不同服务之间可共享依赖，灵活组合与编排，从而提高大型前端应用的可扩展性
@@ -27,7 +25,7 @@ rallie 是一个可以帮助用户实现去中心化的前端微服务架构的�
 
 ## 样例
 
-- 代码地址：[https://github.com/ralliejs/rallie/tree/master/packages/playground](https://github.com/ralliejs/rallie/tree/master/packages/playground)
+- 代码地址：[https://github.com/ralliejs/rallie/tree/master/playground](https://github.com/ralliejs/rallie/tree/master/playground)
 - 预览地址：[https://ralliejs.github.io/rallie/index.html](https://ralliejs.github.io/rallie/index.html)
 
 ## 文档

@@ -16,7 +16,7 @@
     "url": "git+https://github.com/ralliejs/rallie.git"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.mjs"
   },
   "bugs": {
     "url": "https://github.com/ralliejs/rallie/issues"
@@ -26,7 +26,7 @@
     "react": ">=16.8.0"
   },
   "devDependencies": {
-    "@rallie/block": "0.11.0",
-    "@rallie/core": "0.11.0"
+    "@rallie/block": "workspace:*",
+    "@rallie/core": "workspace:*"
   }
 }

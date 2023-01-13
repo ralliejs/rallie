@@ -6,7 +6,7 @@
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.mjs"
   },
   "author": "Philip Lau",
   "license": "MIT",
@@ -14,7 +14,7 @@
     "dist"
   ],
   "dependencies": {
-    "@vue/reactivity": "^3.2.14"
+    "@vue/reactivity": "^3.2.45"
   },
   "repository": {
     "type": "git",

@@ -12,8 +12,6 @@
 
 </div>
 
-> WIP: the library is under heavy development, do not use it in production enviroment.
-
 ## Introduction
 
 Rallie is a library that can help users implement decentralized front-end micro service architecture. The front-end application developed based on rallie can become a service that exposes responsive states, events and methods. Different services can share dependencies, flexibly combine and arrange, so as to improve the scalability of large-scale front-end applications
@@ -27,7 +25,7 @@ Rallie is a library that can help users implement decentralized front-end micro 
 
 ## Example
 
-- code: [https://github.com/ralliejs/rallie/tree/master/packages/playground](https://github.com/ralliejs/rallie/tree/master/packages/playground)
+- code: [https://github.com/ralliejs/rallie/tree/master/playground](https://github.com/ralliejs/rallie/tree/master/playground)
 - preview: [https://ralliejs.github.io/rallie/index.html](https://ralliejs.github.io/rallie/index.html)
 
 ## Ecosystem

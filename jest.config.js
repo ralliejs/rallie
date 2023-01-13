@@ -10,6 +10,7 @@ module.exports = {
   testEnvironmentOptions: {
     resources: 'usable',
     runScripts: 'dangerously',
+    customExportConditions: ['node', 'node-addons'],
   },
   coveragePathIgnorePatterns: ['/test/', '/node_modules/', '/dist/', 'index.ts', 'types.ts'],
 }

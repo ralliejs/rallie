@@ -5,8 +5,6 @@ import { registerBlock } from '@rallie/block'
 
 registerBlock(producer)
   .onActivate(() => {
-    // TODO: fix the ts error
-    // @ts-ignore
     render(<Producer />)
   })
   .onDestroy(() => {
@@ -22,8 +20,6 @@ registerBlock(producer)
 registerBlock(consumer)
   .relyOn(['producer'])
   .onActivate((containerId) => {
-    // TODO: fix the ts error
-    // @ts-ignore
     render(<Consumer />, {
       container: document.getElementById(containerId) as HTMLElement,
     })

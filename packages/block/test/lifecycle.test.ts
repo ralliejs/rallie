@@ -20,8 +20,9 @@ describe('Test running mode', () => {
     let order = ''
     await remoteApp.run(() => {
       return new Promise<void>((resolve) => {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           order += '1'
+          clearTimeout(timer)
           resolve()
         }, 200)
       })
@@ -42,12 +43,7 @@ describe('Test running mode', () => {
         throw new Error('this should never be reached')
       })
       .catch((err) => {
-        const expectedError = Errors.circularDependencies('case2-1', [
-          'case2-1',
-          'case2-2',
-          'case2-3',
-          'case2-1',
-        ])
+        const expectedError = Errors.circularDependencies('case2-1', ['case2-1', 'case2-2', 'case2-3', 'case2-1'])
         expect(err.message).toEqual(expectedError)
         done()
       })

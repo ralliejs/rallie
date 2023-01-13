@@ -51,7 +51,8 @@ describe('Test socket.setState', () => {
   test('# case 1: state can be modified by socket.setState', async () => {
     const delay = (seconds: number) => {
       return new Promise<void>((resolve, reject) => {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
+          clearTimeout(timer)
           resolve()
         }, seconds * 1000)
       })

@@ -1,0 +1,29 @@
+name: Deploy playground
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'pnpm'
+      - name: Install Dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm build
+      - name: Deploy playground
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          branch: gh-page # The branch the action should deploy to.
+          folder: playground/dist # The folder the action should deploy.

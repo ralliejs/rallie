@@ -6,7 +6,7 @@
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.mjs"
   },
   "author": "Philip Lau",
   "license": "MIT",
@@ -14,7 +14,7 @@
     "dist"
   ],
   "dependencies": {
-    "@rallie/core": "0.11.0"
+    "@rallie/core": "workspace:*"
   },
   "repository": {
     "type": "git",

@@ -11,7 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.mjs"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/ralliejs/rallie#readme",
   "devDependencies": {
-    "@rallie/core": "0.11.0"
+    "@rallie/core": "workspace:*"
   }
 }

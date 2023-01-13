@@ -5,7 +5,7 @@ test
 .eslintrc.js
 jest.config.js
 setup-fetch.js
-rollup.config.js
+rollup.config.mjs
 tsconfig.json
 coverage
 global.d.ts
