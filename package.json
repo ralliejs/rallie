@@ -13,8 +13,8 @@
     "build": "lerna run build --stream",
     "test": "pnpm build && jest --coverage",
     "release": "pnpm build && lerna publish --conventional-commits --create-release github",
-    "playground:dev": "lerna run dev --stream",
-    "playground:serve": "lerna run serve --stream",
+    "dev": "lerna run dev --stream",
+    "preview": "lerna run preview --stream",
     "commit": "git cz",
     "lint": "eslint --fix && prettier --write ./packages"
   },

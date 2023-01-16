@@ -137,6 +137,7 @@ importers:
       '@rallie/vue': workspace:*
       naive-ui: ^2.21.1
       react: ^18.2.0
+      react-dom: ^18.2.0
       vue: ^3.2.45
     dependencies:
       '@rallie/block': link:../packages/block
@@ -145,6 +146,7 @@ importers:
       '@rallie/vue': link:../packages/vue
       naive-ui: 2.34.3_vue@3.2.45
       react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
       vue: 3.2.45
 
 packages:
@@ -8016,7 +8018,6 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
-    dev: true
 
   /react-is/16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -8335,7 +8336,6 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
-    dev: true
 
   /seemly/0.3.6:
     resolution: {integrity: sha512-lEV5VB8BUKTo/AfktXJcy+JeXns26ylbMkIUco8CYREsQijuz4mrXres2Q+vMLdwkuLxJdIPQ8IlCIxLYm71Yw==}

@@ -1,14 +1,15 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
-import App from './components/App'
+import { createRoot, type Root } from 'react-dom/client'
+import { App } from './components/App'
 
-let rootContainer: HTMLElement
+let root: Root
 
 export const onBootstrap = (container: HTMLElement) => {
-  rootContainer = container ?? document.getElementById('react-app')
-  ReactDOM.render(<App />, rootContainer)
+  const rootContainer = container ?? document.getElementById('react-app')
+  root = createRoot(rootContainer)
+  root.render(<App />)
 }
 
 export const onDestroy = () => {
-  ReactDOM.unmountComponentAtNode(rootContainer)
+  root.unmount()
 }

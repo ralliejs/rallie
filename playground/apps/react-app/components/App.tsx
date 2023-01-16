@@ -4,8 +4,9 @@ import { hostApp } from '../blocks/host-app'
 import { reactApp } from '../blocks/react-app'
 import { useBlockState } from '@rallie/react'
 import classes from './App.module.css'
+import React from 'react'
 
-function App() {
+export function App() {
   const count = useBlockState(vueApp, (state) => state.count)
   const setCount = () => {
     vueApp.setState('react-app add the count', (state) => {
@@ -84,5 +85,3 @@ function App() {
     </div>
   )
 }
-
-export default App

@@ -1,3 +1,4 @@
+<!-- eslint-disable react-hooks/rules-of-hooks -->
 <script setup lang="ts">
 import { vueApp } from '../blocks/vue-app'
 import { useBlockState } from '@rallie/vue'

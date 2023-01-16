@@ -1,4 +1,4 @@
-import { MiddlewareFnType } from '@rallie/core'
+import type { MiddlewareFnType } from '@rallie/block'
 
 export const jsdelivrLibraryLoader =
   (filePathMap = {}): MiddlewareFnType =>

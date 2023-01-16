@@ -5,24 +5,23 @@ import loadHtml from '@rallie/load-html' // eslint-disable-line
 const starter = createBlock('starter')
 
 starter.run((env) => {
+  const { isEntry } = env
   env.use(
     jsdelivrLibraryLoader({
-      vue: '@3.2.23/dist/vue.global.js',
-      react: '@17.0.2/umd/react.development.js',
-      'react-dom': '@17.0.2/umd/react-dom.development.js',
+      vue: `@3.2.45/dist/vue.global${isEntry ? '' : '.prod'}.js`,
     }),
   )
   env.use(dynamicImportLoader)
   // you can try to use the htmlLoader to replace the dynamicImportLoader
   // env.use(loadHtml())
-  env.use(htmlLoader)
+  // env.use(htmlLoader)
 
   registerBlock(starter).onBootstrap(async () => {
     starter.activate('react-app')
     starter.activate('vue-app')
   })
 
-  if (env.isEntry) {
+  if (isEntry) {
     starter.activate(starter.name)
   }
 })
