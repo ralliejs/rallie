@@ -97,7 +97,9 @@ describe('Test state', () => {
         state.user = 'Alice'
       })
       .catch((error) => {
-        expect(error.message).toEqual(Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')))
+        expect(error.message).toEqual(
+          Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')),
+        )
       })
     privateApp.methods.logout()
     await Promise.resolve()

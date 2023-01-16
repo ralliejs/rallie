@@ -43,7 +43,12 @@ describe('Test running mode', () => {
         throw new Error('this should never be reached')
       })
       .catch((err) => {
-        const expectedError = Errors.circularDependencies('case2-1', ['case2-1', 'case2-2', 'case2-3', 'case2-1'])
+        const expectedError = Errors.circularDependencies('case2-1', [
+          'case2-1',
+          'case2-2',
+          'case2-3',
+          'case2-1',
+        ])
         expect(err.message).toEqual(expectedError)
         done()
       })

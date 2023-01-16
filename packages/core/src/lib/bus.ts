@@ -176,7 +176,12 @@ export class Bus {
    * @param name
    * @param data
    */
-  public async activateApp<T = any>(name: string, data?: T, ctx: Record<string, any> = {}, visitPath: string[] = []) {
+  public async activateApp<T = any>(
+    name: string,
+    data?: T,
+    ctx: Record<string, any> = {},
+    visitPath: string[] = [],
+  ) {
     await this.loadApp(name, ctx)
     if (this.isRallieCoreApp(name)) {
       const app = this.apps[name] as App

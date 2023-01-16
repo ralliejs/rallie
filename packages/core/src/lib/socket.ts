@@ -1,4 +1,4 @@
-import { effect, reactive, readonly } from '@vue/reactivity'
+import { effect, reactive, readonly } from 'vue'
 import type { EventEmitter } from './event-emitter' // eslint-disable-line
 import type { CallbackType, StoresType } from '../types' // eslint-disable-line
 import { Errors, isPrimitive, Warnings } from './utils'
@@ -12,7 +12,9 @@ export class Socket {
   }
 
   private offEvents(events: Record<string, CallbackType>, isUnicast: boolean, eventName?: string) {
-    let cancelListening = isUnicast ? this.eventEmitter.removeUnicastEventListener : this.eventEmitter.removeBroadcastEventListener
+    let cancelListening = isUnicast
+      ? this.eventEmitter.removeUnicastEventListener
+      : this.eventEmitter.removeBroadcastEventListener
     cancelListening = cancelListening.bind(this.eventEmitter)
     if (eventName) {
       if (events[eventName]) {
@@ -62,7 +64,9 @@ export class Socket {
    * create a proxy to emit a broadcast event
    * @param logger
    */
-  public createBroadcaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void) {
+  public createBroadcaster<T extends Record<string, CallbackType>>(
+    logger?: (eventName: string) => void,
+  ) {
     return new Proxy<T>({} as any, {
       get: (target, eventName) => {
         return (...args: any[]) => {
@@ -80,7 +84,9 @@ export class Socket {
    * create a proxy to emit unicast event
    * @param logger
    */
-  public createUnicaster<T extends Record<string, CallbackType>>(logger?: (eventName: string) => void) {
+  public createUnicaster<T extends Record<string, CallbackType>>(
+    logger?: (eventName: string) => void,
+  ) {
     return new Proxy<T>({} as any, {
       get: (target, eventName) => {
         return (...args: any[]) => {
@@ -108,7 +114,11 @@ export class Socket {
    * @param value
    * @param isPrivate is state can only be modified by the socket which initialized it
    */
-  public initState<T extends object = any>(namespace: string, initialState: T, isPrivate: boolean = false) {
+  public initState<T extends object = any>(
+    namespace: string,
+    initialState: T,
+    isPrivate: boolean = false,
+  ) {
     if (this.existState(namespace)) {
       throw new Error(Errors.duplicatedInitial(namespace))
     } else {
@@ -157,7 +167,11 @@ export class Socket {
    * @param action
    * @param setter
    */
-  public async setState<T = any>(namespace: string, action: string, setter: (state: T) => void | Promise<void>) {
+  public async setState<T = any>(
+    namespace: string,
+    action: string,
+    setter: (state: T) => void | Promise<void>,
+  ) {
     const state: T = this.getStateToSet(namespace)
     if (action) {
       await Promise.resolve(setter(state))
