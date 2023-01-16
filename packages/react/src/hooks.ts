@@ -1,7 +1,11 @@
 import React from 'react'
 import type { Block, CreatedBlock } from '@rallie/block'
 
-export function useBlockState<T extends Block<any, any, any>, U>(block: T, getter: (state: T['state']) => U, deps: any[] = []) {
+export function useBlockState<T extends Block<any, any, any>, U>(
+  block: T,
+  getter: (state: T['state']) => U,
+  deps: any[] = [],
+) {
   const [value, setValue] = React.useState<U>(getter(block.state))
   React.useEffect(() => {
     const unwatch = block.watchState(getter).do((val) => {
@@ -14,7 +18,11 @@ export function useBlockState<T extends Block<any, any, any>, U>(block: T, gette
   return value
 }
 
-export function useBlockEvents<T extends Block<any, any, any>>(block: T, events: Partial<T['events']>, deps: any[] = []) {
+export function useBlockEvents<T extends Block<any, any, any>>(
+  block: T,
+  events: Partial<T['events']>,
+  deps: any[] = [],
+) {
   React.useEffect(() => {
     const off = block.listenEvents(events)
     return () => {
@@ -23,7 +31,11 @@ export function useBlockEvents<T extends Block<any, any, any>>(block: T, events:
   }, [...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-export function useBlockMethods<T extends CreatedBlock<any, any, any, any>>(block: T, methods: Partial<T['methods']>, deps: any[] = []) {
+export function useBlockMethods<T extends CreatedBlock<any, any, any, any>>(
+  block: T,
+  methods: Partial<T['methods']>,
+  deps: any[] = [],
+) {
   React.useEffect(() => {
     const off = block.addMethods(methods)
     return () => {

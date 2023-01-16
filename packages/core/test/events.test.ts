@@ -42,7 +42,9 @@ describe('Test broadcast', () => {
 
   test('# case 2: unwatch events with broadcaster', () => {
     offBroadcast('nonExistentEvent')
-    expect(console.warn).toBeCalledWith(Warnings.handlerIsNotInTheEventsPool('nonExistentEvent', false))
+    expect(console.warn).toBeCalledWith(
+      Warnings.handlerIsNotInTheEventsPool('nonExistentEvent', false),
+    )
     offBroadcast('printHelloWorld')
     broadcaster.printHelloWorld()
     expect(console.log).toBeCalledTimes(0)
@@ -99,7 +101,9 @@ describe('Test unicast', () => {
 
   test('# case 2: unwatch events with unicaster', () => {
     offUnicast('nonExistentEvent')
-    expect(console.warn).toBeCalledWith(Warnings.handlerIsNotInTheEventsPool('nonExistentEvent', true))
+    expect(console.warn).toBeCalledWith(
+      Warnings.handlerIsNotInTheEventsPool('nonExistentEvent', true),
+    )
     offUnicast('getHelloWorld')
     expect(() => {
       unicaster.getHelloWorld()

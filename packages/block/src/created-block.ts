@@ -90,12 +90,17 @@ export class CreatedBlock<
   }
 
   public async run(callback: (env: Env) => void | Promise<void>) {
-    const isBusAccessible = this.isEntry || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
+    const isBusAccessible =
+      this.isEntry || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
     const setBusAccessible = (isAccessible: boolean) => {
       if (this.isEntry) {
-        this.globalSocket.setState(constant.isGlobalBusAccessible, isAccessible ? 'unfreeze the enviroment' : 'freeze the enviroment', (state) => {
-          state.value = isAccessible
-        })
+        this.globalSocket.setState(
+          constant.isGlobalBusAccessible,
+          isAccessible ? 'unfreeze the enviroment' : 'freeze the enviroment',
+          (state) => {
+            state.value = isAccessible
+          },
+        )
       }
     }
     const env: Env = {

@@ -15,8 +15,10 @@ export const errors = {
         `1. whether the block ${blockName} is loaded.\n` +
         `2. whether the block ${blockName} has initialized the state`,
     ),
-  duplicatedBlockName: (blockName: string) => message(`the block ${blockName} is already registered, please rename your block`),
-  invalidBlock: (name: string) => message(`failed to register the block ${name} because it is not a valid created block`),
+  duplicatedBlockName: (blockName: string) =>
+    message(`the block ${blockName} is already registered, please rename your block`),
+  invalidBlock: (name: string) =>
+    message(`failed to register the block ${name} because it is not a valid created block`),
   stateIsReadonly: (blockName: string) => message(`the state of ${blockName} is readonly`),
 }
 
