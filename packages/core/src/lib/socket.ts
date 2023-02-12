@@ -1,6 +1,7 @@
-import { effect, reactive, readonly } from 'vue'
-import type { EventEmitter } from './event-emitter' // eslint-disable-line
-import type { CallbackType, StoresType } from '../types' // eslint-disable-line
+// eslint-disable-next-line vue/prefer-import-from-vue
+import { effect, reactive, readonly, toRaw } from '@vue/reactivity'
+import type { EventEmitter } from './event-emitter'
+import type { CallbackType, StoresType } from '../types'
 import { Errors, isPrimitive, Warnings } from './utils'
 import { Watcher } from './watcher'
 
@@ -199,9 +200,9 @@ export class Socket {
         if (!flushed) {
           flushed = true
           Promise.resolve().then(() => {
-            const watchingState = getter(state)
+            const watchingState = toRaw(getter(state))
             watcher.handler?.(watchingState, watcher.oldWatchingStates)
-            watcher.oldWatchingStates = watchingState
+            watcher.oldWatchingStates = toRaw(watchingState)
             flushed = false
           })
         }

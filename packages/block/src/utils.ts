@@ -1,10 +1,10 @@
-export type ConstraintedType<T, Default> = T extends Record<string, any> ? T : Default
+export type ConstraintedType<T, P, Default> = T extends P ? T : Default
 
 export const constant = {
   privateBus: (blockName: string) => `${blockName}.bus`,
   stateNamespace: (blockName: string) => `${blockName}.state`,
-  isGlobalBusAccessible: 'isGlobalBusAccessible',
-  exportMethodName: '__RallieInnerExport__',
+  isGlobalBusAccessible: 'isGlobalBusAccessible' as const,
+  exportMethodName: '__RallieInnerExport__' as const,
 }
 
 const message = (text: string) => `[rallie] ${text}`

@@ -11,10 +11,6 @@ const block = createBlock<{
   }
 }>('connect-testers/events')
 
-block.initState({
-  count: 0,
-})
-
 let removeEvents: () => void
 
 registerBlock(block)
@@ -32,4 +28,9 @@ registerBlock(block)
   })
   .onDestroy(() => {
     removeEvents()
+  })
+  .setup(({ initState }) => {
+    initState({
+      count: 0,
+    })
   })

@@ -1,16 +1,9 @@
-import { CreatedBlock } from './created-block'
-import { touchBus, getBus, CallbackType, App as RegisteredBlock } from '@rallie/core'
+import { CreatedBlock, CreatedBlockType } from './created-block'
+import { touchBus } from '@rallie/core'
 import { errors, constant } from './utils'
-import type { ConstraintedType } from './utils'
+import { RegisteredBlock } from './registered-block'
 
-export function createBlock<
-  T extends {
-    state?: Record<string, any>
-    events?: Record<string, CallbackType>
-    methods?: Record<string, CallbackType>
-    exports?: Record<string, any>
-  } = {},
->(name: string) {
+export function createBlock<T extends CreatedBlockType = {}>(name: string) {
   const [globalBus, isEntry] = touchBus()
   if (globalBus.existApp(name)) {
     throw new Error(errors.duplicatedBlockName(name))
@@ -19,18 +12,12 @@ export function createBlock<
   if (isEntry) {
     globalSocket.initState(constant.isGlobalBusAccessible, { value: true }, true)
   }
-  return new CreatedBlock<
-    ConstraintedType<T['state'], undefined>,
-    ConstraintedType<T['events'], never>,
-    ConstraintedType<T['methods'], never>,
-    ConstraintedType<T['exports'], {}>
-  >(name, globalBus, globalSocket, isEntry)
+  return new CreatedBlock<T>(name, globalBus, globalSocket, isEntry)
 }
 
-export function registerBlock(block: CreatedBlock<any, any, any, any>): RegisteredBlock {
+export function registerBlock<T extends CreatedBlock<unknown>>(block: T) {
   if (block.isCreatedBlock) {
-    const bus = getBus()
-    return bus.createApp(block.name)
+    return new RegisteredBlock<T>(block)
   } else {
     throw new Error(errors.invalidBlock(block.name))
   }

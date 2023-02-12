@@ -20,18 +20,6 @@ const blockWithPrivateState = createBlock<{
   }
 }>('connect-testers/state.private')
 
-blockWithPublicState.initState({
-  count: 0,
-  theme: 'white',
-})
-
-blockWithPrivateState.initState(
-  {
-    user: 'Mike',
-  },
-  true,
-)
-
 blockWithPrivateState.addMethods({
   logout() {
     blockWithPrivateState.setState('log out', (state) => {
@@ -47,8 +35,21 @@ blockWithPrivateState.addMethods({
 
 let unwatchCount: () => void = () => {}
 
-registerBlock(blockWithPrivateState)
+registerBlock(blockWithPrivateState).setup(({ initState }) => {
+  initState(
+    {
+      user: 'Mike',
+    },
+    true,
+  )
+})
 registerBlock(blockWithPublicState)
+  .setup(({ initState }) => {
+    initState({
+      count: 0,
+      theme: 'white',
+    })
+  })
   .onBootstrap(() => {
     unwatchCount = blockWithPublicState
       .watchState((state) => state.count)

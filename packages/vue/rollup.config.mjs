@@ -1,7 +1,9 @@
 import typescript from 'rollup-plugin-typescript2'
 import resolve from '@rollup/plugin-node-resolve'
 import commonJs from '@rollup/plugin-commonjs'
-import pkg from './package.json' assert { type: 'json' }
+import { readFileSync } from "node:fs"
+
+const pkg = JSON.parse(readFileSync('package.json', {encoding: 'utf8'}))
 
 const commonConfigs = {
   plugins: [resolve(), commonJs(), typescript()],

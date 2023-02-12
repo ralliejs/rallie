@@ -1,15 +1,13 @@
-import { Block } from './block'
-import type { CallbackType } from '@rallie/core'
+import { Block, BlockType } from './block'
 import { constant } from './utils'
 
-export class ConnectedBlock<
-  State extends Record<string, any>,
-  Events extends Record<string, CallbackType>,
-  Methods extends Record<string, CallbackType>,
-  Exports extends Record<string, any>,
-> extends Block<State, Events, Methods> {
+export type ConnectedBlockType = BlockType & {
+  exports?: Record<string, any>
+}
+
+export class ConnectedBlock<T extends ConnectedBlockType> extends Block<Omit<T, 'import'>> {
   private innerMethods: {
-    __RallieInnerExport__: () => Exports
+    [constant.exportMethodName]: () => T['exports']
   }
 
   constructor(name: string) {

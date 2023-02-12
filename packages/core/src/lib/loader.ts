@@ -15,7 +15,7 @@ export const loadScript = async (scriptDeclare: ScriptType) => {
               src: scriptDeclare,
             }
       Object.entries(scriptAttrs).forEach(([attr, value]) => {
-        script[attr] = value
+        script.setAttribute(attr, value as string)
       })
     }
     if (script.src) {
@@ -46,7 +46,7 @@ export const loadLink = (linkDeclare: LinkType) => {
           }
     link = document.createElement('link')
     Object.entries(linkAttrs).forEach(([attr, value]) => {
-      link[attr] = value
+      link.setAttribute(attr, value as string)
     })
   }
   document.head.appendChild(link)
