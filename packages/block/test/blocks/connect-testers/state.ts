@@ -35,21 +35,13 @@ blockWithPrivateState.addMethods({
 
 let unwatchCount: () => void = () => {}
 
-registerBlock(blockWithPrivateState).setup(({ initState }) => {
-  initState(
-    {
-      user: 'Mike',
-    },
-    true,
-  )
-})
+registerBlock(blockWithPrivateState).initState(
+  {
+    user: 'Mike',
+  },
+  true,
+)
 registerBlock(blockWithPublicState)
-  .setup(({ initState }) => {
-    initState({
-      count: 0,
-      theme: 'white',
-    })
-  })
   .onBootstrap(() => {
     unwatchCount = blockWithPublicState
       .watchState((state) => state.count)
@@ -64,4 +56,8 @@ registerBlock(blockWithPublicState)
   })
   .onDestroy(() => {
     unwatchCount()
+  })
+  .initState({
+    count: 0,
+    theme: 'white',
   })

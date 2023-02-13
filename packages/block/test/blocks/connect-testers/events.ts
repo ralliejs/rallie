@@ -14,6 +14,9 @@ const block = createBlock<{
 let removeEvents: () => void
 
 registerBlock(block)
+  .initState({
+    count: 0,
+  })
   .onBootstrap(() => {
     removeEvents = block.listenEvents({
       log(text) {
@@ -28,9 +31,4 @@ registerBlock(block)
   })
   .onDestroy(() => {
     removeEvents()
-  })
-  .setup(({ initState }) => {
-    initState({
-      count: 0,
-    })
   })

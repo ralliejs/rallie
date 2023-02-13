@@ -1,7 +1,10 @@
 <script lang="ts">
-import { producer } from './blocks'
-import { mixinBlockState } from '../../../src'
+import { consumer } from '../blocks/consumer'
+import { ProducerService } from '../blocks/producer'
+import { mixinBlockState } from '../../src'
 import { defineComponent } from 'vue'
+
+const producer = consumer.connect<ProducerService>('producer')
 
 export default defineComponent({
   mixins: [

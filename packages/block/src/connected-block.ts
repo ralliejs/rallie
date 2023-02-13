@@ -1,11 +1,7 @@
-import { Block, BlockType } from './block'
+import { Block, BlockService } from './block'
 import { constant } from './utils'
 
-export type ConnectedBlockType = BlockType & {
-  exports?: Record<string, any>
-}
-
-export class ConnectedBlock<T extends ConnectedBlockType> extends Block<Omit<T, 'import'>> {
+export class ConnectedBlock<T extends BlockService> extends Block<T> {
   private innerMethods: {
     [constant.exportMethodName]: () => T['exports']
   }

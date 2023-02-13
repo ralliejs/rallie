@@ -1,7 +1,8 @@
-import { ConnectedBlock, type ConnectedBlockType } from './connected-block'
+import { ConnectedBlock } from './connected-block'
 import type { Bus, Socket, MiddlewareFnType, ConfType } from '@rallie/core'
 import { constant } from './utils'
-import { Block, type BlockType } from './block'
+import { Block, type BlockService } from './block'
+import { socketsPool } from './sockets-pool'
 
 export interface Env {
   isEntry: boolean
@@ -12,16 +13,12 @@ export interface Env {
   unfreeze: () => void
 }
 
-export type CreatedBlockType = BlockType & {
-  exports?: Record<string, any>
-}
-
-export class CreatedBlock<T extends CreatedBlockType> extends Block<Omit<T, 'exports'>> {
+export class CreatedBlock<T extends BlockService> extends Block<T> {
   private globalBus: Bus
   private globalSocket: Socket
   private isEntry: boolean
-  private connectedBlocks: Record<string, ConnectedBlockType> = {}
-  public exported: T['exports']
+  private connectedBlocks: Record<string, BlockService> = {}
+  public exports: T['exports']
 
   constructor(name: string, globalBus: Bus, globalSocket: Socket, isEntry: boolean) {
     super(name)
@@ -29,13 +26,14 @@ export class CreatedBlock<T extends CreatedBlockType> extends Block<Omit<T, 'exp
     this.globalBus = globalBus
     this.globalSocket = globalSocket
     this.isEntry = isEntry
+    socketsPool.set(name, this.socket)
   }
 
   public addMethods(methods: Partial<T['methods']>) {
     return this.socket.onUnicast<Partial<T['methods']>>(methods)
   }
 
-  public connect<P extends ConnectedBlockType>(name: string) {
+  public connect<P extends BlockService>(name: string) {
     if (!this.connectedBlocks[name]) {
       this.connectedBlocks[name] = new ConnectedBlock<P>(name)
     }

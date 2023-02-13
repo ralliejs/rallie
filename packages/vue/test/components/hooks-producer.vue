@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { producer } from './blocks'
-import { useBlockState, useBlockEvents, useBlockMethods } from '../../../src'
+import { producer } from '../blocks/producer'
+import { useBlockState, useBlockEvents, useBlockMethods } from '../../src'
 
 export default defineComponent(function Producer() {
   const count = useBlockState(producer, (state) => state.count)

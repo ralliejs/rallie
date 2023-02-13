@@ -1,9 +1,10 @@
-import { CreatedBlock, CreatedBlockType } from './created-block'
+import { CreatedBlock } from './created-block'
+import type { BlockService } from './block'
 import { touchBus } from '@rallie/core'
 import { errors, constant } from './utils'
 import { RegisteredBlock } from './registered-block'
 
-export function createBlock<T extends CreatedBlockType = {}>(name: string) {
+export function createBlock<T extends BlockService = {}>(name: string) {
   const [globalBus, isEntry] = touchBus()
   if (globalBus.existApp(name)) {
     throw new Error(errors.duplicatedBlockName(name))
@@ -26,9 +27,9 @@ export function registerBlock<T extends CreatedBlock<unknown>>(block: T) {
 export type { Block } from './block'
 export type { CreatedBlock, Env } from './created-block'
 export type { ConnectedBlock } from './connected-block'
+export type { RegisteredBlock } from './registered-block'
 
 export type {
-  App as RegisteredBlock,
   CallbackType,
   ScriptType,
   LinkType,

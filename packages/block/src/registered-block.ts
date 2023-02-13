@@ -1,22 +1,17 @@
 import { App, getBus, LifecyleCallbackType, Socket, RelateType, DependencyType } from '@rallie/core'
 import { CreatedBlock } from './created-block'
-import { constant } from './utils'
-
-type SetUpCallback<State, Exports> = (ctx: {
-  initState: (state: State, isPrivate?: boolean) => void
-  exports: (exported: Exports) => void
-}) => any
-
+import { socketsPool } from './sockets-pool'
+import { constant, warnings } from './utils'
 export class RegisteredBlock<T extends CreatedBlock<unknown>> {
-  private exported: T['exported']
   private socket: Socket
   private app: App
+  private exports: T['exports'] = {}
+  private exported = false
   constructor(private createdBlock: T) {
     this.app = getBus().createApp(createdBlock.name)
-    this.exported = {}
-    this.socket = getBus(constant.privateBus(createdBlock.name)).createSocket()
+    this.socket = socketsPool.get(createdBlock.name)
     this.socket.onUnicast({
-      [constant.exportMethodName]: () => this.exported,
+      [constant.exportMethodName]: () => this.exports,
     })
   }
 
@@ -30,22 +25,24 @@ export class RegisteredBlock<T extends CreatedBlock<unknown>> {
     return this
   }
 
-  setup(callback: SetUpCallback<T['state'], T['exported']>) {
-    // eslint-disable-next-line n/no-callback-literal
-    callback({
-      initState: (state, isPrivate?) => {
-        this.socket.initState(
-          constant.stateNamespace(this.createdBlock.name),
-          state as object,
-          isPrivate,
-        )
-      },
-      exports: (exported) => {
-        Object.freeze(exported)
-        this.exported = exported
-        this.createdBlock.exported = exported
-      },
-    })
+  initState(state: T['state'], isPrivate?: boolean) {
+    this.socket.initState(
+      constant.stateNamespace(this.createdBlock.name),
+      state as object,
+      isPrivate,
+    )
+    return this
+  }
+
+  export(exports: T['exports']) {
+    if (!this.exported) {
+      Object.freeze(exports)
+      this.exports = exports
+      this.createdBlock.exports = exports
+      this.exported = true
+    } else {
+      console.warn(warnings.duplicatedExports(this.createdBlock.name))
+    }
     return this
   }
 
