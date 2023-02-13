@@ -70,6 +70,7 @@ export class EventEmitter {
     if (listeners.size > 0) {
       listeners.forEach((callback) => {
         try {
+          // eslint-disable-next-line n/no-callback-literal
           callback(...args)
         } catch (error) {
           console.error(Errors.broadcastCallbackError(event))
@@ -84,6 +85,7 @@ export class EventEmitter {
   public emitUnicast(event: string, ...args: any[]) {
     const callback = this.unicastEvents[event]
     if (callback) {
+      // eslint-disable-next-line n/no-callback-literal
       return callback(...args)
     } else {
       throw new Error(Errors.emittedNonExistedUnicast(event))

@@ -11,13 +11,12 @@ const block = createBlock<{
   }
 }>('connect-testers/events')
 
-block.initState({
-  count: 0,
-})
-
 let removeEvents: () => void
 
 registerBlock(block)
+  .initState({
+    count: 0,
+  })
   .onBootstrap(() => {
     removeEvents = block.listenEvents({
       log(text) {

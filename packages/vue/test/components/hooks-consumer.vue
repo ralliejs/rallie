@@ -1,7 +1,10 @@
 <script lang="ts">
-import { producer } from './blocks'
-import { useBlockState } from '../../../src'
+import { useBlockState } from '../../src'
 import { defineComponent } from 'vue'
+import { consumer } from '../blocks/consumer'
+import type { ProducerService } from '../blocks/producer'
+
+const producer = consumer.connect<ProducerService>('producer')
 
 export default defineComponent(function Consumer() {
   const toggleTheme = () => {

@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Block, CreatedBlock } from '@rallie/block'
 
-export function useBlockState<T extends Block<any, any, any>, U>(
+export function useBlockState<T extends Block<unknown>, U>(
   block: T,
   getter: (state: T['state']) => U,
   deps: any[] = [],
@@ -18,7 +18,7 @@ export function useBlockState<T extends Block<any, any, any>, U>(
   return value
 }
 
-export function useBlockEvents<T extends Block<any, any, any>>(
+export function useBlockEvents<T extends Block<unknown>>(
   block: T,
   events: Partial<T['events']>,
   deps: any[] = [],
@@ -31,7 +31,7 @@ export function useBlockEvents<T extends Block<any, any, any>>(
   }, [...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-export function useBlockMethods<T extends CreatedBlock<any, any, any, any>>(
+export function useBlockMethods<T extends CreatedBlock<unknown>>(
   block: T,
   methods: Partial<T['methods']>,
   deps: any[] = [],

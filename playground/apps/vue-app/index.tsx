@@ -2,6 +2,9 @@ import { registerBlock } from '@rallie/block'
 import { vueApp } from './blocks/vue-app'
 
 registerBlock(vueApp)
+  .initState({
+    count: 0,
+  })
   .relyOn(['lib:vue', 'host-app'])
   .onBootstrap(async (container) => {
     console.log('vue-app bootstrapped')

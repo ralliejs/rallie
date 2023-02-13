@@ -1,6 +1,6 @@
 import { Errors } from '@rallie/core'
 import { createBlock, registerBlock } from '../src/index'
-import { errors, constant } from '../src/utils'
+import { errors, constant, warnings } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
 
 const hostApp = createBlock('host-app')
@@ -171,21 +171,16 @@ describe('Test Methods', () => {
 describe('Test export and import', () => {
   const app = createBlock('exports-tester')
   registerBlock(app).relateTo(['connect-testers/exports'])
-
   test('# case 1: test export and import', async () => {
+    console.warn = jest.fn()
     await app.activate(app.name)
     const targetApp = app.connect<{
       exports: {
         testedValue: number
       }
     }>('connect-testers/exports')
-    const { testedValue: testedValue0 } = targetApp.import()
-    expect(testedValue0).toBeUndefined()
-    await app.activate('connect-testers/exports')
     const { testedValue: testedValue1 } = targetApp.import()
     expect(testedValue1).toEqual(1)
-    await app.activate('connect-testers/exports')
-    const { testedValue: testedValue2 } = targetApp.import()
-    expect(testedValue2).toEqual(1)
+    expect(console.warn).toBeCalledWith(warnings.duplicatedExports('connect-testers/exports'))
   })
 })

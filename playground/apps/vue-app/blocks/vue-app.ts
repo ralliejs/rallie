@@ -7,7 +7,3 @@ type State = {
 export const vueApp = createBlock<{
   state: State
 }>('vue-app')
-
-vueApp.initState({
-  count: 0,
-})

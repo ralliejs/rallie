@@ -11,13 +11,12 @@ const block = createBlock<{
   }
 }>('connect-testers/methods')
 
-block.initState({
-  count: 0,
-})
-
 let removeMethods: () => void
 
 registerBlock(block)
+  .initState({
+    count: 0,
+  })
   .onBootstrap(() => {
     removeMethods = block.addMethods({
       getCount() {

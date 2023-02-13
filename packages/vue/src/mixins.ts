@@ -1,11 +1,11 @@
 import type { Block, CreatedBlock } from '@rallie/block'
 
-export function mixinBlockState<T extends Block<any, any, any>, U>(
+export function mixinBlockState<T extends Block<any>, U>(
   block: T,
   mapStateToComputed: (state: T['state']) => U,
 ) {
-  let unwatchState = null
-  const computed = {}
+  let unwatchState: () => void
+  const computed: Record<string, any> = {}
   const mappedState = mapStateToComputed(block.state)
   const dataKey = `rallie-state-${block.name}`
   Object.keys(mappedState).forEach((key) => {
@@ -23,6 +23,7 @@ export function mixinBlockState<T extends Block<any, any, any>, U>(
     computed,
     mounted() {
       unwatchState = block.watchState(mapStateToComputed).do((value) => {
+        /* @ts-ignore */
         this[dataKey] = value
       })
     },
@@ -37,15 +38,12 @@ export function mixinBlockState<T extends Block<any, any, any>, U>(
   }
 }
 
-export function mixinBlockEvents<T extends Block<any, any, any>>(
-  block: T,
-  events: Partial<T['events']>,
-) {
-  let offEvents = null
+export function mixinBlockEvents<T extends Block<any>>(block: T, events: Partial<T['events']>) {
+  let offEvents: () => void
   return {
     methods: events,
     mounted() {
-      const _events = {}
+      const _events: Record<string, any> = {}
       Object.entries(events).forEach(([key, Fn]) => {
         _events[key] = (Fn as Function).bind(this)
       })
@@ -62,15 +60,15 @@ export function mixinBlockEvents<T extends Block<any, any, any>>(
   }
 }
 
-export function mixinBlockMethods<T extends CreatedBlock<any, any, any, any>>(
+export function mixinBlockMethods<T extends CreatedBlock<any>>(
   block: T,
   methods: Partial<T['methods']>,
 ) {
-  let offMethods = null
+  let offMethods: () => void
   return {
     methods,
     created() {
-      const _methods = {}
+      const _methods: Record<string, any> = {}
       Object.entries(methods).forEach(([key, Fn]) => {
         _methods[key] = (Fn as Function).bind(this)
       })

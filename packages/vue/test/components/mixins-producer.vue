@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { producer } from './blocks'
-import { mixinBlockEvents, mixinBlockMethods, mixinBlockState } from '../../../src'
+import { producer } from '../blocks/producer'
+import { mixinBlockEvents, mixinBlockMethods, mixinBlockState } from '../../src'
 
 export default defineComponent({
   mixins: [
@@ -11,6 +11,7 @@ export default defineComponent({
     })),
     mixinBlockEvents(producer, {
       printTheme() {
+        /* @ts-ignore */
         console.log(this.isDarkTheme ? 'dark' : 'light')
       },
     }),

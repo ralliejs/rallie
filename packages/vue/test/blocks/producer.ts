@@ -1,10 +1,9 @@
 import { createBlock } from '@rallie/block'
 
-export const consumer = createBlock('consumer')
-export const producer = consumer.connect<{
+export type ProducerService = {
   state: {
-    count: number
     isDarkTheme: boolean
+    count: number
   }
   events: {
     printTheme: () => void
@@ -12,4 +11,6 @@ export const producer = consumer.connect<{
   methods: {
     toggleTheme: () => void
   }
-}>('producer')
+}
+
+export const producer = createBlock<ProducerService>('producer')

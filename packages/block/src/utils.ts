@@ -1,10 +1,15 @@
-export type ConstraintedType<T, Default> = T extends Record<string, any> ? T : Default
+export type ConstraintedType<T, P, Default> = T extends P ? T : Default
+
+export const symbols = {
+  createdBlock: Symbol('createBlock'),
+  connectedBlock: Symbol('connectedBlock'),
+}
 
 export const constant = {
   privateBus: (blockName: string) => `${blockName}.bus`,
   stateNamespace: (blockName: string) => `${blockName}.state`,
-  isGlobalBusAccessible: 'isGlobalBusAccessible',
-  exportMethodName: '__RallieInnerExport__',
+  isGlobalBusAccessible: 'isGlobalBusAccessible' as const,
+  exportMethodName: '__RallieInnerExport__' as const,
 }
 
 const message = (text: string) => `[rallie] ${text}`
@@ -23,6 +28,6 @@ export const errors = {
 }
 
 export const warnings = {
-  suggestToInitStateBeforeRegister: (blockName: string) =>
-    message(`it's recomanded to initialize the state before you register the block ${blockName}`),
+  duplicatedExports: (blockName: string) =>
+    message(`you can only export once in the block ${blockName}`),
 }

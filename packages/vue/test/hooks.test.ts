@@ -1,10 +1,16 @@
 // @ts-ignore
 import { render, fireEvent, screen, cleanup } from '@testing-library/vue'
-import { HooksProducer, producer } from './blocks/producer'
-import { HooksConsumer, consumer } from './blocks/consumer'
+import { producer } from './blocks/producer'
+import { consumer } from './blocks/consumer'
+import HooksProducer from './components/hooks-producer.vue'
+import HooksConsumer from './components/hooks-consumer.vue'
 import { registerBlock } from '@rallie/block'
 
 registerBlock(producer)
+  .initState({
+    isDarkTheme: true,
+    count: 0,
+  })
   .onActivate(() => {
     render(HooksProducer)
   })
@@ -28,6 +34,7 @@ registerBlock(consumer)
   .onDestroy(() => {
     cleanup()
   })
+
 describe('Test Vue hooks', () => {
   beforeEach(async () => {
     await consumer.activate(consumer.name, 'consumer')

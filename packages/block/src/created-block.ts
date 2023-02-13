@@ -1,8 +1,8 @@
 import { ConnectedBlock } from './connected-block'
-import type { CallbackType, Bus, Socket, MiddlewareFnType, ConfType } from '@rallie/core'
-import { constant, warnings } from './utils'
-import type { ConstraintedType } from './utils'
-import { Block } from './block'
+import type { Bus, Socket, MiddlewareFnType, ConfType } from '@rallie/core'
+import { constant } from './utils'
+import { Block, type BlockService } from './block'
+import { socketsPool } from './sockets-pool'
 
 export interface Env {
   isEntry: boolean
@@ -13,18 +13,12 @@ export interface Env {
   unfreeze: () => void
 }
 
-export class CreatedBlock<
-  State extends Record<string, any>,
-  Events extends Record<string, CallbackType>,
-  Methods extends Record<string, CallbackType>,
-  Exports extends Record<string, any>,
-> extends Block<State, Events, Methods> {
+export class CreatedBlock<T extends BlockService> extends Block<T> {
   private globalBus: Bus
   private globalSocket: Socket
   private isEntry: boolean
-  private exports: Exports | {}
-  private exported: boolean
-  private connectedBlocks: Record<string, ConnectedBlock<any, any, any, any>> = {}
+  private connectedBlocks: Record<string, BlockService> = {}
+  public exports: T['exports']
 
   constructor(name: string, globalBus: Bus, globalSocket: Socket, isEntry: boolean) {
     super(name)
@@ -32,60 +26,29 @@ export class CreatedBlock<
     this.globalBus = globalBus
     this.globalSocket = globalSocket
     this.isEntry = isEntry
-    this.exported = false
-    this.exports = {}
-    this.socket.onUnicast({
-      [constant.exportMethodName]: () => this.exports,
-    })
+    socketsPool.set(name, this.socket)
   }
 
-  public initState(state: State, isPrivate: boolean = false) {
-    this.socket.initState(constant.stateNamespace(this.name), state, isPrivate)
-    // state should be initialized before the block is registered
-    if (this.globalBus.existApp(this.name)) {
-      console.warn(warnings.suggestToInitStateBeforeRegister(this.name))
-    }
+  public addMethods(methods: Partial<T['methods']>) {
+    return this.socket.onUnicast<Partial<T['methods']>>(methods)
   }
 
-  public addMethods(methods: Partial<Methods>) {
-    return this.socket.onUnicast<Partial<Methods>>(methods)
-  }
-
-  public export(exports: Exports) {
-    if (!this.exported) {
-      this.exported = true
-      this.exports = exports
-    }
-  }
-
-  public connect<
-    T extends {
-      state?: Record<string, any>
-      events?: Record<string, CallbackType>
-      methods?: Record<string, CallbackType>
-      exports?: Record<string, any>
-    } = {},
-  >(name: string) {
+  public connect<P extends BlockService>(name: string) {
     if (!this.connectedBlocks[name]) {
-      this.connectedBlocks[name] = new ConnectedBlock(name)
+      this.connectedBlocks[name] = new ConnectedBlock<P>(name)
     }
-    return this.connectedBlocks[name] as ConnectedBlock<
-      ConstraintedType<T['state'], undefined>,
-      ConstraintedType<T['events'], never>,
-      ConstraintedType<T['methods'], never>,
-      ConstraintedType<T['exports'], {}>
-    >
+    return this.connectedBlocks[name] as ConnectedBlock<P>
   }
 
   public load(name: string, ctx: Record<string, any> = {}) {
     return this.globalBus.loadApp(name, ctx)
   }
 
-  public activate<T>(name: string, data?: T, ctx: Record<string, any> = {}) {
+  public activate<P>(name: string, data?: P, ctx: Record<string, any> = {}) {
     return this.globalBus.activateApp(name, data, ctx)
   }
 
-  public destroy<T>(name: string, data?: T) {
+  public destroy<P>(name: string, data?: P) {
     return this.globalBus.destroyApp(name, data)
   }
 

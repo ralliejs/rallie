@@ -1,4 +1,5 @@
 import { createBlock } from '@rallie/block'
+import React from 'react'
 import { useBlockState } from '../../src'
 
 interface ConsumerType {

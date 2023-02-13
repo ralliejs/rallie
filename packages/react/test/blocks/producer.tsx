@@ -1,4 +1,5 @@
 import { createBlock } from '@rallie/block'
+import React from 'react'
 import { useBlockState, useBlockEvents, useBlockMethods } from '../../src'
 
 interface ProducerType {
@@ -15,10 +16,6 @@ interface ProducerType {
 }
 
 export const producer = createBlock<ProducerType>('producer')
-producer.initState({
-  isDarkTheme: true,
-  count: 0,
-})
 
 export const Producer = () => {
   const [count, isDarkTheme] = useBlockState(producer, (state) => [state.count, state.isDarkTheme])

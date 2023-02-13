@@ -1,12 +1,17 @@
 // @ts-ignore
 import { render, fireEvent, screen, cleanup } from '@testing-library/vue'
-import { MixinsProducer, producer } from './blocks/producer'
-import { MixinsConsumer, consumer } from './blocks/consumer'
+import { producer } from './blocks/producer'
+import { consumer } from './blocks/consumer'
 import { registerBlock } from '@rallie/block'
 
 registerBlock(producer)
-  .onActivate(() => {
-    render(MixinsProducer)
+  .initState({
+    isDarkTheme: true,
+    count: 0,
+  })
+  .onActivate(async () => {
+    const module = await import('./components/mixins-producer.vue')
+    render(module.default)
   })
   .onDestroy(() => {
     cleanup()
@@ -20,8 +25,9 @@ registerBlock(producer)
 
 registerBlock(consumer)
   .relyOn(['producer'])
-  .onActivate((containerId) => {
-    render(MixinsConsumer, {
+  .onActivate(async (containerId) => {
+    const module = await import('./components/hooks-consumer.vue')
+    render(module.default, {
       container: document.getElementById(containerId) as HTMLElement,
     })
   })
@@ -32,12 +38,10 @@ describe('Test Vue Mixins', () => {
   beforeEach(async () => {
     await consumer.activate(consumer.name, 'consumer')
   })
-
   afterEach(async () => {
     await consumer.destroy(consumer.name)
     await consumer.destroy(producer.name)
   })
-
   test('#case1: modify state directly', async () => {
     const addCountBtn = await screen.findByText('add count')
     const count = await screen.findByTestId('count')
@@ -47,7 +51,6 @@ describe('Test Vue Mixins', () => {
     await fireEvent.click(addCountBtn)
     expect(count.innerHTML).toEqual('3')
   })
-
   test('#case2: modify state by unicaster', async () => {
     console.log = jest.fn()
     const printThemeBtn = await screen.findByText('print theme')
@@ -65,7 +68,6 @@ describe('Test Vue Mixins', () => {
     expect(console.log).toBeCalledWith('dark')
     expect(console.log).toBeCalledWith('light')
   })
-
   test('#case3: test events', async () => {
     console.log = jest.fn()
     console.warn = jest.fn()

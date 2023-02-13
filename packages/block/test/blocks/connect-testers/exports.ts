@@ -7,14 +7,9 @@ const block = createBlock<{
 }>('connect-testers/exports')
 
 registerBlock(block)
-  .onBootstrap(() => {
-    block.export({
-      testedValue: 1,
-    })
+  .export({
+    testedValue: 1,
   })
-  .onActivate(() => {
-    block.export({
-      // should not take effect
-      testedValue: 2,
-    })
+  .export({
+    testedValue: 2,
   })

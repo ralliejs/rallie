@@ -2,8 +2,13 @@ import { producer, Producer } from './blocks/producer'
 import { consumer, Consumer } from './blocks/consumer'
 import { render, fireEvent, act, screen, cleanup } from '@testing-library/react'
 import { registerBlock } from '@rallie/block'
+import React from 'react'
 
 registerBlock(producer)
+  .initState({
+    isDarkTheme: true,
+    count: 0,
+  })
   .onActivate(() => {
     render(<Producer />)
   })
