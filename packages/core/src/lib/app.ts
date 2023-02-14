@@ -3,12 +3,9 @@ import { deduplicate } from './utils'
 
 export class App {
   public dependenciesReady: boolean = false
-  public bootstrapping: Promise<void> = null
   public dependencies: Array<{ name: string; ctx?: Record<string, any>; data?: any }> = []
   public relatedApps: Array<{ name: string; ctx?: Record<string, any> }> = []
-  public doBootstrap?: LifecyleCallbackType
   public doActivate?: LifecyleCallbackType
-  public doDestroy?: LifecyleCallbackType
   public isRallieCoreApp: boolean
 
   constructor(public name: string) {
@@ -67,29 +64,11 @@ export class App {
   }
 
   /**
-   * indicate the callback your app will run when it's activated the first time
-   * @param {function} callback
-   */
-  public onBootstrap(callback: LifecyleCallbackType) {
-    this.doBootstrap = callback
-    return this
-  }
-
-  /**
    * indicate the callback your app will run when it's activated after the first time
    * @param callback
    */
   public onActivate(callback: LifecyleCallbackType) {
     this.doActivate = callback
-    return this
-  }
-
-  /**
-   * indicate the callback when your app is destroyed
-   * @param callback
-   */
-  public onDestroy(callback: LifecyleCallbackType) {
-    this.doDestroy = callback
     return this
   }
 }

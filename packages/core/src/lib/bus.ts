@@ -3,7 +3,7 @@ import { Socket } from './socket'
 import { App } from './app'
 import { Errors, compose } from './utils'
 import loader from './loader'
-import type { MiddlewareFnType, ContextType, NextFnType, ConfType, StoresType } from '../types' // eslint-disable-line
+import type { MiddlewareFnType, ContextType, NextFnType, ConfType, StoresType } from '../types'
 
 export class Bus {
   private name: string
@@ -11,6 +11,7 @@ export class Bus {
   private stores: StoresType = {}
   private apps: Record<string, App | boolean> = {}
   private loadingApps: Record<string, Promise<void>> = {}
+  private bootstrapingApps: Record<string, Promise<void>> = {}
 
   public conf: ConfType = {
     assets: {},
@@ -161,7 +162,7 @@ export class Bus {
     if (!app.dependenciesReady && app.dependencies.length !== 0) {
       for (const dependence of app.dependencies) {
         const { name, data, ctx } = dependence
-        await this.activateApp(name, data, ctx, visitPath)
+        await this.innerActivateApp(name, () => {}, data, ctx, visitPath)
       }
       app.dependenciesReady = true
     }
@@ -176,8 +177,9 @@ export class Bus {
    * @param name
    * @param data
    */
-  public async activateApp<T = any>(
+  private async innerActivateApp<T = any>(
     name: string,
+    callback: () => void,
     data?: T,
     ctx: Record<string, any> = {},
     visitPath: string[] = [],
@@ -192,36 +194,39 @@ export class Bus {
         throw new Error(Errors.circularDependencies(name, circularPath))
       }
       visitPath.push(name)
-      if (!app.bootstrapping) {
-        const bootstrapping = async () => {
-          await this.activateDependencies(app, visitPath)
-          if (app.doBootstrap) {
-            await Promise.resolve(app.doBootstrap(data))
-          } else if (app.doActivate) {
-            await Promise.resolve(app.doActivate(data))
-          }
-        }
-        app.bootstrapping = bootstrapping()
-        await app.bootstrapping
-      } else {
-        await app.bootstrapping
-        app.doActivate && (await Promise.resolve(app.doActivate(data)))
+      if (!this.bootstrapingApps[name]) {
+        this.bootstrapingApps[name] = this.activateDependencies(app, visitPath)
       }
+      await this.bootstrapingApps[name]
       visitPath.pop()
+      const destroyHook = app.doActivate && (await Promise.resolve(app.doActivate(data)))
+      callback()
+      return destroyHook
     }
   }
 
-  /**
-   * destroy an app
-   * @param name
-   * @param data
-   */
-  public async destroyApp<T = any>(name: string, data?: T) {
-    if (this.isRallieCoreApp(name)) {
-      const app = this.apps[name] as App
-      app.doDestroy && (await Promise.resolve(app.doDestroy(data)))
-      app.bootstrapping = null
-      app.dependenciesReady = false
+  public activateApp<T = any>(name: string, data?: T, ctx: Record<string, any> = {}) {
+    let destroyHook: any
+    const activated = new Promise<void>((resolve, reject) => {
+      this.innerActivateApp(name, resolve, data, ctx, [])
+        .then((result) => {
+          destroyHook = result
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+    const destroy = async () => {
+      if (this.bootstrapingApps[name]) {
+        await this.bootstrapingApps[name]
+      }
+      if (destroyHook) {
+        destroyHook()
+      }
+    }
+    return {
+      destroy,
+      activated,
     }
   }
 }

@@ -2,55 +2,36 @@ import { createBus, touchBus, App } from '../src'
 import { Errors } from '../src/lib/utils'
 import nock from 'nock'
 
-describe('Test lifecycles of App', () => {
+describe('Test lifecycle of App', () => {
   const bus = createBus('testBus')
-  test('# case 1: test the lifecycle of the app which indicate both bootstrap and activate callback', (done) => {
-    /**
-     * app 'a' indicates both bootstrap and activate callback,
-     * when it is activated at the first time, the bootstrap callback should be called,
-     * when it is activated after the first time , the activate callback should be called
-     */
+  test('# case 1: test the lifecycle of the app without destroy hook ', async () => {
     let activateCount = 0
-    bus
-      .createApp('case1')
-      .onBootstrap(() => {
-        activateCount = 1
-      })
-      .onActivate(() => {
-        activateCount++
-      })
-    bus
-      .activateApp('case1')
-      .then(() => {
-        expect(activateCount).toEqual(1)
-        return bus.activateApp('case1')
-      })
-      .then(() => {
-        expect(activateCount).toEqual(2)
-        done()
-      })
-  })
-
-  test('# case 2: test the lifecycle of the app which only indicate the bootstrap callback', (done) => {
-    /**
-     * app 'b' indicate only the bootstrap callback
-     * when it is activated at the first time, the bootstrap callback should be called,
-     * when it is activated after the first time, nothing will happen
-     */
-    let activateCount = 0
-    bus.createApp('case2').onBootstrap(async () => {
+    bus.createApp('case1').onActivate(() => {
       activateCount++
     })
-    bus
-      .activateApp('case2')
-      .then(() => {
-        expect(activateCount).toEqual(1)
-        return bus.activateApp('case2')
-      })
-      .then(() => {
-        expect(activateCount).toEqual(1)
-        done()
-      })
+    const { activated: firstActivated, destroy: destroyFirst } = bus.activateApp('case1')
+    await firstActivated
+    expect(activateCount).toEqual(1)
+    await destroyFirst()
+    expect(activateCount).toEqual(1)
+    const { activated: secondActivated } = bus.activateApp('case1')
+    await secondActivated
+    expect(activateCount).toEqual(2)
+  })
+
+  test('# case 2: test the lifecycle of the app with destroy hook', async () => {
+    let activateCount = 0
+    bus.createApp('case2').onActivate(async () => {
+      activateCount++
+      return () => {
+        activateCount--
+      }
+    })
+    const { activated: firstActivated, destroy: destroyFirst } = bus.activateApp('case2')
+    await firstActivated
+    expect(activateCount).toEqual(1)
+    await destroyFirst()
+    expect(activateCount).toEqual(0)
   })
 
   test('# case 3: test the lifecycle of the app which only indicate the activate callback', (done) => {
