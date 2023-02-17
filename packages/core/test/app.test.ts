@@ -1,209 +1,132 @@
-import { createBus, touchBus, App } from '../src'
+import { createBus, App } from '../src'
 import { Errors } from '../src/lib/utils'
 import nock from 'nock'
 
+type CharOf<T extends string = ''> = T extends `${infer First}${infer Rest}`
+  ? First | CharOf<Rest>
+  : never
+
 describe('Test lifecycles of App', () => {
   const bus = createBus('testBus')
-  test('# case 1: test the lifecycle of the app which indicate both bootstrap and activate callback', (done) => {
-    /**
-     * app 'a' indicates both bootstrap and activate callback,
-     * when it is activated at the first time, the bootstrap callback should be called,
-     * when it is activated after the first time , the activate callback should be called
-     */
+  test('# case 1: test the lifecycle of the app which indicates a synchronous activate callback', async () => {
     let activateCount = 0
-    bus
-      .createApp('case1')
-      .onBootstrap(() => {
-        activateCount = 1
-      })
-      .onActivate(() => {
-        activateCount++
-      })
-    bus
-      .activateApp('case1')
-      .then(() => {
-        expect(activateCount).toEqual(1)
-        return bus.activateApp('case1')
-      })
-      .then(() => {
-        expect(activateCount).toEqual(2)
-        done()
-      })
-  })
-
-  test('# case 2: test the lifecycle of the app which only indicate the bootstrap callback', (done) => {
-    /**
-     * app 'b' indicate only the bootstrap callback
-     * when it is activated at the first time, the bootstrap callback should be called,
-     * when it is activated after the first time, nothing will happen
-     */
-    let activateCount = 0
-    bus.createApp('case2').onBootstrap(async () => {
+    bus.createApp('case1').onActivate(() => {
       activateCount++
     })
-    bus
-      .activateApp('case2')
-      .then(() => {
-        expect(activateCount).toEqual(1)
-        return bus.activateApp('case2')
-      })
-      .then(() => {
-        expect(activateCount).toEqual(1)
-        done()
-      })
+    await bus.activateApp('case1')
+    expect(activateCount).toEqual(1)
+    bus.activateApp('case1')
+    bus.activateApp('case1')
+    bus.activateApp('case1')
+    expect(activateCount).toEqual(1)
   })
 
-  test('# case 3: test the lifecycle of the app which only indicate the activate callback', (done) => {
-    /**
-     * app 'c' indicate only the activate callback
-     * the activate callback will be called everytime it's activated
-     */
+  test('# case 2: test the lifecycle of the app which indicates a asynchronous callback', async () => {
+    let activateCount = 0
+    bus.createApp('case2').onActivate(async () => {
+      activateCount++
+    })
+    const activated = bus.activateApp('case2')
+    expect(activateCount).toEqual(0)
+    await activated
+    expect(activateCount).toEqual(1)
+    await bus.activateApp('case2')
+    await bus.activateApp('case2')
+    await bus.activateApp('case2')
+    expect(activateCount).toEqual(1)
+  })
+
+  test('#case 3: test activate an app multi times at a time', async () => {
     let activateCount = 0
     bus.createApp('case3').onActivate(async () => {
       activateCount++
     })
-    bus
-      .activateApp('case3')
-      .then(() => {
-        expect(activateCount).toEqual(1)
-        return bus.activateApp('case3')
-      })
-      .then(() => {
-        expect(activateCount).toEqual(2)
-        done()
-      })
-  })
-
-  test('# case 4: test the lifecycle of the app indicate the destroy callback', (done) => {
-    /**
-     * app 'd' indicate the destroy callback
-     * the destroy callback should be called before it is destroyed
-     * after it is destroyed, when the bus reactivate the app, it will recall the bootstrap lifecycle callback
-     */
-    let bootstraped = false
-    let activated = false
-    bus
-      .createApp('case4')
-      .onBootstrap(async () => {
-        bootstraped = true
-      })
-      .onActivate(async () => {
-        activated = true
-      })
-      .onDestroy(async () => {
-        bootstraped = false
-        activated = false
-      })
-    bus
-      .activateApp('case4')
-      .then(() => {
-        expect(bootstraped).toBeTruthy()
-        expect(activated).toBeFalsy()
-        return bus.activateApp('case4')
-      })
-      .then(() => {
-        expect(bootstraped).toBeTruthy()
-        expect(activated).toBeTruthy()
-        return bus.destroyApp('case4')
-      })
-      .then(() => {
-        expect(bootstraped).toBeFalsy()
-        expect(activated).toBeFalsy()
-        return bus.activateApp('case4')
-      })
-      .then(() => {
-        expect(bootstraped).toBeTruthy()
-        expect(activated).toBeFalsy()
-        done()
-      })
-  })
-
-  test('#case 5: test activate an app multi times at a time', async () => {
-    nock('https://test.case5.com')
-      .get('/index.js')
-      .reply(
-        200,
-        `
-        const bus = window.RALLIE_BUS_STORE.DEFAULT_BUS
-        bus.createApp('case5')
-          .onBootstrap((counter) => {
-            counter.bootstrap++
-          })
-          .onActivate((counter) => {
-            counter.activate++
-          })
-      `,
-      )
-    const [bus] = touchBus()
-    bus.config({
-      assets: {
-        case5: {
-          js: ['https://test.case5.com/index.js'],
-        },
-      },
-    })
-    const counter = {
-      bootstrap: 0,
-      activate: 0,
-    }
     await Promise.all([
-      bus.activateApp('case5', counter),
-      bus.activateApp('case5', counter),
-      bus.activateApp('case5', counter),
+      bus.activateApp('case3'),
+      bus.activateApp('case3'),
+      bus.activateApp('case3'),
     ])
-    expect(counter.bootstrap).toEqual(1)
-    expect(counter.activate).toEqual(2)
+    expect(activateCount).toEqual(1)
   })
 })
 
-describe('Test dependencies of App', () => {
+describe('Test relations', () => {
+  nock('https://cdn.rallie.com')
+    .get('/assets/related-app.js')
+    .reply(
+      200,
+      `
+        (function() {
+          const bus = window.RALLIE_BUS_STORE.DEFAULT_BUS;
+          console.log('relatedApp is loaded')
+          bus.createApp('relatedApp')
+            .onActivate(() => {
+              console.log('relatedApp is activated');
+            })
+        })()
+      `,
+    )
+  const bus = createBus()
+  bus.config({
+    assets: {
+      relatedApp: {
+        js: ['https://cdn.rallie.com/assets/related-app.js'],
+      },
+    },
+  })
+  test('# case 1: activate an app, its related app will be loaded but not activated', async () => {
+    console.log = jest.fn()
+    const app = bus.createApp('case1')
+    app.relateTo(['relatedApp']).onActivate(() => {
+      console.log('case1 is activated')
+    })
+    await bus.activateApp('case1')
+    expect(console.log).toBeCalledTimes(2)
+    expect(console.log).toBeCalledWith('relatedApp is loaded')
+    expect(console.log).toBeCalledWith('case1 is activated')
+    await bus.activateApp('relatedApp')
+    expect(console.log).toBeCalledWith('relatedApp is activated')
+  })
+
+  test('# case 2: circular relations is allowed', async () => {
+    console.log = jest.fn()
+    bus
+      .createApp('case2-1')
+      .relateTo(['case2-2'])
+      .onActivate(() => {
+        console.log('case2-1 is activated')
+      })
+    bus
+      .createApp('case2-2')
+      .relateTo(['case2-1'])
+      .onActivate(() => {
+        console.log('case2-2 is activated')
+      })
+    await Promise.all([bus.activateApp('case2-1'), bus.activateApp('case2-2')])
+    expect(console.log).toBeCalledTimes(2)
+    expect(console.log).toBeCalledWith('case2-1 is activated')
+    expect(console.log).toBeCalledWith('case2-2 is activated')
+  })
+})
+
+describe('Test dependencies', () => {
   const bus = createBus('testBus2')
-  const appNames = [
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f',
-    'g',
-    'h',
-    'i',
-    'j',
-    'k',
-    'l',
-    'm',
-    'n',
-    'o',
-    'p',
-    'q',
-    'r',
-  ]
-  const apps: Record<string, App> = {}
-  let bootstrapedApps: string[] = []
-  let reactivateApps: string[] = []
+  const appNameStrs = 'abcdefghijklmnopqr' as const
+  const appNames = appNameStrs.split('') as Array<CharOf<typeof appNameStrs>>
+  const apps = {} as Record<CharOf<typeof appNameStrs>, App>
+  let activatedApps: string[] = []
   appNames.forEach((appName) => {
-    const app = bus.createApp(appName)
+    const app = bus.createApp(appName).onActivate(async () => {
+      activatedApps.push(appName)
+    })
     apps[appName] = app
-    app
-      .onBootstrap(async () => {
-        bootstrapedApps.push(appName)
-      })
-      .onActivate(async () => {
-        reactivateApps.push(appName)
-      })
-      .onDestroy(async () => {
-        bootstrapedApps.splice(bootstrapedApps.indexOf(appName), 1)
-      })
   })
 
   afterEach(() => {
-    appNames.forEach((appName) => {
-      reactivateApps = []
-      bus.destroyApp(appName)
-    })
+    activatedApps = []
   })
 
-  test('# case 1: test normal dependencies', (done) => {
+  test('# case 1: test normal dependencies', async () => {
     /** the dependencies relationship
      * |-- a
      *     |--b
@@ -213,25 +136,11 @@ describe('Test dependencies of App', () => {
      *        |--f
      *     |--g
      */
-    apps.a
-      .relyOn(['b', 'd', 'g'])
-      .relateTo(['b', 'c', 'd', 'e', { name: 'f', ctx: { version: '0.1.0' } }, 'g', 'b'])
-    apps.b.relyOn(['c']).relateTo(['c']).relateTo(['c']) // circular relations doesn't matter
-    apps.c.relyOn([]).relateTo(['b']) // circular relations doesn't matter
-    apps.d.relyOn(['e']).relyOn(['f']) // test duplicated dependencies
-    bus
-      .activateApp('a')
-      .then(() => {
-        expect(bootstrapedApps.join(',')).toEqual('c,b,e,f,d,g,a')
-        bootstrapedApps = []
-        return bus.activateApp('a')
-      })
-      .then(() => {
-        // reactivate app 'a', its dependencies shouldn't be reactivated
-        expect(bootstrapedApps.join(',')).toEqual('')
-        expect(reactivateApps.join(',')).toEqual('a')
-        done()
-      })
+    apps.a.relyOn(['b', 'd', 'g'])
+    apps.b.relyOn(['c'])
+    apps.d.relyOn(['e']).relyOn(['f'])
+    await bus.activateApp('a')
+    expect(activatedApps.join(',')).toEqual('c,b,e,f,d,g,a')
   })
 
   test('# case 2: test circular dependency', async () => {
@@ -240,7 +149,7 @@ describe('Test dependencies of App', () => {
      *    |    |
      *    |----i
      * */
-    apps.h.relyOn([{ name: 'i', ctx: { version: '*' } }])
+    apps.h.relyOn(['i'])
     apps.i.relyOn(['h'])
     try {
       await bus.activateApp('i')
@@ -266,17 +175,5 @@ describe('Test dependencies of App', () => {
     } catch (err) {
       expect(err.message).toEqual(Errors.circularDependencies('j', ['j', 'm', 'p', 'j']))
     }
-  })
-
-  test('# case 3: test params of lifecycles', (done) => {
-    apps.q.relyOn([{ name: 'r', data: 'app named q activate me' }])
-    apps.r.relyOn([]).onBootstrap(async (data) => {
-      console.log(data)
-    })
-    console.log = jest.fn()
-    bus.activateApp('q').then(() => {
-      expect(console.log).toBeCalledWith('app named q activate me')
-      done()
-    })
   })
 })

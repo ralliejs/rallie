@@ -1,48 +1,57 @@
 import { createBus, getBus, touchBus } from '../src/index'
 import { Bus } from '../src/lib/bus'
 import nock from 'nock'
-import cssCode from './test-apps/css'
-import validAppCode from './test-apps/valid-app'
-import invalidAppCode from './test-apps/invalid-app'
-import reactCode from './test-apps/react'
 import { Errors } from '../src/lib/utils'
-/* eslint-disable no-unused-vars */
-
 declare global {
+  // eslint-disable-next-line no-unused-vars
   interface Window {
-    appsLoadedFromLocalhost: any
-    lastLoadingApp: any
-    React: any
+    lastLoadingApp: string
+    React: string
     RALLIE_BUS_STORE: Record<string, Bus | null>
   }
 }
 
-nock('https://cdn.obvious.com')
+nock('https://cdn.rallie.com')
   .get('/assets/valid-app.js')
-  .reply(200, validAppCode)
+  .reply(
+    200,
+    `
+      (function() {
+        const bus = window.RALLIE_BUS_STORE.DEFAULT_BUS;
+        bus.createApp('valid-app')
+          .relyOn([
+            'lib:react'
+          ])
+          .onActivate(() => {
+            console.log('valid-app is created');
+          })
+      })()
+  `,
+  )
+  .get('/assets/invalid-app.js')
+  .reply(200, "console.log('invalid-app loaded');")
   .get('/assets/css-code.css')
-  .reply(200, cssCode)
+  .reply(200, 'css-code')
   .get('/assets/react.js')
-  .reply(200, reactCode)
-
-nock('https://localhost').get('/assets/invalid-app.js').reply(200, invalidAppCode)
+  .reply(200, "window.React = 'reactSourceCode'")
 
 describe('Test the capability to load the resources of an app or lib', () => {
   const staticAssetsConfig = {
     'lib:react': {
-      js: ['https://cdn.obvious.com/assets/react.js'],
+      js: ['https://cdn.rallie.com/assets/react.js'],
     },
     'valid-app': {
-      js: ['https://cdn.obvious.com/assets/valid-app.js'],
-      css: ['https://cdn.obvious.com/assets/css-code.css'],
+      js: ['https://cdn.rallie.com/assets/valid-app.js'],
+      css: ['https://cdn.rallie.com/assets/css-code.css'],
+    },
+    'invalid-app': {
+      js: ['https://cdn.rallie.com/assets/invalid-app.js'],
     },
     'invalid-resource-app': {
       js: ['validFile.png'],
       css: ['/invalidFile.png'],
     },
   }
-
-  window.appsLoadedFromLocalhost = []
 
   const globalBus = createBus()
   globalBus
@@ -53,14 +62,6 @@ describe('Test the capability to load the resources of an app or lib', () => {
       window.lastLoadingApp = ctx.name
       await next()
     })
-    .use(async (ctx, next) => {
-      if (ctx.loadedFromLocalhost) {
-        window.appsLoadedFromLocalhost.push(ctx.name)
-        await ctx.loadScript(`https://localhost/assets/${ctx.name}.js`)
-      } else {
-        await next()
-      }
-    })
 
   test('# case 1: create a bus, it should be mounted on window.RALLIE_BUS_STORE ', () => {
     expect(getBus()).toBe(globalBus)
@@ -69,22 +70,20 @@ describe('Test the capability to load the resources of an app or lib', () => {
     }).toThrowError()
   })
 
-  test('# case 2: activate valid-app, it should activate its dependencies and the bootstrap callback should be called', async () => {
+  test('# case 2: activate valid-app, it should activate its dependencies and the onActivate callback should be called', async () => {
     console.log = jest.fn()
     await globalBus.activateApp('valid-app')
-    expect(window.React.value).toEqual('reactSourceCode')
+    expect(window.React).toEqual('reactSourceCode')
     expect(window.lastLoadingApp).toEqual('lib:react')
     expect(console.log).toBeCalledWith('valid-app is created')
-    expect(window.appsLoadedFromLocalhost.length).toEqual(0)
   })
 
-  test('# case 3: activate invalid-app, the middleware should be excuted', async () => {
+  test('# case 3: activate invalid-app, an error should be throwed', async () => {
     console.log = jest.fn()
     try {
-      await globalBus.activateApp('invalid-app', null, { loadedFromLocalhost: true })
+      await globalBus.activateApp('invalid-app')
     } catch (error) {
       expect(error.message).toEqual(Errors.appNotCreated('invalid-app'))
-      expect(window.appsLoadedFromLocalhost[0]).toEqual('invalid-app')
       expect(window.lastLoadingApp).toEqual('invalid-app')
       expect(console.log).toBeCalledWith('invalid-app loaded')
     }
@@ -117,8 +116,8 @@ describe('Test the capability to load the resources of an app or lib', () => {
     expect(bus2).toEqual(bus1)
   })
 
-  test('# case 7: test errors', async () => {
-    const bus = new Bus('case7-bus')
+  test('# case 7: test errors of bus', async () => {
+    const bus = createBus('case7-bus')
     bus.createApp('case7')
     expect(() => {
       bus.createApp('case7')
@@ -142,12 +141,9 @@ describe('Test the capability to load the resources of an app or lib', () => {
       // @ts-ignore
       bus.use('')
     }).toThrowError(Errors.wrongMiddlewareType())
-  })
 
-  test("# case 8: bus's name should be unique", () => {
-    createBus('case8-bus')
     expect(() => {
-      createBus('case8-bus')
-    }).toThrowError(Errors.duplicatedBus('case8-bus'))
+      createBus('case7-bus')
+    }).toThrowError(Errors.duplicatedBus('case7-bus'))
   })
 })

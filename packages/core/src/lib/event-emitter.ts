@@ -1,22 +1,21 @@
-import type { CallbackType } from '../types' // eslint-disable-line
 import { Errors } from './utils'
 
 type BroadcastEventsType = Record<
   string,
   {
-    listeners: Set<CallbackType>
+    listeners: Set<Function>
     emitedArgs: Array<any[]>
   }
 >
 
-type unicastEventsType = Record<string, CallbackType>
+type unicastEventsType = Record<string, Function>
 
 export class EventEmitter {
   private broadcastEvents: BroadcastEventsType = {}
 
   private unicastEvents: unicastEventsType = {}
 
-  public addBroadcastEventListener(event: string, callback: CallbackType) {
+  public addBroadcastEventListener(event: string, callback: Function) {
     this.broadcastEvents[event] = this.broadcastEvents[event] || {
       listeners: new Set(),
       emitedArgs: [],
@@ -31,14 +30,14 @@ export class EventEmitter {
     }
   }
 
-  public addUnicastEventListener(event: string, callback: CallbackType) {
+  public addUnicastEventListener(event: string, callback: Function) {
     if (this.unicastEvents[event]) {
       throw new Error(Errors.registedExistedUnicast(event))
     }
     this.unicastEvents[event] = callback
   }
 
-  public removeBroadcastEventListener(event: string, callback: CallbackType) {
+  public removeBroadcastEventListener(event: string, callback: Function) {
     const registedcallbacks = this.broadcastEvents[event]?.listeners
     if (registedcallbacks) {
       if (registedcallbacks.has(callback)) {

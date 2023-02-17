@@ -1,7 +1,7 @@
 // eslint-disable-next-line vue/prefer-import-from-vue
 import { effect, reactive, readonly, toRaw } from '@vue/reactivity'
 import type { EventEmitter } from './event-emitter'
-import type { CallbackType, StoresType } from '../types'
+import type { StoresType } from '../types'
 import { Errors, isPrimitive, Warnings } from './utils'
 import { Watcher } from './watcher'
 
@@ -12,7 +12,7 @@ export class Socket {
     this.stores = stores
   }
 
-  private offEvents(events: Record<string, CallbackType>, isUnicast: boolean, eventName?: string) {
+  private offEvents(events: Record<string, Function>, isUnicast: boolean, eventName?: string) {
     let cancelListening = isUnicast
       ? this.eventEmitter.removeUnicastEventListener
       : this.eventEmitter.removeBroadcastEventListener
@@ -35,7 +35,7 @@ export class Socket {
    * add broadcast event listeners
    * @param events
    */
-  public onBroadcast<T extends Record<string, CallbackType>>(events: T) {
+  public onBroadcast<T extends Record<string, Function>>(events: T) {
     Object.entries(events).forEach(([eventName, handler]) => {
       this.eventEmitter.addBroadcastEventListener(eventName, handler)
     })
@@ -48,7 +48,7 @@ export class Socket {
    * add unicast event listeners
    * @param events
    */
-  public onUnicast<T extends Record<string, CallbackType>>(events: T) {
+  public onUnicast<T extends Record<string, Function>>(events: T) {
     Object.entries(events).forEach(([eventName, handler]) => {
       try {
         this.eventEmitter.addUnicastEventListener(eventName, handler)
@@ -65,7 +65,7 @@ export class Socket {
    * create a proxy to emit a broadcast event
    * @param logger
    */
-  public createBroadcaster<T extends Record<string, CallbackType>>(
+  public createBroadcaster<T extends Record<string, Function>>(
     logger?: (eventName: string) => void,
   ) {
     return new Proxy<T>({} as any, {
@@ -85,9 +85,7 @@ export class Socket {
    * create a proxy to emit unicast event
    * @param logger
    */
-  public createUnicaster<T extends Record<string, CallbackType>>(
-    logger?: (eventName: string) => void,
-  ) {
+  public createUnicaster<T extends Record<string, Function>>(logger?: (eventName: string) => void) {
     return new Proxy<T>({} as any, {
       get: (target, eventName) => {
         return (...args: any[]) => {

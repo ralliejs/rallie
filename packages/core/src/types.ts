@@ -1,7 +1,5 @@
-import { Socket } from './lib/socket' // eslint-disable-line
-import { Watcher } from './lib/watcher' // eslint-disable-line
-
-export type CallbackType = (...args: any[]) => any
+import type { Socket } from './lib/socket'
+import type { Watcher } from './lib/watcher'
 
 export type ScriptType = Partial<HTMLScriptElement> | string | HTMLScriptElement
 
@@ -30,23 +28,6 @@ export type ContextType = {
 export type NextFnType = (ctx?: ContextType) => void | Promise<void>
 
 export type MiddlewareFnType = (ctx: ContextType, next: NextFnType) => void | Promise<void>
-
-export type LifecyleCallbackType = (data?: any) => Promise<void> | void
-
-export type DependencyType =
-  | {
-      name: string
-      data?: any
-      ctx?: Record<string, any>
-    }
-  | string
-
-export type RelateType =
-  | {
-      name: string
-      ctx: Record<string, any>
-    }
-  | string
 
 export type StoreType<T = any> = {
   state: T

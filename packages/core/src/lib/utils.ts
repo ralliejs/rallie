@@ -1,10 +1,4 @@
-import type {
-  MiddlewareFnType,
-  NextFnType,
-  ContextType,
-  DependencyType,
-  RelateType,
-} from '../types' // eslint-disable-line
+import type { MiddlewareFnType, NextFnType, ContextType } from '../types'
 
 export const Errors = {
   // ================= EventEmitter.broadcast  =================
@@ -78,19 +72,6 @@ export const Warnings = {
 
 export function isPrimitive(object: unknown): boolean {
   return ['string', 'number', 'boolean', 'undefined'].includes(typeof object)
-}
-
-export function deduplicate<T extends DependencyType | RelateType>(items: T[]) {
-  const flags: Record<string, boolean> = {}
-  const result: Array<T> = []
-  items.forEach((item) => {
-    const name = typeof item === 'string' ? item : item.name
-    if (!flags[name]) {
-      result.push(item)
-      flags[name] = true
-    }
-  })
-  return result
 }
 
 /**
