@@ -5,12 +5,9 @@ registerBlock(reactApp)
   .relyOn(['host-app'])
   // you can try to replace the next line with `.relyOn([{ name: 'vue-app', data: document.getElementById('vue-app') }])`
   .relateTo(['vue-app'])
-  .onBootstrap(async (container) => {
+  .onActivate(async () => {
     console.log('react-app bootstrapped')
-    ;(await import('./lifecycles')).onBootstrap(container)
-  })
-  .onDestroy(async () => {
-    ;(await import('./lifecycles')).onDestroy()
+    await import('./app')
   })
 
 reactApp.run(async (env) => {

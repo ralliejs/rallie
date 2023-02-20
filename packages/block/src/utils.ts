@@ -1,8 +1,8 @@
 export type ConstraintedType<T, P, Default> = T extends P ? T : Default
 
-export const symbols = {
-  createdBlock: Symbol('createBlock'),
-  connectedBlock: Symbol('connectedBlock'),
+export const SYMBOLS = {
+  CREATED_BLOCK: Symbol('createBlock'),
+  CONNECTED_BLOCK: Symbol('connectedBlock'),
 }
 
 export const constant = {
@@ -21,10 +21,12 @@ export const errors = {
         `2. whether the block ${blockName} has initialized the state`,
     ),
   duplicatedBlockName: (blockName: string) =>
-    message(`the block ${blockName} is already registered, please rename your block`),
+    message(`the block ${blockName} is already registered before, please rename your block`),
   invalidBlock: (name: string) =>
     message(`failed to register the block ${name} because it is not a valid created block`),
   stateIsReadonly: (blockName: string) => message(`the state of ${blockName} is readonly`),
+  operateBeforeRegister: (blockName: string, operate: 'activate' | 'load') =>
+    message(`the block ${blockName} can not ${operate} any other block unless it's registered`),
 }
 
 export const warnings = {

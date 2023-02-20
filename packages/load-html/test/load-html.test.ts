@@ -18,7 +18,7 @@ nock('https://cdn.rallie.com/test')
         </style>
         <script src="/test/remote.js"></script>
         <script>
-          window.RALLIE_BUS_STORE.case1.createApp('case1').onBootstrap(() => { console.log('case1 app is created') })
+          window.RALLIE_BUS_STORE.case1.createApp('case1').onActivate(() => { console.log('case1 app is created') })
         </script>
       </body>
     </html>
@@ -35,7 +35,7 @@ nock('https://cdn.rallie.com/test')
         </div>
         <script src="/another-remote.js"></script>
         <script>
-          window.RALLIE_BUS_STORE.case2.createApp('case2').onBootstrap(() => { console.log('case2 app is created') })
+          window.RALLIE_BUS_STORE.case2.createApp('case2').onActivate(() => { console.log('case2 app is created') })
         </script>
       </body>
     </html>
@@ -64,7 +64,7 @@ describe('Test the load-html middleware', () => {
     expect(document.getElementsByTagName('link').length).toEqual(1)
     expect(document.getElementsByTagName('style').length).toEqual(1)
     expect(document.getElementsByTagName('script').length).toEqual(2)
-    expect(document.getElementById('case1').innerHTML.trim()).toEqual('case1 root')
+    expect(document.getElementById('case1')?.innerHTML.trim()).toEqual('case1 root')
   })
 
   test('#case2: test load-html with other middleware', async () => {

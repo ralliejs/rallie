@@ -1,34 +1,25 @@
 import { createBlock, registerBlock } from '../../../src'
 
+let count = 0
 const block = createBlock<{
-  state: {
-    count: number
-  }
   methods: {
     getCount: () => number
-    addCount: () => void
-    printCount: (count: number) => void
+    addCount: (num: number) => number
+    removeMethods: () => void
   }
 }>('connect-testers/methods')
 
-let removeMethods: () => void
-
-registerBlock(block)
-  .initState({
-    count: 0,
+registerBlock(block).onActivate(() => {
+  const removeMethods = block.addMethods({
+    getCount() {
+      return count
+    },
+    addCount(num) {
+      count += num
+      return count
+    },
+    removeMethods() {
+      removeMethods()
+    },
   })
-  .onBootstrap(() => {
-    removeMethods = block.addMethods({
-      getCount() {
-        return block.state.count
-      },
-      addCount() {
-        block.setState('add count', (state) => {
-          state.count++
-        })
-      },
-    })
-  })
-  .onDestroy(() => {
-    removeMethods()
-  })
+})

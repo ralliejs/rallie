@@ -1,12 +1,6 @@
 import { Errors } from './utils'
 
-type BroadcastEventsType = Record<
-  string,
-  {
-    listeners: Set<Function>
-    emitedArgs: Array<any[]>
-  }
->
+type BroadcastEventsType = Record<string, Set<Function>>
 
 type unicastEventsType = Record<string, Function>
 
@@ -16,18 +10,9 @@ export class EventEmitter {
   private unicastEvents: unicastEventsType = {}
 
   public addBroadcastEventListener(event: string, callback: Function) {
-    this.broadcastEvents[event] = this.broadcastEvents[event] || {
-      listeners: new Set(),
-      emitedArgs: [],
-    }
-    const { listeners, emitedArgs } = this.broadcastEvents[event]
+    this.broadcastEvents[event] = this.broadcastEvents[event] || new Set()
+    const listeners = this.broadcastEvents[event]
     listeners.add(callback)
-    if (emitedArgs.length > 0) {
-      emitedArgs.forEach((args) => {
-        this.emitBroadcast(event, ...args)
-      })
-      this.broadcastEvents[event].emitedArgs = []
-    }
   }
 
   public addUnicastEventListener(event: string, callback: Function) {
@@ -38,7 +23,7 @@ export class EventEmitter {
   }
 
   public removeBroadcastEventListener(event: string, callback: Function) {
-    const registedcallbacks = this.broadcastEvents[event]?.listeners
+    const registedcallbacks = this.broadcastEvents[event]
     if (registedcallbacks) {
       if (registedcallbacks.has(callback)) {
         registedcallbacks.delete(callback)
@@ -61,24 +46,17 @@ export class EventEmitter {
   }
 
   public emitBroadcast(event: string, ...args: any[]) {
-    this.broadcastEvents[event] = this.broadcastEvents[event] || {
-      listeners: new Set(),
-      emitedArgs: [],
-    }
-    const { listeners, emitedArgs } = this.broadcastEvents[event]
-    if (listeners.size > 0) {
-      listeners.forEach((callback) => {
-        try {
-          // eslint-disable-next-line n/no-callback-literal
-          callback(...args)
-        } catch (error) {
-          console.error(Errors.broadcastCallbackError(event))
-          console.error(error)
-        }
-      })
-    } else {
-      emitedArgs.push(args)
-    }
+    this.broadcastEvents[event] = this.broadcastEvents[event] || new Set()
+    const listeners = this.broadcastEvents[event]
+    listeners.forEach((callback) => {
+      try {
+        // eslint-disable-next-line n/no-callback-literal
+        callback(...args)
+      } catch (error) {
+        console.error(Errors.broadcastCallbackError(event))
+        console.error(error)
+      }
+    })
   }
 
   public emitUnicast(event: string, ...args: any[]) {

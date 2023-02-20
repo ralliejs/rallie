@@ -1,7 +1,7 @@
 import { CreatedBlock } from './created-block'
 import type { BlockService } from './block'
 import { touchBus } from '@rallie/core'
-import { errors, constant } from './utils'
+import { errors, constant, SYMBOLS } from './utils'
 import { RegisteredBlock } from './registered-block'
 
 export function createBlock<T extends BlockService = {}>(name: string) {
@@ -17,7 +17,7 @@ export function createBlock<T extends BlockService = {}>(name: string) {
 }
 
 export function registerBlock<T extends CreatedBlock<unknown>>(block: T) {
-  if (block.isCreatedBlock) {
+  if (block.symbol === SYMBOLS.CREATED_BLOCK) {
     return new RegisteredBlock<T>(block)
   } else {
     throw new Error(errors.invalidBlock(block.name))
@@ -30,7 +30,6 @@ export type { ConnectedBlock } from './connected-block'
 export type { RegisteredBlock } from './registered-block'
 
 export type {
-  CallbackType,
   ScriptType,
   LinkType,
   AssetsConfigType,
@@ -38,8 +37,5 @@ export type {
   ContextType,
   NextFnType,
   MiddlewareFnType,
-  LifecyleCallbackType,
-  DependencyType,
-  RelateType,
   Bus,
 } from '@rallie/core'

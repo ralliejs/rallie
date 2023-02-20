@@ -1,3 +1,5 @@
+// eslint-disable-next-line vue/prefer-import-from-vue
+import { readonly } from '@vue/reactivity'
 import { EventEmitter } from './event-emitter'
 import { Socket } from './socket'
 import { App } from './app'
@@ -12,9 +14,9 @@ export class Bus {
   private apps: Record<string, App | boolean> = {}
   private loadingApps: Record<string, Promise<void>> = {}
 
-  public conf: ConfType = {
+  public conf: ConfType = readonly({
     assets: {},
-  }
+  })
 
   private middlewares: MiddlewareFnType[] = []
   private composedMiddlewareFn: (ctx: ContextType, next: NextFnType) => Promise<any>

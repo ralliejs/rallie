@@ -1,4 +1,4 @@
-import { App, getBus, LifecyleCallbackType, Socket, RelateType, DependencyType } from '@rallie/core'
+import { App, getBus, Socket } from '@rallie/core'
 import { CreatedBlock } from './created-block'
 import { socketsPool } from './sockets-pool'
 import { constant, warnings } from './utils'
@@ -15,12 +15,12 @@ export class RegisteredBlock<T extends CreatedBlock<unknown>> {
     })
   }
 
-  relyOn(dependencies: DependencyType[]) {
+  relyOn(dependencies: string[]) {
     this.app.relyOn(dependencies)
     return this
   }
 
-  relateTo(relatedApps: RelateType[]) {
+  relateTo(relatedApps: string[]) {
     this.app.relateTo(relatedApps)
     return this
   }
@@ -46,18 +46,8 @@ export class RegisteredBlock<T extends CreatedBlock<unknown>> {
     return this
   }
 
-  onBootstrap(callback: LifecyleCallbackType) {
-    this.app.onBootstrap(callback)
-    return this
-  }
-
-  onActivate(callback: LifecyleCallbackType) {
+  onActivate(callback: () => void | Promise<void>) {
     this.app.onActivate(callback)
-    return this
-  }
-
-  onDestroy(callback: LifecyleCallbackType) {
-    this.app.onDestroy(callback)
     return this
   }
 }

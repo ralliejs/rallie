@@ -10,7 +10,7 @@ export function useBlockState<T extends Block<any>, U>(block: T, getter: (state:
     })
   })
   onBeforeUnmount(() => {
-    unwatch?.()
+    unwatch()
   })
   return stateRef
 }
@@ -21,7 +21,7 @@ export function useBlockEvents<T extends Block<any>>(block: T, events: Partial<T
     off = block.listenEvents(events)
   })
   onBeforeUnmount(() => {
-    off?.()
+    off()
   })
 }
 
@@ -34,6 +34,6 @@ export function useBlockMethods<T extends CreatedBlock<any>>(
     off = block.addMethods(methods)
   })
   onBeforeUnmount(() => {
-    off?.()
+    off()
   })
 }

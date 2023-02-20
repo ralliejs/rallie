@@ -1,11 +1,11 @@
 import { touchBus } from '@rallie/core'
-import type { CallbackType, Socket } from '@rallie/core'
+import type { Socket } from '@rallie/core'
 import { constant, errors } from './utils'
 
 export type BlockService = {
   state?: Record<string, any>
-  events?: Record<string, CallbackType>
-  methods?: Record<string, CallbackType>
+  events?: Record<string, Function>
+  methods?: Record<string, Function>
   exports?: Record<string, any>
 }
 
@@ -15,7 +15,6 @@ export class Block<T extends BlockService> {
   public state: T['state']
   public events: T['events']
   public methods: T['methods']
-  public isCreatedBlock: boolean
 
   constructor(name: string) {
     this.name = name

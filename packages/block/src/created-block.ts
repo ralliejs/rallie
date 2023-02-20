@@ -1,6 +1,6 @@
 import { ConnectedBlock } from './connected-block'
 import type { Bus, Socket, MiddlewareFnType, ConfType } from '@rallie/core'
-import { constant } from './utils'
+import { constant, errors, SYMBOLS } from './utils'
 import { Block, type BlockService } from './block'
 import { socketsPool } from './sockets-pool'
 
@@ -19,10 +19,10 @@ export class CreatedBlock<T extends BlockService> extends Block<T> {
   private isEntry: boolean
   private connectedBlocks: Record<string, BlockService> = {}
   public exports: T['exports']
+  public symbol = SYMBOLS.CREATED_BLOCK
 
   constructor(name: string, globalBus: Bus, globalSocket: Socket, isEntry: boolean) {
     super(name)
-    this.isCreatedBlock = true
     this.globalBus = globalBus
     this.globalSocket = globalSocket
     this.isEntry = isEntry
@@ -40,16 +40,18 @@ export class CreatedBlock<T extends BlockService> extends Block<T> {
     return this.connectedBlocks[name] as ConnectedBlock<P>
   }
 
-  public load(name: string, ctx: Record<string, any> = {}) {
-    return this.globalBus.loadApp(name, ctx)
+  public load(name: string) {
+    if (this.globalBus.existApp(this.name)) {
+      return this.globalBus.loadApp(name)
+    }
+    throw new Error(errors.operateBeforeRegister(this.name, 'load'))
   }
 
-  public activate<P>(name: string, data?: P, ctx: Record<string, any> = {}) {
-    return this.globalBus.activateApp(name, data, ctx)
-  }
-
-  public destroy<P>(name: string, data?: P) {
-    return this.globalBus.destroyApp(name, data)
+  public activate(name: string) {
+    if (this.globalBus.existApp(this.name)) {
+      return this.globalBus.activateApp(name)
+    }
+    throw new Error(errors.operateBeforeRegister(this.name, 'activate'))
   }
 
   public async run(callback: (env: Env) => void | Promise<void>) {
@@ -66,9 +68,8 @@ export class CreatedBlock<T extends BlockService> extends Block<T> {
         )
       }
     }
-    const env: Env = {
+    const env: Omit<Env, 'conf'> = {
       isEntry: this.isEntry,
-      conf: JSON.parse(JSON.stringify(this.globalBus.conf)),
       use: (middleware) => {
         if (isBusAccessible) {
           this.globalBus.use(middleware)
@@ -86,6 +87,17 @@ export class CreatedBlock<T extends BlockService> extends Block<T> {
         setBusAccessible(true)
       },
     }
-    await Promise.resolve(callback(env))
+    const result = callback(
+      new Proxy(env as Env, {
+        get: (target, prop: keyof Env, receiver) => {
+          if (prop === 'conf') {
+            return JSON.parse(JSON.stringify(this.globalBus.conf))
+          }
+          return Reflect.get(target, prop, receiver)
+        },
+        set: () => false,
+      }),
+    )
+    await Promise.resolve(result)
   }
 }

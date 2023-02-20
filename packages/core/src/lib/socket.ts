@@ -173,7 +173,8 @@ export class Socket {
   ) {
     const state: T = this.getStateToSet(namespace)
     if (action) {
-      await Promise.resolve(setter(state))
+      const result = setter(state)
+      await Promise.resolve(result)
     } else {
       throw new Error(Errors.actionIsNotDefined(namespace))
     }

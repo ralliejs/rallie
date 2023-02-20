@@ -1,34 +1,17 @@
 import { createBlock, registerBlock } from '../../../src'
 
 const block = createBlock<{
-  state: {
-    count: number
-  }
   events: {
     log: (text: string) => void
-    error: (text: string) => void
-    record: (text: string) => void
+    cancelListen: () => void
   }
 }>('connect-testers/events')
 
-let removeEvents: () => void
-
-registerBlock(block)
-  .initState({
-    count: 0,
+registerBlock(block).onActivate(() => {
+  const cancelListen = block.listenEvents({
+    log: (text) => console.log(text),
+    cancelListen: () => {
+      cancelListen()
+    },
   })
-  .onBootstrap(() => {
-    removeEvents = block.listenEvents({
-      log(text) {
-        console.log(text)
-        block.events.record(text)
-      },
-      error(text) {
-        console.error(text)
-        block.events.record(text)
-      },
-    })
-  })
-  .onDestroy(() => {
-    removeEvents()
-  })
+})

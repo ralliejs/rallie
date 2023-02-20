@@ -14,17 +14,8 @@ describe('Test broadcast:', () => {
     expect(valueToModify).toBe(1)
   })
 
-  test('# case 2: emit the broadcast event before listening', () => {
-    console.warn = jest.fn()
+  test('# case 2: remove non-existent listener of an broadcast event, it should throw an error', () => {
     broadCastTester.removeBroadcastEventListener('test', callback)
-    broadCastTester.emitBroadcast('test')
-    broadCastTester.addBroadcastEventListener('test', () => {
-      console.warn(valueToModify)
-    })
-    expect(console.warn).toBeCalledWith(1)
-  })
-
-  test('# case 3: remove non-existent listener of an broadcast event, it should throw an error', () => {
     const errorMessage = Errors.wrongBroadcastCallback('test') // eslint-disable-line
     const expectedError = new Error(errorMessage)
     expect(() => {
@@ -32,7 +23,7 @@ describe('Test broadcast:', () => {
     }).toThrow(expectedError)
   })
 
-  test('# case 4: remove a listener of a non-existent event, it should throw an error', () => {
+  test('# case 3: remove a listener of a non-existent event, it should throw an error', () => {
     const eventName = 'nonExistentEvent'
     const errorMessage = Errors.removeNonExistedBroadcast(eventName) // eslint-disable-line
     const expectedError = new Error(errorMessage)
@@ -41,7 +32,7 @@ describe('Test broadcast:', () => {
     }).toThrow(expectedError)
   })
 
-  test('# case 5: when some callbacks of a broadcast event throw an error, other normal callbacks should not be affected', () => {
+  test('# case 4: when some callbacks of a broadcast event throw an error, other normal callbacks should not be affected', () => {
     console.error = jest.fn()
     broadCastTester.addBroadcastEventListener('testEvent', () => {
       throw new Error()

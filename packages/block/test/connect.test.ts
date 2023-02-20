@@ -6,110 +6,102 @@ import nativeLoader from './middlewares/native-loader'
 const hostApp = createBlock('host-app')
 
 hostApp.run((env) => {
+  // load block from ./block/${name}.tsx
   env.use(nativeLoader)
 })
 
 describe('Test state', () => {
-  test('# case 1: test set, get and watch of state', async () => {
-    const app = createBlock('state-case1')
+  test('# case 1: test set, get and watch of public state', async () => {
+    console.log = jest.fn()
+    const app = createBlock('case1')
     registerBlock(app)
-      .relateTo(['connect-testers/state'])
-      .onBootstrap(async () => {
-        console.log = jest.fn()
-        console.warn = jest.fn()
-        const targetApp = app.connect<{
-          state: {
-            count: number
-            theme: string
-          }
-        }>('connect-testers/state')
-        expect(targetApp.state.count).toEqual(0)
-        expect(targetApp.state.theme).toEqual('white')
-        targetApp.setState('set count before watch', (state) => {
-          state.count = 1
-        })
-        targetApp.watchState((state) => {
-          console.warn(state.theme)
-        })
-        await app.activate('connect-testers/state')
-        await targetApp.setState('set count after watch', (state) => {
-          state.count = 2
-        })
-        await app.activate('connect-testers/state', 'green') // set theme
-        await app.activate('connect-testers/state', 'red') // set theme
-        await app.destroy('connect-testers/state')
-        await targetApp.setState('set count state after unwatch', (state) => {
-          state.count = 3
-        })
-        expect(console.log).toBeCalledTimes(1)
-        expect(console.log).toBeCalledWith(2, 1)
-        expect(console.warn).toBeCalledTimes(3)
-        expect(console.warn).toBeCalledWith('white')
-        expect(console.warn).toBeCalledWith('green')
-        expect(console.warn).toBeCalledWith('red')
-        expect(targetApp.state.count).toEqual(3)
-        expect(targetApp.state.theme).toEqual('red')
+    const blockWithPublicState = app.connect<{
+      state: {
+        count: number
+      }
+    }>('connect-testers/public-state')
+    expect(blockWithPublicState.state).toBeNull()
+    await app.activate(blockWithPublicState.name)
+    expect(blockWithPublicState.state.count).toEqual(0)
+    await blockWithPublicState.setState('set state before watch', (state) => {
+      state.count++
+    })
+    expect(blockWithPublicState.state.count).toEqual(1)
+    const unwatch = blockWithPublicState
+      .watchState((state) => state.count)
+      .do((newCount, oldCount) => {
+        console.log(newCount, oldCount)
       })
-    await app.activate('state-case1')
+    await blockWithPublicState.setState('set state after watch', (state) => {
+      state.count++
+    })
+    expect(blockWithPublicState.state.count).toEqual(2)
+    unwatch()
+    await blockWithPublicState.setState('set state after unwatch', (state) => {
+      state.count++
+    })
+    expect(blockWithPublicState.state.count).toEqual(3)
+    expect(console.log).toBeCalledTimes(1)
+    expect(console.log).toBeCalledWith(2, 1)
   })
 
-  test('# case 2: set and watch uninitialized state', () => {
-    registerBlock(createBlock('state-case2-1'))
-    const app = createBlock('state-case2-2')
-    registerBlock(app).relateTo(['state-case2-1'])
+  test('# case 2: test set, get and watch of private state', async () => {
+    console.log = jest.fn()
+    const app = createBlock('case2')
+    registerBlock(app)
+    const blockWithPrivateState = app.connect<{
+      state: {
+        count: number
+      }
+      methods: {
+        incrementCount: (num: number) => Promise<void>
+      }
+    }>('connect-testers/private-state')
+    expect(blockWithPrivateState.state).toBeNull()
+    await app.activate(blockWithPrivateState.name)
+    expect(blockWithPrivateState.state.count).toEqual(0)
+    try {
+      await blockWithPrivateState.setState('set private state', (state) => {
+        state.count++
+      })
+    } catch (error) {
+      expect(error.message).toEqual(
+        Errors.modifyPrivateState(constant.stateNamespace(blockWithPrivateState.name)),
+      )
+    }
+    await blockWithPrivateState.methods.incrementCount(1)
+    expect(blockWithPrivateState.state.count).toEqual(1)
+    const unwatch = blockWithPrivateState
+      .watchState((state) => state.count)
+      .do((newCount, oldCount) => {
+        console.log(newCount, oldCount)
+      })
+    await blockWithPrivateState.methods.incrementCount(1)
+    expect(blockWithPrivateState.state.count).toEqual(2)
+    unwatch()
+    await blockWithPrivateState.methods.incrementCount(1)
+    expect(blockWithPrivateState.state.count).toEqual(3)
+    expect(console.log).toBeCalledTimes(1)
+    expect(console.log).toBeCalledWith(2, 1)
+  })
+
+  test('# case 3: set and watch uninitialized state', () => {
+    const blockWithoutState = createBlock('block-without-state')
+    const app = createBlock('case3')
     expect(() => {
-      app.connect<any>('state-case2-1').setState("app2 modify app1's state", (state) => {
+      app.connect<any>(blockWithoutState.name).setState('modify state', (state) => {
         state.value = 1
       })
-    }).toThrowError(errors.stateNotInitialized('state-case2-1'))
+    }).toThrowError(errors.stateNotInitialized(blockWithoutState.name))
 
     expect(() => {
       app
-        .connect<any>('state-case2-1')
+        .connect<any>(blockWithoutState.name)
         .watchState((state) => state.value)
         .do((value) => {
           console.log(value)
         })
-    }).toThrowError(errors.stateNotInitialized('state-case2-1'))
-  })
-
-  test('#case 3: test private state', async () => {
-    console.log = jest.fn()
-    const app = createBlock('state-case3')
-    registerBlock(app)
-    await app.activate('connect-testers/state')
-    // the app 'connect-testers/state.private' will be registered once the app 'connect-testers/state' is registered
-    const privateApp = app.connect<{
-      state: { user: string }
-      methods: {
-        login: (user: string) => void
-        logout: () => void
-      }
-    }>('connect-testers/state.private')
-    expect(privateApp.state.user).toEqual('Mike')
-    privateApp
-      .watchState((state) => state.user)
-      .do((value) => {
-        console.log(value)
-      })
-    privateApp
-      .setState('set user to Alice', (state) => {
-        state.user = 'Alice'
-      })
-      .catch((error) => {
-        expect(error.message).toEqual(
-          Errors.modifyPrivateState(constant.stateNamespace('connect-testers/state.private')),
-        )
-      })
-    privateApp.methods.logout()
-    await Promise.resolve()
-    expect(privateApp.state.user).toBeNull()
-    privateApp.methods.login('Alice')
-    await Promise.resolve()
-    expect(privateApp.state.user).toEqual('Alice')
-    expect(console.log).toBeCalledTimes(2)
-    expect(console.log).toBeCalledWith(null)
-    expect(console.log).toBeCalledWith('Alice')
+    }).toThrowError(errors.stateNotInitialized(blockWithoutState.name))
   })
 })
 
@@ -118,35 +110,20 @@ describe('Test Events', () => {
   registerBlock(app).relyOn(['connect-testers/events'])
 
   test('# case 1: test events', async () => {
-    await app.activate('events-tester')
-    const targetApp = app.connect<{
+    console.log = jest.fn()
+    const target = app.connect<{
       events: {
         log: (text: string) => void
-        error: (text: string) => void
-        record: (text: string) => void
+        cancelListen: () => void
       }
     }>('connect-testers/events')
-    const recordedTexts: string[] = []
-    console.log = jest.fn()
-    console.warn = jest.fn()
-    console.error = jest.fn()
-    targetApp.listenEvents({
-      record(text) {
-        recordedTexts.push(text)
-      },
-    })
-    targetApp.events.log('hello world')
-    targetApp.events.error('hello world')
-    await app.destroy('connect-testers/events')
-    targetApp.events.log('hello world')
-    targetApp.events.error('hello world')
-    expect(recordedTexts.length).toEqual(2)
-    expect(recordedTexts.join(',')).toEqual('hello world,hello world')
+    target.events.log('before listen')
+    await app.activate(app.name)
+    target.events.log('listening')
+    target.events.cancelListen()
+    target.events.log('after cancel listen')
     expect(console.log).toBeCalledTimes(1)
-    expect(console.error).toBeCalledTimes(1)
-    expect(console.log).toBeCalledWith('hello world')
-    expect(console.error).toBeCalledWith('hello world')
-    await app.destroy('events-tester')
+    expect(console.log).toBeCalledWith('listening')
   })
 })
 
@@ -155,16 +132,23 @@ describe('Test Methods', () => {
   registerBlock(app).relyOn(['connect-testers/methods'])
 
   test('# case 1: test methods', async () => {
-    await app.activate('methods-tester')
-    const targetApp = app.connect<{
+    const target = app.connect<{
       methods: {
         getCount: () => number
-        addCount: () => void
+        addCount: (num: number) => number
+        removeMethods: () => void
       }
     }>('connect-testers/methods')
-    expect(targetApp.methods.getCount()).toEqual(0)
-    targetApp.methods.addCount()
-    expect(targetApp.methods.getCount()).toEqual(1)
+    expect(() => {
+      target.methods.getCount()
+    }).toThrowError()
+    await app.activate('methods-tester')
+    expect(target.methods.getCount()).toEqual(0)
+    expect(target.methods.addCount(1)).toEqual(1)
+    target.methods.removeMethods()
+    expect(() => {
+      target.methods.getCount()
+    }).toThrowError()
   })
 })
 
