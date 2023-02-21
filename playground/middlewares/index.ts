@@ -1,7 +1,7 @@
 import type { MiddlewareFnType } from '@rallie/block'
 
 export const jsdelivrLibraryLoader =
-  (filePathMap = {}): MiddlewareFnType =>
+  (filePathMap: Record<string, string> = {}): MiddlewareFnType =>
   async (ctx, next) => {
     const { name } = ctx
     if (name.startsWith('lib:')) {

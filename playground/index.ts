@@ -16,9 +16,13 @@ starter.run((env) => {
   // env.use(loadHtml())
   // env.use(htmlLoader)
 
-  registerBlock(starter).onBootstrap(async () => {
-    starter.activate('react-app')
-    starter.activate('vue-app')
+  registerBlock(starter).onActivate(async () => {
+    const mountApp = async (name: string) => {
+      await starter.activate(name)
+      const reactApp = starter.connect<any>(name)
+      await reactApp.methods.mount(document.getElementById(name))
+    }
+    await Promise.all([mountApp('react-app'), mountApp('vue-app')])
   })
 
   if (isEntry) {

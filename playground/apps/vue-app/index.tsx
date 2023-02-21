@@ -6,12 +6,13 @@ registerBlock(vueApp)
     count: 0,
   })
   .relyOn(['lib:vue', 'host-app'])
-  .onBootstrap(async (container) => {
-    console.log('vue-app bootstrapped')
-    ;(await import('./lifecycles')).onBootstrap(container)
-  })
-  .onDestroy(async () => {
-    ;(await import('./lifecycles')).onDestroy()
+  .onActivate(() => {
+    vueApp.addMethods({
+      mount: async (container) => {
+        const app = await import('./app')
+        app.mount(container)
+      },
+    })
   })
 
 vueApp.run(async (env) => {
@@ -25,6 +26,8 @@ vueApp.run(async (env) => {
     })
     await vueApp.load('starter')
     env.freeze()
-    vueApp.activate(vueApp.name, document.getElementById('vue-app'))
+    vueApp.activate(vueApp.name).then(() => {
+      vueApp.methods.mount(document.getElementById('vue-app'))
+    })
   }
 })

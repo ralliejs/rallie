@@ -1,9 +1,10 @@
 import { createBlock } from '@rallie/block'
 
-type State = {
-  count: number
-}
-
 export const vueApp = createBlock<{
-  state: State
+  state: {
+    count: number
+  }
+  methods: {
+    mount: (container?: HTMLElement) => Promise<void>
+  }
 }>('vue-app')

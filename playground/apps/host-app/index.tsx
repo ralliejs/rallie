@@ -18,7 +18,6 @@ hostApp.run(async (env) => {
       }
     })
     await hostApp.load('starter')
-    hostApp.activate('react-app', document.getElementById('react-app'))
-    hostApp.activate('vue-app', document.getElementById('vue-app'))
+    hostApp.activate(hostApp.name)
   }
 })
