@@ -5,6 +5,6 @@ export const vueApp = createBlock<{
     count: number
   }
   methods: {
-    mount: (container?: HTMLElement) => Promise<void>
+    mount: (container: HTMLElement) => Promise<void>
   }
 }>('vue-app')

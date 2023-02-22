@@ -7,6 +7,7 @@
       <span>locale: {{ locale }}</span>
     </div>
     <div>
+      <button @click="funcState()">trigger funcState</button>
       <button @click="incrementCount">increment count</button>
       <button @click="printCount">print count</button>
       <button @click="switchLocale">switch locale</button>
@@ -24,7 +25,8 @@ export default defineComponent({
   mixins: [
     mixinBlockState(block, (state) => ({
       locale: state.locale,
-      count: state.count
+      count: state.count,
+      funcState: state.funcState
     })),
     mixinBlockEvents(block, {
       incrementCount() {

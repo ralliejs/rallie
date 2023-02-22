@@ -4,6 +4,7 @@ export type BlockService = {
   state: {
     locale: 'en' | 'zh'
     count: number
+    funcState: () => void
   }
   events: {
     incrementCount: () => void

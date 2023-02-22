@@ -6,7 +6,7 @@ export function useBlockState<T extends Block<unknown>, U>(
   getter: (state: T['state']) => U,
   deps: any[] = [],
 ) {
-  const [value, setValue] = React.useState<U>(getter(block.state))
+  const [value, setValue] = React.useState<U>(() => getter(block.state))
   React.useEffect(() => {
     const unwatch = block.watchState(getter).do((val) => {
       setValue(val)

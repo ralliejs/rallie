@@ -7,6 +7,7 @@ registerBlock(block)
   .initState({
     locale: 'en',
     count: 0,
+    funcState: () => console.log('trigger funcState'),
   })
   .onActivate(() => {
     block.addMethods({
@@ -44,14 +45,24 @@ describe('Test React hooks', () => {
     })
   })
 
-  test('#case1: test state', async () => {
+  test('#case1: test normal state', async () => {
     const count = await screen.findByText(/count:/)
     const locale = await screen.findByText(/locale:/)
     expect(count.innerHTML).toEqual('count: 0')
     expect(locale.innerHTML).toEqual('locale: en')
   })
 
-  test('#case2: test event', async () => {
+  test('#case2: test function state', async () => {
+    console.log = jest.fn()
+    const triggerFuncBtn = await screen.findByText('trigger funcState')
+    await act(async () => {
+      fireEvent.click(triggerFuncBtn)
+    })
+    expect(console.log).toBeCalledTimes(1)
+    expect(console.log).toBeCalledWith('trigger funcState')
+  })
+
+  test('#case3: test event', async () => {
     console.log = jest.fn()
     const printCountBtn = await screen.findByText('print count')
     const incrementCountBtn = await screen.findByText('increment count')
@@ -74,7 +85,7 @@ describe('Test React hooks', () => {
     expect(console.log).toBeCalledWith(2)
   })
 
-  test('#case3: test methods', async () => {
+  test('#case4: test methods', async () => {
     const switchLocaleBtn = await screen.findByText('switch locale')
     const locale = await screen.findByText(/locale:/)
     await act(async () => {

@@ -6,6 +6,7 @@ import { useBlockState, useBlockEvents, useBlockMethods } from '../../src'
 export default defineComponent(function HooksTester() {
   const count = useBlockState(block, (state) => state.count)
   const locale = useBlockState(block, (state) => state.locale)
+  const funcState = useBlockState(block, (state) => state.funcState)
   useBlockEvents(block, {
     incrementCount() {
       block.setState('increment count', (state) => {
@@ -29,6 +30,7 @@ export default defineComponent(function HooksTester() {
   return {
     count,
     locale,
+    funcState,
     incrementCount,
     printCount,
     switchLocale
@@ -45,6 +47,7 @@ export default defineComponent(function HooksTester() {
       <span>locale: {{ locale }}</span>
     </div>
     <div>
+              <button @click="funcState()">trigger funcState</button>
       <button @click="incrementCount()">increment count</button>
       <button @click="printCount()">print count</button>
       <button @click="switchLocale()">switch locale</button>

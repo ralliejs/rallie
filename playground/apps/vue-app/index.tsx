@@ -27,7 +27,12 @@ vueApp.run(async (env) => {
     await vueApp.load('starter')
     env.freeze()
     vueApp.activate(vueApp.name).then(() => {
-      vueApp.methods.mount(document.getElementById('vue-app'))
+      let container = document.getElementById('react-app')
+      if (!container) {
+        container = document.createElement('div')
+        document.body.appendChild(container)
+      }
+      vueApp.methods.mount(container)
     })
   }
 })

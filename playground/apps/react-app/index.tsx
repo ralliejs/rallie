@@ -24,7 +24,12 @@ reactApp.run(async (env) => {
     await reactApp.load('starter')
     env.freeze()
     reactApp.activate(reactApp.name).then(() => {
-      reactApp.methods.mount(document.getElementById('react-app'))
+      let container = document.getElementById('react-app')
+      if (!container) {
+        container = document.createElement('div')
+        document.body.appendChild(container)
+      }
+      reactApp.methods.mount(container)
     })
   }
 })

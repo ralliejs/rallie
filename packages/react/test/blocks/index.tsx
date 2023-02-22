@@ -6,6 +6,7 @@ export type BlockService = {
   state: {
     locale: 'en' | 'zh'
     count: number
+    funcState: () => void
   }
   events: {
     incrementCount: () => void
@@ -21,7 +22,11 @@ export type BlockService = {
 export const block = createBlock<BlockService>('block')
 
 export const Component = () => {
-  const [count, locale] = useBlockState(block, (state) => [state.count, state.locale])
+  const [count, locale, funcState] = useBlockState(block, (state) => [
+    state.count,
+    state.locale,
+    state.funcState,
+  ])
   useBlockEvents(block, {
     incrementCount() {
       block.setState('increment count', (state) => {
@@ -55,6 +60,9 @@ export const Component = () => {
         <span>locale: {locale}</span>
       </div>
       <div>
+        <button onClick={typeof funcState === 'function' ? funcState : () => {}}>
+          trigger funcState
+        </button>
         <button onClick={block.events.incrementCount}>increment count</button>
         <button onClick={block.events.printCount}>print count</button>
         <button onClick={block.methods.switchLocale}>switch locale</button>
