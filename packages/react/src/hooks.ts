@@ -9,7 +9,7 @@ export function useBlockState<T extends Block<unknown>, U>(
   const [value, setValue] = React.useState<U>(() => getter(block.state))
   React.useEffect(() => {
     const unwatch = block.watchState(getter).do((val) => {
-      setValue(val)
+      setValue(() => val)
     })
     return () => {
       unwatch()
