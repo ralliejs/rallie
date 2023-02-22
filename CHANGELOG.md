@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.13.2](https://github.com/ralliejs/rallie/compare/v0.13.1...v0.13.2) (2023-02-22)
+
+### Bug Fixes
+
+- **@rallie/react): fix(@rallie/react:** fixup the commit 45433cfa657e735115d3841a05ad63652bad5f3d ([127c69b](https://github.com/ralliejs/rallie/commit/127c69b135f52c7552dceac5bdcd602f182660c9))
+
 ## [0.13.1](https://github.com/ralliejs/rallie/compare/v0.13.0...v0.13.1) (2023-02-22)
 
 ### Bug Fixes
