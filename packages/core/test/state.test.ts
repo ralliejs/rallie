@@ -149,8 +149,6 @@ describe('Test socket.watchState', () => {
     expect(rawUser.gender).toEqual('male')
     expect(console.log).toBeCalledTimes(1)
     expect(console.log).toBeCalledWith('Mike', 'Mary', 12, 11)
-    // @ts-ignore
-    expect(socket.stores.user.watchers.size).toEqual(1)
     const deepObj = {
       foo: {
         bar: 1,
@@ -184,8 +182,6 @@ describe('Test socket.watchState', () => {
     expect(user.name).toEqual('Lily')
     expect(user.age).toEqual(13)
     expect(user.gender).toEqual('female')
-    // @ts-ignore
-    expect(socket.stores.user.watchers.size).toEqual(0)
   })
 
   test('# case 4: test the behavior like watchEffect', async () => {
@@ -203,7 +199,5 @@ describe('Test socket.watchState', () => {
     expect(console.log).toBeCalledTimes(2)
     expect(console.log).toBeCalledWith('Lily')
     expect(console.log).toBeCalledWith('Tom')
-    // @ts-ignore
-    expect(socket.stores.user.watchers.size).toEqual(0)
   })
 })

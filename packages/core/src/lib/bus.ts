@@ -8,31 +8,29 @@ import loader from './loader'
 import type { MiddlewareFnType, ContextType, NextFnType, ConfType, StoresType } from '../types' // eslint-disable-line
 
 export class Bus {
-  private name: string
-  private eventEmitter: EventEmitter = new EventEmitter()
-  private stores: StoresType = {}
-  private apps: Record<string, App | boolean> = {}
-  private loadingApps: Record<string, Promise<void>> = {}
+  #name: string
+  #eventEmitter: EventEmitter = new EventEmitter()
+  #stores: StoresType = {}
+  #apps: Record<string, App | boolean> = {}
+  #loadingApps: Record<string, Promise<void>> = {}
 
   public conf: ConfType = readonly({
     assets: {},
   })
 
-  private middlewares: MiddlewareFnType[] = []
-  private composedMiddlewareFn: (ctx: ContextType, next: NextFnType) => Promise<any>
-
-  public state: Record<string, any>
+  #middlewares: MiddlewareFnType[] = []
+  #composedMiddlewareFn: (ctx: ContextType, next: NextFnType) => Promise<any>
 
   constructor(name: string) {
-    this.name = name
-    this.composedMiddlewareFn = compose(this.middlewares)
+    this.#name = name
+    this.#composedMiddlewareFn = compose(this.#middlewares)
   }
 
-  private isRallieCoreApp(appName: string) {
-    return this.apps[appName] && typeof this.apps[appName] !== 'boolean'
+  #isRallieCoreApp(appName: string) {
+    return this.#apps[appName] && typeof this.#apps[appName] !== 'boolean'
   }
 
-  private createContext(name: string) {
+  #createContext(name: string) {
     const context: ContextType = {
       name,
       loadScript: loader.loadScript,
@@ -41,7 +39,7 @@ export class Bus {
     return context
   }
 
-  private async loadResourcesFromAssetsConfig(ctx: ContextType) {
+  async #loadResourcesFromAssetsConfig(ctx: ContextType) {
     const { name, loadScript = loader.loadScript, loadLink = loader.loadLink } = ctx
     const { assets } = this.conf
     if (assets[name]) {
@@ -57,15 +55,15 @@ export class Bus {
         }
       }
     } else {
-      throw new Error(Errors.resourceNotDeclared(name, this.name))
+      throw new Error(Errors.resourceNotDeclared(name, this.#name))
     }
   }
 
-  private async innerActivateApp(name: string, visitPath: string[]) {
+  async #innerActivateApp(name: string, visitPath: string[]) {
     await this.loadApp(name)
-    if (this.isRallieCoreApp(name)) {
-      const app = this.apps[name] as App
-      await this.loadRelatedApps(app)
+    if (this.#isRallieCoreApp(name)) {
+      const app = this.#apps[name] as App
+      await this.#loadRelatedApps(app)
       if (visitPath.includes(name)) {
         const startIndex = visitPath.indexOf(name)
         const circularPath = [...visitPath.slice(startIndex), name]
@@ -74,7 +72,7 @@ export class Bus {
       visitPath.push(name)
       if (!app.activated) {
         const activating = async () => {
-          await this.activateDependencies(app, visitPath)
+          await this.#activateDependencies(app, visitPath)
           app.doActivate && (await Promise.resolve(app.doActivate()))
         }
         app.activated = activating()
@@ -84,24 +82,24 @@ export class Bus {
     }
   }
 
-  private async activateDependencies(app: App, visitPath: string[]) {
+  async #activateDependencies(app: App, visitPath: string[]) {
     if (app.dependencies.length !== 0) {
       for (const appName of app.dependencies) {
-        await this.innerActivateApp(appName, visitPath)
+        await this.#innerActivateApp(appName, visitPath)
       }
     }
   }
 
-  private async loadRelatedApps(app: App) {
+  async #loadRelatedApps(app: App) {
     await Promise.all(app.relatedApps.map((appName) => this.loadApp(appName)))
   }
 
   public createSocket() {
-    return new Socket(this.eventEmitter, this.stores)
+    return new Socket(this.#eventEmitter, this.#stores)
   }
 
   public existApp(name: string) {
-    return !!this.apps[name]
+    return !!this.#apps[name]
   }
 
   public createApp(name: string) {
@@ -109,23 +107,23 @@ export class Bus {
       throw new Error(Errors.createExistingApp(name))
     }
     const app = new App(name)
-    this.apps[name] = app
+    this.#apps[name] = app
     return app
   }
 
   public async loadApp(name: string) {
-    if (!this.apps[name]) {
-      if (!this.loadingApps[name]) {
-        this.loadingApps[name] = new Promise((resolve, reject) => {
-          const context = this.createContext(name)
+    if (!this.#apps[name]) {
+      if (!this.#loadingApps[name]) {
+        this.#loadingApps[name] = new Promise((resolve, reject) => {
+          const context = this.#createContext(name)
           // apply the middlewares
-          this.composedMiddlewareFn(context, this.loadResourcesFromAssetsConfig.bind(this))
+          this.#composedMiddlewareFn(context, this.#loadResourcesFromAssetsConfig.bind(this))
             .then(() => {
               const isLib = name.startsWith('lib:')
-              if (isLib && !this.apps[name]) {
-                this.apps[name] = true
+              if (isLib && !this.#apps[name]) {
+                this.#apps[name] = true
               }
-              if (!this.apps[name]) {
+              if (!this.#apps[name]) {
                 reject(new Error(Errors.appNotCreated(name)))
               }
               resolve()
@@ -135,12 +133,12 @@ export class Bus {
             })
         })
       }
-      await this.loadingApps[name]
+      await this.#loadingApps[name]
     }
   }
 
   public async activateApp(name: string) {
-    await this.innerActivateApp(name, [])
+    await this.#innerActivateApp(name, [])
   }
 
   public config(conf: Partial<ConfType>) {
@@ -159,8 +157,8 @@ export class Bus {
     if (typeof middleware !== 'function') {
       throw new Error(Errors.wrongMiddlewareType())
     }
-    this.middlewares.push(middleware)
-    this.composedMiddlewareFn = compose(this.middlewares)
+    this.#middlewares.push(middleware)
+    this.#composedMiddlewareFn = compose(this.#middlewares)
     return this
   }
 }

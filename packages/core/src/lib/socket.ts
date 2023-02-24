@@ -7,16 +7,18 @@ import { Watcher } from './watcher'
 
 const STATE_INITIALIZED = '$state-initialized'
 export class Socket {
-  constructor(private eventEmitter: EventEmitter, private stores: StoresType) {
-    this.eventEmitter = eventEmitter
-    this.stores = stores
+  #eventEmitter: EventEmitter
+  #stores: StoresType
+  constructor(eventEmitter: EventEmitter, stores: StoresType) {
+    this.#eventEmitter = eventEmitter
+    this.#stores = stores
   }
 
-  private offEvents(events: Record<string, Function>, isUnicast: boolean, eventName?: string) {
+  #offEvents(events: Record<string, Function>, isUnicast: boolean, eventName?: string) {
     let cancelListening = isUnicast
-      ? this.eventEmitter.removeUnicastEventListener
-      : this.eventEmitter.removeBroadcastEventListener
-    cancelListening = cancelListening.bind(this.eventEmitter)
+      ? this.#eventEmitter.removeUnicastEventListener
+      : this.#eventEmitter.removeBroadcastEventListener
+    cancelListening = cancelListening.bind(this.#eventEmitter)
     if (eventName) {
       if (events[eventName]) {
         cancelListening(eventName, events[eventName])
@@ -37,10 +39,10 @@ export class Socket {
    */
   public onBroadcast<T extends Record<string, Function>>(events: T) {
     Object.entries(events).forEach(([eventName, handler]) => {
-      this.eventEmitter.addBroadcastEventListener(eventName, handler)
+      this.#eventEmitter.addBroadcastEventListener(eventName, handler)
     })
     return (eventName?: string) => {
-      this.offEvents(events, false, eventName)
+      this.#offEvents(events, false, eventName)
     }
   }
 
@@ -51,13 +53,13 @@ export class Socket {
   public onUnicast<T extends Record<string, Function>>(events: T) {
     Object.entries(events).forEach(([eventName, handler]) => {
       try {
-        this.eventEmitter.addUnicastEventListener(eventName, handler)
+        this.#eventEmitter.addUnicastEventListener(eventName, handler)
       } catch (err) {
         console.error(err)
       }
     })
     return (eventName?: string) => {
-      this.offEvents(events, true, eventName)
+      this.#offEvents(events, true, eventName)
     }
   }
 
@@ -72,7 +74,7 @@ export class Socket {
       get: (target, eventName) => {
         return (...args: any[]) => {
           logger?.(eventName as string)
-          return this.eventEmitter.emitBroadcast(eventName as string, ...args)
+          return this.#eventEmitter.emitBroadcast(eventName as string, ...args)
         }
       },
       set: () => {
@@ -90,7 +92,7 @@ export class Socket {
       get: (target, eventName) => {
         return (...args: any[]) => {
           logger?.(eventName as string)
-          return this.eventEmitter.emitUnicast(eventName as string, ...args)
+          return this.#eventEmitter.emitUnicast(eventName as string, ...args)
         }
       },
       set: () => {
@@ -104,7 +106,7 @@ export class Socket {
    * @param namespace
    */
   public existState(namespace: string) {
-    return !!this.stores[namespace]
+    return !!this.#stores[namespace]
   }
 
   /**
@@ -124,12 +126,12 @@ export class Socket {
       if (isPrimitive(initialState)) {
         throw new Error(Errors.initializePrimitiveState(namespace))
       }
-      this.stores[namespace] = {
+      this.#stores[namespace] = {
         state: reactive(initialState),
         owner: isPrivate ? this : null,
         watchers: new Set(),
       }
-      this.eventEmitter.emitBroadcast(STATE_INITIALIZED, namespace)
+      this.#eventEmitter.emitBroadcast(STATE_INITIALIZED, namespace)
     }
     return this.getState(namespace)
   }
@@ -140,24 +142,24 @@ export class Socket {
    */
   public getState<T = any, P = T>(namespace: string, getter?: (state: T) => P) {
     if (this.existState(namespace)) {
-      const state = readonly(this.stores[namespace].state)
+      const state = readonly(this.#stores[namespace].state)
       return getter ? getter(state) : state
     } else {
       return null
     }
   }
 
-  private getStateToSet(namespace: string) {
+  #getStateToSet(namespace: string) {
     if (!this.existState(namespace)) {
       const msg = Errors.accessUninitializedState(namespace)
       throw new Error(msg)
     }
-    const stateOwner = this.stores[namespace].owner
+    const stateOwner = this.#stores[namespace].owner
     if (stateOwner !== this && stateOwner !== null) {
       const msg = Errors.modifyPrivateState(namespace)
       throw new Error(msg)
     }
-    return this.stores[namespace].state
+    return this.#stores[namespace].state
   }
 
   /**
@@ -171,7 +173,7 @@ export class Socket {
     action: string,
     setter: (state: T) => void | Promise<void>,
   ) {
-    const state: T = this.getStateToSet(namespace)
+    const state: T = this.#getStateToSet(namespace)
     if (action) {
       const result = setter(state)
       await Promise.resolve(result)
@@ -191,8 +193,8 @@ export class Socket {
       throw new Error(msg)
     }
     let flushed = false
-    const state: T = readonly(this.stores[namespace].state)
-    const watcher = new Watcher<P>(namespace, this.stores)
+    const state: T = readonly(this.#stores[namespace].state)
+    const watcher = new Watcher<P>(namespace, this.#stores)
     const runner = effect(() => getter(state), {
       lazy: true,
       scheduler: () => {
