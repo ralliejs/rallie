@@ -40,6 +40,7 @@
     "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.4.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/vue": "^6.6.1",
     "@types/jest": "^29.2.5",
