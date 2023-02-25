@@ -1,3 +1,3 @@
-import { registerBlock, createBlock } from '../../../src'
+import { createBlock } from '../../../src'
 
-registerBlock(createBlock('dependency-testers/a'))
+createBlock('dependency-testers/a')

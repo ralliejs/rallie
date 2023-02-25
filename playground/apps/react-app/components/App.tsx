@@ -13,7 +13,7 @@ export function App() {
       state.count++
     })
   }
-  const messageTypes = ['info', 'error', 'warning', 'success', 'loading']
+  const messageTypes = ['info', 'error', 'warning', 'success', 'loading'] as const
   const hint = {
     currentEnv: 'entry',
     navigationEnv: 'non-entry',

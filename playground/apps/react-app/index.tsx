@@ -1,16 +1,13 @@
 import { reactApp } from './blocks/react-app'
-import { registerBlock } from '@rallie/block'
 
-registerBlock(reactApp)
-  .relyOn(['host-app', 'vue-app'])
-  .onActivate(() => {
-    reactApp.addMethods({
-      mount: async (container) => {
-        const app = await import('./app')
-        app.mount(container)
-      },
-    })
+reactApp.relyOn(['host-app', 'vue-app']).onActivate(() => {
+  reactApp.addMethods({
+    mount: async (container) => {
+      const app = await import('./app')
+      app.mount(container)
+    },
   })
+})
 
 reactApp.run(async (env) => {
   if (env.isEntry) {

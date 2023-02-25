@@ -1,5 +1,5 @@
 import { Errors } from '@rallie/core'
-import { createBlock, registerBlock } from '../src/index'
+import { createBlock } from '../src/index'
 import { createBlockMiddleware } from './middlewares/create-block-middleware'
 import nativeLoader from './middlewares/native-loader'
 
@@ -10,7 +10,6 @@ hostApp.run((env) => {
 describe('Test env', () => {
   test('# case 1: the first-created block should run in entry mode, and other blocks should run in remote mode', async () => {
     const otherApp = createBlock('other-app')
-    registerBlock(otherApp)
     console.log = jest.fn()
     hostApp.run((env) => {
       expect(env.isEntry).toBeTruthy()
@@ -82,7 +81,6 @@ describe('Test env', () => {
     console.error = jest.fn()
     const app = createBlock('case4')
     const blocksCreatedByMiddleware: string[] = []
-    registerBlock(app)
     app.run((env) => {
       env.use(createBlockMiddleware(['anyApp1'], blocksCreatedByMiddleware))
     })
@@ -96,7 +94,6 @@ describe('Test env', () => {
     console.error = jest.fn()
     const app = createBlock('case5')
     const blocksCreatedByMiddleware: string[] = []
-    registerBlock(app)
     hostApp.run((env) => {
       env.freeze()
     })

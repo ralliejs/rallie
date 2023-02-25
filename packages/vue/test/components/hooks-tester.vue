@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { block } from '../blocks'
-import { useBlockState, useBlockEvents, useBlockMethods } from '../../src'
+import { useBlockState, useBlockEvents, useBlockMethods } from '../../src/hooks'
 
 export default defineComponent(function HooksTester() {
   const count = useBlockState(block, (state) => state.count)

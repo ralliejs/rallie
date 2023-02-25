@@ -1,8 +1,6 @@
-import { registerBlock, createBlock } from '../../../src'
+import { createBlock } from '../../../src'
 
-const block = createBlock('relate-testers/a')
-
-registerBlock(block).relateTo(['relate-testers/b'])
+const block = createBlock('relate-testers/a').relateTo(['relate-testers/b'])
 
 block.run((env) => {
   if (!env.isEntry) {

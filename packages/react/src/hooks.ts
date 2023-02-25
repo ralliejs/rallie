@@ -1,7 +1,7 @@
 import React from 'react'
-import type { Block, CreatedBlock } from '@rallie/block'
+import type { BaseBlock, CreatedBlock } from '@rallie/block'
 
-export function useBlockState<T extends Block<unknown>, U>(
+export function useBlockState<T extends BaseBlock<unknown>, U>(
   block: T,
   getter: (state: T['state']) => U,
   deps: any[] = [],
@@ -18,7 +18,7 @@ export function useBlockState<T extends Block<unknown>, U>(
   return value
 }
 
-export function useBlockEvents<T extends Block<unknown>>(
+export function useBlockEvents<T extends BaseBlock<unknown>>(
   block: T,
   events: Partial<T['events']>,
   deps: any[] = [],

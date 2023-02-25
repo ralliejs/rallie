@@ -1,9 +1,9 @@
 import React from 'react'
 import { block, Component, type BlockService } from './blocks'
 import { render, fireEvent, act, screen, cleanup } from '@testing-library/react'
-import { createBlock, registerBlock } from '@rallie/block'
+import { createBlock } from '@rallie/block'
 
-registerBlock(block)
+block
   .initState({
     locale: 'en',
     count: 0,
@@ -25,7 +25,6 @@ registerBlock(block)
   })
 
 const tester = createBlock('tester')
-registerBlock(tester)
 describe('Test React hooks', () => {
   beforeAll(async () => {
     await act(async () => {

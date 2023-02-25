@@ -1,12 +1,4 @@
-import { registerBlock } from '@rallie/block'
 import { hostApp } from './block'
-
-registerBlock(hostApp)
-  .relyOn(['lib:vue'])
-  .onActivate(async () => {
-    console.log('host app is bootstrapped')
-    await import('./app')
-  })
 
 hostApp.run(async (env) => {
   if (env.isEntry) {

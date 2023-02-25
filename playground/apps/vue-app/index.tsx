@@ -1,7 +1,6 @@
-import { registerBlock } from '@rallie/block'
 import { vueApp } from './blocks/vue-app'
 
-registerBlock(vueApp)
+vueApp
   .initState({
     count: 0,
   })

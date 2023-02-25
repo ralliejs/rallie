@@ -14,3 +14,8 @@ interface HostApp {
 }
 
 export const hostApp = createBlock<HostApp>('host-app')
+  .relyOn(['lib:vue'])
+  .onActivate(async () => {
+    console.log('host app is bootstrapped')
+    await import('./app')
+  })

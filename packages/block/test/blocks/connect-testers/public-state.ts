@@ -1,11 +1,9 @@
-import { registerBlock, createBlock } from '../../../src'
+import { createBlock } from '../../../src'
 
-const blockWithPublicState = createBlock<{
+createBlock<{
   state: {
     count: number
   }
-}>('connect-testers/public-state')
-
-registerBlock(blockWithPublicState).initState({
+}>('connect-testers/public-state').initState({
   count: 0,
 })

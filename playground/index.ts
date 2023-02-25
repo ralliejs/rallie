@@ -1,4 +1,4 @@
-import { registerBlock, createBlock } from '@rallie/block'
+import { createBlock } from '@rallie/block'
 import { jsdelivrLibraryLoader, dynamicImportLoader, htmlLoader } from './middlewares' // eslint-disable-line
 import loadHtml from '@rallie/load-html' // eslint-disable-line
 
@@ -16,7 +16,7 @@ starter.run((env) => {
   // env.use(loadHtml())
   // env.use(htmlLoader)
 
-  registerBlock(starter).onActivate(async () => {
+  starter.onActivate(async () => {
     const mountApp = async (name: string) => {
       await starter.activate(name)
       const reactApp = starter.connect<any>(name)

@@ -5,9 +5,21 @@
   "author": "runnan <1608272694@qq.com>",
   "homepage": "https://github.com/ralliejs/rallie#readme",
   "license": "MIT",
-  "main": "./dist/index.umd.js",
-  "module": "./dist/index.es.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/hooks.umd.js",
+  "module": "./dist/hooks.es.js",
+  "types": "./dist/hooks.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/hooks.es.js",
+      "require": "./dist/hooks.umd.js",
+      "types": "./dist/hooks.d.ts"
+    },
+    "./mixins": {
+      "import": "./dist/mixins.es.js",
+      "require": "./dist/mixins.umd.js",
+      "types": "./dist/mixins.d.ts"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ralliejs/rallie.git"

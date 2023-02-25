@@ -1,6 +1,6 @@
 import { Errors } from '@rallie/core'
-import { createBlock, registerBlock } from '../src/index'
-import { errors, constant, warnings } from '../src/utils'
+import { createBlock } from '../src/index'
+import { errors, constant } from '../src/utils'
 import nativeLoader from './middlewares/native-loader'
 
 const hostApp = createBlock('host-app')
@@ -14,7 +14,6 @@ describe('Test state', () => {
   test('# case 1: test set, get and watch of public state', async () => {
     console.log = jest.fn()
     const app = createBlock('case1')
-    registerBlock(app)
     const blockWithPublicState = app.connect<{
       state: {
         count: number
@@ -48,7 +47,6 @@ describe('Test state', () => {
   test('# case 2: test set, get and watch of private state', async () => {
     console.log = jest.fn()
     const app = createBlock('case2')
-    registerBlock(app)
     const blockWithPrivateState = app.connect<{
       state: {
         count: number
@@ -106,8 +104,7 @@ describe('Test state', () => {
 })
 
 describe('Test Events', () => {
-  const app = createBlock('events-tester')
-  registerBlock(app).relyOn(['connect-testers/events'])
+  const app = createBlock('events-tester').relyOn(['connect-testers/events'])
 
   test('# case 1: test events', async () => {
     console.log = jest.fn()
@@ -128,8 +125,7 @@ describe('Test Events', () => {
 })
 
 describe('Test Methods', () => {
-  const app = createBlock('methods-tester')
-  registerBlock(app).relyOn(['connect-testers/methods'])
+  const app = createBlock('methods-tester').relyOn(['connect-testers/methods'])
 
   test('# case 1: test methods', async () => {
     const target = app.connect<{
@@ -149,22 +145,5 @@ describe('Test Methods', () => {
     expect(() => {
       target.methods.getCount()
     }).toThrowError()
-  })
-})
-
-describe('Test export and import', () => {
-  const app = createBlock('exports-tester')
-  registerBlock(app).relateTo(['connect-testers/exports'])
-  test('# case 1: test export and import', async () => {
-    console.warn = jest.fn()
-    await app.activate(app.name)
-    const targetApp = app.connect<{
-      exports: {
-        testedValue: number
-      }
-    }>('connect-testers/exports')
-    const { testedValue: testedValue1 } = targetApp.import()
-    expect(testedValue1).toEqual(1)
-    expect(console.warn).toBeCalledWith(warnings.duplicatedExports('connect-testers/exports'))
   })
 })

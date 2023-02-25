@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mixinBlockEvents, mixinBlockMethods, mixinBlockState } from '../../src'
+import { mixinBlockEvents, mixinBlockMethods, mixinBlockState } from '../../src/mixins'
 import { block } from '../blocks'
 
 export default defineComponent({

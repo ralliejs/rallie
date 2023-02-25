@@ -1,4 +1,4 @@
-import { createBlock, registerBlock } from '../../../src'
+import { createBlock } from '../../../src'
 
 let count = 0
 const block = createBlock<{
@@ -7,9 +7,7 @@ const block = createBlock<{
     addCount: (num: number) => number
     removeMethods: () => void
   }
-}>('connect-testers/methods')
-
-registerBlock(block).onActivate(() => {
+}>('connect-testers/methods').onActivate(() => {
   const removeMethods = block.addMethods({
     getCount() {
       return count

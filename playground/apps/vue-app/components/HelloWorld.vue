@@ -3,6 +3,7 @@
 import { vueApp } from '../blocks/vue-app'
 import { useBlockState } from '@rallie/vue'
 
+
 defineProps({ msg: String })
 
 const count = useBlockState(vueApp, (state) => state.count)

@@ -13,7 +13,7 @@ const commonConfigs = {
 
 export default [
   {
-    input: './src/index.ts',
+    input: './src/hooks.ts',
     output: [
       {
         file: pkg.main,
@@ -37,7 +37,7 @@ export default [
     input: './src/mixins.ts',
     output: [
       {
-        file: './dist/mixin.umd.js',
+        file: './dist/mixins.umd.js',
         format: 'umd',
         name: 'RallieVueMixin',
         exports: 'named',
@@ -46,7 +46,7 @@ export default [
         },
       },
       {
-        file: './dist/mixin.js',
+        file: './dist/mixins.es.js',
         format: 'es',
         exports: 'named',
       },

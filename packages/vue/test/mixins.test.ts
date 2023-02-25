@@ -1,8 +1,8 @@
 import { render, fireEvent, screen, cleanup } from '@testing-library/vue'
 import { block, type BlockService } from './blocks'
-import { registerBlock, createBlock } from '@rallie/block'
+import { createBlock } from '@rallie/block'
 
-registerBlock(block)
+block
   .initState({
     locale: 'en',
     count: 0,
@@ -26,7 +26,7 @@ registerBlock(block)
   })
 
 const tester = createBlock('tester')
-registerBlock(tester)
+
 describe('Test Vue hooks', () => {
   beforeAll(async () => {
     await tester.activate(block.name)

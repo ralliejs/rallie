@@ -1,4 +1,4 @@
-import { registerBlock, createBlock } from '../../../src'
+import { createBlock } from '../../../src'
 
 const blockWithPrivateState = createBlock<{
   state: {
@@ -7,7 +7,7 @@ const blockWithPrivateState = createBlock<{
   methods: {
     incrementCount: (num: number) => void
   }
-}>('connect-testers/private-state')
+}>('connect-testers/private-state').initState({ count: 0 }, true)
 
 blockWithPrivateState.addMethods({
   incrementCount: async (num) => {
@@ -16,5 +16,3 @@ blockWithPrivateState.addMethods({
     })
   },
 })
-
-registerBlock(blockWithPrivateState).initState({ count: 0 }, true)

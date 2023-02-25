@@ -1,8 +1,6 @@
-import { ConnectedBlock } from './connected-block'
-import type { Bus, Socket, MiddlewareFnType, ConfType } from '@rallie/core'
-import { constant, errors, SYMBOLS } from './utils'
-import { Block, type BlockService } from './block'
-import { socketsPool } from './sockets-pool'
+import { Bus, Socket, MiddlewareFnType, ConfType, touchBus, App } from '@rallie/core'
+import { constant } from './utils'
+import { BaseBlock, type BlockType } from './base-block'
 
 export interface Env {
   isEntry: boolean
@@ -13,53 +11,72 @@ export interface Env {
   unfreeze: () => void
 }
 
-export class CreatedBlock<T extends BlockService> extends Block<T> {
-  private globalBus: Bus
-  private globalSocket: Socket
-  private isEntry: boolean
-  private connectedBlocks: Record<string, BlockService> = {}
-  public exports: T['exports']
-  public symbol = SYMBOLS.CREATED_BLOCK
+export class CreatedBlock<T extends BlockType> extends BaseBlock<T> {
+  #globalBus: Bus
+  #globalSocket: Socket
+  #isEntry: boolean
+  #socket: Socket
+  #app: App
+  #connectedBlocks: Record<string, BlockType> = {}
 
   constructor(name: string, globalBus: Bus, globalSocket: Socket, isEntry: boolean) {
-    super(name)
-    this.globalBus = globalBus
-    this.globalSocket = globalSocket
-    this.isEntry = isEntry
-    socketsPool.set(name, this.socket)
+    const [bus] = touchBus(constant.privateBus(name))
+    const socket = bus.createSocket()
+    super(name, socket)
+    this.#socket = socket
+    this.#globalBus = globalBus
+    this.#globalSocket = globalSocket
+    this.#app = globalBus.createApp(name)
+    this.#isEntry = isEntry
+  }
+
+  public initState(state: T['state'], isPrivate?: boolean) {
+    this.#socket.initState(constant.stateNamespace(this.name), state as object, isPrivate)
+    return this
   }
 
   public addMethods(methods: Partial<T['methods']>) {
-    return this.socket.onUnicast<Partial<T['methods']>>(methods)
+    return this.#socket.onUnicast<Partial<T['methods']>>(methods)
   }
 
-  public connect<P extends BlockService>(name: string) {
-    if (!this.connectedBlocks[name]) {
-      this.connectedBlocks[name] = new ConnectedBlock<P>(name)
+  public relyOn(dependencies: string[]) {
+    this.#app.relyOn(dependencies)
+    return this
+  }
+
+  public relateTo(relatedApps: string[]) {
+    this.#app.relateTo(relatedApps)
+    return this
+  }
+
+  public onActivate(callback: () => void | Promise<void>) {
+    this.#app.onActivate(callback)
+    return this
+  }
+
+  public connect<P extends BlockType>(name: string) {
+    if (!this.#connectedBlocks[name]) {
+      const [bus] = touchBus(constant.privateBus(name))
+      const socket = bus.createSocket()
+      this.#connectedBlocks[name] = new BaseBlock<P>(name, socket)
     }
-    return this.connectedBlocks[name] as ConnectedBlock<P>
+    return this.#connectedBlocks[name] as BaseBlock<P>
   }
 
   public load(name: string) {
-    if (this.globalBus.existApp(this.name)) {
-      return this.globalBus.loadApp(name)
-    }
-    throw new Error(errors.operateBeforeRegister(this.name, 'load'))
+    return this.#globalBus.loadApp(name)
   }
 
   public activate(name: string) {
-    if (this.globalBus.existApp(this.name)) {
-      return this.globalBus.activateApp(name)
-    }
-    throw new Error(errors.operateBeforeRegister(this.name, 'activate'))
+    return this.#globalBus.activateApp(name)
   }
 
   public async run(callback: (env: Env) => void | Promise<void>) {
     const isBusAccessible =
-      this.isEntry || this.globalSocket.getState(constant.isGlobalBusAccessible)?.value
+      this.#isEntry || this.#globalSocket.getState(constant.isGlobalBusAccessible)?.value
     const setBusAccessible = (isAccessible: boolean) => {
-      if (this.isEntry) {
-        this.globalSocket.setState(
+      if (this.#isEntry) {
+        this.#globalSocket.setState(
           constant.isGlobalBusAccessible,
           isAccessible ? 'unfreeze the enviroment' : 'freeze the enviroment',
           (state) => {
@@ -69,15 +86,15 @@ export class CreatedBlock<T extends BlockService> extends Block<T> {
       }
     }
     const env: Omit<Env, 'conf'> = {
-      isEntry: this.isEntry,
+      isEntry: this.#isEntry,
       use: (middleware) => {
         if (isBusAccessible) {
-          this.globalBus.use(middleware)
+          this.#globalBus.use(middleware)
         }
       },
       config: (conf) => {
         if (isBusAccessible) {
-          this.globalBus.config(conf)
+          this.#globalBus.config(conf)
         }
       },
       freeze: () => {
@@ -91,7 +108,7 @@ export class CreatedBlock<T extends BlockService> extends Block<T> {
       new Proxy(env as Env, {
         get: (target, prop: keyof Env, receiver) => {
           if (prop === 'conf') {
-            return JSON.parse(JSON.stringify(this.globalBus.conf))
+            return JSON.parse(JSON.stringify(this.#globalBus.conf))
           }
           return Reflect.get(target, prop, receiver)
         },

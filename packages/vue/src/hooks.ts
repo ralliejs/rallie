@@ -1,7 +1,10 @@
 import { onBeforeUnmount, onBeforeMount, ref, UnwrapRef } from 'vue'
-import type { Block, CreatedBlock } from '@rallie/block'
+import type { BaseBlock, CreatedBlock } from '@rallie/block'
 
-export function useBlockState<T extends Block<any>, U>(block: T, getter: (state: T['state']) => U) {
+export function useBlockState<T extends BaseBlock<unknown>, U>(
+  block: T,
+  getter: (state: T['state']) => U,
+) {
   const stateRef = ref<U>(getter(block.state))
   let unwatch: () => void
   onBeforeMount(() => {
@@ -15,7 +18,10 @@ export function useBlockState<T extends Block<any>, U>(block: T, getter: (state:
   return stateRef
 }
 
-export function useBlockEvents<T extends Block<any>>(block: T, events: Partial<T['events']>) {
+export function useBlockEvents<T extends BaseBlock<unknown>>(
+  block: T,
+  events: Partial<T['events']>,
+) {
   let off: () => void
   onBeforeMount(() => {
     off = block.listenEvents(events)
@@ -25,7 +31,7 @@ export function useBlockEvents<T extends Block<any>>(block: T, events: Partial<T
   })
 }
 
-export function useBlockMethods<T extends CreatedBlock<any>>(
+export function useBlockMethods<T extends CreatedBlock<unknown>>(
   block: T,
   methods: Partial<T['methods']>,
 ) {

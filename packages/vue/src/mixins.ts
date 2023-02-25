@@ -1,6 +1,6 @@
-import type { Block, CreatedBlock } from '@rallie/block'
+import type { BaseBlock, CreatedBlock } from '@rallie/block'
 
-export function mixinBlockState<T extends Block<any>, U>(
+export function mixinBlockState<T extends BaseBlock<unknown>, U>(
   block: T,
   mapStateToComputed: (state: T['state']) => U,
 ) {
@@ -38,7 +38,10 @@ export function mixinBlockState<T extends Block<any>, U>(
   }
 }
 
-export function mixinBlockEvents<T extends Block<any>>(block: T, events: Partial<T['events']>) {
+export function mixinBlockEvents<T extends BaseBlock<unknown>>(
+  block: T,
+  events: Partial<T['events']>,
+) {
   let offEvents: () => void
   return {
     methods: events,
@@ -60,7 +63,7 @@ export function mixinBlockEvents<T extends Block<any>>(block: T, events: Partial
   }
 }
 
-export function mixinBlockMethods<T extends CreatedBlock<any>>(
+export function mixinBlockMethods<T extends CreatedBlock<unknown>>(
   block: T,
   methods: Partial<T['methods']>,
 ) {
