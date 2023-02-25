@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/ralliejs/rallie/compare/v0.13.2...v0.14.0) (2023-02-25)
+
+### Features
+
+- **@rallie/block:** remove the method `registerBlock` ([92e4ff0](https://github.com/ralliejs/rallie/commit/92e4ff0147e26508dfbe7a59948476111f131e0e))
+
 ## [0.13.2](https://github.com/ralliejs/rallie/compare/v0.13.1...v0.13.2) (2023-02-22)
 
 ### Bug Fixes
