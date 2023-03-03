@@ -68,13 +68,16 @@ export class Socket {
    * @param logger
    */
   public createBroadcaster<T extends Record<string, Function>>(
-    logger?: (eventName: string) => void,
+    logger?: (eventName: string) => any,
   ) {
     return new Proxy<T>({} as any, {
       get: (target, eventName) => {
         return (...args: any[]) => {
-          logger?.(eventName as string)
-          return this.#eventEmitter.emitBroadcast(eventName as string, ...args)
+          return this.#eventEmitter.emitBroadcast(
+            eventName as string,
+            ...args,
+            logger?.(eventName as string),
+          )
         }
       },
       set: () => {
@@ -87,12 +90,15 @@ export class Socket {
    * create a proxy to emit unicast event
    * @param logger
    */
-  public createUnicaster<T extends Record<string, Function>>(logger?: (eventName: string) => void) {
+  public createUnicaster<T extends Record<string, Function>>(logger?: (eventName: string) => any) {
     return new Proxy<T>({} as any, {
       get: (target, eventName) => {
         return (...args: any[]) => {
-          logger?.(eventName as string)
-          return this.#eventEmitter.emitUnicast(eventName as string, ...args)
+          return this.#eventEmitter.emitUnicast(
+            eventName as string,
+            ...args,
+            logger?.(eventName as string),
+          )
         }
       },
       set: () => {

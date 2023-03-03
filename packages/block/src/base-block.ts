@@ -15,11 +15,11 @@ export class BaseBlock<T extends BlockType> {
 
   #socket: Socket
 
-  constructor(name: string, socket: Socket) {
+  constructor(name: string, triggerName: string, socket: Socket) {
     this.name = name
     this.#socket = socket
-    this.events = this.#socket.createBroadcaster()
-    this.methods = this.#socket.createUnicaster()
+    this.events = this.#socket.createBroadcaster(() => triggerName)
+    this.methods = this.#socket.createUnicaster(() => triggerName)
     Reflect.defineProperty(this, 'state', {
       get: () => this.#socket.getState<T['state'], T['state']>(constant.stateNamespace(this.name)),
       set: () => {
@@ -45,6 +45,6 @@ export class BaseBlock<T extends BlockType> {
   }
 
   public listenEvents(events: Partial<T['events']>) {
-    return this.#socket.onBroadcast<Partial<T['events']>>(events)
+    return this.#socket.onBroadcast(events)
   }
 }
