@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.14.1](https://github.com/ralliejs/rallie/compare/v0.14.0...v0.14.1) (2023-03-03)
+
+### Bug Fixes
+
+- **@rallie/block:** method and event listener can get the trigger name by the last argument ([b4de50b](https://github.com/ralliejs/rallie/commit/b4de50babc6a59551ee362fcfd358499b47ecefe))
+
 # [0.14.0](https://github.com/ralliejs/rallie/compare/v0.13.2...v0.14.0) (2023-02-25)
 
 **Note:** Version bump only for package @rallie/core
