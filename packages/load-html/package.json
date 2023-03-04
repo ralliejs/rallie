@@ -1,6 +1,6 @@
 {
   "name": "@rallie/load-html",
-  "version": "0.14.2",
+  "version": "0.15.0",
   "description": "a middleware to load resources from html",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.15.0](https://github.com/ralliejs/rallie/compare/v0.14.2...v0.15.0) (2023-03-04)
+
+### Features
+
+- **@rallie/block:** bind the trigger name of event and methods on the `this` object of the listener ([4957c54](https://github.com/ralliejs/rallie/commit/4957c54c5eefc96a4190089af5dda29db17b52df))
+
 ## [0.14.2](https://github.com/ralliejs/rallie/compare/v0.14.1...v0.14.2) (2023-03-04)
 
 **Note:** Version bump only for package playground
