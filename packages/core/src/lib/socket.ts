@@ -73,11 +73,8 @@ export class Socket {
     return new Proxy<T>({} as any, {
       get: (target, eventName) => {
         return (...args: any[]) => {
-          return this.#eventEmitter.emitBroadcast(
-            eventName as string,
-            ...args,
-            logger?.(eventName as string),
-          )
+          logger?.(eventName as string)
+          return this.#eventEmitter.emitBroadcast(eventName as string, ...args)
         }
       },
       set: () => {
@@ -94,11 +91,8 @@ export class Socket {
     return new Proxy<T>({} as any, {
       get: (target, eventName) => {
         return (...args: any[]) => {
-          return this.#eventEmitter.emitUnicast(
-            eventName as string,
-            ...args,
-            logger?.(eventName as string),
-          )
+          logger?.(eventName as string)
+          return this.#eventEmitter.emitUnicast(eventName as string, ...args)
         }
       },
       set: () => {

@@ -132,7 +132,7 @@ describe('Test utils', () => {
     expect(styles[0].innerHTML.trim()).toEqual('background-color: "green";')
     expect(styles[1].innerHTML.trim()).toEqual('color: "red";')
     const { root: root2 } = utils.parseHtml(html, '#app')
-    expect(root2.innerHTML.trim()).toEqual('app')
+    expect(root2?.innerHTML.trim()).toEqual('app')
 
     console.error = jest.fn()
     const result = utils.parseHtml('<div>xxxx<div>')
