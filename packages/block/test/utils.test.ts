@@ -24,4 +24,38 @@ describe('Test errors and warnings', () => {
       }
     }).toThrowError(errors.stateIsReadonly('case2'))
   })
+
+  test('#case3: trigger', () => {
+    let normalFuncMethodTrigger = ''
+    let normalFuncEventTrigger = ''
+    type BlockType = {
+      methods: {
+        normalFunc: () => void
+      }
+      events: {
+        normalFunc: () => void
+      }
+    }
+    const block = createBlock<BlockType>('case3')
+    block.addMethods({
+      normalFunc(this: { trigger: string }) {
+        normalFuncMethodTrigger = this.trigger
+      },
+    })
+    block.listenEvents({
+      normalFunc(this: { trigger: string }) {
+        normalFuncEventTrigger = this.trigger
+      },
+    })
+    const tester = createBlock('tester')
+    const connectedBlock = tester.connect<BlockType>(block.name)
+    connectedBlock.methods.normalFunc()
+    expect(normalFuncMethodTrigger).toEqual('tester')
+    connectedBlock.events.normalFunc()
+    expect(normalFuncEventTrigger).toEqual('tester')
+    block.methods.normalFunc()
+    expect(normalFuncMethodTrigger).toEqual('case3')
+    block.events.normalFunc()
+    expect(normalFuncEventTrigger).toEqual('case3')
+  })
 })

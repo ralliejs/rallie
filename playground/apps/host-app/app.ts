@@ -5,7 +5,8 @@ import { hostApp } from './block'
 import { NButton, create } from 'naive-ui'
 
 hostApp.addMethods({
-  useNaiveUI: () => {
+  useNaiveUI(this: { trigger: string }) {
+    console.log(this.trigger)
     const naive = create({
       components: [NButton],
     })

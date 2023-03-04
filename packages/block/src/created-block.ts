@@ -1,5 +1,5 @@
 import { Bus, Socket, MiddlewareFnType, ConfType, touchBus, App } from '@rallie/core'
-import { constant } from './utils'
+import { constant, enhancedEventsListener } from './utils'
 import { BaseBlock, type BlockType } from './base-block'
 
 export interface Env {
@@ -22,7 +22,7 @@ export class CreatedBlock<T extends BlockType> extends BaseBlock<T> {
   constructor(name: string, globalBus: Bus, globalSocket: Socket, isEntry: boolean) {
     const [bus] = touchBus(constant.privateBus(name))
     const socket = bus.createSocket()
-    super(name, socket)
+    super(name, name, socket)
     this.#socket = socket
     this.#globalBus = globalBus
     this.#globalSocket = globalSocket
@@ -36,7 +36,7 @@ export class CreatedBlock<T extends BlockType> extends BaseBlock<T> {
   }
 
   public addMethods(methods: Partial<T['methods']>) {
-    return this.#socket.onUnicast(methods)
+    return this.#socket.onUnicast(enhancedEventsListener(methods))
   }
 
   public relyOn(dependencies: string[]) {
@@ -58,7 +58,7 @@ export class CreatedBlock<T extends BlockType> extends BaseBlock<T> {
     if (!this.#connectedBlocks[name]) {
       const [bus] = touchBus(constant.privateBus(name))
       const socket = bus.createSocket()
-      this.#connectedBlocks[name] = new BaseBlock<P>(name, socket)
+      this.#connectedBlocks[name] = new BaseBlock<P>(name, this.name, socket)
     }
     return this.#connectedBlocks[name] as BaseBlock<P>
   }

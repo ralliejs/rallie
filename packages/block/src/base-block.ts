@@ -1,10 +1,10 @@
 import type { Socket } from '@rallie/core'
-import { constant, errors } from './utils'
+import { constant, errors, enhancedEventsTrigger, enhancedEventsListener } from './utils'
 
 export type BlockType = {
   state?: Record<string, unknown>
-  events?: Record<string, Function>
-  methods?: Record<string, Function>
+  events?: Record<string, (this: { trigger: string }, ...args: any[]) => any>
+  methods?: Record<string, (this: { trigger: string }, ...args: any[]) => any>
 }
 
 export class BaseBlock<T extends BlockType> {
@@ -15,11 +15,13 @@ export class BaseBlock<T extends BlockType> {
 
   #socket: Socket
 
-  constructor(name: string, socket: Socket) {
+  constructor(name: string, triggerName: string, socket: Socket) {
     this.name = name
     this.#socket = socket
-    this.events = this.#socket.createBroadcaster()
-    this.methods = this.#socket.createUnicaster()
+    const broadcaster = this.#socket.createBroadcaster()
+    const unicaster = this.#socket.createUnicaster()
+    this.events = enhancedEventsTrigger(broadcaster, triggerName) as T['events']
+    this.methods = enhancedEventsTrigger(unicaster, triggerName) as T['methods']
     Reflect.defineProperty(this, 'state', {
       get: () => this.#socket.getState<T['state'], T['state']>(constant.stateNamespace(this.name)),
       set: () => {
@@ -45,6 +47,6 @@ export class BaseBlock<T extends BlockType> {
   }
 
   public listenEvents(events: Partial<T['events']>) {
-    return this.#socket.onBroadcast(events)
+    return this.#socket.onBroadcast(enhancedEventsListener(events))
   }
 }
