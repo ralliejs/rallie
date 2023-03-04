@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.14.2](https://github.com/ralliejs/rallie/compare/v0.14.1...v0.14.2) (2023-03-04)
+
+### Bug Fixes
+
+- **@rallie/block:** remove the ability to get the trigger of event or methods ([718ff08](https://github.com/ralliejs/rallie/commit/718ff08ff42506f89b07d58f267c90d20ab67a4a))
+
 ## [0.14.1](https://github.com/ralliejs/rallie/compare/v0.14.0...v0.14.1) (2023-03-03)
 
 ### Bug Fixes
