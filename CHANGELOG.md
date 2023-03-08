@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.16.0](https://github.com/ralliejs/rallie/compare/v0.15.1...v0.16.0) (2023-03-08)
+
+### Features
+
+- **@rallie/load-html:** add the config `filter` to filter the element you do not want ([bbe5b18](https://github.com/ralliejs/rallie/commit/bbe5b186625e2dee636e958829c48e295e6c4fca))
+
 ## [0.15.1](https://github.com/ralliejs/rallie/compare/v0.15.0...v0.15.1) (2023-03-07)
 
 **Note:** Version bump only for package ralliejs
