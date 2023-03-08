@@ -57,6 +57,7 @@ export const parseHtml = (
   html: string,
   rootSelector?: string,
   transferPath?: (src: string) => string,
+  filter: (element: HTMLElement) => boolean = () => true,
 ): {
   root?: HTMLElement
   scripts: Array<HTMLScriptElement>
@@ -66,6 +67,7 @@ export const parseHtml = (
   const fragment = document.createElement('html')
   fragment.innerHTML = html
   const scripts = Array.from(fragment.querySelectorAll('script'))
+    .filter(filter)
     .map((element) => cloneElement<HTMLScriptElement>(element))
     .map((element) => {
       const src = element.getAttribute('src')
@@ -75,6 +77,7 @@ export const parseHtml = (
       return element
     })
   const links = Array.from(fragment.querySelectorAll('link'))
+    .filter(filter)
     .map((element) => cloneElement<HTMLLinkElement>(element))
     .map((element) => {
       const href = element.getAttribute('href')
@@ -83,9 +86,9 @@ export const parseHtml = (
       }
       return element
     })
-  const styles = Array.from(fragment.querySelectorAll('style')).map((element) =>
-    cloneElement<HTMLStyleElement>(element),
-  )
+  const styles = Array.from(fragment.querySelectorAll('style'))
+    .filter(filter)
+    .map((element) => cloneElement<HTMLStyleElement>(element))
   return {
     root: rootSelector ? fragment.querySelector(rootSelector) : null,
     scripts,

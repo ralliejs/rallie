@@ -45,8 +45,34 @@ nock('https://cdn.rallie.com/test')
   .reply(200, "console.log('remote.js loaded')") // eslint-disable-line
   .get('/another-remote.js')
   .reply(200, "console.log('another remote.js loaded')") // eslint-disable-line
+  .get('/case3.html')
+  .reply(
+    200,
+    `
+    <html>
+      <head>
+        <link href="/case3.css"></link>
+        <style></style>
+      </head>
+      <body>
+        <script id="script1">
+          window.RALLIE_BUS_STORE.case3.createApp('case3').onActivate(() => { console.log('script1 loaded') })
+        </script>
+        <script id="sciprt2">console.log('script2 loaded')</script>
+      </body>
+    </html>
+  `,
+  )
 
 describe('Test the load-html middleware', () => {
+  afterEach(() => {
+    if (document.head) {
+      document.head.innerHTML = ''
+    }
+    if (document.body) {
+      document.body.innerHTML = ''
+    }
+  })
   test('#case1: test load-html middleware with entries', async () => {
     const bus = createBus('case1')
     bus.use(
@@ -87,5 +113,29 @@ describe('Test the load-html middleware', () => {
     expect(console.log).toHaveBeenCalledWith('another remote.js loaded')
     expect(console.log).toHaveBeenCalledWith('case2 app is created')
     expect(root.innerHTML.trim()).toEqual('case2 root')
+  })
+
+  test('#case3: test filter', async () => {
+    const bus = createBus('case3')
+    bus.use(
+      loadHtml({
+        entries: {
+          case3: 'https://cdn.rallie.com/test/case3.html',
+        },
+        filter: (element) => {
+          if (element.tagName.toLowerCase() === 'script') {
+            return element.id === 'script1'
+          }
+          return false
+        },
+      }),
+    )
+    console.log = jest.fn()
+    await bus.activateApp('case3')
+    expect(console.log).toHaveBeenCalledTimes(1)
+    expect(console.log).toHaveBeenCalledWith('script1 loaded')
+    expect(document.getElementsByTagName('link').length).toEqual(0)
+    expect(document.getElementsByTagName('style').length).toEqual(0)
+    expect(document.getElementsByTagName('script').length).toEqual(1)
   })
 })

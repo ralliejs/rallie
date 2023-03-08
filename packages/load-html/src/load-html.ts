@@ -5,20 +5,27 @@ export type Config = {
   regardHtmlPathAsRoot?: boolean
   fetch?: typeof window.fetch
   entries?: Record<string, string>
+  filter?: (element: HTMLElement) => boolean
 }
 
 export const loadHtml =
   (config: Config = {}): MiddlewareFnType =>
   async (ctx, next) => {
     const fetch = config.fetch ?? window.fetch
+    const filter = config.filter
     ctx.loadHtml = async (url: string): Promise<boolean> => {
-      const regardHtmlPathAsRoot = ctx.regardHtmlPathAsRoot ?? config.regardHtmlPathAsRoot ?? false
+      const regardHtmlPathAsRoot = config.regardHtmlPathAsRoot ?? false
       const res = await fetch(url)
       const html = await res.text()
       const [basePath, rootSelector] = parseHtmlPath(url)
-      const { root, scripts, links, styles } = parseHtml(html, rootSelector, (src) => {
-        return getEntirePath(src, basePath, regardHtmlPathAsRoot)
-      })
+      const { root, scripts, links, styles } = parseHtml(
+        html,
+        rootSelector,
+        (src) => {
+          return getEntirePath(src, basePath, regardHtmlPathAsRoot)
+        },
+        filter,
+      )
       for (const style of styles) {
         document.head.appendChild(style)
       }
