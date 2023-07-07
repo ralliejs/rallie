@@ -13,9 +13,9 @@
     "@rallie/load-html": "workspace:*",
     "@rallie/react": "workspace:*",
     "@rallie/vue": "workspace:*",
-    "naive-ui": "^2.21.1",
+    "naive-ui": "^2.34.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "vue": "^3.2.45"
+    "vue": "^3.3.4"
   }
 }

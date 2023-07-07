@@ -14,7 +14,7 @@
     "dist"
   ],
   "dependencies": {
-    "@vue/reactivity": "^3.2.45"
+    "@vue/reactivity": "^3.3.4"
   },
   "repository": {
     "type": "git",
