@@ -1,21 +1,31 @@
 import React from 'react'
 import type { BaseBlock, CreatedBlock } from '@rallie/block'
 
+const useForceUpdate = () => {
+  const [, setState] = React.useState({})
+  const forceUpdate = React.useCallback(() => {
+    setState({})
+  }, [])
+  return forceUpdate
+}
+
 export function useBlockState<T extends BaseBlock<unknown>, U>(
   block: T,
   getter: (state: T['state']) => U,
   deps: any[] = [],
 ) {
-  const [value, setValue] = React.useState<U>(() => getter(block.state))
+  const forceUpdate = useForceUpdate()
+  const valueRef = React.useRef<U>(getter(block.state))
   React.useEffect(() => {
     const unwatch = block.watchState(getter).do((val) => {
-      setValue(() => val)
+      valueRef.current = val
+      forceUpdate()
     })
     return () => {
       unwatch()
     }
-  }, [...deps]) // eslint-disable-line react-hooks/exhaustive-deps
-  return value
+  }, [forceUpdate, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
+  return valueRef.current
 }
 
 export function useBlockEvents<T extends BaseBlock<unknown>>(

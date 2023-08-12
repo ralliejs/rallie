@@ -34,8 +34,8 @@
     "url": "https://github.com/ralliejs/rallie/issues"
   },
   "peerDependencies": {
-    "@rallie/block": "^0.6.0",
-    "vue": ">=2.0.0"
+    "@rallie/block": ">=0.16.0",
+    "vue": ">=2.7.0"
   },
   "devDependencies": {
     "@rallie/block": "workspace:*"

@@ -22,7 +22,7 @@
     "url": "https://github.com/ralliejs/rallie/issues"
   },
   "peerDependencies": {
-    "@rallie/block": "^0.6.0",
+    "@rallie/block": ">=0.16.0",
     "react": ">=16.8.0"
   },
   "devDependencies": {
