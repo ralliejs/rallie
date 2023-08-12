@@ -1,6 +1,6 @@
 {
   "name": "@rallie/core",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "description": "a  progressive micro front framework",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.16.1](https://github.com/ralliejs/rallie/compare/v0.16.0...v0.16.1) (2023-08-12)
+
+**Note:** Version bump only for package playground
+
 # [0.16.0](https://github.com/ralliejs/rallie/compare/v0.15.1...v0.16.0) (2023-03-08)
 
 **Note:** Version bump only for package playground
