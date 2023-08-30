@@ -22,11 +22,13 @@ export type BlockService = {
 export const block = createBlock<BlockService>('block')
 
 export const Component = () => {
-  const [count, locale, funcState] = useBlockState(block, (state) => [
+  const [stateCount, setStateCount] = React.useState(0)
+  const [blockCount, locale, funcState] = useBlockState(block, (state) => [
     state.count,
     state.locale,
     state.funcState,
   ])
+  const sumCount = useBlockState(block, (state) => state.count + stateCount, [stateCount])
   useBlockEvents(block, {
     incrementCount() {
       block.setState('increment count', (state) => {
@@ -38,10 +40,10 @@ export const Component = () => {
     block,
     {
       printCount() {
-        console.log(count)
+        console.log(blockCount)
       },
     },
-    [count],
+    [blockCount],
   )
   useBlockMethods(block, {
     async switchLocale() {
@@ -54,7 +56,13 @@ export const Component = () => {
   return (
     <div>
       <div>
-        <span>count: {count}</span>
+        <span>block count: {blockCount}</span>
+      </div>
+      <div>
+        <span>state count: {stateCount}</span>
+      </div>
+      <div>
+        <span>sum count: {sumCount}</span>
       </div>
       <div>
         <span>locale: {locale}</span>
@@ -63,8 +71,9 @@ export const Component = () => {
         <button onClick={typeof funcState === 'function' ? funcState : () => {}}>
           trigger funcState
         </button>
-        <button onClick={block.events.incrementCount}>increment count</button>
-        <button onClick={block.events.printCount}>print count</button>
+        <button onClick={block.events.incrementCount}>increment block count</button>
+        <button onClick={() => setStateCount((val) => val + 1)}>increment state count</button>
+        <button onClick={block.events.printCount}>print block count</button>
         <button onClick={block.methods.switchLocale}>switch locale</button>
       </div>
     </div>

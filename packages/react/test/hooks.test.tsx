@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React from 'react'
 import { block, Component, type BlockService } from './blocks'
 import { render, fireEvent, act, screen, cleanup } from '@testing-library/react'
@@ -45,9 +46,9 @@ describe('Test React hooks', () => {
   })
 
   test('#case1: test normal state', async () => {
-    const count = await screen.findByText(/count:/)
+    const blockCount = await screen.findByText(/block count:/)
     const locale = await screen.findByText(/locale:/)
-    expect(count.innerHTML).toEqual('count: 0')
+    expect(blockCount.innerHTML).toEqual('block count: 0')
     expect(locale.innerHTML).toEqual('locale: en')
   })
 
@@ -61,11 +62,22 @@ describe('Test React hooks', () => {
     expect(console.log).toBeCalledWith('trigger funcState')
   })
 
+  test('#case3: test computed state', async () => {
+    const sumCount = await screen.findByText(/sum count:/)
+    const incrementCountBtn = await screen.findByText('increment state count')
+    expect(sumCount.innerHTML).toEqual('sum count: 0')
+    await act(async () => {
+      fireEvent.click(incrementCountBtn)
+    })
+    expect(sumCount.innerHTML).toEqual('sum count: 1')
+  })
+
   test('#case3: test event', async () => {
     console.log = jest.fn()
-    const printCountBtn = await screen.findByText('print count')
-    const incrementCountBtn = await screen.findByText('increment count')
-    const count = await screen.findByText(/count:/)
+    const printCountBtn = await screen.findByText('print block count')
+    const incrementCountBtn = await screen.findByText('increment block count')
+    const blockCount = await screen.findByText(/block count:/)
+    const sumCount = await screen.findByText(/sum count:/)
     await act(async () => {
       fireEvent.click(incrementCountBtn)
     })
@@ -78,7 +90,8 @@ describe('Test React hooks', () => {
     await act(async () => {
       fireEvent.click(printCountBtn)
     })
-    expect(count.innerHTML).toEqual('count: 2')
+    expect(blockCount.innerHTML).toEqual('block count: 2')
+    expect(sumCount.innerHTML).toEqual('sum count: 2')
     expect(console.log).toBeCalledTimes(2)
     expect(console.log).toBeCalledWith(1)
     expect(console.log).toBeCalledWith(2)
