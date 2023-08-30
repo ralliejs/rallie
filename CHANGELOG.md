@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.16.2](https://github.com/ralliejs/rallie/compare/v0.16.1...v0.16.2) (2023-08-30)
+
+### Bug Fixes
+
+- **@rallie/react:** fix the bug that the state doesn't update when the dependencies change ([828243a](https://github.com/ralliejs/rallie/commit/828243a733ac0d6d1ce9a48561b7d0a7a6c955eb)), closes [#47](https://github.com/ralliejs/rallie/issues/47)
+
 ## [0.16.1](https://github.com/ralliejs/rallie/compare/v0.16.0...v0.16.1) (2023-08-12)
 
 **Note:** Version bump only for package ralliejs
