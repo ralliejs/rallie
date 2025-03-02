@@ -39,10 +39,8 @@ export function useBlockState<T extends BaseBlock<unknown>, U>(
     unwatchFnRef.current = block
       .watchState((state) => {
         valueRef.current = getter(state)
-        return valueRef.current
       })
-      .do((val) => {
-        valueRef.current = val
+      .do(() => {
         forceUpdate()
       })
   })

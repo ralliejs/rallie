@@ -59,33 +59,31 @@ export class Bus {
     }
   }
 
-  async #innerActivateApp(name: string, visitPath: string[]) {
+  async #innerActivateApp(name: string, visitedPath: string[]) {
     await this.loadApp(name)
     if (this.#isRallieCoreApp(name)) {
       const app = this.#apps[name] as App
       await this.#loadRelatedApps(app)
-      if (visitPath.includes(name)) {
-        const startIndex = visitPath.indexOf(name)
-        const circularPath = [...visitPath.slice(startIndex), name]
+      const startIndex = visitedPath.indexOf(name)
+      if (startIndex !== -1) {
+        const circularPath = [...visitedPath.slice(startIndex), name]
         throw new Error(Errors.circularDependencies(name, circularPath))
       }
-      visitPath.push(name)
       if (!app.activated) {
         const activating = async () => {
-          await this.#activateDependencies(app, visitPath)
+          await this.#activateDependencies(app, [...visitedPath, name])
           app.doActivate && (await Promise.resolve(app.doActivate()))
         }
         app.activated = activating()
       }
       await app.activated
-      visitPath.pop()
     }
   }
 
-  async #activateDependencies(app: App, visitPath: string[]) {
+  async #activateDependencies(app: App, visitedPath: string[]) {
     if (app.dependencies.length !== 0) {
       for (const appName of app.dependencies) {
-        await this.#innerActivateApp(appName, visitPath)
+        await this.#innerActivateApp(appName, visitedPath)
       }
     }
   }
@@ -181,6 +179,7 @@ export const createBus = (name: string = DEFAULT_BUS_NAME) => {
     Reflect.defineProperty(window.RALLIE_BUS_STORE, name, {
       value: bus,
       writable: false,
+      configurable: false,
     })
     return bus
   }
